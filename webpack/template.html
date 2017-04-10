@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="React">
+    <meta name="apple-mobile-web-app-title" content="React">
+    <meta name="theme-color" content="#0080FF">
+    <meta name="msapplication-navbutton-color" content="#0080FF">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="msapplication-starturl" content="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon.png">
+    <link rel="apple-touch-icon" type="image/png" sizes="192x192" href="icon.png">
+    <style type="text/css">
+      body {
+        background: white;
+        color: #636363;
+        font-family: Osaka, CONSOLAS, monospace, sans-serif;
+        margin: 0; padding: 0;
+      }
+      input[type=date], input[type=text] {
+        display: block;
+        height: 42px;
+        width: 300px;
+        margin: 1ex 20px;
+        padding: 0 12px;
+        border-radius: 3px;
+        border: 1px solid lightgrey;
+        outline: none;
+        font-size: 1.5em;
+      }
+      select {
+        display: block;
+        height: 42px;
+        width: 300px;
+        margin: 1ex 20px;
+        padding: 0 12px;
+        border-radius: 3px;
+        border: 1px solid lightgrey;
+        font-size: 1.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <a href="http://enable-javascript.com/">Javascript must me enabled to use this site.</a>
+    </noscript>
+    <react />
+    <script src="https://unpkg.com/react@15/dist/react.min.js"></script>
+    <script src="https://unpkg.com/react-dom@15/dist/react-dom.min.js"></script>
+    <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=fetch"></script>
+
+    <!-- Prelude -->
+    <script src="http://www.preludels.com/prelude-browser-min.js"></script>
+    <!-- <script src="https://npmcdn.com/prelude-extension@0.0.11/dist/index.min.js"></script> -->
+
+    <!-- Web Client -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.8.1/nv.d3.min.js"></script> -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.21.0/ramda.min.js"></script>
+
+  </body>
+</html>

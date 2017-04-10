@@ -1,0 +1,25 @@
+[ignore]
+./node_modules/redux
+.*/styled-components/src/.*
+
+
+[libs]
+flow-typed
+./flow-typed/npm/redux.flow
+./flow-typed/npm/react-router.flow
+./flow-typed/npm/react-redux.flow
+./flow-typed/npm/redux-thunk.flow
+./flow-typed/npm/lodash.flow
+./flow-typed/my-types.flow
+
+node_modules/styled-components/flow-typed/react-native.js
+node_modules/styled-components/flow-typed/react-native.js
+node_modules/styled-components/flow-typed/glamor_vx.x.x.js
+node_modules/styled-components/flow-typed/lodash_v4.x.x.js
+node_modules/styled-components/flow-typed/danger_v0.x.x.js
+
+[include]
+# ./node_modules/styled-components/.*
+
+[options]
+esproposal.export_star_as=enable
