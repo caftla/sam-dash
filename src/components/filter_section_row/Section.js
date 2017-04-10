@@ -12,10 +12,10 @@ const change_sign = (change) => {
   return sign.substr(0, 4)
 }
 
-const Section = ({data} : { data : any }) => <TABLE width={930}>
+const Section = ({data} : { data : any }) => <TABLE width={1020}>
   <thead>
     <tr>
-      <TH width={60} style={{ paddingLeft: '0.7em' }} />
+      <TH width={150} style={{ paddingLeft: '0.7em' }} />
       <TH width={150} />
       <TH width={90} value="Views" />
       <TH width={90} value="Share%" />
@@ -29,7 +29,7 @@ const Section = ({data} : { data : any }) => <TABLE width={930}>
   </thead>
   <tbody>{
     data.data.map((x, i) => <tr key={i}>
-      <TD width={60}  value={x.section} style={{ paddingLeft: '0.7em' }}  />
+      <TD width={150}  value={x.section} style={{ paddingLeft: '0.7em' }}  />
       <TD width={150} value={x.row} />
       <TD width='90'  value={d3.format(',')(+x.views) + change_sign(+x.views_change)} />
       <TD width={90}  value={d3.format('0.0f')(100 * +x.section_sales_ratio)} />
@@ -42,7 +42,7 @@ const Section = ({data} : { data : any }) => <TABLE width={930}>
     </tr>)
   }
     <tr>
-      <TD width={60}  value={data.section} style={{ paddingLeft: '0.7em' }}  />
+      <TD width={150}  value={data.section} style={{ paddingLeft: '0.7em' }}  />
       <TD width={150} value="" />
       <TD width='90'  style={ { fontWeight: 'bold' } } value={d3.format(',')(+data.views) + change_sign(+data.views_change)} />
       <TD width={90}  value="" />

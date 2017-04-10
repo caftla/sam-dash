@@ -1,25 +1,41 @@
 import React from 'react'
 import { connect } from 'react-redux'
+import { ThemeProvider } from 'styled-components'
 
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
-import { fetch_filter_section_row, cleanup_fetch_filter_section_row } from '../../actions'
+import { fetch_filter_section_row, cleanup_fetch_filter_section_row, set_params } from '../../actions'
 import type { QueryParams } from 'my-types'
 
 import Section from './Section'
+import Controls from './Controls'
+
+const theme = {
+    flexDirection: 'row'
+  , elementHeight: '22px'
+  , elementWidth: '200px'
+  , fontSize: '1em'
+  , formContainerMargin: '0'
+  , formTitleFontSize: '1em'
+  , flexAlignItems: 'flex-start'
+  , submitAlignSelf: 'flex-end'
+}
 
 type Props = {
     data: Maybe<any>
   , params: QueryParams
   , fetch_filter_section_row: (params: QueryParams) => void
   , cleanup_fetch_filter_section_row: () => void
+  , set_params: (params: QueryParams) => void
 }
 
-
+// This is a route
 class Filter_Section_Row extends React.Component {
-  constructor(props) {
+  constructor(props : Props) {
     super(props)
+    const {params} = this.props.match
+    this.props.set_params(params)
   }
 
   componentWillUnmount() {
@@ -28,8 +44,15 @@ class Filter_Section_Row extends React.Component {
   render() {
     const {params} = this.props.match
     return <div>
-      <h1>{params.date_from} to {params.date_to} {params.filter}</h1>
-      <h1>{params.section} &times; {params.row}</h1>
+      <ThemeProvider theme={theme}>
+        <Controls params={ params }
+          set_params={ params => {
+            this.props.set_params(params)
+            this.props.cleanup_fetch_filter_section_row()
+            this.props.history.push(`/filter_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.section}/${params.row}`)
+          } }
+        />
+      </ThemeProvider>
       {
         maybe.maybe(
             _ => {
@@ -50,14 +73,7 @@ class Filter_Section_Row extends React.Component {
   }
 }
 
-
-const Comp = ({data} : { data : Maybe<Array<any>> }) => {
-
-  console.log('Filter_Section_Row', data)
-  return <div>Filter_Section_Row</div>
-}
-
 export default connect(
     state => ({ data: state.filter_section_row })
-  , { fetch_filter_section_row, cleanup_fetch_filter_section_row }
+  , { fetch_filter_section_row, cleanup_fetch_filter_section_row, set_params }
 )(Filter_Section_Row)

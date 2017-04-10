@@ -1,5 +1,7 @@
 // @flow
 
+// not used in SAM Dash project, kept here ofor reference temporarily
+
 import React from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router-dom'
