@@ -47,6 +47,9 @@ module.exports = {
       title: 'SAM Dashboard',
       template: '../webpack/template.html',
     }),
+    new webpack.DefinePlugin({
+      'process.env.api_root': JSON.stringify(process.env.api_root || 'http://127.0.0.1:3081')
+    })
   ],
   performance: { hints: false },
 }

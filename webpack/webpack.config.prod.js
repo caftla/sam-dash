@@ -36,6 +36,7 @@ module.exports = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
+        api_root: JSON.stringify(process.env.api_root || '')
       },
     }),
     new webpack.optimize.UglifyJsPlugin(),
@@ -45,13 +46,13 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       title: 'SAM Dashboard',
-      template: 'webpack/template.html',
+      template: 'webpack/template.html'
     }),
-    new OfflinePlugin({
-      ServiceWorker: {
-        navigateFallbackURL: '/',
-      },
-      AppCache: false,
-    }),
+    // new OfflinePlugin({
+    //   ServiceWorker: {
+    //     navigateFallbackURL: '/',
+    //   },
+    //   AppCache: false,
+    // })
   ],
 }

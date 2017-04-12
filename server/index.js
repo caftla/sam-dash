@@ -8,7 +8,6 @@ const R = require('ramda')
 const respond = (sql, params, res, map = x => x) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set('Content-Type', 'text/json')
-  console.log(sql)
   query(sql, params)
   .then(x => res.end(JSON.stringify(map(x.rows))))
   .catch(x => {
@@ -25,6 +24,8 @@ app.get('/api/query', (req, res) => {
 app.get('/api/countries', (req, res) => {
   respond(`select distinct(code) as country from ss_locations order by code`, {}, res, xs => xs.map(x => x.country))
 })
+
+app.use(express.static('dist'))
 
 const filter_to_pipe_syntax = x => x == '-' ? '' : R.pipe(
     R.split(',')
@@ -44,4 +45,18 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
   )
 })
 
-app.listen(3081);
+app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
+  res.set('Access-Control-Allow-Origin', '*')
+  res.set('Content-Type', 'text/json')
+  return res.end(fs.readFileSync('./server/sql-templates/all_countries/result.json', 'utf8'))
+  respond(
+      fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
+    , req.params
+    , res
+    , x => x
+  )
+})
+
+app.use('/*', express.static('dist'))
+
+app.listen(process.env.PORT || 3081);

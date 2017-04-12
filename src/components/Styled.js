@@ -9,7 +9,8 @@ export const Body = styled.div`
   padding: 0;
   color: #636363;
   font-family: Osaka, CONSOLAS, monospace, sans-serif;
-  margin: 0; padding: 0;
+  margin: 0;
+  padding: 0;
 `
 
 export const Title = styled.h1`
@@ -21,10 +22,11 @@ export const FormTitle = styled.h1`
   font-weight: 100;
   font-size: ${props => props.theme.formTitleFontSize || '2em'};
   margin-bottom: 2ex;
+  width: 100%;
 `
 
 export const FormContainer = styled.div`
-  max-width: 800px;
+  max-width: ${props => props.theme.flexDirection == 'row' ? '100%' : '800px'};
   margin: ${props => props.theme.formContainerMargin || '10vh auto'};
   display: flex;
   flex-direction: ${props => props.theme.flexDirection || 'column'};
@@ -64,8 +66,16 @@ export const Submit = styled.button`
 `
 
 export const FormSection = styled.div`
-  width: 100%;
+  width: ${props => props.theme.formSectionWidth || '100%'};
 `
+
+export const FilterFormSection = styled(FormSection)`
+  width: ${props => props.theme.filterFormSectionWidth || '100%'};
+  min-width: ${props => props.theme.filterFormSectionWidth || 'initial'};
+  display: ${props => props.theme.filterFormSectionDisplay || 'block'};
+  flex-wrap: wrap;
+`
+
 
 export const FormRow = styled.div`
   display: flex;
@@ -74,6 +84,10 @@ export const FormRow = styled.div`
 `
 export const FormLabel = styled.label`
   font-size: ${props => props.theme.fontSize || '1.5em'};
+  width: ${props => props.theme.formLabelWidth || 'auto'};
+  min-width: ${props => props.theme.formLabelWidth || 'initial'};
+  max-width: ${props => props.theme.formLabelWidth || 'initial'};
+  text-align: ${props => props.theme.formLabelTextAlign || 'inherit'};
 `
 export const DashboardLoading = styled.div`
   font-size: 3em;

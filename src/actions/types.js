@@ -9,6 +9,7 @@ export type Action =
   | { type: 'cleanup_fetch_filter_section_row' }
   // ---
   | { type: 'fetch_filter_section_row_success', payload: Array<any> }
+  | { type: 'fetch_all_countries_success', payload: Array<any> }
 
 export type Dispatch = (Action) => void; // (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;
