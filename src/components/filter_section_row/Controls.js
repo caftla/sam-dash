@@ -101,7 +101,8 @@ export default class Controls extends React.Component {
           , R.map(R.join('='))
           , R.join(',')
           , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affilaite_name", "handle_name"])
+        )(["country_code", "operator_code", "affiliate_name", "handle_name"])
+        console.log('click', this.state, filter)
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to

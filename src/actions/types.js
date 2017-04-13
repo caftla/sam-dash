@@ -11,7 +11,7 @@ export type Action =
   | { type: 'fetch_filter_section_row_success', payload: Array<any> }
   | { type: 'fetch_all_countries_loading' }
   | { type: 'fetch_all_countries_success', payload: Array<any> }
-  | { type: 'fetch_all_countries_loading'}
+  | { type: 'fetch_filter_section_row_loading'}
 
 export type Dispatch = (Action) => void; // (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;

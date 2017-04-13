@@ -41,16 +41,13 @@ type Props = {
 class Filter_Section_Row extends React.Component {
   constructor(props : Props) {
     super(props)
-    console.log('Filter_Section_Row props', this.props)
-    const {params} = this.props.match
-    this.props.set_params(params)
-    if(this.props.data == 'Nothing') {
-      this.props.fetch_filter_section_row(params.date_from, params.date_to, params.filter, params.section, params.row)
-    }
   }
 
   componentWillUpdate(nextProps, b) {
-
+    const {params} = nextProps.match
+    if(nextProps.data == 'Nothing') {
+      nextProps.fetch_filter_section_row(params.date_from, params.date_to, params.filter, params.section, params.row)
+    }
   }
 
   componentWillUnmount() {

@@ -21,8 +21,10 @@ export const query = (params: QueryParams) => (dispatch: Dispatch) => {
 export const cleanup_fetch_filter_section_row = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_filter_section_row' })
 
-export const set_params = (value: QueryParams) => (dispatch: Dispatch) =>
+export const set_params = (value: QueryParams) => (dispatch: Dispatch) => {
   dispatch({ type: `SET_Params`, payload: value })
+  // fetch_filter_section_row(value.date_from, value.date_to, value.filter, value.section, value.row)(dispatch)
+}
 
 
 // ---
@@ -37,7 +39,7 @@ export const fetch_all_countries = (date_from : string, date_to : string) => (di
 
 
 export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) => {
-  dispatch({ type: 'fetch_all_countries_loading' })
+  dispatch({ type: 'fetch_filter_section_row_loading' })
   get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`})
   .then(d => dispatch({ type: 'fetch_filter_section_row_success', payload: d }))
 }
