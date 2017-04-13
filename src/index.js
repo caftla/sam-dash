@@ -23,8 +23,8 @@ import { Body } from './components/Styled'
 
 Offline.install()
 
-export const Root = () => (
-  <Provider store={store}>
+export const Root = () => {
+  return <Provider store={store}>
     <ConnectedRouter history={history}>
       <Body>
         <Route exact path="/" component={Home} />
@@ -33,6 +33,6 @@ export const Root = () => (
       </Body>
     </ConnectedRouter>
   </Provider>
-)
+}
 
 if (!module.hot) render(<Root />, document.querySelector('react'))

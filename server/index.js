@@ -8,6 +8,7 @@ const R = require('ramda')
 const respond = (sql, params, res, map = x => x) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set('Content-Type', 'text/json')
+  res.set('Cache-Control', 'public, max-age=7200')
   query(sql, params)
   .then(x => res.end(JSON.stringify(map(x.rows))))
   .catch(x => {
@@ -48,6 +49,7 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set('Content-Type', 'text/json')
+  res.set('Cache-Control', 'public, max-age=7200')
   return res.end(fs.readFileSync('./server/sql-templates/all_countries/result.json', 'utf8'))
   respond(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
