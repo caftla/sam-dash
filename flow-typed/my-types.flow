@@ -14,6 +14,8 @@ declare module 'my-types' {
 
   declare type QueryLoadingState = 'Loading' | 'Loaded' | 'Error'
 
+  declare type FetchState<T> = 'Nothing' | 'Loading' | T
+
   declare type DashboardQuery = {
       queryLoadingState : QueryLoadingState
     , queryResult : any

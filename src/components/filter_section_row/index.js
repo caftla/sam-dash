@@ -6,7 +6,7 @@ import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import { fetch_all_countries, fetch_filter_section_row, cleanup_fetch_filter_section_row, set_params } from '../../actions'
-import type { QueryParams } from 'my-types'
+import type { QueryParams, FetchState } from 'my-types'
 
 import Section from './Section'
 import Controls from './Controls'
@@ -28,7 +28,7 @@ const theme = {
 }
 
 type Props = {
-    data: Maybe<any>
+    data: FetchState<Array<any>>
   , params: QueryParams
   , fetch_filter_section_row: (params: QueryParams) => void
   , fetch_all_countries: (date_from: string, date_to: string) => void
@@ -41,8 +41,16 @@ type Props = {
 class Filter_Section_Row extends React.Component {
   constructor(props : Props) {
     super(props)
+    console.log('Filter_Section_Row props', this.props)
     const {params} = this.props.match
     this.props.set_params(params)
+    if(this.props.data == 'Nothing') {
+      this.props.fetch_filter_section_row(params.date_from, params.date_to, params.filter, params.section, params.row)
+    }
+  }
+
+  componentWillUpdate(nextProps, b) {
+
   }
 
   componentWillUnmount() {
@@ -50,6 +58,10 @@ class Filter_Section_Row extends React.Component {
 
   render() {
     const {params} = this.props.match
+
+    const data_component = this.props.data == 'Nothing' || this.props.data == 'Loading'
+      ? <div>Loading ...</div>
+      : <div>{ this.props.data.map((x,i) => <Section key={i} data={x} />) }</div>
     return <div>
       <ThemeProvider theme={theme}>
         {
@@ -73,22 +85,7 @@ class Filter_Section_Row extends React.Component {
           )()
         }
       </ThemeProvider>
-      {
-        maybe.maybe(
-            _ => {
-              this.props.fetch_filter_section_row(params.date_from, params.date_to, params.filter, params.section, params.row)
-              return <div>Loading...</div>
-            }
-          , data => _ => {
-              return <div>
-                {
-                  data.map((x,i) => <Section key={i} data={x} />)
-                }
-              </div>
-            }
-          , this.props.data
-        )()
-      }
+      { data_component }
     </div>
   }
 }

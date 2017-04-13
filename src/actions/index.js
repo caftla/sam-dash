@@ -27,13 +27,17 @@ export const set_params = (value: QueryParams) => (dispatch: Dispatch) =>
 
 // ---
 
-const api_root = process.env.api_root || ''
+const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 
-export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) =>
+export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_all_countries_loading' })
   get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`})
   .then(d => dispatch({ type: 'fetch_all_countries_success', payload: d }))
+}
 
 
-export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) =>
+export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_all_countries_loading' })
   get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`})
   .then(d => dispatch({ type: 'fetch_filter_section_row_success', payload: d }))
+}

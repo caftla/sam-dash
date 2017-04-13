@@ -1,5 +1,6 @@
 import React from 'react'
 import R from 'ramda'
+import type { QueryParams } from 'my-types'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
 
@@ -40,7 +41,19 @@ export default class Controls extends React.Component {
   state: ControlsState
   constructor(props: ControlsProps) {
     super(props)
-    this.state = props.params
+    const { params } = props
+    const filter_params = R.pipe(
+        R.split(',')
+      , R.map(R.split('='))
+      , R.fromPairs
+    )(params.filter)
+    this.state = {
+        date_from: params.date_from
+      , date_to: params.date_to
+      , section: params.section
+      , row: params.row
+      , ...filter_params
+    }
   }
 
   render() {
