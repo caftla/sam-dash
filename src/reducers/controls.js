@@ -11,7 +11,7 @@ const defaultParams : QueryParams = {
     date_from: new Date(new Date().valueOf() - 8 * 24 * 3600 * 1000).toISOString().split('T')[0]
   , date_to:   new Date(new Date().valueOf() - 1 * 24 * 3600 * 1000).toISOString().split('T')[0]
   , filter:    '-'
-  , page:      'operator_code'
+  , page:      'country_code'
   , section:   'country_code'
   , row:       'affiliate_name'
 }

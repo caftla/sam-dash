@@ -70,7 +70,7 @@ export default class Controls extends React.Component {
       , R.prop(prop)
     )(countries)
 
-    console.log('this.state.country_code', this.state.country_code)
+    const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
 
     return <FormContainer>
       <FormSection>
@@ -91,11 +91,11 @@ export default class Controls extends React.Component {
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown:</FormTitle>
-        <InputSelect options={ ['affiliate_name', 'publisher_id', 'country_code', 'operator_code', 'handle_name', 'day'] }
+        <InputSelect options={ breakdown_list }
             name="Tabs" value={ this.state.page } onChange={ val => this.setState({ 'page': val }) } />
-        <InputSelect options={ ['affiliate_name', 'publisher_id', 'country_code', 'operator_code', 'handle_name', 'day'] }
+        <InputSelect options={ breakdown_list }
             name="Section" value={ this.state.section } onChange={ val => this.setState({ 'section': val }) } />
-        <InputSelect options={ ['affiliate_name', 'publisher_id', 'country_code', 'operator_code', 'handle_name', 'day'] }
+        <InputSelect options={ breakdown_list }
             name="Row" value={ this.state.row } onChange={ val => this.setState({ 'row': val }) } />
       </FormSection>
       <Submit onClick={ _ => {

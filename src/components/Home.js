@@ -4,7 +4,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Redirect } from 'react-router'
 
-import Controls  from './filter_section_row/Controls'
+import Controls  from './filter_page_section_row/Controls'
 
 import type { QueryParams } from 'my-types'
 import { fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
@@ -115,7 +115,7 @@ class Home extends React.Component {
                   this.props.set_params(params)
                   this.props.cleanup_fetch_filter_section_row()
                   this.props.fetch_all_countries(params.date_from, params.date_to)
-                  this.props.history.push(`/filter_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.section}/${params.row}`)
+                  this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
                 } }
               />
             }
