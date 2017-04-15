@@ -33,13 +33,22 @@ const api_root = process.env.api_root || '' // in production api_root is the sam
 
 export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_all_countries_loading' })
-  get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`})
+  get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_all_countries_success', payload: d }))
 }
 
 
 export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_section_row_loading' })
-  get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`})
+  get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_filter_section_row_success', payload: d }))
 }
+
+export const fetch_filter_page_section_row = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_filter_page_section_row_loading' })
+  get({url: `${api_root}/api/v1/filter_page_section_row/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_filter_page_section_row_success', payload: d }))
+}
+
+export const cleanup_fetch_filter_page_section_row =() => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_filter_page_section_row' })

@@ -46,11 +46,21 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
   )
 })
 
+app.get('/api/v1/filter_page_section_row/:from_date/:to_date/:filter/:page/:section/:row', (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond(
+      fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/filter_page_section_row')(params)
+  )
+})
+
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
-  res.set('Access-Control-Allow-Origin', '*')
-  res.set('Content-Type', 'text/json')
-  res.set('Cache-Control', 'public, max-age=7200')
-  return res.end(fs.readFileSync('./server/sql-templates/all_countries/result.json', 'utf8'))
+  // res.set('Access-Control-Allow-Origin', '*')
+  // res.set('Content-Type', 'text/json')
+  // res.set('Cache-Control', 'public, max-age=7200')
+  // return res.end(fs.readFileSync('./server/sql-templates/all_countries/result.json', 'utf8'))
   respond(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
     , req.params

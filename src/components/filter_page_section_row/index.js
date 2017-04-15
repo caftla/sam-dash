@@ -5,10 +5,10 @@ import { ThemeProvider } from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
-import { fetch_all_countries, fetch_filter_section_row, cleanup_fetch_filter_section_row, set_params } from '../../actions'
+import { fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, set_params } from '../../actions'
 import type { QueryParams, FetchState } from 'my-types'
 
-import Section from './Section'
+import Tabs from './Tabs'
 import Controls from './Controls'
 
 const theme = {
@@ -30,10 +30,10 @@ const theme = {
 type Props = {
     data: FetchState<Array<any>>
   , params: QueryParams
-  , fetch_filter_section_row: (params: QueryParams) => void
+  , fetch_filter_page_section_row: (params: QueryParams) => void
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
-  , cleanup_fetch_filter_section_row: () => void
+  , cleanup_fetch_filter_page_section_row: () => void
   , set_params: (params: QueryParams) => void
 }
 
@@ -47,7 +47,7 @@ class Filter_Section_Row extends React.Component {
     const {params} = nextProps.match
     const current_params = this.props.match.params
     if(nextProps.data == 'Nothing') {
-      nextProps.fetch_filter_section_row(params.date_from, params.date_to, params.filter, params.section, params.row)
+      nextProps.fetch_filter_page_section_row(params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
     }
     if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
       nextProps.fetch_all_countries(params.date_from, params.date_to)
@@ -60,9 +60,11 @@ class Filter_Section_Row extends React.Component {
   render() {
     const {params} = this.props.match
 
+    console.log('this.props.data', this.props.data)
+
     const data_component = this.props.data == 'Nothing' || this.props.data == 'Loading'
       ? <div>Loading ...</div>
-      : <div>{ this.props.data.map((x,i) => <Section key={i} data={x} />) }</div>
+      : <Tabs pages={this.props.data} />
     return <div>
       <ThemeProvider theme={theme}>
         {
@@ -76,8 +78,8 @@ class Filter_Section_Row extends React.Component {
                   countries={ all_countries }
                   set_params={ params => {
                     this.props.set_params(params)
-                    this.props.cleanup_fetch_filter_section_row()
-                    this.props.history.push(`/filter_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.section}/${params.row}`)
+                    this.props.cleanup_fetch_filter_page_section_row()
+                    this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
                   } }
                 />
               }
@@ -91,6 +93,6 @@ class Filter_Section_Row extends React.Component {
 }
 
 export default connect(
-    state => ({ data: state.filter_section_row, all_countries: state.all_countries })
-  , { fetch_all_countries, fetch_filter_section_row, cleanup_fetch_filter_section_row, set_params }
+    state => ({ data: state.filter_page_section_row, all_countries: state.all_countries })
+  , { fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, set_params }
 )(Filter_Section_Row)

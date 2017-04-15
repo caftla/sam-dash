@@ -12,6 +12,10 @@ export type Action =
   | { type: 'fetch_all_countries_loading' }
   | { type: 'fetch_all_countries_success', payload: Array<any> }
   | { type: 'fetch_filter_section_row_loading'}
+  //--
+  | { type: 'fetch_filter_page_section_row_loading' }
+  | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
+  | { type: 'cleanup_fetch_filter_page_section_row' }
 
 export type Dispatch = (Action) => void; // (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;
