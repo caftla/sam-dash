@@ -8,8 +8,10 @@ import Controls  from './filter_page_section_row/Controls'
 
 import type { QueryParams, FetchState } from 'my-types'
 import {
-      login, check_loggedin
-    , fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
+    login, check_loggedin
+  , fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
+
+import { fromQueryString } from '../helpers'
 
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
@@ -98,13 +100,22 @@ class Home extends React.Component {
     }
   }
 
+  componentWillUpdate(nextProps, b) {
+
+    if(nextProps.login_state != this.props.login_state && true === nextProps.login_state) {
+      const query = fromQueryString(window.location.search.substring(1))
+      if(!!query.login_redir) {
+        window.location.href = decodeURIComponent(query.login_redir)
+      }
+    }
+  }
+
   render() {
     const { params, login_state } = this.props
 
     return login_state == 'Nothing' || !login_state
       ? <Login login={ this.props.login } />
       : <div>
-        {process.env.connection_string}
         {
           maybe.maybe(
             _ => {

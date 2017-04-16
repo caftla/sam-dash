@@ -31,7 +31,7 @@ module.exports = (app) => {
     , (req, res, next) => {
         // success
         req.login(req.user, () => {
-          res.cookie('username', req.user.username , { maxAge: 3600 * 24 * 30, path: '/', httpOnly: true })
+          res.cookie('username', req.user.username , { expires: new Date(new Date().valueOf() + 1000 * 3600 * 24 * 30), path: '/', httpOnly: true })
           res.end(JSON.stringify({success: true}))
         })
       }
@@ -45,7 +45,7 @@ module.exports = (app) => {
     // try logging in by cookie
     const login = (username, callback) => {
       req.login({username: username}, () => {
-        res.cookie('username', req.user.username , { maxAge: 3600 * 24 * 30, path: '/', httpOnly: true })
+        res.cookie('username', req.user.username , { expires: new Date(new Date().valueOf() + 1000 * 3600 * 24 * 30), path: '/', httpOnly: true })
         if(!!callback)
           callback()
         else
@@ -77,7 +77,12 @@ module.exports = (app) => {
 
   app.use((req, res, next) => {
     if(!req.isAuthenticated()) {
-      res.redirect('/')
+      res.status(401)
+      if(req.originalUrl.startsWith('/api/')) {
+        res.json({ error: 'access denied' })
+      } else {
+        res.redirect(`/?login_redir=${encodeURIComponent(req.originalUrl)}`)
+      }
     } else {
       next()
     }
