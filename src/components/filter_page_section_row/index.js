@@ -5,11 +5,16 @@ import { ThemeProvider } from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
-import { fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, set_params } from '../../actions'
+import {
+    fetch_all_countries
+  , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
+  , set_params } from '../../actions'
 import type { QueryParams, FetchState } from 'my-types'
 
 import Tabs from './Tabs'
 import Controls from './Controls'
+
+import filter_page_section_row_selector from '../../selectors/filter_page_section_row.js'
 
 const theme = {
     flexDirection: 'row'
@@ -34,6 +39,8 @@ type Props = {
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
   , cleanup_fetch_filter_page_section_row: () => void
+  , sort_row_filter_page_section_row: (field: string, order: number) => void
+  , sort: { field: string, order: number }
   , set_params: (params: QueryParams) => void
 }
 
@@ -60,11 +67,11 @@ class Filter_Section_Row extends React.Component {
   render() {
     const {params} = this.props.match
 
-    console.log('this.props.data', this.props.data)
-
     const data_component = this.props.data == 'Nothing' || this.props.data == 'Loading'
       ? <div>Loading ...</div>
-      : <Tabs pages={this.props.data} />
+      : <Tabs pages={this.props.data} params={params}
+          sort={ this.props.sort }
+          onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
     return <div>
       <ThemeProvider theme={theme}>
         {
@@ -93,6 +100,12 @@ class Filter_Section_Row extends React.Component {
 }
 
 export default connect(
-    state => ({ data: state.filter_page_section_row, all_countries: state.all_countries })
-  , { fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, set_params }
+    state => ({
+        //data: state.filter_page_section_row
+        data: filter_page_section_row_selector(state)
+      , sort: state.sort
+      , all_countries: state.all_countries })
+  , {
+      fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
+    , set_params }
 )(Filter_Section_Row)

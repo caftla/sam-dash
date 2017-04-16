@@ -58,6 +58,7 @@
     "react-router-redux": "^5.0.0-alpha.4",
     "redux": "^3.5.2",
     "redux-thunk": "^2.1.0",
+    "reselect": "^3.0.0",
     "styled-components": "^1.4.2"
   }
 }

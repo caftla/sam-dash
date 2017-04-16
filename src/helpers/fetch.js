@@ -2,7 +2,7 @@
 
 import * as R from 'ramda'
 
-export const post = async ({ url, body } : {url: string, body: mixed}) => {
+export const post = async ({ url, body } : {url: string, body?: mixed}) => {
   const res = await fetch(url, {
     credentials: 'include',
     method: 'POST',

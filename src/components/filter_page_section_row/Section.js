@@ -3,8 +3,8 @@ import React from 'react'
 const d3 = require('d3-format')
 import R from 'ramda'
 import {TD, TH, TABLE} from '../plottables/table'
+import type { QueryParams } from 'my-types'
 
-console.log('d3', d3)
 
 const change_sign = (change) => {
   const r = Math.round(Math.abs(change) - 1.5)
@@ -12,19 +12,26 @@ const change_sign = (change) => {
   return sign.substr(0, 4)
 }
 
-const Section = ({data} : { data : any }) => <TABLE width={1020}>
+const Section = ({data, params, onSort, sort} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: { field: string, order: number } }) => {
+  const show_label = (name, key = null) => {
+    const sort_field = key == null ? name : key
+    return sort_field == sort.field
+      ? `${name} ` + (sort.order > 0 ? '▲' : '▼')
+      : name
+  }
+return <TABLE width={1020}>
   <thead>
     <tr>
       <TH width={150} style={{ paddingLeft: '0.7em' }} />
-      <TH width={150} />
-      <TH width={90} value="Views" />
-      <TH width={90} value="Share%" />
-      <TH width={90} value="Sales" />
-      <TH width={90} value="CR%" />
-      <TH width={90} value="Pixels%" />
-      <TH width={90} value="eCPA" />
-      <TH width={90} value="CQ%" />
-      <TH width={90} value="Active24%" />
+      <TH width={150} value={ show_label(params.row, 'row') } onClick={ () => onSort('row', 1) }  />
+      <TH width={90} value={ show_label('Views', 'views') } onClick={ () => onSort('views', 1) } />
+      <TH width={90} value={ show_label('Share%', 'section_sales_ratio') } onClick={ () => onSort('section_sales_ratio', 1) } />
+      <TH width={90} value={ show_label('Sales', 'sales') } onClick={ () => onSort('sales', 1) }/>
+      <TH width={90} value={ show_label('CR%', 'cr') } onClick={ () => onSort('cr', 1) }/>
+      <TH width={90} value={ show_label('Pixels%', 'pixels_ratio') } onClick={ () => onSort('pixels_ratio', 1) }/>
+      <TH width={90} value={ show_label('eCPA', 'ecpa') } onClick={ () => onSort('ecpa', 1) }/>
+      <TH width={90} value={ show_label('CQ%', 'cq') } onClick={ () => onSort('cq', 1) }/>
+      <TH width={90} value={ show_label('Active24%', 'active24') } onClick={ () => onSort('active24', 1) }/>
     </tr>
   </thead>
   <tbody>{
@@ -55,5 +62,6 @@ const Section = ({data} : { data : any }) => <TABLE width={1020}>
     </tr>
   </tbody>
 </TABLE>
+}
 
 export default Section

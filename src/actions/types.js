@@ -16,6 +16,7 @@ export type Action =
   | { type: 'fetch_filter_page_section_row_loading' }
   | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
   | { type: 'cleanup_fetch_filter_page_section_row' }
+  | { type: 'sort_row_filter_page_section_row', payload: {field: string, order: number} }
   // -- login
   | { type: 'login_loading' }
   | { type: 'login_success' }

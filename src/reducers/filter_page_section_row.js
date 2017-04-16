@@ -6,7 +6,7 @@ import type { FetchState } from 'my-types'
 import * as Maybe from 'flow-static-land/lib/Maybe'
 import * as Either from 'flow-static-land/lib/Either'
 
-const reducer = (state: FetchState<Array<any>> = 'Nothing', action: Action) : FetchState<Array<any>> => {
+export default (state: FetchState<Array<any>> = 'Nothing', action: Action) : FetchState<Array<any>> => {
   switch (action.type) {
     case 'fetch_filter_page_section_row_success':
       return action.payload
@@ -18,5 +18,3 @@ const reducer = (state: FetchState<Array<any>> = 'Nothing', action: Action) : Fe
       return state
   }
 }
-
-export default reducer

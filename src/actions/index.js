@@ -77,5 +77,8 @@ export const fetch_filter_page_section_row = (date_from : string, date_to : stri
   .then(d => dispatch({ type: 'fetch_filter_page_section_row_success', payload: d }))
 }
 
-export const cleanup_fetch_filter_page_section_row =() => (dispatch: Dispatch) =>
+export const cleanup_fetch_filter_page_section_row = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_filter_page_section_row' })
+
+export const sort_row_filter_page_section_row = (field: string, order: number) => (dispatch: Dispatch) =>
+  dispatch({ type: 'sort_row_filter_page_section_row', payload: {field, order} })
