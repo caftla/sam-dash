@@ -23,9 +23,8 @@ module.exports = {
     publicPath: '/',
     historyApiFallback: true,
     proxy: {
-      '/api/ipify': {
-        target: 'https://api.ipify.org', // 'https://api.ipify.org/',
-        pathRewrite: {'^/api/ipify' : ''},
+      '/api/*': {
+        target: 'http://0.0.0.0:3081/', // 'https://api.ipify.org/',
         changeOrigin: true,
         ws: true,
       }
@@ -48,7 +47,7 @@ module.exports = {
       template: '../webpack/template.html',
     }),
     new webpack.DefinePlugin({
-      'process.env.api_root': JSON.stringify(process.env.api_root || 'http://127.0.0.1:3081')
+      'process.env.api_root': JSON.stringify(process.env.api_root || '')
     })
   ],
   performance: { hints: false },

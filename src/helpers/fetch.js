@@ -4,6 +4,7 @@ import * as R from 'ramda'
 
 export const post = async ({ url, body } : {url: string, body: mixed}) => {
   const res = await fetch(url, {
+    credentials: 'include',
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -15,7 +16,9 @@ export const post = async ({ url, body } : {url: string, body: mixed}) => {
 }
 
 export const get = async ({ url } : { url : string }) => {
-  const res = await fetch(url)
+  const res = await fetch(url, {
+    credentials: 'include'
+  })
   const data = await res.json()
   return data
 }

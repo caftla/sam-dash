@@ -6,8 +6,10 @@ import { Redirect } from 'react-router'
 
 import Controls  from './filter_page_section_row/Controls'
 
-import type { QueryParams } from 'my-types'
-import { fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
+import type { QueryParams, FetchState } from 'my-types'
+import {
+      login, check_loggedin
+    , fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
 
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
@@ -15,11 +17,12 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 
 type LoginProps = {
-  onLoggedIn: () => void
+  login: (username: string, password: string) => void
 }
 
 type LoginState = {
-    password: string
+    username: string
+  , password: string
   , invalid_password: boolean
 }
 
@@ -31,7 +34,8 @@ class Login extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-        password: ''
+        username: ''
+      , password: ''
       , invalid_password: false
     }
   }
@@ -48,17 +52,17 @@ class Login extends React.Component {
     return <FormContainer>
       <FormSection>
         <FormRow>
+          <FormLabel>Username</FormLabel>
+          <DateField type="text" onChange={ e => this.setState({ username: e.target.value }) } />
+        </FormRow>
+        <FormRow>
           <FormLabel>Password</FormLabel>
           <DateField type="password" onChange={ e => this.setState({ password: e.target.value }) } />
         </FormRow>
         { invalid_password_component }
         <FormRow>
           <Submit onClick={ () => {
-            if(this.state.password != 'dashsam42') {
-              this.setState({ invalid_password: true })
-            } else {
-              this.props.onLoggedIn()
-            }
+            this.props.login( this.state.username, this.state.password )
           } }>Login</Submit>
         </FormRow>
       </FormSection>
@@ -73,10 +77,12 @@ type HomeProps = {
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
   , history: any
+  , login: (username: string, password: string) => void
+  , check_loggedin: () => void
+  , login_state: FetchState<boolean>
 }
 
 type HomeState = {
-  logged_in: boolean
 }
 
 class Home extends React.Component {
@@ -87,19 +93,16 @@ class Home extends React.Component {
   constructor(props: HomeProps) {
     super(props)
     console.log('Home', props)
-    this.state = {
-      logged_in: 'true' == localStorage.getItem('logged_in')
+    if(this.props.login_state == 'Nothing') {
+      this.props.check_loggedin()
     }
   }
 
   render() {
-    const { params } = this.props
+    const { params, login_state } = this.props
 
-    return !this.state.logged_in
-      ? <Login onLoggedIn={ () => {
-        this.setState({ logged_in: true })
-        localStorage.setItem('logged_in', 'true')
-      } } />
+    return login_state == 'Nothing' || !login_state
+      ? <Login login={ this.props.login } />
       : <div>
         {process.env.connection_string}
         {
@@ -127,6 +130,8 @@ class Home extends React.Component {
 }
 
 export default connect(
-    state => ({ params: state.controls, all_countries: state.all_countries  })
-  , { fetch_all_countries, set_params, cleanup_fetch_filter_section_row }
+    state => ({ login_state: state.login, params: state.controls, all_countries: state.all_countries  })
+  , {
+        login, check_loggedin
+      , fetch_all_countries, set_params, cleanup_fetch_filter_section_row }
 )(Home)

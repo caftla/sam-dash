@@ -31,6 +31,33 @@ export const set_params = (value: QueryParams) => (dispatch: Dispatch) => {
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 
+export const login = (username : string, password : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'login_loading' })
+  post({url: `${api_root}/api/login`, body: {username, password}})
+  .then((d : {success : boolean}) => {
+    d.success
+    ? dispatch({ type: 'login_success' })
+    : dispatch({ type: 'login_failed' })
+    return d
+  }).catch(d => {
+    dispatch({ type: 'login_failed' })
+    console.error(d)
+    throw d
+  })
+}
+
+export const check_loggedin = () => (dispatch : Dispatch) =>
+  post({url: `${api_root}/api/is_loggedin`})
+  .then((d : {success : boolean}) => {
+    d.success
+    ? dispatch({ type: 'login_success' })
+    : dispatch({ type: 'login_failed' })
+    return d
+  }).catch(d => {
+    console.error(d)
+    throw d
+  })
+
 export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_all_countries_loading' })
   get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`, cache: "force-cache"}, {cache: "force-cache"})

@@ -16,6 +16,10 @@ export type Action =
   | { type: 'fetch_filter_page_section_row_loading' }
   | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
   | { type: 'cleanup_fetch_filter_page_section_row' }
+  // -- login
+  | { type: 'login_loading' }
+  | { type: 'login_success' }
+  | { type: 'login_failed' }
 
 export type Dispatch = (Action) => void; // (action: Action | ThunkAction | PromiseAction | Array<Action>) => any;
 export type GetState = () => Object;
