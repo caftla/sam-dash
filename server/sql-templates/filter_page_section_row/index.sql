@@ -15,7 +15,7 @@ WITH Affiliates as (
       , (SUM(c.sale_pixel_direct) + SUM(c.sale_pixel_delayed)) as pixels
       , safediv(SUM(c.sale_pixel_direct) + SUM(c.sale_pixel_delayed), SUM(c.sale)) as pixels_ratio
       , safediv(SUM(c.sale), SUM(c.view)) as cr
-    from reports_ams.conversion_daily c
+    from reports_kl.conversion_daily c
     where c.date_tz >= to_date('$from_date$', 'YYYY-MM-DD') and c.date_tz <= to_date('$to_date$', 'YYYY-MM-DD')
       and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `c.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     group by page, section, row
@@ -34,7 +34,7 @@ WITH Affiliates as (
       , safediv(SUM(r.firstbilling_count), SUM(r.sale_count)) as cq
       , safediv(SUM(r.sale_count) - SUM(r.optout_24h), SUM(r.sale_count)) as active24
       , SUM(r.optout_24h) as optout_24h
-    from reports_ams.rps r
+    from reports_kl.rps r
     where r.day >= to_date('$from_date$', 'YYYY-MM-DD') and r.day <= to_date('$to_date$', 'YYYY-MM-DD')
       and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `r.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     group by page, section, row
@@ -46,7 +46,7 @@ WITH Affiliates as (
         $[params.page    == 'day' ? 'c.date_tz' : `coalesce(c.${params.page},    'Unknown')`]$ as page
       , $[params.row     == 'day' ? 'c.date_tz' : `coalesce(c.${params.row},     'Unknown')`]$ as row
       , SUM(c.sale) as sales
-    from reports_ams.conversion_daily c
+    from reports_kl.conversion_daily c
     where c.date_tz >= to_date('$from_date$', 'YYYY-MM-DD') and c.date_tz <= to_date('$to_date$', 'YYYY-MM-DD')
       and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `c.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     group by page, row -- , row
