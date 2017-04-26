@@ -5,7 +5,7 @@ with Days as(
     with Days as (select generate_series(
         date_trunc('week', date '$from_date$')
       , date_trunc('week', date '$to_date$')
-      , '1 day'
+      , '1 week'
     ) as day)
 
     select day as sow, (day + interval '1 week') as eow from Days
@@ -19,7 +19,7 @@ with Days as(
   from Days d
   join Days a on true -- a.sow >= d.sow
   where
-    date_part('day', a.sow - d.sow) in (7, 14, 30, 61, 92, 122, 153, 183)
+    date_part('day', a.sow - d.sow) in (7, 14, 28, 63, 91, 119, 154, 182)
 
 )
 
@@ -35,12 +35,12 @@ with Days as(
     , SUM(case
           when d.day_after_subscription = 7   then r.tb_first_week_revenue
           when d.day_after_subscription = 14  then r.tb_second_week_revenue + r.tb_first_week_revenue
-          when d.day_after_subscription = 30  then r.tb_first_month_revenue
-          when d.day_after_subscription = 61  then r.tb_first_month_revenue + r.tb_second_month_revenue
-          when d.day_after_subscription = 92  then r.tb_three_month_revenue
-          when d.day_after_subscription = 122 then r.tb_three_month_revenue + r.tb_4th_month_revenue
-          when d.day_after_subscription = 153 then r.tb_three_month_revenue + r.tb_4th_month_revenue + r.tb_5th_month_revenue
-          when d.day_after_subscription = 183 then r.tb_three_month_revenue + r.tb_4th_month_revenue + r.tb_5th_month_revenue + r.tb_6th_month_revenue
+          when d.day_after_subscription = 28  then r.tb_first_month_revenue
+          when d.day_after_subscription = 63  then r.tb_first_month_revenue + r.tb_second_month_revenue
+          when d.day_after_subscription = 91  then r.tb_three_month_revenue
+          when d.day_after_subscription = 119 then r.tb_three_month_revenue + r.tb_4th_month_revenue
+          when d.day_after_subscription = 154 then r.tb_three_month_revenue + r.tb_4th_month_revenue + r.tb_5th_month_revenue
+          when d.day_after_subscription = 182 then r.tb_three_month_revenue + r.tb_4th_month_revenue + r.tb_5th_month_revenue + r.tb_6th_month_revenue
           else 0
         end) as revenue
     from reports_ams.rps r
