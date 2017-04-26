@@ -9,9 +9,9 @@ const td_style = R.merge(td_th_style, {
   borderBottom: 'solid 1px #ddd', overflow: 'hidden', padding: '0.3em 0 0.3em 0'
 })
 
-export const TD = ({value, width, style}: any) => <td style={ { width: `${width}px`, ...td_style, ...(style || {}) } }>{value}</td>
-export const TH = ({value, width, style, onClick = (() => {})}: any) =>
-  <th onClick={ onClick } style={ { width: `${width}px`, ...th_style, ...(style || {}) } }>{value}</th>
+export const TD = ({children, value, width, style}: any) => <td style={ { width: `${width}px`, ...td_style, ...(style || {}) } }>{children || value}</td>
+export const TH = ({children, value, width, style, onClick = (() => {})}: any) =>
+  <th onClick={ onClick } style={ { cursor: 'pointer', width: `${width}px`, ...th_style, ...(style || {}) } }>{children || value}</th>
 export const TABLE = (props: any) =>
   <table style={ { width: `${props.width}px`, backgroundColor: 'white', marginBottom: '2em', color: 'black', fontFamily: 'Osaka, CONSOLAS, monospace', ...(props.style || {}) } } cellSpacing="0" cellPadding="0">
     { props.children }

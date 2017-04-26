@@ -64,12 +64,14 @@ export const fetch_all_countries = (date_from : string, date_to : string) => (di
   .then(d => dispatch({ type: 'fetch_all_countries_success', payload: d }))
 }
 
-
 export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_section_row_loading' })
   get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_filter_section_row_success', payload: d }))
 }
+
+
+// filter page section row
 
 export const fetch_filter_page_section_row = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_page_section_row_loading' })
@@ -82,3 +84,15 @@ export const cleanup_fetch_filter_page_section_row = () => (dispatch: Dispatch) 
 
 export const sort_row_filter_page_section_row = (field: string, order: number) => (dispatch: Dispatch) =>
   dispatch({ type: 'sort_row_filter_page_section_row', payload: {field, order} })
+
+
+// cohort
+
+export const fetch_cohort = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_cohort_loading' })
+  get({url: `${api_root}/api/v1/cohort/${date_from}/${date_to}/${filter}`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_cohort_success', payload: d }))
+}
+
+export const cleanup_fetch_cohort = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_cohort' })

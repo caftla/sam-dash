@@ -20,7 +20,7 @@ const respond = (sql, params, res, map = x => x) => {
   .then(x => res.end(JSON.stringify(map(x.rows))))
   .catch(x => {
     console.error(x)
-    res.set('status', 500)
+    res.status(500)
     res.end(`Error:\n${x.toString()}`)
   })
 }
@@ -72,6 +72,16 @@ app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
     , req.params
     , res
     , x => x
+  )
+})
+
+app.get('/api/v1/cohort/:from_date/:to_date/:filter', (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond(
+      fs.readFileSync('./server/sql-templates/cohort/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/cohort')(params)
   )
 })
 

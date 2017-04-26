@@ -9,14 +9,20 @@ export type Action =
   | { type: 'cleanup_fetch_filter_section_row' }
   // ---
   | { type: 'fetch_filter_section_row_success', payload: Array<any> }
+  | { type: 'fetch_filter_section_row_loading'}
+  // -- all countries
   | { type: 'fetch_all_countries_loading' }
   | { type: 'fetch_all_countries_success', payload: Array<any> }
-  | { type: 'fetch_filter_section_row_loading'}
-  //--
+  //-- filter page section row
   | { type: 'fetch_filter_page_section_row_loading' }
   | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
   | { type: 'cleanup_fetch_filter_page_section_row' }
   | { type: 'sort_row_filter_page_section_row', payload: {field: string, order: number} }
+  // -- cohort
+  //--
+  | { type: 'fetch_cohort_loading' }
+  | { type: 'fetch_cohort_success', payload: Array<any> }
+  | { type: 'cleanup_fetch_cohort' }
   // -- login
   | { type: 'login_loading' }
   | { type: 'login_success' }

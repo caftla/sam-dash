@@ -32,6 +32,7 @@ return <TABLE width={1020}>
       <TH width={90} value={ show_label('eCPA', 'ecpa') } onClick={ () => onSort('ecpa', 1) }/>
       <TH width={90} value={ show_label('CQ%', 'cq') } onClick={ () => onSort('cq', 1) }/>
       <TH width={90} value={ show_label('Active24%', 'active24') } onClick={ () => onSort('active24', 1) }/>
+      <TH width={90} value={ show_label('Cost', 'cost') } onClick={ () => onSort('cost', 1) }/>
     </tr>
   </thead>
   <tbody>{
@@ -46,6 +47,7 @@ return <TABLE width={1020}>
       <TD width={90}  value={d3.format('0.1f')(+x.ecpa) + change_sign(+x.ecpa_change)} />
       <TD width={90}  value={d3.format('0.0f')(100 * +x.cq) + change_sign(+x.cq_change)} />
       <TD width={90}  value={d3.format('0.0f')(100 * +x.active24) + change_sign(+x.active24_change * 0.5)} />
+      <TD width={90}  value={d3.format(',.0f')(+x.cost) + change_sign(+x.cost_change)} />
     </tr>)
   }
     <tr>
@@ -59,6 +61,7 @@ return <TABLE width={1020}>
       <TD width={90}  style={ { fontWeight: 'bold' } } value={d3.format('0.1f')(+data.ecpa) + change_sign(+data.ecpa_change)} />
       <TD width={90}  style={ { fontWeight: 'bold' } } value={d3.format('0.0f')(100 * +data.cq) + change_sign(+data.cq_change)} />
       <TD width={90}  style={ { fontWeight: 'bold' } } value={d3.format('0.0f')(100 * +data.active24) + change_sign(+data.active24_change * 0.5)} />
+      <TD width={90}  style={ { fontWeight: 'bold' } } value={d3.format(',.0f')(+data.cost) + change_sign(+data.cost_change)} />
     </tr>
   </tbody>
 </TABLE>
