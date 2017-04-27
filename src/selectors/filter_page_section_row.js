@@ -1,22 +1,33 @@
 // @flow
 
 import R from 'ramda'
-import { createSelector } from 'reselect'
+import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect'
+import { fetchState, match } from '../adts'
+import isEqual from 'lodash.isEqual'
 
-export default createSelector(
-    [ x => x.filter_page_section_row, x => x.sort ]
+
+const customSelectorCreator = createSelectorCreator(defaultMemoize,
+  (a, b) => {
+    if(typeof a == typeof b && typeof a == 'object') {
+      return isEqual(a, b)
+    } else {
+      return isEqual(fetchState.toEq(a), fetchState.toEq(b))
+    }
+  })
+
+export default customSelectorCreator(
+  [
+      x => x.filter_page_section_row
+    , x => x.sort
+  ]
   , (res, {field, order}) => {
-      if(typeof(res) != 'string') {
-        return R.pipe(
+      return fetchState.map(R.pipe(
             R.map(c => R.merge(c, { data: R.pipe(
               R.map(x => R.merge(x, {data: R.pipe(
                   R.sortBy(r => R.prop(field)(r))
                 , order > 0 ? x => x : R.reverse
               )(x.data)}))
             )(c.data) }))
-        )(res)
-      } else {
-        return res
-      }
+        ), res)
   }
 )

@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider } from 'styled-components'
@@ -9,7 +11,9 @@ import {
     fetch_all_countries
   , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
   , set_params } from '../../actions'
-import type { QueryParams, FetchState } from 'my-types'
+import type { QueryParams } from 'my-types'
+import type { FetchState } from '../../adts'
+import { match, fetchState } from '../../adts'
 
 import Tabs from './Tabs'
 import Controls from './Controls'
@@ -33,9 +37,11 @@ const theme = {
 }
 
 type Props = {
-    data: FetchState<Array<any>>
+    match: { params: QueryParams }
+  , history: any
+  , data: FetchState<Array<any>>
   , params: QueryParams
-  , fetch_filter_page_section_row: (params: QueryParams) => void
+  , fetch_filter_page_section_row: (date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => void
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
   , cleanup_fetch_filter_page_section_row: () => void
@@ -45,7 +51,10 @@ type Props = {
 }
 
 // This is a route
-class Filter_Section_Row extends React.Component {
+class Filter_Page_Section_Row extends React.Component {
+
+  props: Props
+
   constructor(props : Props) {
     super(props)
   }
@@ -53,9 +62,14 @@ class Filter_Section_Row extends React.Component {
   componentWillUpdate(nextProps, b) {
     const {params} = nextProps.match
     const current_params = this.props.match.params
-    if(nextProps.data == 'Nothing') {
-      nextProps.fetch_filter_page_section_row(params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
-    }
+
+    match({
+        Nothing: () => nextProps.fetch_filter_page_section_row(params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
+      , Loading: () => void 9
+      , Error: (error) => void 9
+      , Loaded: (data) => void 9
+    })(nextProps.data)
+
     if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
       nextProps.fetch_all_countries(params.date_from, params.date_to)
     }
@@ -67,11 +81,15 @@ class Filter_Section_Row extends React.Component {
   render() {
     const {params} = this.props.match
 
-    const data_component = this.props.data == 'Nothing' || this.props.data == 'Loading'
-      ? <div>Loading ...</div>
-      : <Tabs pages={this.props.data} params={params}
-          sort={ this.props.sort }
-          onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
+    const data_component = match({
+        Nothing: () => <div>Nothing</div>
+      , Loading: () => <div>Loading</div>
+      , Error: (error) => <div>Error</div>
+      , Loaded: (data) => <Tabs pages={data} params={params}
+            sort={ this.props.sort }
+            onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
+    })(this.props.data)
+
     return <div>
       <ThemeProvider theme={theme}>
         {
@@ -108,4 +126,4 @@ export default connect(
   , {
       fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
     , set_params }
-)(Filter_Section_Row)
+)(Filter_Page_Section_Row)

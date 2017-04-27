@@ -6,6 +6,7 @@ declare module 'my-types' {
     date_from: string,
     date_to: string,
     filter: string,
+    page: string,
     section: string,
     row: string
   }
@@ -14,7 +15,7 @@ declare module 'my-types' {
 
   declare type QueryLoadingState = 'Loading' | 'Loaded' | 'Error'
 
-  declare type FetchState<T> = 'Nothing' | 'Loading' | T
+  // declare type FetchState<T> = 'Nothing' | 'Loading' | T
 
   declare type DashboardQuery = {
       queryLoadingState : QueryLoadingState

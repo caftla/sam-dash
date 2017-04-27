@@ -6,7 +6,10 @@ import { Redirect } from 'react-router'
 
 import Controls  from './filter_page_section_row/Controls'
 
-import type { QueryParams, FetchState } from 'my-types'
+import type { QueryParams } from 'my-types'
+import type { FetchState } from '../adts'
+import { match } from '../adts'
+
 import {
     login, check_loggedin
   , fetch_all_countries, set_params, cleanup_fetch_filter_section_row } from '../actions'
@@ -94,10 +97,13 @@ class Home extends React.Component {
 
   constructor(props: HomeProps) {
     super(props)
-    console.log('Home', props)
-    if(this.props.login_state == 'Nothing') {
-      this.props.check_loggedin()
-    }
+
+    match({
+        Nothing: () => this.props.check_loggedin()
+      , Loading: () => void 8
+      , Error: (error) => void 8
+      , Loaded: (data) => void 8
+    })(this.props.login_state)
   }
 
   componentWillUpdate(nextProps, b) {
@@ -113,30 +119,35 @@ class Home extends React.Component {
   render() {
     const { params, login_state } = this.props
 
-    return login_state == 'Nothing' || !login_state
-      ? <Login login={ this.props.login } />
-      : <div>
-        {
-          maybe.maybe(
-            _ => {
-              this.props.fetch_all_countries(params.date_from, params.date_to)
-              return <div>Loading...</div>
-            }
-           , all_countries => _ => {
-              return  <Controls params={ params }
-                countries={ all_countries }
-                set_params={ params => {
-                  this.props.set_params(params)
-                  this.props.cleanup_fetch_filter_section_row()
-                  this.props.fetch_all_countries(params.date_from, params.date_to)
-                  this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
-                } }
-              />
-            }
-           , this.props.all_countries
-        )()
-        }
-      </div>
+    return match({
+        Nothing: () => <Login login={ this.props.login } />
+      , Loading: () => <div>Logging in...</div>
+      , Error: (error) => <div>Loggin error</div>
+      , Loaded: (logged_in) => !logged_in
+        ? <Login login={ this.props.login } />
+        : <div>
+          {
+            maybe.maybe(
+              _ => {
+                this.props.fetch_all_countries(params.date_from, params.date_to)
+                return <div>Loading...</div>
+              }
+             , all_countries => _ => {
+                return  <Controls params={ params }
+                  countries={ all_countries }
+                  set_params={ params => {
+                    this.props.set_params(params)
+                    this.props.cleanup_fetch_filter_section_row()
+                    this.props.fetch_all_countries(params.date_from, params.date_to)
+                    this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                  } }
+                />
+              }
+             , this.props.all_countries
+          )()
+          }
+        </div>
+    })(this.props.login_state)
   }
 }
 
