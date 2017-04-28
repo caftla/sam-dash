@@ -1,9 +1,8 @@
 // @flow
 const R = require('ramda')
 const pg = require('pg')
-const connectionString = process.env.connection_string
 
-const query = (query_template:string, params: any) => new Promise((resolve, reject) => {
+const query = (connection_string: string, query_template:string, params: any) => new Promise((resolve, reject) => {
 
   var query = query_template
 
@@ -16,7 +15,7 @@ const query = (query_template:string, params: any) => new Promise((resolve, reje
     return eval(match)
   })
 
-  const client = new pg.Client(connectionString)
+  const client = new pg.Client(connection_string)
 
   client.connect((err, conn, done) => {
     if(err) {

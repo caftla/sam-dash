@@ -78,7 +78,7 @@ export default class Controls extends React.Component {
         <Input type="date" name="From" value={ this.state.date_from } onChange={ val => this.setState({ 'date_from': val }) } />
         <Input type="date" name="To" value={ this.state.date_to } onChange={ val => this.setState({ 'date_to': val }) } />
       </FormSection>
-      <FilterFormSection>
+      <FilterFormSection style={ {width: '900px'} }>
         <FormTitle>Filter:</FormTitle>
         <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
@@ -88,16 +88,11 @@ export default class Controls extends React.Component {
           value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
+        <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
+          value={ this.state.gateway } options={ !this.state.country_code ? get_all_props('gateways') : get_country_prop('gateways') } />
+        <InputSelect name="Platform" onChange={ platform => this.setState({ platform }) }
+          value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
       </FilterFormSection>
-      <FormSection>
-        <FormTitle>Breakdown:</FormTitle>
-        <InputSelect options={ breakdown_list }
-            name="Tabs" value={ this.state.page } onChange={ val => this.setState({ 'page': val }) } />
-        <InputSelect options={ breakdown_list }
-            name="Section" value={ this.state.section } onChange={ val => this.setState({ 'section': val }) } />
-        <InputSelect options={ breakdown_list }
-            name="Row" value={ this.state.row } onChange={ val => this.setState({ 'row': val }) } />
-      </FormSection>
       <Submit onClick={ _ => {
         const filter = R.pipe(
             R.map(k => [k, this.state[k]])
@@ -105,7 +100,7 @@ export default class Controls extends React.Component {
           , R.map(R.join('='))
           , R.join(',')
           , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affiliate_name", "handle_name"])
+        )(["country_code", "operator_code", "affiliate_name", "handle_name", "gateway", "platform"])
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to

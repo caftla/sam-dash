@@ -13,11 +13,13 @@ app.use(require('express-session')({secret: 'secret-dash'}));
 // login
 require('./auth')(app)
 
-const respond = (sql, params, res, map = x => x) => {
-  res.set('Content-Type', 'text/json')
-  res.set('Cache-Control', 'public, max-age=7200')
-  query(sql, params)
-  .then(x => res.end(JSON.stringify(map(x.rows))))
+const respond = (connection_string: string, sql, params, res, map = x => x) => {
+  query(connection_string, sql, params)
+  .then(x => {
+    res.set('Content-Type', 'text/json')
+    res.set('Cache-Control', 'public, max-age=7200')
+    res.end(JSON.stringify(map(x.rows)))
+  })
   .catch(x => {
     console.error(x)
     res.status(500)
@@ -25,12 +27,25 @@ const respond = (sql, params, res, map = x => x) => {
   })
 }
 
+const respond_with_connection_name = (connection_name: string, sql, params, res, map = x => x) => {
+  const connection_string = process.env[connection_name]
+  if(connection_string == null) {
+    res.status(500)
+    res.end(`Error:\n${connection_name} env variable is not provided.`)
+  }
+  else respond(connection_string, sql, params, res, map)
+}
+
+const respond_helix = (sql, params, res, map = x => x) => respond_with_connection_name('helix_connection_string', sql, params, res, map)
+const respond_jewel = (sql, params, res, map = x => x) => respond_with_connection_name('jewel_connection_string', sql, params, res, map)
+
+
 app.get('/api/query', (req, res) => {
-  respond(fs.readFileSync('./server/query.sql', 'utf8'), req.query, res)
+  respond_helix(fs.readFileSync('./server/query.sql', 'utf8'), req.query, res)
 })
 
 app.get('/api/countries', (req, res) => {
-  respond(`select distinct(code) as country from ss_locations order by code`, {}, res, xs => xs.map(x => x.country))
+  respond_helix(`select distinct(code) as country from ss_locations order by code`, {}, res, xs => xs.map(x => x.country))
 })
 
 const filter_to_pipe_syntax = x => x == '-' ? '' : R.pipe(
@@ -48,7 +63,7 @@ app.get('/api/hello', (req, res) => {
 // example: http://127.0.0.1:3081/api/v1/filter_section_row/2017-04-01/2017-04-07/country_code=ZA,affiliate_name=Gotzha/publisher_id/day
 app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond(
+  respond_helix(
       fs.readFileSync('./server/sql-templates/filter_section_row/index.sql', 'utf8')
     , params
     , res
@@ -58,7 +73,7 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
 
 app.get('/api/v1/filter_page_section_row/:from_date/:to_date/:filter/:page/:section/:row', (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond(
+  respond_helix(
       fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
     , params
     , res
@@ -67,7 +82,7 @@ app.get('/api/v1/filter_page_section_row/:from_date/:to_date/:filter/:page/:sect
 })
 
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
-  respond(
+  respond_helix(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
     , req.params
     , res
@@ -77,12 +92,26 @@ app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
 
 app.get('/api/v1/cohort/:from_date/:to_date/:filter', (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond(
+  respond_helix(
       fs.readFileSync('./server/sql-templates/cohort/index.sql', 'utf8')
     , params
     , res
     , require('./sql-templates/cohort')(params)
   )
+})
+
+app.get('/api/v1/all_affiliates', (req, res) => {
+  respond_jewel(`select * from affiliate_mapping`, {}, res)
+})
+
+app.get('/api/v1/converting_ips/:from_date/:to_date/:filter', (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+
+  respond_jewel(
+      fs.readFileSync('./server/sql-templates/converting_ips/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/converting_ips')(params))
 })
 
 app.use('/*', express.static('dist'))

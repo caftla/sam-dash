@@ -119,7 +119,6 @@ class Filter_Page_Section_Row extends React.Component {
 
 export default connect(
     state => ({
-        //data: state.filter_page_section_row
         data: filter_page_section_row_selector(state)
       , sort: state.sort
       , all_countries: state.all_countries })

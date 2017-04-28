@@ -15,10 +15,10 @@ export type FetchState<U> = <T>(_: FetchStateMatcher<T, U>) => T
 // The matcher type does not necessarily have to be exported.
 
 type FetchStateMatcher<T, U> = {
-  Nothing:   ()                      => T,
-  Loading:   ()                      => T,
-  Loaded:    (_:  U)        => T,
-  Error:     (_: any)     => T
+  Nothing:   ()       => T,
+  Loading:   ()                  => T,
+  Loaded:    (_:  U)    => T,
+  Error:     (_: any) => T
 }
 
 export const isNothing = <U>(fs: FetchState<U>) : boolean => match_({
