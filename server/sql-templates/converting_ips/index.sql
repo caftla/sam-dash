@@ -40,8 +40,8 @@ with RawSales as (
 , SalesIPs as (
 
   select s.operator_code, s.ip3
-    , sum(case when s.sales > 0 then 1 else 0 end) as sales
-    , sum(case when s.firstbillings > 0 then 1 else 0 end) as firstbillings
+    , sum(case when s.sales > 0 then 1 else 0 end) :: int as sales
+    , sum(case when s.firstbillings > 0 then 1 else 0 end) :: int  as firstbillings
   from Sales s
   group by s.operator_code, s.ip3
 )
@@ -49,7 +49,7 @@ with RawSales as (
 , Views as (
 
   select reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1)) as ip3
-    , SUM(1) as views
+    , SUM(1) :: int as views
 
   from public.events e
   where e.timestamp >= '$from_date$'
