@@ -12,6 +12,10 @@
   },
   "author": "Homam",
   "license": "MIT",
+  "engines": {
+    "node": "7.2.1",
+    "npm": "3.10.10"
+  },
   "devDependencies": {
     "babel-cli": "^6.24.0",
     "babel-core": "^6.20.0",
