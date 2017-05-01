@@ -3,7 +3,7 @@
 import R from 'ramda'
 import { createSelector, createSelectorCreator, defaultMemoize } from 'reselect'
 import { fetchState, match } from '../adts'
-import isEqual from 'lodash.isEqual'
+import isEqual from 'lodash.isequal'
 
 
 const customSelectorCreator = createSelectorCreator(defaultMemoize,
