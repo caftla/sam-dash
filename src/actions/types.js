@@ -27,6 +27,10 @@ export type Action =
   | { type: 'fetch_converting_ips_success', payload: Array<any> }
   | { type: 'cleanup_fetch_converting_ips' }
   | { type: 'sort_converting_ips', payload: { field: string, order: number }}
+  // --
+  | { type: 'fetch_monthly_reports_loading' }
+  | { type: 'fetch_monthly_reports_success', payload: Array<any> }
+  | { type: 'cleanup_fetch_monthly_reports' }
   // -- login
   | { type: 'login_loading' }
   | { type: 'login_success' }

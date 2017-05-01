@@ -110,3 +110,14 @@ export const cleanup_fetch_converting_ips = () => (dispatch: Dispatch) =>
 
 export const sort_converting_ips = (field: string, order: number) => (dispatch: Dispatch) =>
   dispatch({ type: 'sort_converting_ips', payload: {field, order} })
+
+// converting_ips
+
+export const fetch_monthly_reports = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_monthly_reports_loading' })
+  get({url: `${api_root}/api/v1/monthly_reports/${date_from}/${date_to}/${filter}`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_monthly_reports_success', payload: d }))
+}
+
+export const cleanup_fetch_monthly_reports = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_monthly_reports' })

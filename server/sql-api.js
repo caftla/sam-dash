@@ -2,7 +2,7 @@
 const R = require('ramda')
 const pg = require('pg')
 
-const query = (connection_string: string, query_template:string, params: any) => new Promise((resolve, reject) => {
+const query = (connection_string: string, query_template:string, params: Object) => new Promise((resolve, reject) => {
 
   var query = query_template
 
