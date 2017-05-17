@@ -10,9 +10,12 @@ export type Action =
   // ---
   | { type: 'fetch_filter_section_row_success', payload: Array<any> }
   | { type: 'fetch_filter_section_row_loading'}
-  // -- all countries
+  // -- all_countries
   | { type: 'fetch_all_countries_loading' }
   | { type: 'fetch_all_countries_success', payload: Array<any> }
+  // -- all_affiliates
+  | { type: 'fetch_all_affiliates_loading' }
+  | { type: 'fetch_all_affiliates_success', payload: Array<any> }
   //-- filter page section row
   | { type: 'fetch_filter_page_section_row_loading' }
   | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
@@ -27,6 +30,9 @@ export type Action =
   | { type: 'fetch_converting_ips_success', payload: Array<any> }
   | { type: 'cleanup_fetch_converting_ips' }
   | { type: 'sort_converting_ips', payload: { field: string, order: number }}
+  // --
+  | { type: 'fetch_traffic_breakdown_loading' }
+  | { type: 'fetch_traffic_breakdown_success', payload: Array<any> }
   // --
   | { type: 'fetch_monthly_reports_loading' }
   | { type: 'fetch_monthly_reports_success', payload: Array<any> }

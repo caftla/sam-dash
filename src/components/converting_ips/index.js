@@ -7,6 +7,8 @@ import { connect } from 'react-redux'
 import { ThemeProvider } from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
+import * as arr from 'flow-static-land/lib/Arr'
+import type { Arr } from 'flow-static-land/lib/Arr'
 import R from 'ramda'
 
 import type { QueryParams } from 'my-types'
@@ -19,6 +21,7 @@ import Tabs from '../plottables/tabs'
 
 import {
     fetch_all_countries , set_params
+  , fetch_all_affiliates
   , fetch_converting_ips, cleanup_fetch_converting_ips, sort_row_filter_page_section_row
 } from '../../actions'
 
@@ -50,6 +53,8 @@ type Props = {
   , fetch_converting_ips: (date_from : string, date_to : string, filter : string) => void
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
+  , fetch_all_affiliates: () => void
+  , all_affiliates: Maybe<Array<any>>
   , cleanup_fetch_converting_ips: () => void
   , sort_row_filter_page_section_row: (field: string, order: number) => void
   , sort: { field: string, order: number }
@@ -128,6 +133,12 @@ class ConvertingIPs extends React.Component {
     }
   }
 
+  componentDidMount() {
+    const {params} = this.props.match
+    this.props.fetch_all_affiliates()
+    this.props.fetch_all_countries(params.date_from, params.date_to)
+  }
+
   render() {
     const {params} = this.props.match
     const data_component = match({
@@ -148,12 +159,12 @@ class ConvertingIPs extends React.Component {
         {
           maybe.maybe(
               _ => {
-                this.props.fetch_all_countries(params.date_from, params.date_to)
-                return <div>Loading...</div>
+                return <div>Loading countries and affiliates...</div>
               }
-            , all_countries => _ => {
+            , ([all_countries, all_affiliates]) => _ => {
                 return  <Controls params={ params }
                   countries={ all_countries }
+                  affiliates={ all_affiliates }
                   set_params={ params => {
                     this.props.set_params(params)
                     this.props.cleanup_fetch_converting_ips()
@@ -161,7 +172,7 @@ class ConvertingIPs extends React.Component {
                   } }
                 />
               }
-            , this.props.all_countries
+            , sequence([this.props.all_countries, this.props.all_affiliates])
           )()
         }
       </ThemeProvider>
@@ -170,14 +181,21 @@ class ConvertingIPs extends React.Component {
   }
 }
 
+const sequence = <T>(arr_maybe : Array<Maybe<T>>) =>
+  arr_maybe.some(x => maybe.isNothing(x))
+  ? maybe.Nothing
+  : maybe.of(arr_maybe.map(x => maybe.prj(x)))
+
 export default connect(
     state => ({
         all_countries: state.all_countries
+      , all_affiliates: state.all_affiliates
       , data: converting_ips_selector(state)
       , sort: state.sort
     })
   , {
         fetch_all_countries, set_params
+      , fetch_all_affiliates
       , fetch_converting_ips, cleanup_fetch_converting_ips, sort_row_filter_page_section_row
     }
 )(ConvertingIPs)

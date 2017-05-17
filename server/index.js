@@ -107,7 +107,12 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', (req, res) => {
 })
 
 app.get('/api/v1/all_affiliates', (req, res) => {
-  respond_jewel(`select * from affiliate_mapping`, {}, res)
+  respond_jewel(`select * from affiliate_mapping`, {}, res, R.pipe(
+      R.groupBy(x => x.affiliate_name)
+    , R.map(R.map(x => x.affiliate_id))
+    , R.toPairs
+    , R.map(([affiliate_name, affiliate_ids]) => ({affiliate_name, affiliate_ids}))
+  ))
 })
 
 app.get('/api/v1/converting_ips/:from_date/:to_date/:filter', (req, res) => {
@@ -119,6 +124,14 @@ app.get('/api/v1/converting_ips/:from_date/:to_date/:filter', (req, res) => {
     , require('./sql-templates/converting_ips')(params))
 })
 
+app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_jewel(
+      fs.readFileSync('./server/sql-templates/traffic_breakdown/index.sql', 'utf8')
+    , params
+    , res
+  )
+})
 
 
 app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', (req, res) => {

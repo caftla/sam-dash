@@ -64,6 +64,12 @@ export const fetch_all_countries = (date_from : string, date_to : string) => (di
   .then(d => dispatch({ type: 'fetch_all_countries_success', payload: d }))
 }
 
+export const fetch_all_affiliates = () => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_all_affiliates_loading' })
+  get({url: `${api_root}/api/v1/all_affiliates`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_all_affiliates_success', payload: d }))
+}
+
 export const fetch_filter_section_row = (date_from : string, date_to : string, filter : string, section : string, row : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_section_row_loading' })
   get({url: `${api_root}/api/v1/filter_section_row/${date_from}/${date_to}/${filter}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
@@ -111,7 +117,16 @@ export const cleanup_fetch_converting_ips = () => (dispatch: Dispatch) =>
 export const sort_converting_ips = (field: string, order: number) => (dispatch: Dispatch) =>
   dispatch({ type: 'sort_converting_ips', payload: {field, order} })
 
-// converting_ips
+// traffic_breakdown
+
+export const fetch_traffic_breakdown = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_traffic_breakdown_loading' })
+  get({url: `${api_root}/api/v1/traffic_breakdown/${date_from}/${date_to}/${filter}`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_traffic_breakdown_success', payload: d }))
+}
+
+
+// monthly_reports
 
 export const fetch_monthly_reports = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_monthly_reports_loading' })

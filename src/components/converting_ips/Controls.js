@@ -22,6 +22,7 @@ const InputSelect = ({name, value, options, onChange}) =>
 type ControlsProps = {
     params: QueryParams
   , countries: Array<any>
+  , affiliates: Array<any>
   , set_params: QueryParams => any
 }
 
@@ -48,6 +49,14 @@ export default class Controls extends React.Component {
       , R.map(R.split('='))
       , R.fromPairs
     )(params.filter)
+    const affiliate_name = !filter_params.affiliate_id ? '' : R.pipe(
+        R.split(';')
+      , x => x[0]
+      , affiliate_id => R.pipe(
+          R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
+        , x => !x ? '' : x.affiliate_name
+      )(props.affiliates)
+    )(filter_params.affiliate_id)
     this.state = {
         date_from: params.date_from
       , date_to: params.date_to
@@ -55,6 +64,7 @@ export default class Controls extends React.Component {
       , section: params.section
       , row: params.row
       , ...filter_params
+      , affiliate_name
     }
   }
 
@@ -94,13 +104,19 @@ export default class Controls extends React.Component {
           value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
       </FilterFormSection>
       <Submit onClick={ _ => {
+        const affiliate_ids = R.pipe(
+            R.filter(x => x.affiliate_name == this.state.affiliate_name)
+          , R.map(x => x.affiliate_ids)
+          , R.chain(x => x)
+          , R.join(';')
+        )(this.props.affiliates)
         const filter = R.pipe(
             R.map(k => [k, this.state[k]])
           , R.filter(([k, v]) => !!v)
           , R.map(R.join('='))
           , R.join(',')
           , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affiliate_name", "handle_name", "gateway", "platform"])
+        )(["country_code", "operator_code", "handle_name", "gateway", "platform"]) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to

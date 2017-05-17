@@ -4,7 +4,6 @@ module.exports = (app) => {
   const { encrypt, decrypt } = require('./crypt.js')
 
   passport.use(new LocalStrategy((username, password, callback) => {
-    console.log(username, password)
     if(
            (username == 'homam' && password == 'duck')
         || (username == 'sam-media' && password == 'dashsam42')
@@ -76,7 +75,7 @@ module.exports = (app) => {
   })
 
   app.use((req, res, next) => {
-    if(!req.isAuthenticated()) {
+    if("true" != process.env.bypass_auth && !req.isAuthenticated()) {
       res.status(401)
       if(req.originalUrl.startsWith('/api/')) {
         res.json({ error: 'access denied' })

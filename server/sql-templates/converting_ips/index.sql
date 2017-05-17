@@ -9,7 +9,7 @@ with RawSales as (
   from public.events e
   where e.timestamp >= '$from_date$'
     and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     and (e.sale = 1 or e.firstbilling = 1)
   group by
       e.rockman_id
@@ -32,7 +32,7 @@ with RawSales as (
   on e.rockman_id = s.rockman_id
   where e.timestamp >= '$from_date$'
     and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     and e.view = 1
 
 )
@@ -54,7 +54,7 @@ with RawSales as (
   from public.events e
   where e.timestamp >= '$from_date$'
     and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
     and e.view = 1
   group by reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1))
 )
