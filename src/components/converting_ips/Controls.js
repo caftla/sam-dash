@@ -200,16 +200,16 @@ class Controls extends React.Component {
           value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes') } />
         <InputSelect name="Affiliate" onChange={ on_change_with_fetch_traffic_breakdown(affiliate_name => this.setState({ affiliate_name })) }
           value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
+        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+          value={ maybe.maybe('', x => x, this.state.publisher_id) } options={ publishers.map(x => x.publisher_id) } />
+        <InputSelect name="Sub Id" onChange={ sub_id => this.setState({ sub_id }) }
+          value={ maybe.maybe('', x => x, this.state.sub_id) } options={ sub_ids.map(x => x.sub_id) } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
         <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
           value={ this.state.gateway } options={ !this.state.country_code ? get_all_props('gateways') : get_country_prop('gateways') } />
         <InputSelect name="Platform" onChange={ platform => this.setState({ platform }) }
           value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
-        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
-          value={ maybe.maybe('', x => x, this.state.publisher_id) } options={ publishers.map(x => x.publisher_id) } />
-        <InputSelect name="Sub Id" onChange={ sub_id => this.setState({ sub_id }) }
-          value={ maybe.maybe('', x => x, this.state.sub_id) } options={ sub_ids.map(x => x.sub_id) } />
       </FilterFormSection>
       <Submit onClick={ _ => {
         this.props.set_params({
