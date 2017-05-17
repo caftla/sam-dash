@@ -10,7 +10,7 @@ select
 from public.events e
 where e.timestamp >= '$from_date$'
   and e.timestamp <= '$to_date$'
-  and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+  and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
   and (e.sale = 1 or e.firstbilling = 1 or e.view = 1)
 group by
     e.country_code

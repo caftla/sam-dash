@@ -190,6 +190,7 @@ export default connect(
     state => ({
         all_countries: state.all_countries
       , all_affiliates: state.all_affiliates
+      , traffic_breakdown: state.traffic_breakdown
       , data: converting_ips_selector(state)
       , sort: state.sort
     })

@@ -6,6 +6,7 @@ import dashboard from './dashboard'
 import controls from './controls'
 import all_countries from './all_countries'
 import all_affiliates from './all_affiliates'
+import traffic_breakdown from './traffic_breakdown'
 import filter_section_row from './filter_section_row'
 import filter_page_section_row from './filter_page_section_row'
 import cohort from './cohort'
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
   // ---
   , all_countries
   , all_affiliates
+  , traffic_breakdown
   , filter_section_row
   , filter_page_section_row
   , cohort
