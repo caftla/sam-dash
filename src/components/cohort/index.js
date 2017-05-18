@@ -118,7 +118,7 @@ class Cohort extends React.Component {
                   set_params={ params => {
                     this.props.set_params(params)
                     this.props.cleanup_fetch_cohort()
-                    this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}/${params.page}`)
+                    this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
                   } }
                 />
               }

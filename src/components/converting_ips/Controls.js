@@ -8,9 +8,6 @@ import styled from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 import { connect } from 'react-redux'
-import {
-    fetch_traffic_breakdown
-} from '../../actions'
 
 const Input = ({type, name, value, onChange} : {type: string, name: string, value: string, onChange: string => void}) =>
   <FormRow>
@@ -227,7 +224,34 @@ class Controls extends React.Component {
   }
 }
 
+type ControlsInstanceProps = {
+    ...ControlsProps
+  , cleanup_fetch_converting_ips: () => void
+  , set_params: (params: QueryParams) => void
+  , history: any
+}
+
+const ControlsInstance = (props : ControlsInstanceProps) => <Controls
+    { ...props }
+    params={ props.params }
+    countries={ props.countries }
+    affiliates={ props.affiliates }
+    set_params={ params => {
+      props.set_params(params)
+      props.cleanup_fetch_converting_ips()
+      props.history.push(`/converting_ips/${params.date_from}/${params.date_to}/${params.filter}`)
+    } }
+  />
+
+  import {
+      set_params
+    , cleanup_fetch_converting_ips
+    , fetch_traffic_breakdown
+  } from '../../actions'
+
 export default connect(
-    state => ({ traffic_breakdown: state.traffic_breakdown })
-  , { fetch_traffic_breakdown }
-)(Controls)
+    state => ({
+        traffic_breakdown: state.traffic_breakdown
+    })
+  , { fetch_traffic_breakdown, cleanup_fetch_converting_ips, set_params }
+)(ControlsInstance)

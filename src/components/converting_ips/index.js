@@ -7,8 +7,7 @@ import { connect } from 'react-redux'
 import { ThemeProvider } from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
-import * as arr from 'flow-static-land/lib/Arr'
-import type { Arr } from 'flow-static-land/lib/Arr'
+import { sequence } from '../../helpers'
 import R from 'ramda'
 
 import type { QueryParams } from 'my-types'
@@ -147,10 +146,10 @@ class ConvertingIPs extends React.Component {
       , Error: (error) => <div>Error</div>
       , Loaded: (data) => {
           return <Tabs pages={data} params={params}
-                sort={ this.props.sort  } // this.props.sort
-                onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) }
-                page={ Page }
-                />
+            sort={ this.props.sort  }
+            onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) }
+            page={ Page }
+          />
         }
     })(this.props.data)
 
@@ -162,14 +161,10 @@ class ConvertingIPs extends React.Component {
                 return <div>Loading countries and affiliates...</div>
               }
             , ([all_countries, all_affiliates]) => _ => {
-                return  <Controls params={ params }
+                return <Controls params={ params }
                   countries={ all_countries }
                   affiliates={ all_affiliates }
-                  set_params={ params => {
-                    this.props.set_params(params)
-                    this.props.cleanup_fetch_converting_ips()
-                    this.props.history.push(`/converting_ips/${params.date_from}/${params.date_to}/${params.filter}`)
-                  } }
+                  history={ this.props.history }
                 />
               }
             , sequence([this.props.all_countries, this.props.all_affiliates])
@@ -180,11 +175,6 @@ class ConvertingIPs extends React.Component {
     </div>
   }
 }
-
-const sequence = <T>(arr_maybe : Array<Maybe<T>>) =>
-  arr_maybe.some(x => maybe.isNothing(x))
-  ? maybe.Nothing
-  : maybe.of(arr_maybe.map(x => maybe.prj(x)))
 
 export default connect(
     state => ({

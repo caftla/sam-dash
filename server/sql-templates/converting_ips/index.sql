@@ -59,6 +59,6 @@ with RawSales as (
   group by reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1))
 )
 
-select s.*, v.views
+select s.operator_code, s.sales, s.firstbillings, v.ip3, v.views
 from SalesIPs s
-inner join Views v on s.ip3 = v.ip3
+right join Views v on s.ip3 = v.ip3
