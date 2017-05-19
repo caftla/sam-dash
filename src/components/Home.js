@@ -118,7 +118,6 @@ class Home extends React.Component {
   }
 
   componentWillUpdate(nextProps, b) {
-
     if(nextProps.login_state != this.props.login_state && true === nextProps.login_state) {
       const query = fromQueryString(window.location.search.substring(1))
       if(!!query.login_redir) {
@@ -147,14 +146,23 @@ class Home extends React.Component {
         Nothing: () => <Login login={ this.props.login } />
       , Loading: () => <div>Logging in...</div>
       , Error: (error) => <div>Loggin error</div>
-      , Loaded: (logged_in) => !logged_in
-        ? <Login login={ this.props.login } />
-        :
-            maybe.maybe(
+      , Loaded: (logged_in) => {
+        if(!logged_in) {
+          return <Login login={ this.props.login } />
+        } else {
+
+          const query = fromQueryString(window.location.search.substring(1))
+          if(!!query.login_redir) {
+            window.location.href = decodeURIComponent(query.login_redir)
+            return "redirecting ..."
+          }
+
+          return maybe.maybe(
               _ => {
                 return <div>Loading...</div>
               }
              , ([all_countries, all_affiliates]) => _ => {
+               return <div>HAHA</div>
                 return <div>
                   <SimpleTabs>
                     <div name="Standard">
@@ -202,6 +210,8 @@ class Home extends React.Component {
               }
              , sequence([this.props.all_countries, this.props.all_affiliates])
             )()
+        }
+    }
     })(this.props.login_state)
   }
 }

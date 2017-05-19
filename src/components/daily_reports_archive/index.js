@@ -52,7 +52,7 @@ class DailyReportsArchive extends React.Component {
       sendEmojiToChat(':)')
     };
 
-    const flags = window.location.href;
+    const flags = params.date_from;
 
     return <div>
         <Elm src={Chat} flags={ flags } ports={setupPorts} />

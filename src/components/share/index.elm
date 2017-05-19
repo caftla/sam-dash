@@ -38,8 +38,8 @@ type alias Model =
 
 
 init : String -> ( Model, Cmd Msg )
-init server =
-    ( Model server "" [], downloadHTML "https://caftla.github.io/slack-reports/archive/2017-05-18.html" )
+init dateFrom =
+    ( Model dateFrom "" [], downloadHTML ("https://caftla.github.io/slack-reports/archive/" ++ dateFrom ++ ".html") )
 
 
 
