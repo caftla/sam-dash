@@ -37,6 +37,14 @@ module.exports = {
         include: [resolve(__dirname, '../src'), resolve(__dirname)],
         use: 'babel-loader',
       },
+      {
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: {
+          loader: 'elm-webpack-loader',
+          options: {}
+        }
+      },
     ],
   },
   plugins: [

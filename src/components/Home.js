@@ -29,6 +29,7 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 
+
 type LoginProps = {
   login: (username: string, password: string) => void
 }
@@ -154,48 +155,50 @@ class Home extends React.Component {
                 return <div>Loading...</div>
               }
              , ([all_countries, all_affiliates]) => _ => {
-                return <SimpleTabs>
-                  <div name="Standard">
-                    <StandardControls params={ params }
-                      countries={ all_countries }
-                      set_params={ params => {
-                        this.props.set_params(params)
-                        this.props.cleanup_fetch_filter_section_row()
-                        this.props.fetch_all_countries(params.date_from, params.date_to)
-                        this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
-                      } }
-                    />
-                  </div>
-                  <div name="Converting IPs">
-                    <ConvertingIPsControls params={ params }
-                      countries={ all_countries }
-                      affiliates={ all_affiliates }
-                      history={ this.props.history }
-                    />
-                  </div>
-                  <div name="Cohort">
-                    <CohortControls params={ params }
-                      countries={ all_countries }
-                      set_params={ params => {
-                        this.props.set_params(params)
-                        this.props.cleanup_fetch_filter_section_row()
-                        this.props.fetch_all_countries(params.date_from, params.date_to)
-                        this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
-                      } }
-                    />
-                  </div>
-                  <div name="Monthly Reports">
-                    <MonthlyReportsControls params={ params }
-                      countries={ all_countries }
-                      set_params={ params => {
-                        this.props.set_params(params)
-                        this.props.cleanup_fetch_filter_section_row()
-                        this.props.fetch_all_countries(params.date_from, params.date_to)
-                        this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}`)
-                      } }
-                    />
-                  </div>
-                </SimpleTabs>
+                return <div>
+                  <SimpleTabs>
+                    <div name="Standard">
+                      <StandardControls params={ params }
+                        countries={ all_countries }
+                        set_params={ params => {
+                          this.props.set_params(params)
+                          this.props.cleanup_fetch_filter_section_row()
+                          this.props.fetch_all_countries(params.date_from, params.date_to)
+                          this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                        } }
+                      />
+                    </div>
+                    <div name="Converting IPs">
+                      <ConvertingIPsControls params={ params }
+                        countries={ all_countries }
+                        affiliates={ all_affiliates }
+                        history={ this.props.history }
+                      />
+                    </div>
+                    <div name="Cohort">
+                      <CohortControls params={ params }
+                        countries={ all_countries }
+                        set_params={ params => {
+                          this.props.set_params(params)
+                          this.props.cleanup_fetch_filter_section_row()
+                          this.props.fetch_all_countries(params.date_from, params.date_to)
+                          this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
+                        } }
+                      />
+                    </div>
+                    <div name="Monthly Reports">
+                      <MonthlyReportsControls params={ params }
+                        countries={ all_countries }
+                        set_params={ params => {
+                          this.props.set_params(params)
+                          this.props.cleanup_fetch_filter_section_row()
+                          this.props.fetch_all_countries(params.date_from, params.date_to)
+                          this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}`)
+                        } }
+                      />
+                    </div>
+                  </SimpleTabs>
+                </div>
               }
              , sequence([this.props.all_countries, this.props.all_affiliates])
             )()

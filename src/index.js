@@ -23,6 +23,7 @@ import Filter_Page_Section_Row from './components/filter_page_section_row'
 import Cohort from './components/cohort'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
+import DailyReportsArchive from './components/daily_reports_archive'
 import { Body } from './components/Styled'
 
 Offline.install()
@@ -38,6 +39,7 @@ export const Root = () => {
         <Route path="/cohort/:date_from/:date_to/:filter" component={Cohort} />
         <Route path="/converting_ips/:date_from/:date_to/:filter" component={ConvertingIPs} />
         <Route path="/monthly_reports/:date_from/:date_to/:filter" component={MonthlyReports} />
+        <Route path="/daily_reports_archive/:date_from" component={DailyReportsArchive} />
       </Body>
     </ConnectedRouter>
   </Provider>

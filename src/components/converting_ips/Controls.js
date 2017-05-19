@@ -119,7 +119,6 @@ class Controls extends React.Component {
 
   render() {
     const {countries, affiliates, traffic_breakdown} = this.props
-    console.log('traffic_breakdown', traffic_breakdown)
 
     const get_all_props = prop => R.pipe(
         R.chain(R.prop(prop))
@@ -142,7 +141,7 @@ class Controls extends React.Component {
           R.filter(x => x.affiliate_name == this.state.affiliate_name)
         , R.chain(x => x.affiliate_ids)
       )(affiliates)
-    console.log('selected_affiliate_ids', this.state.affiliate_name, selected_affiliate_ids, this.state)
+
     const publishers = maybe.maybe(
         []
       , R.pipe(
@@ -179,8 +178,6 @@ class Controls extends React.Component {
       setTimeout(() => this.try_fetch_traffic_breakdown(), 250)
     }
 
-    console.log('publishers', publishers)
-
     const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
 
     return <FormContainer>
@@ -189,7 +186,7 @@ class Controls extends React.Component {
         <Input type="date" name="From" value={ this.state.date_from } onChange={ val => this.setState({ 'date_from': val }) } />
         <Input type="date" name="To" value={ this.state.date_to } onChange={ val => this.setState({ 'date_to': val }) } />
       </FormSection>
-      <FilterFormSection style={ {width: '900px'} }>
+      <FilterFormSection>
         <FormTitle>Filter:</FormTitle>
         <InputSelect name="Country" onChange={ on_change_with_fetch_traffic_breakdown(country_code => this.setState({ country_code: country_code, operator_code: '' })) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />

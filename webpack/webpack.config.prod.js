@@ -33,6 +33,14 @@ module.exports = {
           presets: ["es2017", "es2015", "react", "stage-0"],
         },
       },
+      {
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: {
+          loader: 'elm-webpack-loader',
+          options: {}
+        }
+      },
     ],
   },
   plugins: [

@@ -1,3 +1,5 @@
+// @flow
+
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
