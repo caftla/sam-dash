@@ -154,7 +154,7 @@ class Home extends React.Component {
           const query = fromQueryString(window.location.search.substring(1))
           if(!!query.login_redir) {
             window.location.href = decodeURIComponent(query.login_redir)
-            return "redirecting ..."
+            return <div>redirecting ...</div>
           }
 
           return maybe.maybe(
@@ -162,7 +162,6 @@ class Home extends React.Component {
                 return <div>Loading...</div>
               }
              , ([all_countries, all_affiliates]) => _ => {
-               return <div>HAHA</div>
                 return <div>
                   <SimpleTabs>
                     <div name="Standard">
@@ -228,9 +227,5 @@ export default connect(
       , fetch_all_affiliates
       , set_params
       , cleanup_fetch_filter_section_row
-      // , cleanup_fetch_monthly_reports
-      // , cleanup_fetch_converting_ips
-      // , cleanup_fetch_cohort
-      // , cleanup_fetch_filter_page_section_row
     }
 )(Home)
