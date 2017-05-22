@@ -131,12 +131,28 @@ class Home extends React.Component {
     if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
       nextProps.fetch_all_countries(params.date_from, params.date_to)
     }
+
+    const go = () => {
+      this.props.fetch_all_affiliates()
+      this.props.fetch_all_countries(params.date_from, params.date_to)
+    }
+    match({
+        Nothing: () => void 8
+      , Loading: () => void 8
+      , Error: (error) => void 8
+      , Loaded: (data) => !data
+        ? void 8
+        : match({
+            Nothing: () => go()
+          , Loading: () => go()
+          , Error: (error) => go()
+          , Loaded: (data) => void 8
+        })(this.props.login_state)
+    })(nextProps.login_state)
   }
 
   componentDidMount() {
     const { params } = this.props
-    this.props.fetch_all_affiliates()
-    this.props.fetch_all_countries(params.date_from, params.date_to)
   }
 
   render() {
