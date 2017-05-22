@@ -6,9 +6,9 @@ WITH Affiliates as (
 
   WITH Conv as (
     select
-        $[params.page    == 'day' ? 'c.date_tz' : `coalesce(c.${params.page},    'Unknown')`]$ as page
-      , $[params.section == 'day' ? 'c.date_tz' : `coalesce(c.${params.section}, 'Unknown')`]$ as section
-      , $[params.row     == 'day' ? 'c.date_tz' : `coalesce(c.${params.row},     'Unknown')`]$ as row
+        $[params.f_page('c', 'date_tz')]$ as page
+      , $[params.f_section('c', 'date_tz')]$ as section
+      , $[params.f_row('c', 'date_tz')]$ as row
       , SUM(c.sale) as sales
       , SUM(c.lead) as leads
       , SUM(c.view) as views
@@ -23,9 +23,9 @@ WITH Affiliates as (
   )
   , RPS as (
     select
-        $[params.page    == 'day' ? 'r.day' : `coalesce(r.${params.page},    'Unknown')`]$ as page
-      , $[params.section == 'day' ? 'r.day' : `coalesce(r.${params.section}, 'Unknown')`]$ as section
-      , $[params.row     == 'day' ? 'r.day' : `coalesce(r.${params.row},     'Unknown')`]$ as row
+        $[params.f_page('r', 'day')]$ as page
+      , $[params.f_section('r', 'day')]$ as section
+      , $[params.f_row('r', 'day')]$ as row
       , SUM(r.home_cpa) as cost
       , SUM(r.sale_count) as sales
       , SUM(r.optout_48h) as optout_48h
@@ -43,8 +43,8 @@ WITH Affiliates as (
   , Page_Summary as (
 
     select
-        $[params.page    == 'day' ? 'c.date_tz' : `coalesce(c.${params.page},    'Unknown')`]$ as page
-      , $[params.row     == 'day' ? 'c.date_tz' : `coalesce(c.${params.row},     'Unknown')`]$ as row
+        $[params.f_page('c', 'date_tz')]$ as page
+      , $[params.f_row('c', 'date_tz')]$ as row
       , SUM(c.sale) as sales
     from reports_ams.conversion_daily c
     where c.date_tz >= to_date('$from_date$', 'YYYY-MM-DD') and c.date_tz <= to_date('$to_date$', 'YYYY-MM-DD')
@@ -93,9 +93,9 @@ WITH Affiliates as (
     , safediv(SUM(c.firstbillings), SUM(c.sales)) :: float as cq
     , safediv(SUM(c.sales) - SUM(c.optout_24h), SUM(c.sales)) :: float as active24
     , json_agg(json_build_object(
-        'page', c.page
-      , 'section', c.section
-      , 'row', c.row
+        'page', to_json(c.page)
+      , 'section', to_json(c.section)
+      , 'row', to_json(c.row)
       , 'cost', (c.cost)
       , 'section_sales_ratio', c.section_sales_ratio
       , 'sales', (c.sales)
@@ -124,8 +124,8 @@ select to_json(c.page) as page
   , safediv(SUM(c.firstbillings), SUM(c.sales)) :: float as cq
   , safediv(SUM(c.sales) - SUM(c.optout_24h), SUM(c.sales)) :: float as active24
   , json_agg(json_build_object(
-      'page', c.page
-    , 'section', c.section
+      'page', to_json(c.page)
+    , 'section', to_json(c.section)
     , 'cost', (c.cost)
     , 'sales', (c.sales)
     , 'views', (c.views)

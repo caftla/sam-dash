@@ -4,6 +4,7 @@ module.exports = (app) => {
   const { encrypt, decrypt } = require('./crypt.js')
 
   passport.use(new LocalStrategy((username, password, callback) => {
+    console.log('username, password', username, password)
     if(
            (username == 'homam' && password == 'duck')
         || (username == 'sam-media' && password == 'dashsam42')

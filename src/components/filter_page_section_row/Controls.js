@@ -72,7 +72,7 @@ export default class Controls extends React.Component {
       , R.prop(prop)
     )(countries)
 
-    const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
+    const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day', 'week', 'month']
 
     return <FormContainer>
       <FormSection>

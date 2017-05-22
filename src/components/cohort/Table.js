@@ -30,9 +30,9 @@ const Table = ({data}) => {
           <TD>{timeFormat('%U')(new Date(x.day).valueOf())}</TD>
           <TD>{timeFormat('%Y-%m-%d')(new Date(x.day))}</TD>
           <TD>{format(',')(x.data[0].sale_count)}</TD>
-          <TD>{format('0.1f')(ecpa)}</TD>
+          <TD style={ {width: '80px'} }>{format('0.1f')(ecpa)}</TD>
           {
-            x.data.map((x, i) => <TD key={i} style={ { color: x.arpu > ecpa ? 'green' : '' } }>{format('0.1f')(x.arpu)}</TD>)
+            x.data.map((x, i) => <TD key={i} style={ { color: x.arpu > ecpa ? 'green' : '' } }>{format('0.2f')(x.arpu)}</TD>)
           }
         </tr>
       })}
