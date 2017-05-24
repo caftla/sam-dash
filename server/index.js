@@ -8,8 +8,25 @@ const query_monthly_reports = require('./sql-templates/monthly_reports')
 const app = express();
 app.use(express.static('dist'))
 app.use(require('cookie-parser')());
-app.use(require('body-parser')());
 app.use(require('express-session')({secret: 'secret-dash'}));
+
+app.use(require('body-parser')());
+
+app.post('/api/v1/run_query', (req, res) => {
+  req.rawBody = '';
+  req.setEncoding('utf8');
+
+  req.on('data', function(chunk) { 
+    req.rawBody += chunk;
+  });
+
+  req.on('end', function() {
+    // res.end(req.rawBody)
+    respond_jewel(req.rawBody, {}, res)
+  })
+})
+
+
 
 // login
 require('./auth')(app)
@@ -132,7 +149,6 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', (req, res) => {
     , res
   )
 })
-
 
 app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
