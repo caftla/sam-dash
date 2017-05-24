@@ -79,9 +79,9 @@ export const fetch_filter_section_row = (date_from : string, date_to : string, f
 
 // filter page section row
 
-export const fetch_filter_page_section_row = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => (dispatch : Dispatch) => {
+export const fetch_filter_page_section_row = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_page_section_row_loading' })
-  get({url: `${api_root}/api/v1/filter_page_section_row/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `${api_root}/api/v1/filter_page_section_row/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_filter_page_section_row_success', payload: d }))
 }
 

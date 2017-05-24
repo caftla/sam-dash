@@ -41,6 +41,20 @@ module.exports = {
           options: {}
         }
       },
+      {
+        test: /\.styl$/,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'stylus-loader'
+          },
+        ],
+      },
+      {
+        test: /\.css$/,
+        use: [ 'style-loader', 'css-loader' ]
+      },
     ],
   },
   plugins: [

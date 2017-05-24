@@ -5,6 +5,7 @@ declare module 'my-types' {
   declare type QueryParams = {
     date_from: string,
     date_to: string,
+    timezone: number,
     filter: string,
     page: string,
     section: string,

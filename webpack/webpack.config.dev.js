@@ -1,6 +1,7 @@
 const { resolve } = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 module.exports = {
   entry: [
@@ -29,6 +30,9 @@ module.exports = {
         ws: true,
       }
     },
+    historyApiFallback: {
+      disableDotRule: true
+    }
   },
   module: {
     rules: [
@@ -45,11 +49,28 @@ module.exports = {
           options: {}
         }
       },
+      {
+        test: /\.styl$/,
+        use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
+          fallbackLoader: 'style-loader',
+          loader: ['css-loader', {
+              loader: 'stylus-loader',
+          }]
+        }))
+      },
+      {
+        test: /\.css$/,
+        use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: 'css-loader'
+        }))
+      },
     ],
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NamedModulesPlugin(),
+    new ExtractTextPlugin('style.css'),
     new HtmlWebpackPlugin({
       title: 'SAM Dashboard',
       template: '../webpack/template.html',

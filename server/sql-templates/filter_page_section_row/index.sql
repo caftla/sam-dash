@@ -1,143 +1,75 @@
--- filter : copuntry_code
--- section: operator_code
--- rows   : date
-
-WITH Affiliates as (
-
-  WITH Conv as (
-    select
-        $[params.f_page('c', 'date_tz')]$ as page
-      , $[params.f_section('c', 'date_tz')]$ as section
-      , $[params.f_row('c', 'date_tz')]$ as row
-      , SUM(c.sale) as sales
-      , SUM(c.lead) as leads
-      , SUM(c.view) as views
-      , (SUM(c.sale_pixel_direct) + SUM(c.sale_pixel_delayed)) as pixels
-      , safediv(SUM(c.sale_pixel_direct) + SUM(c.sale_pixel_delayed), SUM(c.sale)) as pixels_ratio
-      , safediv(SUM(c.sale), SUM(c.view)) as cr
-    from reports_ams.conversion_daily c
-    where c.date_tz >= to_date('$from_date$', 'YYYY-MM-DD') and c.date_tz <= to_date('$to_date$', 'YYYY-MM-DD')
-      and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `c.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    group by page, section, row
-    order by page, section, row
-  )
-  , RPS as (
-    select
-        $[params.f_page('r', 'day')]$ as page
-      , $[params.f_section('r', 'day')]$ as section
-      , $[params.f_row('r', 'day')]$ as row
-      , SUM(r.home_cpa) as cost
-      , SUM(r.sale_count) as sales
-      , SUM(r.optout_48h) as optout_48h
-      , SUM(r.firstbilling_count) as firstbillings
-      , safediv(SUM(r.home_cpa), SUM(r.sale_count)) as ecpa
-      , safediv(SUM(r.firstbilling_count), SUM(r.sale_count)) as cq
-      , safediv(SUM(r.sale_count) - SUM(r.optout_24h), SUM(r.sale_count)) as active24
-      , SUM(r.optout_24h) as optout_24h
-    from reports_ams.rps r
-    where r.day >= to_date('$from_date$', 'YYYY-MM-DD') and r.day <= to_date('$to_date$', 'YYYY-MM-DD')
-      and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `r.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    group by page, section, row
-    order by page, section, row
-  )
-  , Page_Summary as (
-
-    select
-        $[params.f_page('c', 'date_tz')]$ as page
-      , $[params.f_row('c', 'date_tz')]$ as row
-      , SUM(c.sale) as sales
-    from reports_ams.conversion_daily c
-    where c.date_tz >= to_date('$from_date$', 'YYYY-MM-DD') and c.date_tz <= to_date('$to_date$', 'YYYY-MM-DD')
-      and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `c.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    group by page, row -- , row
-
-  )
-  , Final as (
-
-    select c.*
-      , s.section_sales
-      , safediv(c.sales, s.section_sales) as section_sales_ratio
-      , r.cost
-      , r.firstbillings
-      , r.active24
-      , r.optout_24h
-      , r.optout_48h
-      , r.ecpa
-      , r.cq
-
-    from Conv c
-    left join lateral (select sum(s.sales) as section_sales from Page_Summary s
-      where
-            s.page = c.page
-        and s.row = c.row
-    ) s on true
-    full outer join RPS r on
-          c.page = r.page
-      and c.section = r.section
-      and c.row = r.row
-    order by c.page, c.section, c.row
-  )
-
-  select page as page
-    , section as section
-    , SUM(c.sales) as sales
-    , SUM(c.views)  as views
-    , SUM(c.pixels) as pixels
-    , SUM(c.cost)  as cost
-    , SUM(c.firstbillings) as firstbillings
-    , SUM(c.optout_24h) as optout_24h
-    , SUM(c.optout_48h) as optout_48h
-    , safediv(SUM(c.sales), SUM(c.views)) :: float as cr
-    , safediv(SUM(c.pixels), SUM(c.sales)) :: float as pixels_ratio
-    , safediv(SUM(c.cost), SUM(c.sales)) :: float as ecpa
-    , safediv(SUM(c.firstbillings), SUM(c.sales)) :: float as cq
-    , safediv(SUM(c.sales) - SUM(c.optout_24h), SUM(c.sales)) :: float as active24
-    , json_agg(json_build_object(
-        'page', to_json(c.page)
-      , 'section', to_json(c.section)
-      , 'row', to_json(c.row)
-      , 'cost', (c.cost)
-      , 'section_sales_ratio', c.section_sales_ratio
-      , 'sales', (c.sales)
-      , 'views', (c.views)
-      , 'cr', (c.cr)
-      , 'pixels_ratio', (c.pixels_ratio)
-      , 'ecpa', (c.ecpa)
-      , 'cq', (c.cq)
-      , 'active24', (c.active24)
-      , 'optout_48h', (c.optout_48h)
-      , 'firstbillings', (c.firstbillings)
-      , 'section_sales', (c.section_sales)
-    )) as data
-  from Final c
-  -- where c.sales > $min_sales$
-  group by page, section
-
+with Views as (
+  select 
+    $[params.f_page('e', 'timestamp')]$ as page
+  , $[params.f_section('e', 'timestamp')]$ as section
+  , $[params.f_row('e', 'timestamp')]$ as row
+  , max(e.affiliate_id) as affiliate_id
+  , max(e.publisher_id) as publisher_id
+  , max(e.country_code) as country_code
+  , max(e.operator_code) as operator_code
+  , min(e.timestamp) as timestamp
+  , sum(case when e.view then 1 else 0 end) :: int as views
+  , sum(case when e.lead then 1 else 0 end) :: int as leads
+  , sum(case when e.sale then 1 else 0 end) :: int as sales
+  , sum(case when e.sale_pixel_direct or e.sale_pixel_delayed then 1 else 0 end) :: int as pixels
+  , sum(case when(e.sale_pixel_direct or e.sale_pixel_delayed) and (e.scrub is not true) then 1 else 0 end) :: int as paid_sales
+  , sum(case when e.firstbilling then 1 else 0 end) :: int as firstbillings
+  , sum(case when e.optout then 1 else 0 end) :: int as optouts
+  from public.events e 
+  where e.timestamp >= $[params.from_date_tz]$
+    and e.timestamp < $[params.to_date_tz]$
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+  group by page, section, row
+  order by page, section, row
 )
 
-select to_json(c.page) as page
-  , SUM(c.sales) :: int as sales
-  , SUM(c.views) :: int as views
-  , safediv(SUM(c.sales), SUM(c.views)) :: float as cr
-  , safediv(SUM(c.pixels), SUM(c.sales)) :: float as pixels_ratio
-  , safediv(SUM(c.cost), SUM(c.sales)) :: float as ecpa
-  , safediv(SUM(c.firstbillings), SUM(c.sales)) :: float as cq
-  , safediv(SUM(c.sales) - SUM(c.optout_24h), SUM(c.sales)) :: float as active24
-  , json_agg(json_build_object(
-      'page', to_json(c.page)
-    , 'section', to_json(c.section)
-    , 'cost', (c.cost)
-    , 'sales', (c.sales)
-    , 'views', (c.views)
-    , 'cr', (c.cr)
-    , 'pixels_ratio', (c.pixels_ratio)
-    , 'ecpa', (c.ecpa)
-    , 'cq', (c.cq)
-    , 'active24', (c.active24)
-    , 'optout_48h', (c.optout_48h)
-    , 'firstbillings', (c.firstbillings)
-    , 'data', c.data
-  )) as data
+, Cost1 as (
 
-from Affiliates c
-group by page
+  select 
+    $[params.f_page('e', 'timestamp')]$ as page
+  , $[params.f_section('e', 'timestamp')]$ as section
+  , $[params.f_row('e', 'timestamp')]$ as row
+  , e.cpa_id
+  , sum(case when(e.sale_pixel_direct or e.sale_pixel_delayed) and (e.scrub is not true) then 1 else 0 end) :: int as paid_sales
+  from public.events e 
+  where e.timestamp >= $[params.from_date_tz]$
+    and e.timestamp < $[params.to_date_tz]$
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+  group by page, section, row, e.cpa_id
+  order by page, section, row, e.cpa_id
+)
+
+, Cost2 as (
+
+  select 
+    page, section, row
+  , sum(nvl(c.home_cpa, 0) * c1.paid_sales) :: float as cost
+  from Cost1 as c1
+  left join cpa c on c.cpa_id = c1.cpa_id
+  group by page, section, row
+)
+
+, Optout24 as (
+
+  select 
+    $[params.f_page('e', 'timestamp')]$ as page
+  , $[params.f_section('e', 'timestamp')]$ as section
+  , $[params.f_row('e', 'timestamp')]$ as row
+  , max(e.affiliate_id) as affiliate_id
+  , max(e.publisher_id) as publisher_id
+  , max(e.country_code) as country_code
+  , max(e.operator_code) as operator_code
+  , min(e.timestamp) as timestamp
+  , sum(case when e.optout and e.active_duration is not null and e.active_duration <= 86400 then 1 else 0 end) :: int as optout_24
+  from events e
+  where e.timestamp >= $[params.from_date_tz]$
+    and e.timestamp < dateadd(day, 1, $[params.to_date_tz]$)
+    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+  group by page, section, row
+  order by page, section, row
+)
+
+select v.*, o.optout_24, c.cost from Views v
+left join Optout24 o on v.page = o.page and v.section = o.section and v.row = o.row
+left join Cost2 c on v.page = c.page and v.section = c.section and v.row = c.row
+-- left join cpa c on c.cpa_id = v.cpa_id

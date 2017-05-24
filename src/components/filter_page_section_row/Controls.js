@@ -5,6 +5,13 @@ import R from 'ramda'
 import type { QueryParams } from 'my-types'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
+import DateTime from 'react-datetime'
+import css from '../../../node_modules/react-datetime/css/react-datetime.css'
+import stylus from './Controls.styl'
+const {timeFormat} = require('d3-time-format')
+const { format } = require('d3-format')
+
+const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
 const Input = ({type, name, value, onChange} : {type: string, name: string, value: string, onChange: string => void}) =>
   <FormRow>
@@ -12,24 +19,33 @@ const Input = ({type, name, value, onChange} : {type: string, name: string, valu
     <DateField value={value} type={type} onChange={ x => onChange(x.target.value) } />
   </FormRow>
 
+const LabelledInput = ({name, children} : {name: string, children?: Array<any>}) =>
+  <FormRow>
+    <FormLabel>{name}</FormLabel>
+    { children }
+  </FormRow>
+
 const InputSelect = ({name, value, options, onChange}) =>
   <FormRow>
     <FormLabel>{name}</FormLabel>
     <Select value={ value } onChange={ e => onChange(e.target.value) }>
       <option value="">Select</option>
-      { options.map(c => <option key={ c }>{ c }</option>) }
+      { options.map((c, i) => <option key={ i } value={ !!c && c.hasOwnProperty('value') ? c.value : c }>{ !!c && c.hasOwnProperty('name') ? c.name : c }</option>) }
     </Select>
   </FormRow>
 
 type ControlsProps = {
     params: QueryParams
   , countries: Array<any>
+  , affiliates: Array<any>
   , set_params: QueryParams => any
+  , className?: string
 }
 
 type ControlsState = {
     date_from: string
   , date_to: string
+  , timezone: number
   , page: string
   , section: string
   , row: string
@@ -50,18 +66,46 @@ export default class Controls extends React.Component {
       , R.map(R.split('='))
       , R.fromPairs
     )(params.filter)
+
+    const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
+    const affiliate_name = params_affiliate_ids.length == 0 ? '' : R.pipe(
+        x => x[0]
+      , affiliate_id => R.pipe(
+          R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
+        , x => !x ? '' : x.affiliate_name
+      )(props.affiliates)
+    )(params_affiliate_ids)
+
     this.state = {
         date_from: params.date_from
       , date_to: params.date_to
+      , timezone: params.timezone
       , page: params.page
       , section: params.section
       , row: params.row
       , ...filter_params
+      , affiliate_name
     }
   }
 
+  get_filter_string(with_publisher_id: boolean) {
+    const affiliate_ids = R.pipe(
+        R.filter(x => x.affiliate_name == this.state.affiliate_name)
+      , R.map(x => x.affiliate_ids)
+      , R.chain(x => x)
+      , R.join(';')
+    )(this.props.affiliates)
+    return R.pipe(
+        R.map(k => [k, this.state[k]])
+      , R.filter(([k, v]) => !!v)
+      , R.map(R.join('='))
+      , R.join(',')
+      , x => !x ? '-' : x
+    )(["country_code", "operator_code", "handle_name"].concat(with_publisher_id ? ["publisher_id", "sub_id"] : [])) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+  }
+
   render() {
-    const {countries} = this.props
+    const {countries, affiliates} = this.props
     const get_all_props = prop => R.pipe(
         R.chain(R.prop(prop))
       , R.uniq
@@ -72,13 +116,44 @@ export default class Controls extends React.Component {
       , R.prop(prop)
     )(countries)
 
-    const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day', 'week', 'month']
+    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'hour', 'day', 'week', 'month']
 
-    return <FormContainer>
+    return <FormContainer className={ this.props.className }>
       <FormSection>
         <FormTitle>Date Range:</FormTitle>
-        <Input type="date" name="From" value={ this.state.date_from } onChange={ val => this.setState({ 'date_from': val }) } />
-        <Input type="date" name="To" value={ this.state.date_to } onChange={ val => this.setState({ 'date_to': val }) } />
+        <LabelledInput name="From">
+          <DateTime value={ new Date(this.state.date_from) } onChange={ val => {
+              if(!!val.toJSON) {
+                this.setState({ 'date_from': format_date(val.toDate()) })
+              } else {
+                // wrong date
+              }
+            } } inputProps={ {
+              className: 'date_input'
+            } } />
+        </LabelledInput>
+        <LabelledInput name="To">
+          <DateTime value={ new Date(this.state.date_to) } onChange={ val => {
+              if(!!val.toJSON) {
+                this.setState({ 'date_to': format_date(val.toDate()) })
+              } else {
+                // wrong date
+              }
+            } } inputProps={ {
+              className: 'date_input'
+            } } />
+        </LabelledInput>
+        <InputSelect name="Timezone" onChange={ timezone => {
+          console.log('setting_timezone', timezone)
+          this.setState({ timezone: timezone }) 
+        }}
+          value={ this.state.timezone } options={ 
+            R.pipe(
+                R.map(x => (12 - x / 2) )
+              , R.sortBy(x => x)
+              , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
+            )(R.range(0, 48)) 
+          } />
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter:</FormTitle>
@@ -111,7 +186,8 @@ export default class Controls extends React.Component {
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to
-          , filter: filter
+          , timezone: this.state.timezone
+          , filter: this.get_filter_string(false)
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row

@@ -29,6 +29,8 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 
+const { format : d3Format } = require('d3-format')
+const formatTimezone = d3Format("+.1f")
 
 type LoginProps = {
   login: (username: string, password: string) => void
@@ -183,11 +185,12 @@ class Home extends React.Component {
                     <div name="Standard">
                       <StandardControls params={ params }
                         countries={ all_countries }
+                        affiliates={ all_affiliates }
                         set_params={ params => {
                           this.props.set_params(params)
                           this.props.cleanup_fetch_filter_section_row()
                           this.props.fetch_all_countries(params.date_from, params.date_to)
-                          this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
                         } }
                       />
                     </div>

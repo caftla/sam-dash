@@ -77,9 +77,9 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
   )
 })
 
-app.get('/api/v1/filter_page_section_row/:from_date/:to_date/:filter/:page/:section/:row', (req, res) => {
+app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:page/:section/:row', (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
+  respond_jewel(
       fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
     , params
     , res

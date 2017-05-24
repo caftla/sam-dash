@@ -9,6 +9,7 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import {
     fetch_all_countries
+  , fetch_all_affiliates
   , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
   , set_params } from '../../actions'
 import type { QueryParams } from 'my-types'
@@ -19,6 +20,11 @@ import Tabs from './Tabs'
 import Controls from './Controls'
 
 import filter_page_section_row_selector from '../../selectors/filter_page_section_row.js'
+import affiliates_mapping_selector from '../../selectors/affiliates_mapping.js'
+
+const { format : d3Format } = require('d3-format')
+const formatTimezone = d3Format("+.1f")
+
 
 const theme = {
     flexDirection: 'row'
@@ -44,6 +50,8 @@ type Props = {
   , fetch_filter_page_section_row: (date_from : string, date_to : string, filter : string, page : string, section : string, row : string) => void
   , fetch_all_countries: (date_from: string, date_to: string) => void
   , all_countries: Maybe<Array<any>>
+  , fetch_all_affiliates: () => void
+  , all_affiliates: Maybe<Array<any>>
   , cleanup_fetch_filter_page_section_row: () => void
   , sort_row_filter_page_section_row: (field: string, order: number) => void
   , sort: { field: string, order: number }
@@ -61,10 +69,13 @@ class Filter_Page_Section_Row extends React.Component {
 
   componentWillUpdate(nextProps, b) {
     const {params} = nextProps.match
+    params.timezone = parseFloat(params.timezone)
+
     const current_params = this.props.match.params
+    current_params.timezone = parseFloat(current_params.timezone)
 
     match({
-        Nothing: () => nextProps.fetch_filter_page_section_row(params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
+        Nothing: () => nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
       , Loading: () => void 9
       , Error: (error) => void 9
       , Loaded: (data) => void 9
@@ -75,19 +86,32 @@ class Filter_Page_Section_Row extends React.Component {
     }
   }
 
-  componentWillUnmount() {
+  componentWillMount() {
+    if(maybe.isNothing(this.props.all_affiliates)) {
+      this.props.fetch_all_affiliates()
+    }
+    if(maybe.isNothing(this.props.all_countries)) {
+      const {params} = this.props.match
+      this.props.fetch_all_countries(params.date_from, params.date_to)
+    }
   }
 
   render() {
     const {params} = this.props.match
+    params.timezone = parseFloat(params.timezone)
 
     const data_component = match({
         Nothing: () => <div>Nothing</div>
       , Loading: () => <div>Loading</div>
       , Error: (error) => <div>Error</div>
-      , Loaded: (data) => <Tabs pages={data} params={params}
-            sort={ this.props.sort }
-            onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
+      , Loaded: (data) => maybe.isNothing(this.props.affiliates_mapping)
+        ? <div>Loading affiliates...</div>
+        : <Tabs 
+          pages={data} 
+          params={params}
+          sort={ this.props.sort }
+          affiliates={ this.props.affiliates_mapping }
+          onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
     })(this.props.data)
 
     return <div>
@@ -95,19 +119,26 @@ class Filter_Page_Section_Row extends React.Component {
         {
           maybe.maybe(
               _ => {
-                this.props.fetch_all_countries(params.date_from, params.date_to)
                 return <div>Loading...</div>
               }
-            , all_countries => _ => {
-                return  <Controls params={ params }
-                  countries={ all_countries }
-                  set_params={ params => {
-                    this.props.set_params(params)
-                    this.props.cleanup_fetch_filter_page_section_row()
-                    this.props.history.push(`/filter_page_section_row/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
-                  } }
-                />
-              }
+            , all_countries => _ => maybe.maybe(
+                _ => {
+                  return <div>Loading affiliates ...</div>
+                }
+                , all_affiliates => _ => {
+                  return  <Controls params={ params }
+                    countries={ all_countries }
+                    affiliates={ all_affiliates }
+                    set_params={ params => {
+                      this.props.set_params(params)
+                      this.props.cleanup_fetch_filter_page_section_row()
+                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                    } }
+                    className='top'
+                  />
+                }
+              , this.props.all_affiliates
+            )()
             , this.props.all_countries
           )()
         }
@@ -120,9 +151,15 @@ class Filter_Page_Section_Row extends React.Component {
 export default connect(
     state => ({
         data: filter_page_section_row_selector(state)
+      , affiliates_mapping: affiliates_mapping_selector(state)
       , sort: state.sort
-      , all_countries: state.all_countries })
+      , all_countries: state.all_countries 
+      , all_affiliates: state.all_affiliates
+    })
   , {
-      fetch_all_countries, fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
-    , set_params }
+        fetch_all_countries
+      , fetch_all_affiliates
+      , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
+      , set_params 
+    }
 )(Filter_Page_Section_Row)

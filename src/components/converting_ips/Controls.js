@@ -102,6 +102,7 @@ class Controls extends React.Component {
         , x => !x ? '' : x.affiliate_name
       )(props.affiliates)
     )(params_affiliate_ids)
+    
     this.state = {
         date_from: params.date_from
       , date_to: params.date_to
@@ -221,9 +222,8 @@ class Controls extends React.Component {
   }
 }
 
-type ControlsInstanceProps = {
-    ...ControlsProps
-  , cleanup_fetch_converting_ips: () => void
+type ControlsInstanceProps = ControlsProps & {
+    cleanup_fetch_converting_ips: () => void
   , set_params: (params: QueryParams) => void
   , history: any
 }
