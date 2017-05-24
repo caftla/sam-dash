@@ -59,6 +59,11 @@ export const check_loggedin = () => (dispatch : Dispatch) =>
   })
 
 export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) => {
+  if (new Date().valueOf() - new Date(date_from).valueOf() > 29 * 24 * 3600 * 1000) {
+    // all_countries API can only query up to one month ago from the current date
+    date_from = new Date(new Date().valueOf() - 29 * 24 * 3600 * 1000).toISOString().substr(0, 10)
+    date_to = new Date(new Date().valueOf()).toISOString().substr(0, 10)
+  }
   dispatch({ type: 'fetch_all_countries_loading' })
   get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_all_countries_success', payload: d }))

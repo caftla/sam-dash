@@ -3,11 +3,6 @@ with Views as (
     $[params.f_page('e', 'timestamp')]$ as page
   , $[params.f_section('e', 'timestamp')]$ as section
   , $[params.f_row('e', 'timestamp')]$ as row
-  , max(e.affiliate_id) as affiliate_id
-  , max(e.publisher_id) as publisher_id
-  , max(e.country_code) as country_code
-  , max(e.operator_code) as operator_code
-  , min(e.timestamp) as timestamp
   , sum(case when e.view then 1 else 0 end) :: int as views
   , sum(case when e.lead then 1 else 0 end) :: int as leads
   , sum(case when e.sale then 1 else 0 end) :: int as sales
@@ -55,11 +50,6 @@ with Views as (
     $[params.f_page('e', 'timestamp')]$ as page
   , $[params.f_section('e', 'timestamp')]$ as section
   , $[params.f_row('e', 'timestamp')]$ as row
-  , max(e.affiliate_id) as affiliate_id
-  , max(e.publisher_id) as publisher_id
-  , max(e.country_code) as country_code
-  , max(e.operator_code) as operator_code
-  , min(e.timestamp) as timestamp
   , sum(case when e.optout and e.active_duration is not null and e.active_duration <= 86400 then 1 else 0 end) :: int as optout_24
   from events e
   where e.timestamp >= $[params.from_date_tz]$
