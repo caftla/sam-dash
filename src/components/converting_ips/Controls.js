@@ -7,7 +7,6 @@ import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSe
 import styled from 'styled-components'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
-import { connect } from 'react-redux'
 
 const Input = ({type, name, value, onChange} : {type: string, name: string, value: string, onChange: string => void}) =>
   <FormRow>
@@ -63,49 +62,14 @@ type ControlsState = {
 class Controls extends React.Component {
   props: ControlsProps
   state: ControlsState
-  get_filter_string(with_publisher_id: boolean) {
-    const affiliate_ids = R.pipe(
-        R.filter(x => x.affiliate_name == this.state.affiliate_name)
-      , R.map(x => x.affiliate_ids)
-      , R.chain(x => x)
-      , R.join(';')
-    )(this.props.affiliates)
-    return R.pipe(
-        R.map(k => [k, this.state[k]])
-      , R.filter(([k, v]) => !!v)
-      , R.map(R.join('='))
-      , R.join(',')
-      , x => !x ? '-' : x
-    )(["country_code", "operator_code", "handle_name", "gateway", "platform"].concat(with_publisher_id ? ["publisher_id", "sub_id"] : [])) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
-  }
-
-  try_fetch_traffic_breakdown() {
-    if(!!this.state.country_code && !!this.state.affiliate_name && !!this.state.date_from && !!this.state.date_to) {
-      this.props.fetch_traffic_breakdown(this.state.date_from, this.state.date_to, this.get_filter_string(false))
-    }
-  }
 
   constructor(props: ControlsProps) {
     super(props)
-    const { params } = props
-    const filter_params = R.pipe(
-        R.split(',')
-      , R.map(R.split('='))
-      , R.fromPairs
-    )(params.filter)
-
-    const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
-    const affiliate_name = params_affiliate_ids.length == 0 ? '' : R.pipe(
-        x => x[0]
-      , affiliate_id => R.pipe(
-          R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
-        , x => !x ? '' : x.affiliate_name
-      )(props.affiliates)
-    )(params_affiliate_ids)
+    const { params, filter_params, affiliate_name } = props
     
     this.state = {
-        date_from: params.date_from
-      , date_to: params.date_to
+        date_from: params.date_from.substr(0, 10)
+      , date_to: params.date_to.substr(0, 10)
       , page: params.page
       , section: params.section
       , row: params.row
@@ -115,68 +79,20 @@ class Controls extends React.Component {
   }
 
   componentDidMount() {
-    this.try_fetch_traffic_breakdown()
+    this.props.try_fetch_traffic_breakdown(this.state)
   }
 
   render() {
-    const {countries, affiliates, traffic_breakdown} = this.props
+    const {countries, affiliates, get_publishers} = this.props
 
-    const get_all_props = prop => R.pipe(
-        R.chain(R.prop(prop))
-      , R.uniq
-      , R.sortBy(x => x)
-    )(countries)
-    const get_country_prop = prop => R.pipe(
-        R.find(x => x.country_code == this.state.country_code)
-      , R.prop(prop)
-    )(countries)
+    const get_all_props = this.props.get_all_props(this.state)
+    const get_country_prop = this.props.get_country_prop(this.state)
 
-    const get_breakdown_stats = R.reduce(
-        ({views, sales, firstbillings}, a) => ({views: views + a.views, sales: sales + a.sales, firstbillings: firstbillings + a.firstbillings})
-      , {views: 0, sales: 0, firstbillings: 0}
-    )
-
-    const selected_affiliate_ids = !this.state.affiliate_name
-      ? []
-      : R.pipe(
-          R.filter(x => x.affiliate_name == this.state.affiliate_name)
-        , R.chain(x => x.affiliate_ids)
-      )(affiliates)
-
-    const publishers = maybe.maybe(
-        []
-      , R.pipe(
-          R.filter(x => x.country_code == this.state.country_code && selected_affiliate_ids.some(s => s === x.affiliate_id))
-        , R.groupBy(x => x.publisher_id)
-        , R.toPairs
-        , R.map(([publisher_id, values]) => ({
-            publisher_id
-          , ...get_breakdown_stats(values)
-          , sub_ids: R.pipe(
-                R.groupBy(x => x.sub_id)
-              , R.toPairs
-              , R.map(([sub_id, values]) => ({
-                    sub_id
-                  , ...get_breakdown_stats(values)
-                }))
-              , R.sortBy(x => x.sales * -1)
-            )(values)
-          }))
-        , R.sortBy(x => x.sales * -1)
-      )
-      , traffic_breakdown
-    )
-
-    const sub_ids = publishers.length == 0
-      ? []
-      : R.pipe(
-          R.filter(x => x.publisher_id == this.state.publisher_id)
-        , R.chain(x => x.sub_ids)
-      )(publishers)
+    const { publishers, sub_ids } = get_publishers(this.state)
 
     const on_change_with_fetch_traffic_breakdown = (setter) => (value) => {
       setter(value)
-      setTimeout(() => this.try_fetch_traffic_breakdown(), 250)
+      setTimeout(() => this.props.try_fetch_traffic_breakdown(this.state), 250)
     }
 
     const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
@@ -210,7 +126,7 @@ class Controls extends React.Component {
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to
-          , filter: this.get_filter_string(true)
+          , filter: this.props.get_filter_string(this.state, true)
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row
@@ -222,33 +138,28 @@ class Controls extends React.Component {
   }
 }
 
-type ControlsInstanceProps = ControlsProps & {
-    cleanup_fetch_converting_ips: () => void
-  , set_params: (params: QueryParams) => void
-  , history: any
-}
+import { connect } from 'react-redux'
+import {
+    set_params
+  , cleanup_fetch_converting_ips
+  , fetch_traffic_breakdown
+} from '../../actions'
 
-const ControlsInstance = (props : ControlsInstanceProps) => <Controls
-    { ...props }
-    params={ props.params }
-    countries={ props.countries }
-    affiliates={ props.affiliates }
-    set_params={ params => {
+import hoc from '../controls-hoc'
+const {ControlWithPublishers, ControlWithFilterParams, ControlsInstance} = hoc
+
+const ConnectedControls = Controls => props =>
+  <Controls { ...props } set_params={ params => {
       props.set_params(params)
       props.cleanup_fetch_converting_ips()
       props.history.push(`/converting_ips/${params.date_from}/${params.date_to}/${params.filter}`)
-    } }
-  />
-
-  import {
-      set_params
-    , cleanup_fetch_converting_ips
-    , fetch_traffic_breakdown
-  } from '../../actions'
+    }
+  } />
 
 export default connect(
     state => ({
         traffic_breakdown: state.traffic_breakdown
     })
   , { fetch_traffic_breakdown, cleanup_fetch_converting_ips, set_params }
-)(ControlsInstance)
+)(R.compose(ControlWithPublishers, ControlWithFilterParams, ControlsInstance, ConnectedControls)(Controls))
+

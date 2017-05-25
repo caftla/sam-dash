@@ -204,12 +204,8 @@ class Home extends React.Component {
                     <div name="Cohort">
                       <CohortControls params={ params }
                         countries={ all_countries }
-                        set_params={ params => {
-                          this.props.set_params(params)
-                          this.props.cleanup_fetch_filter_section_row()
-                          this.props.fetch_all_countries(params.date_from, params.date_to)
-                          this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
-                        } }
+                        affiliates={ all_affiliates }
+                        history={ this.props.history }
                       />
                     </div>
                     <div name="Monthly Reports">

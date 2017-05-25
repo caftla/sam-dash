@@ -1,6 +1,8 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
+import * as maybe from 'flow-static-land/lib/Maybe'
+import type { Maybe } from 'flow-static-land/lib/Maybe'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
 
@@ -37,38 +39,41 @@ type ControlsState = {
   , handle_name: string
 }
 
-export default class Controls extends React.Component {
+class Controls extends React.Component {
   props: ControlsProps
   state: ControlsState
   constructor(props: ControlsProps) {
     super(props)
-    const { params } = props
-    const filter_params = R.pipe(
-        R.split(',')
-      , R.map(R.split('='))
-      , R.fromPairs
-    )(params.filter)
+    const { params, filter_params, affiliate_name } = props
     this.state = {
-        date_from: params.date_from
-      , date_to: params.date_to
+        date_from: params.date_from.substr(0, 10)
+      , date_to: params.date_to.substr(0, 10)
       , page: params.page
       , section: params.section
       , row: params.row
       , ...filter_params
+      , affiliate_name
     }
   }
 
+  componentDidMount() {
+    this.props.try_fetch_traffic_breakdown(this.state)
+  }
+
   render() {
-    const {countries} = this.props
-    const get_all_props = prop => R.pipe(
-        R.chain(R.prop(prop))
-      , R.uniq
-      , R.sortBy(x => x)
-    )(countries)
-    const get_country_prop = prop => R.pipe(
-        R.find(x => x.country_code == this.state.country_code)
-      , R.prop(prop)
-    )(countries)
+    const {countries, affiliates, get_publishers} = this.props
+
+    const get_all_props = this.props.get_all_props(this.state)
+    const get_country_prop = this.props.get_country_prop(this.state)
+
+    const { publishers, sub_ids } = get_publishers(this.state)
+
+    console.log('** publishers', publishers)
+
+    const on_change_with_fetch_traffic_breakdown = (setter) => (value) => {
+      setter(value)
+      setTimeout(() => this.props.try_fetch_traffic_breakdown(this.state), 250)
+    }
 
     const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
 
@@ -80,12 +85,16 @@ export default class Controls extends React.Component {
       </FormSection>
       <FilterFormSection style={ {width: '900px'} }>
         <FormTitle>Filter:</FormTitle>
-        <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
+        <InputSelect name="Country" onChange={ on_change_with_fetch_traffic_breakdown(country_code => this.setState({ country_code: country_code, operator_code: '' })) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes') } />
-        <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
+        <InputSelect name="Affiliate" onChange={ on_change_with_fetch_traffic_breakdown(affiliate_name => this.setState({ affiliate_name })) }
           value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
+        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+          value={ maybe.maybe('', x => x, this.state.publisher_id) } options={ publishers.map(x => x.publisher_id) } />
+        <InputSelect name="Sub Id" onChange={ sub_id => this.setState({ sub_id }) }
+          value={ maybe.maybe('', x => x, this.state.sub_id) } options={ sub_ids.map(x => x.sub_id) } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
         <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
@@ -94,17 +103,10 @@ export default class Controls extends React.Component {
           value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
       </FilterFormSection>
       <Submit onClick={ _ => {
-        const filter = R.pipe(
-            R.map(k => [k, this.state[k]])
-          , R.filter(([k, v]) => !!v)
-          , R.map(R.join('='))
-          , R.join(',')
-          , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affiliate_name", "handle_name", "gateway", "platform"])
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to
-          , filter: filter
+          , filter: this.props.get_filter_string(this.state, true)
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row
@@ -115,3 +117,27 @@ export default class Controls extends React.Component {
     </FormContainer>
   }
 }
+
+import {
+    set_params
+  , cleanup_fetch_cohort
+  , fetch_traffic_breakdown
+} from '../../actions'
+import { connect } from 'react-redux'
+import hoc from '../controls-hoc'
+const {ControlWithPublishers, ControlWithFilterParams, ControlsInstance} = hoc
+
+const ConnectedControls = Controls => props =>
+  <Controls { ...props } set_params={ params => {
+      props.set_params(params)
+      props.cleanup_fetch_cohort()
+      props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
+    }
+  } />
+
+export default connect(
+    state => ({
+        traffic_breakdown: state.traffic_breakdown
+    })
+  , { fetch_traffic_breakdown, cleanup_fetch_cohort, set_params }
+)(R.compose(ControlWithPublishers, ControlWithFilterParams, ControlsInstance, ConnectedControls)(Controls))

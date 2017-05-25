@@ -13,12 +13,14 @@ import { get } from '../../helpers'
 import type { QueryParams } from 'my-types'
 import { fetchState, match } from '../../adts'
 import type { FetchState } from '../../adts'
+import { sequence } from '../../helpers'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 
 import {
     fetch_all_countries , set_params
+  , fetch_all_affiliates
   , fetch_cohort, cleanup_fetch_cohort
 } from '../../actions'
 
@@ -77,6 +79,13 @@ class Cohort extends React.Component {
 
   }
 
+  componentDidMount() {
+    const {params} = this.props.match
+    this.props.fetch_all_affiliates()
+    this.props.fetch_all_countries(params.date_from, params.date_to)
+  }
+
+
   componentWillUpdate(nextProps : Props, b) {
     const {params} = nextProps.match
     const current_params = this.props.match.params
@@ -109,20 +118,16 @@ class Cohort extends React.Component {
         {
           maybe.maybe(
               _ => {
-                this.props.fetch_all_countries(params.date_from, params.date_to)
-                return <div>Loading...</div>
+                return <div>Loading countries and affiliates...</div>
               }
-            , all_countries => _ => {
-                return  <Controls params={ params }
+            , ([all_countries, all_affiliates]) => _ => {
+                return <Controls params={ params }
                   countries={ all_countries }
-                  set_params={ params => {
-                    this.props.set_params(params)
-                    this.props.cleanup_fetch_cohort()
-                    this.props.history.push(`/cohort/${params.date_from}/${params.date_to}/${params.filter}`)
-                  } }
+                  affiliates={ all_affiliates }
+                  history={ this.props.history }
                 />
               }
-            , this.props.all_countries
+            , sequence([this.props.all_countries, this.props.all_affiliates])
           )()
         }
       </ThemeProvider>
@@ -134,10 +139,12 @@ class Cohort extends React.Component {
 export default connect(
     state => ({
         all_countries: state.all_countries
+      , all_affiliates: state.all_affiliates
       , data: state.cohort
     })
   , {
         fetch_all_countries, set_params
+      , fetch_all_affiliates
       , fetch_cohort, cleanup_fetch_cohort
     }
 )(Cohort)

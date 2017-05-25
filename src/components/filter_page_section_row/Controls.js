@@ -76,13 +76,21 @@ export default class Controls extends React.Component {
       )(props.affiliates)
     )(params_affiliate_ids)
 
+    const add_time = date => date.indexOf('T') > -1
+      ? date
+      : date + 'T00:00:00'
+
+
+    const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
+
+
     this.state = {
-        date_from: params.date_from
-      , date_to: params.date_to
+        date_from: add_time(params.date_from)
+      , date_to: add_time(params.date_to)
       , timezone: params.timezone
-      , page: params.page
-      , section: params.section
-      , row: params.row
+      , page: fix_affiliate_name(params.page)
+      , section: fix_affiliate_name(params.section)
+      , row: fix_affiliate_name(params.row)
       , ...filter_params
       , affiliate_name
     }
