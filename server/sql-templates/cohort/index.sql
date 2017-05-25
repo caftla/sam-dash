@@ -47,7 +47,7 @@ with Days as(
     where r.day >= d.sale_window_start
       and r.day < d.sale_window_end
       and d.day_after_subscription > 0
-      and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `r.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+      and $[params.f_filter('r')]$
     group by
         r.country_code
   ) r on true
