@@ -19,7 +19,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       ? `${name} ` + (sort.order > 0 ? '▲' : '▼')
       : name
   }
-  const formatter = cell_formatter(affiliates)
+  const formatter = cell_formatter(affiliates, params.timezone)
   return <TABLE width={1020}>
     <thead>
       <tr>

@@ -2,11 +2,12 @@
 
 const {format} = require('d3-format')
 const {timeFormat} = require('d3-time-format')
+import moment from 'moment'
 
-export default (affiliates: Object) => (interval: string) => (value: string) =>
-    interval == 'hour' ? timeFormat('%Y-%m-%d %H')(new Date(value))
-  : interval == 'day' ? timeFormat('%Y-%m-%d')(new Date(value))
-  : interval == 'week' ? timeFormat('%Y-%m-%d')(new Date(value))
-  : interval == 'month' ? timeFormat('%Y-%m')(new Date(value))
+export default (affiliates: Object, timezone: number) => (interval: string) => (value: string) =>
+    interval == 'hour' ? moment(value).utcOffset(timezone).format('Y-m-d HH')
+  : interval == 'day' ? moment(value).utcOffset(timezone).format('Y-m-d')
+  : interval == 'week' ? moment(value).utcOffset(timezone).format('Y-m-d')
+  : interval == 'month' ? moment(value).utcOffset(timezone).format('Y-m')
   : interval == 'affiliate_id' ? affiliates[value] 
   : value

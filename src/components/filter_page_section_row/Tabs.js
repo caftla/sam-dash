@@ -40,7 +40,7 @@ export default class Tabs extends React.Component {
 
   render() {
     const {selected_page} = this.state
-    const formatter = cell_formatter(this.props.affiliates)
+    const formatter = cell_formatter(this.props.affiliates, this.props.params.timezone)
     return <div>
       <div style={ {
           display: 'flex'

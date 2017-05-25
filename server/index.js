@@ -21,8 +21,8 @@ app.post('/api/v1/run_query', (req, res) => {
   });
 
   req.on('end', function() {
-    // res.end(req.rawBody)
-    respond_jewel(req.rawBody, {}, res)
+    res.end(req.rawBody)
+    // respond_jewel(req.rawBody, {}, res)
   })
 })
 
