@@ -75,7 +75,36 @@ class Filter_Page_Section_Row extends React.Component {
     current_params.timezone = parseFloat(current_params.timezone)
 
     match({
-        Nothing: () => nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
+        Nothing: () => {
+          // compatiblity with affiliate_name in the filter part of the URL
+          const filter = R.pipe(
+              R.split(',')
+            , R.map(R.split('='))
+          )(params.filter)
+          const affiliate_tuple = filter.find(([key, val]) => key == 'affiliate_name')
+          if(!!affiliate_tuple) {
+            if(maybe.isJust(nextProps.all_affiliates)) {
+              const affiliate_ids = R.pipe(
+                  R.filter(x => x.affiliate_name == affiliate_tuple[1])
+                , R.chain(x => x.affiliate_ids)
+                , R.join(';')
+              )(nextProps.all_affiliates)
+
+              params.filter = R.pipe(
+                R.map(([key, value]) => key == 'affiliate_name'
+                  ? ['affiliate_id', affiliate_ids]
+                  : [key, value]
+                )
+                , R.map(R.join('='))
+                , R.join(',')
+              )(filter)
+
+              nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)  
+            }
+          } else {
+            nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
+          }
+        }
       , Loading: () => void 9
       , Error: (error) => void 9
       , Loaded: (data) => void 9

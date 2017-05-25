@@ -33,7 +33,6 @@ const Redirect_Filter_Page_Section_Row = ({match, history}) => {
   const formatTimezone = d3Format("+.1f")
   const {params} = match
   const timezone = new Date().getTimezoneOffset() / -60
-  console.log('Redirect_Filter_Page_Section_Row', `/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
   history.push(`/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
   return <div>Redirecting ...</div>
 }

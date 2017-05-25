@@ -13,7 +13,7 @@ with Views as (
   from public.events e 
   where e.timestamp >= $[params.from_date_tz]$
     and e.timestamp < $[params.to_date_tz]$
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[params.f_filter('e')]$
   group by page, section, row
   order by page, section, row
 )
@@ -29,7 +29,7 @@ with Views as (
   from public.events e 
   where e.timestamp >= $[params.from_date_tz]$
     and e.timestamp < $[params.to_date_tz]$
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[params.f_filter('e')]$
   group by page, section, row, e.cpa_id
   order by page, section, row, e.cpa_id
 )
@@ -54,7 +54,7 @@ with Views as (
   from events e
   where e.timestamp >= $[params.from_date_tz]$
     and e.timestamp < dateadd(day, 1, $[params.to_date_tz]$)
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `e.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+    and $[params.f_filter('e')]$
   group by page, section, row
   order by page, section, row
 )

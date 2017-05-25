@@ -25,6 +25,22 @@ const query = (connection_string: string, query_template:string, params: Object)
   params.from_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.from_date}')`
   params.to_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.to_date}')`
 
+  params.f_filter = (table: string) => (
+    x => !x 
+    ? 'true' 
+    : R.compose(
+          R.join(' and ')
+        , R.map(([k, v]) => R.compose(
+              x => `(${x})`
+            , R.join(' or ')
+            , R.map(v => `${table}.${k}='${v}'`)
+            , R.split(';'))(v)
+          )
+        , R.splitEvery(2)
+        , R.split(',')
+      )(x)
+    )(params.filter)
+
   R.keys(params).forEach(key => {
     const reg = new RegExp(`\\$${key}\\$`, 'g')
     query = query.replace(reg, params[key])
