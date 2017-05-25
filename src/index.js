@@ -28,6 +28,16 @@ import { Body } from './components/Styled'
 
 Offline.install()
 
+const Redirect_Filter_Page_Section_Row = ({match, history}) => {
+  const { format : d3Format } = require('d3-format')
+  const formatTimezone = d3Format("+.1f")
+  const {params} = match
+  const timezone = new Date().getTimezoneOffset() / -60
+  console.log('Redirect_Filter_Page_Section_Row', `/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+  history.push(`/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+  return <div>Redirecting ...</div>
+}
+
 export const Root = () => {
   return <Provider store={store}>
     <ConnectedRouter history={history}>
@@ -36,6 +46,7 @@ export const Root = () => {
         <Route exact path="/dashboard" component={Dashboard} />
         <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} />
         <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Filter_Page_Section_Row} />
+        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Redirect_Filter_Page_Section_Row} />
         <Route path="/cohort/:date_from/:date_to/:filter" component={Cohort} />
         <Route path="/converting_ips/:date_from/:date_to/:filter" component={ConvertingIPs} />
         <Route path="/monthly_reports/:date_from/:date_to/:filter" component={MonthlyReports} />
