@@ -21,6 +21,7 @@ import Controls from './Controls'
 
 import filter_page_section_row_selector from '../../selectors/filter_page_section_row.js'
 import affiliates_mapping_selector from '../../selectors/affiliates_mapping.js'
+import { fromQueryString } from '../../helpers'
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
@@ -40,6 +41,8 @@ const theme = {
   , formTitleFontSize: '1em'
   , flexAlignItems: 'flex-start'
   , submitAlignSelf: 'flex-end'
+  , formSectionButtonsFlexDirection: 'column'
+  , checkBoxDivTransform: ' '
 }
 
 type Props = {
@@ -58,6 +61,15 @@ type Props = {
   , set_params: (params: QueryParams) => void
 }
 
+const props_to_params = props => {
+    const {params} = props.match
+    params.timezone = parseFloat(params.timezone)
+    const query = fromQueryString(props.location.search)
+    params.nocache = query.nocache == 'true' ? true : false
+    return params
+
+}
+
 // This is a route
 class Filter_Page_Section_Row extends React.Component {
 
@@ -68,11 +80,8 @@ class Filter_Page_Section_Row extends React.Component {
   }
 
   componentWillUpdate(nextProps, b) {
-    const {params} = nextProps.match
-    params.timezone = parseFloat(params.timezone)
-
-    const current_params = this.props.match.params
-    current_params.timezone = parseFloat(current_params.timezone)
+    const params = props_to_params(nextProps)
+    const current_params = props_to_params(this.props)
 
     match({
         Nothing: () => {
@@ -99,10 +108,10 @@ class Filter_Page_Section_Row extends React.Component {
                 , R.join(',')
               )(filter)
 
-              nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)  
+              nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)  
             }
           } else {
-            nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row)
+            nextProps.fetch_filter_page_section_row(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
           }
         }
       , Loading: () => void 9
@@ -126,8 +135,7 @@ class Filter_Page_Section_Row extends React.Component {
   }
 
   render() {
-    const {params} = this.props.match
-    params.timezone = parseFloat(params.timezone)
+    const params = props_to_params(this.props)
 
     const data_component = match({
         Nothing: () => <div>Nothing</div>
@@ -161,7 +169,8 @@ class Filter_Page_Section_Row extends React.Component {
                     set_params={ params => {
                       this.props.set_params(params)
                       this.props.cleanup_fetch_filter_page_section_row()
-                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                      const query = params.nocache ? `?nocache=true` : ''
+                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
                     } }
                     className='top'
                   />

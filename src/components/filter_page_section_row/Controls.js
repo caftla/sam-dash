@@ -3,7 +3,7 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from '../Styled'
+import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
 import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
@@ -34,6 +34,10 @@ const InputSelect = ({name, value, options, onChange}) =>
     </Select>
   </FormRow>
 
+const CheckBoxDiv = styled.div`
+  transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
+`
+
 type ControlsProps = {
     params: QueryParams
   , countries: Array<any>
@@ -53,6 +57,8 @@ type ControlsState = {
   , operator_code: string
   , affiliate_name: string
   , handle_name: string
+  , cache_buster_id: string
+  , nocache: boolean
 }
 
 export default class Controls extends React.Component {
@@ -83,7 +89,6 @@ export default class Controls extends React.Component {
 
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
 
-
     this.state = {
         date_from: add_time(params.date_from)
       , date_to: add_time(params.date_to)
@@ -93,6 +98,8 @@ export default class Controls extends React.Component {
       , row: fix_affiliate_name(params.row)
       , ...filter_params
       , affiliate_name
+      , nocache: !!params.nocache
+      , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
     }
   }
 
@@ -183,6 +190,13 @@ export default class Controls extends React.Component {
         <InputSelect options={ breakdown_list }
             name="Row" value={ this.state.row } onChange={ val => this.setState({ 'row': val }) } />
       </FormSection>
+      <FormSectionButtons>
+      <CheckBoxDiv>
+        <label htmlFor={ this.state.cache_buster_id }>No cache</label><input 
+          checked={ this.state.nocache } 
+          onChange={ e => this.setState({ nocache: !!e.target.checked }) }
+          id={ this.state.cache_buster_id } type="checkbox" />
+      </CheckBoxDiv>
       <Submit onClick={ _ => {
         const filter = R.pipe(
             R.map(k => [k, this.state[k]])
@@ -199,10 +213,12 @@ export default class Controls extends React.Component {
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row
+          , nocache: this.state.nocache
         })
       } }>
-        Go!
+        GO
       </Submit>
+      </FormSectionButtons>
     </FormContainer>
   }
 }

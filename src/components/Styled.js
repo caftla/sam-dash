@@ -69,6 +69,14 @@ export const FormSection = styled.div`
   width: ${props => props.theme.formSectionWidth || '100%'};
 `
 
+export const FormSectionButtons = styled(FormSection)`
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  align-self: flex-end;
+  flex-direction: ${props => props.theme.formSectionButtonsFlexDirection || 'row'};
+`
+
 export const FilterFormSection = styled(FormSection)`
   width: ${props => props.theme.filterFormSectionWidth || '100%'};
   min-width: ${props => props.theme.filterFormSectionWidth || 'initial'};

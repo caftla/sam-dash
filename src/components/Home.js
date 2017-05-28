@@ -186,11 +186,13 @@ class Home extends React.Component {
                       <StandardControls params={ params }
                         countries={ all_countries }
                         affiliates={ all_affiliates }
+                        nocache={ !!params.nocache }
                         set_params={ params => {
                           this.props.set_params(params)
                           this.props.cleanup_fetch_filter_section_row()
                           this.props.fetch_all_countries(params.date_from, params.date_to)
-                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
+                          const query = params.nocache ? `?nocache=true` : ''
+                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
                         } }
                       />
                     </div>
