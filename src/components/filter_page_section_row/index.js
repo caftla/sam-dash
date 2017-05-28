@@ -40,7 +40,6 @@ const theme = {
   , formContainerMargin: '0'
   , formTitleFontSize: '1em'
   , flexAlignItems: 'flex-start'
-  , submitAlignSelf: 'flex-end'
   , formSectionButtonsFlexDirection: 'column'
   , checkBoxDivTransform: ' '
 }
