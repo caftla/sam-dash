@@ -8,7 +8,7 @@ import type { Arr } from 'flow-static-land/lib/Arr'
 export * from './persist'
 export * from './fetch'
 
-export const sequence = <T>(arr_maybe : Array<Maybe<T>>) =>
+export const sequence = <T>(arr_maybe : Array<Maybe<T>>) : Maybe<Array<T>> =>
   arr_maybe.some(x => maybe.isNothing(x))
   ? maybe.Nothing
   : maybe.of(arr_maybe.map(x => maybe.prj(x)))

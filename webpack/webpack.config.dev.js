@@ -10,6 +10,10 @@ module.exports = {
     'webpack/hot/only-dev-server',
     resolve(__dirname, 'hotReload'),
   ],
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
   output: {
     filename: 'bundle.js',
     path: resolve(__dirname),

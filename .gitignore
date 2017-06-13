@@ -4,3 +4,4 @@ dist
 start.sh
 elm-stuff/
 npm-debug.log
+homam-local-start.sh 

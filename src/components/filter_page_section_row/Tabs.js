@@ -49,6 +49,14 @@ export default class Tabs extends React.Component {
         , backgroundColor: '#eee'
         , alignItems: 'flex-end'
       } }>
+      <div 
+      style={ {padding: '0 12px'
+            , cursor: 'pointer'
+            , border: 'solid 5px #eee'
+            , borderBottom: 'none'
+            , padding: '1em 0.5em'
+            , backgroundColor: '#eee'} }
+      onClick={ () => exportToExcel(formatter, this.props.params, this.props.pages) }>🗒 Export</div>
       {
         this.props.pages.map((x, i) => {
           const selected = selected_page == i
@@ -75,4 +83,63 @@ export default class Tabs extends React.Component {
         } ) }
     </div>
   }
+}
+
+const exportToExcel = (formatter, params, pages) => {
+  const data = R.pipe(
+      R.map(x => R.merge(x, {
+        data: R.chain(y => y.data.map(r => R.merge(r, {
+            page: formatter(params.page)(r.page)
+          , section: formatter(params.section)(r.section)
+          , row: formatter(params.row)(r.row)
+        })) )(x.data)
+      }))
+    , R.map(sheet => ({
+          name: formatter(params.page)(sheet.page)
+        , data: R.concat([R.keys(sheet.data[0])], 
+            R.map(
+              R.compose(R.map(x => x[1]), R.toPairs)
+          )(sheet.data))
+        })
+      )
+    , R.applySpec({
+          SheetNames: R.map(R.prop('name'))
+        , Sheets: R.pipe(
+              R.map(s => [
+                  s.name
+                , R.pipe(
+                      R.addIndex(R.map)((r, i) => 
+                        R.addIndex(R.map)((c, j) => [
+                            XLSX.utils.encode_cell({c: j, r: i})
+                          , {v: c}
+                        ])(r)
+                      )
+                    , R.chain(x => x)
+                    , R.fromPairs
+                    , sheet => R.merge({
+                          '!ref': `A1:${XLSX.utils.encode_cell({c: s.data[0].length+1, r: s.data.length+1})}`
+                        , "!printHeader":[1,1]
+                        , '!freeze':{ xSplit: "1", ySplit: "1", topLeftCell: "B2", activePane: "bottomRight", state: "frozen" }
+                      }, sheet)
+                  )(s.data)
+              ])
+            , R.fromPairs
+          )
+      })
+  )(pages)
+
+  var workbook = data
+  var wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
+
+  var wbout = XLSX.write(workbook,wopts);
+
+  function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
+  }
+
+  /* the saveAs call downloads a file on the local machine */
+  saveAs(new Blob([s2ab(wbout)],{type:""}), `${params.page}-${params.section}-${params.row}-${params.date_from}-${params.date_to}-${params.filter}.xlsx`)
 }
