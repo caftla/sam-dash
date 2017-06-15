@@ -74,6 +74,7 @@ app.get('/api/countries', (req, res) => {
 const filter_to_pipe_syntax = x => x == '-' ? '' : R.pipe(
     R.split(',')
   , R.map(R.pipe(R.split('='), R.map(x => x.trim())))
+  , R.reject(x => x.length != 2)
   , R.map(R.join(','))
   , R.join(',')
 )(x)

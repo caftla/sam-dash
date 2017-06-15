@@ -94,11 +94,36 @@ const exportToExcel = (formatter, params, pages) => {
           , row: formatter(params.row)(r.row)
         })) )(x.data)
       }))
+    , sheets => [ // flatten
+      {
+        name: 'data',
+        page: 'data',
+        data: R.chain(x => x)(sheets.map(x => x.data))
+      }
+    ]
     , R.map(sheet => ({
           name: formatter(params.page)(sheet.page)
-        , data: R.concat([R.keys(sheet.data[0])], 
+        , data: R.concat([R.pipe(
+                R.keys
+              , R.reject(x => x == 'section_sales_ratio')
+              , R.map(x => ({
+                    v: x
+                  , s: { 
+                    fill: {fgColor: { rgb: 'FFEDEDED'} },
+                    border: { bottom: { style: 'medium', color: { rgb: "FF666666"}} }}
+                }))
+            )(sheet.data[0])], 
             R.map(
-              R.compose(R.map(x => x[1]), R.toPairs)
+              R.compose(R.map(x => {
+                const [k, v] = x
+                return ['cr'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0.0%" } }
+                : ['pixels_ratio', 'cq',	'active24'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0%" } }
+                : ['views',	'leads',	'sales',	'pixels',	'paid_sales',	'firstbillings',	'optouts',	'optout_24',	'cost'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: ",0" } }
+                : k == 'ecpa' ? { v: v, t: 'n', s: { numFmt: ",0.0" } }
+                : v
+              })
+              , R.reject(x => x[0] == 'section_sales_ratio')
+              , R.toPairs)
           )(sheet.data))
         })
       )
@@ -111,7 +136,7 @@ const exportToExcel = (formatter, params, pages) => {
                       R.addIndex(R.map)((r, i) => 
                         R.addIndex(R.map)((c, j) => [
                             XLSX.utils.encode_cell({c: j, r: i})
-                          , {v: c}
+                          , !!c && c.hasOwnProperty('v') ? c : {v: c}
                         ])(r)
                       )
                     , R.chain(x => x)
