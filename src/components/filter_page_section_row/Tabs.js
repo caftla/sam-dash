@@ -85,6 +85,7 @@ export default class Tabs extends React.Component {
   }
 }
 
+// exporting to excel
 const exportToExcel = (formatter, params, pages) => {
   const data = R.pipe(
       R.map(x => R.merge(x, {
@@ -118,8 +119,8 @@ const exportToExcel = (formatter, params, pages) => {
                 const [k, v] = x
                 return ['cr'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0.0%" } }
                 : ['pixels_ratio', 'cq',	'active24'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0%" } }
-                : ['views',	'leads',	'sales',	'pixels',	'paid_sales',	'firstbillings',	'optouts',	'optout_24',	'cost'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: ",0" } }
-                : k == 'ecpa' ? { v: v, t: 'n', s: { numFmt: ",0.0" } }
+                : ['views',	'leads',	'sales',	'pixels',	'paid_sales',	'firstbillings',	'optouts',	'optout_24',	'cost'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0" } }
+                : k == 'ecpa' ? { v: v, t: 'n', s: { numFmt: "0.0" } }
                 : v
               })
               , R.reject(x => x[0] == 'section_sales_ratio')
