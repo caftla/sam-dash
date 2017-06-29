@@ -28,6 +28,10 @@ export default customSelectorCreator(
                 R.map(x => R.merge(x, {data: R.pipe(
                     R.sortBy(r => R.prop(rowSorter.field)(r))
                   , rowSorter.order > 0 ? x => x : R.reverse
+                  , R.filter(x => 
+                         +x.sales >= sorter.rowSorter.minSales
+                      && +x.views >= sorter.rowSorter.minViews
+                    )
                 )(x.data)}))
               , R.sortBy(s => R.prop(sectionSorter.field)(s))
               , sectionSorter.order > 0 ? x => x : R.reverse

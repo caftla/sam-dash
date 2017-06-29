@@ -21,6 +21,9 @@ export type Action =
   | { type: 'fetch_filter_page_section_row_success', payload: Array<any> }
   | { type: 'cleanup_fetch_filter_page_section_row' }
   | { type: 'sort_row_filter_page_section_row', payload: {field: string, order: number} }
+  | { type: 'sort_row_filter_page_section', payload: {field: string, order: number} }
+  | { type: 'min_row_filter_page_section_row', payload: {field: string, value: number} }
+  | { type: 'min_row_filter_page_section', payload: {field: string, value: number} }
   // -- cohort
   | { type: 'fetch_cohort_loading' }
   | { type: 'fetch_cohort_success', payload: Array<any> }

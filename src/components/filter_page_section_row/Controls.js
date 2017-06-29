@@ -3,7 +3,7 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
+import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
 import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
@@ -13,10 +13,10 @@ const { format } = require('d3-format')
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
-const Input = ({type, name, value, onChange} : {type: string, name: string, value: string, onChange: string => void}) =>
+const Input = ({type, name, value, onChange, style} : {type: string, name: string, value: string, onChange: string => void}) =>
   <FormRow>
     <FormLabel>{name}</FormLabel>
-    <DateField value={value} type={type} onChange={ x => onChange(x.target.value) } />
+    <DateField value={value} type={type} onChange={ x => onChange(x.target.value) } style={ style || {} } />
   </FormRow>
 
 const LabelledInput = ({name, children} : {name: string, children?: Array<any>}) =>
@@ -29,7 +29,7 @@ const InputSelect = ({name, value, options, onChange}) =>
   <FormRow>
     <FormLabel>{name}</FormLabel>
     <Select value={ value } onChange={ e => onChange(e.target.value) }>
-      <option value="">Select</option>
+      <option value="-">Select</option>
       { options.map((c, i) => <option key={ i } value={ !!c && c.hasOwnProperty('value') ? c.value : c }>{ !!c && c.hasOwnProperty('name') ? c.name : c }</option>) }
     </Select>
   </FormRow>
@@ -43,6 +43,7 @@ type ControlsProps = {
   , countries: Array<any>
   , affiliates: Array<any>
   , set_params: QueryParams => any
+  , set_min: (string, number) => any
   , className?: string
 }
 
@@ -180,6 +181,16 @@ export default class Controls extends React.Component {
           value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
+        <LabelledInput name="Sales" style={{ width: '40px' }}>
+          <NumberField type="number" value={ this.props.sort.rowSorter.minSales } onChange={ x => {
+            this.props.set_min('sales', parseInt(x.target.value))
+            } } />
+        </LabelledInput>
+        <LabelledInput name="Views" style={{ width: '40px' }}>
+          <NumberField value={ this.props.sort.rowSorter.minViews } type="number" onChange={ x => {
+            this.props.set_min('views', parseInt(x.target.value))
+            } } />
+        </LabelledInput>
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown:</FormTitle>

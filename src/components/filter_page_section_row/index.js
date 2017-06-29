@@ -10,7 +10,8 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 import {
     fetch_all_countries
   , fetch_all_affiliates
-  , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row, sort_row_filter_page_section
+  , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row
+  , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
   , set_params } from '../../actions'
 import type { QueryParams } from 'my-types'
 import type { FetchState } from '../../adts'
@@ -56,7 +57,7 @@ type Props = {
   , all_affiliates: Maybe<Array<any>>
   , cleanup_fetch_filter_page_section_row: () => void
   , sort_row_filter_page_section_row: (field: string, order: number) => void
-  , sort: { field: string, order: number }
+  , sort: any
   , set_params: (params: QueryParams) => void
 }
 
@@ -169,11 +170,15 @@ class Filter_Page_Section_Row extends React.Component {
                   return  <Controls params={ params }
                     countries={ all_countries }
                     affiliates={ all_affiliates }
+                    sort={ this.props.sort }
                     set_params={ params => {
                       this.props.set_params(params)
                       this.props.cleanup_fetch_filter_page_section_row()
                       const query = params.nocache ? `?nocache=true` : ''
                       this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
+                    } }
+                    set_min={ (views_or_sales, value) => {
+                      this.props.min_row_filter_page_section_row(views_or_sales, value)
                     } }
                     className='top'
                   />
@@ -200,7 +205,8 @@ export default connect(
   , {
         fetch_all_countries
       , fetch_all_affiliates
-      , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row, sort_row_filter_page_section
+      , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row
+      , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
       , set_params 
     }
 )(Filter_Page_Section_Row)

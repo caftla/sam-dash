@@ -45,6 +45,11 @@ export const DateField = styled.input`
   font-size: ${props => props.theme.fontSize || '1.5em'};
 `
 
+export const NumberField = styled(DateField)`
+  width: 50px;
+`
+
+
 export const Select = styled.select`
   display: block;
   height: ${props => props.theme.elementHeight || '42px'};
