@@ -10,7 +10,7 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 import {
     fetch_all_countries
   , fetch_all_affiliates
-  , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
+  , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row, sort_row_filter_page_section
   , set_params } from '../../actions'
 import type { QueryParams } from 'my-types'
 import type { FetchState } from '../../adts'
@@ -147,7 +147,11 @@ class Filter_Page_Section_Row extends React.Component {
           params={params}
           sort={ this.props.sort }
           affiliates={ this.props.affiliates_mapping }
-          onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) } />
+          onSort={ (row_or_section, field, order) => 
+            row_or_section == 'row'
+              ? this.props.sort_row_filter_page_section_row(field, order) 
+              : this.props.sort_row_filter_page_section(field, order)
+          } />
     })(this.props.data)
 
     return <div>
@@ -196,7 +200,7 @@ export default connect(
   , {
         fetch_all_countries
       , fetch_all_affiliates
-      , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row
+      , fetch_filter_page_section_row, cleanup_fetch_filter_page_section_row, sort_row_filter_page_section_row, sort_row_filter_page_section
       , set_params 
     }
 )(Filter_Page_Section_Row)

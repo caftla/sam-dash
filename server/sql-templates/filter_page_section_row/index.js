@@ -52,14 +52,16 @@ module.exports = (params) => {
               , page: data[0].page
               , data: R.pipe(
                   R.map(x => R.merge(x, { section_sales_ratio: safe_div(x.sales, reduced_section.sales) }))
-                , R.sortBy(x => is_date_param(params.row) ? new Date(x.row + 'Z').valueOf() : x.row)
+                , R.sortBy(x => is_date_param(params.row) ? new Date(x.row).valueOf() : x.row)
               )(data) 
             })
         })
-        , R.sortBy(x => is_date_param(params.section) ? new Date(x.section + 'Z').valueOf() : x.sales * -1)
+        , R.sortBy(x => {
+           return is_date_param(params.section) ? new Date(x.section).valueOf() : x.sales * -1
+        })
       ))
     , R.toPairs
     , R.map(([page, data]) => R.merge(reduce_data(data), {page, data}))
-    , R.sortBy(x => is_date_param(params.page) ? new Date(x.page + 'Z').valueOf() : x.sales * -1)
+    , R.sortBy(x => is_date_param(params.page) ? new Date(x.page).valueOf() : x.sales * -1)
   )
 }

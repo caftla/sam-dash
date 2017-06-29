@@ -6,34 +6,39 @@ import {TD, TH, TABLE} from '../plottables/table'
 import type { QueryParams } from 'my-types'
 import cell_formatter from './cell-formatter'
 
+import type { SorterState } from '../reducers/sort.js'
+
 const change_sign = (change) => {
   const r = Math.round(Math.abs(change) - 1.5)
   const sign = r > 0 ? R.repeat(change > 0 ? '+' : '-', r).join('') : ''
   return sign.substr(0, 4)
 }
 
-const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: { field: string, order: number }, affiliates: Object }) => {
-  const show_label = (name, key = null) => {
+const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+  const show_label = (row_or_section) => (name, key = null) => {
     const sort_field = key == null ? name : key
-    return sort_field == sort.field
-      ? `${name} ` + (sort.order > 0 ? '▲' : '▼')
+    const sorter = sort[row_or_section == 'row' ? 'rowSorter' : 'sectionSorter']
+    return sort_field == sorter.field
+      ? `${name} ` + (sorter.order > 0 ? '▲' : '▼')
       : name
   }
+  const show_label_row = show_label('row') 
+  const show_label_section = show_label('section') 
   const formatter = cell_formatter(affiliates, params.timezone)
   return <TABLE width={1020}>
     <thead>
       <tr>
-        <TH width={150} style={{ paddingLeft: '0.7em' }} />
-        <TH width={params.row == 'hour' ? 180 : 150} value={ show_label(params.row, 'row') } onClick={ () => onSort('row', 1) }  />
-        <TH width={90} value={ show_label('Views', 'views') } onClick={ () => onSort('views', 1) } />
-        <TH width={90} value={ show_label('Share%', 'section_sales_ratio') } onClick={ () => onSort('section_sales_ratio', 1) } />
-        <TH width={90} value={ show_label('Sales', 'sales') } onClick={ () => onSort('sales', 1) }/>
-        <TH width={90} value={ show_label('CR%', 'cr') } onClick={ () => onSort('cr', 1) }/>
-        <TH width={90} value={ show_label('Pixels%', 'pixels_ratio') } onClick={ () => onSort('pixels_ratio', 1) }/>
-        <TH width={90} value={ show_label('eCPA', 'ecpa') } onClick={ () => onSort('ecpa', 1) }/>
-        <TH width={90} value={ show_label('CQ%', 'cq') } onClick={ () => onSort('cq', 1) }/>
-        <TH width={90} value={ show_label('Active24%', 'active24') } onClick={ () => onSort('active24', 1) }/>
-        <TH width={90} value={ show_label('Cost', 'cost') } onClick={ () => onSort('cost', 1) }/>
+        <TH width={150} style={{ paddingLeft: '0.7em' }} value={ show_label_section(params.section, 'section') } onClick={ () => onSort('section', 'section', 1) }/>
+        <TH width={params.row == 'hour' ? 180 : 150} value={ show_label_row(params.row, 'row') } onClick={ () => onSort('row', 'row', 1) }  />
+        <TH width={90} value={ show_label_row('Views', 'views') } onClick={ () => onSort('row', 'views', 1) } />
+        <TH width={90} value={ show_label_row('Share%', 'section_sales_ratio') } onClick={ () => onSort('row', 'section_sales_ratio', 1) } />
+        <TH width={90} value={ show_label_row('Sales', 'sales') } onClick={ () => onSort('row', 'sales', 1) }/>
+        <TH width={90} value={ show_label_row('CR%', 'cr') } onClick={ () => onSort('row', 'cr', 1) }/>
+        <TH width={90} value={ show_label_row('Pixels%', 'pixels_ratio') } onClick={ () => onSort('row', 'pixels_ratio', 1) }/>
+        <TH width={90} value={ show_label_row('eCPA', 'ecpa') } onClick={ () => onSort('row', 'ecpa', 1) }/>
+        <TH width={90} value={ show_label_row('CQ%', 'cq') } onClick={ () => onSort('row', 'cq', 1) }/>
+        <TH width={90} value={ show_label_row('Active24%', 'active24') } onClick={ () => onSort('row', 'active24', 1) }/>
+        <TH width={90} value={ show_label_row('Cost', 'cost') } onClick={ () => onSort('row', 'cost', 1) }/>
       </tr>
     </thead>
     <tbody>{

@@ -62,4 +62,5 @@ with Views as (
 select v.*, o.optout_24, c.cost from Views v
 left join Optout24 o on v.page = o.page and v.section = o.section and v.row = o.row
 left join Cost2 c on v.page = c.page and v.section = c.section and v.row = c.row
+order by v.page, v.section, v.row
 -- left join cpa c on c.cpa_id = v.cpa_id

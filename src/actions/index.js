@@ -96,6 +96,9 @@ export const cleanup_fetch_filter_page_section_row = () => (dispatch: Dispatch) 
 export const sort_row_filter_page_section_row = (field: string, order: number) => (dispatch: Dispatch) =>
   dispatch({ type: 'sort_row_filter_page_section_row', payload: {field, order} })
 
+export const sort_row_filter_page_section = (field: string, order: number) => (dispatch: Dispatch) =>
+  dispatch({ type: 'sort_row_filter_page_section', payload: {field, order} })
+
 
 // cohort
 
