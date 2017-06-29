@@ -187,6 +187,7 @@ class Home extends React.Component {
                         countries={ all_countries }
                         affiliates={ all_affiliates }
                         nocache={ !!params.nocache }
+                        sort={ this.props.sort }
                         set_params={ params => {
                           this.props.set_params(params)
                           this.props.cleanup_fetch_filter_section_row()
@@ -237,6 +238,7 @@ export default connect(
         login_state: state.login, params: state.controls
       , all_countries: state.all_countries
       , all_affiliates: state.all_affiliates
+      , sort: state.sort
     })
   , {
         login, check_loggedin
