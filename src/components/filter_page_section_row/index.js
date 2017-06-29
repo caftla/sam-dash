@@ -67,8 +67,16 @@ const props_to_params = props => {
     const query = fromQueryString(props.location.search)
     params.nocache = query.nocache == 'true' ? true : false
     return params
-
 }
+
+const query_to_sort = props => {
+  const defaultSort = props.sort
+    const query = fromQueryString(props.location.search)
+    return R.merge(defaultSort, {
+      rowSorter: { ...defaultSort.rowSorter, minViews: (!!query.min_views ? parseInt(query.min_views) : 0), minSales: (!!query.min_sales ? parseInt(query.min_sales) : 0) }
+    })
+}
+
 
 // This is a route
 class Filter_Page_Section_Row extends React.Component {
@@ -132,6 +140,10 @@ class Filter_Page_Section_Row extends React.Component {
       const {params} = this.props.match
       this.props.fetch_all_countries(params.date_from, params.date_to)
     }
+
+    const sort = query_to_sort(this.props)
+    this.props.min_row_filter_page_section_row('views', sort.rowSorter.minViews)
+    this.props.min_row_filter_page_section_row('sales', sort.rowSorter.minSales)
   }
 
   render() {
@@ -174,8 +186,8 @@ class Filter_Page_Section_Row extends React.Component {
                     set_params={ params => {
                       this.props.set_params(params)
                       this.props.cleanup_fetch_filter_page_section_row()
-                      const query = params.nocache ? `?nocache=true` : ''
-                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
+                      const query = params.nocache ? `?nocache=true` : '?'
+                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}`)
                     } }
                     set_min={ (views_or_sales, value) => {
                       this.props.min_row_filter_page_section_row(views_or_sales, value)

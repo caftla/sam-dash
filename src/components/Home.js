@@ -19,6 +19,7 @@ import { sequence } from '../helpers'
 import {
     login, check_loggedin
   , fetch_all_countries, set_params, cleanup_fetch_filter_section_row
+  , min_row_filter_page_section_row
   , fetch_all_affiliates
 } from '../actions'
 
@@ -96,6 +97,7 @@ type HomeProps = {
   , all_affiliates: Maybe<Array<any>>
   , history: any
   , login: (username: string, password: string) => void
+  , min_row_filter_page_section_row: (field: string, value: number) => any
   , check_loggedin: () => void
   , login_state: FetchState<boolean>
 }
@@ -188,12 +190,15 @@ class Home extends React.Component {
                         affiliates={ all_affiliates }
                         nocache={ !!params.nocache }
                         sort={ this.props.sort }
+                        set_min={ (views_or_sales, value) => {
+                          this.props.min_row_filter_page_section_row(views_or_sales, value)
+                        } }
                         set_params={ params => {
                           this.props.set_params(params)
                           this.props.cleanup_fetch_filter_section_row()
                           this.props.fetch_all_countries(params.date_from, params.date_to)
-                          const query = params.nocache ? `?nocache=true` : ''
-                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
+                          const query = params.nocache ? `?nocache=true&` : '?'
+                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}`)
                         } }
                       />
                     </div>
@@ -246,5 +251,6 @@ export default connect(
       , fetch_all_affiliates
       , set_params
       , cleanup_fetch_filter_section_row
+      , min_row_filter_page_section_row
     }
 )(Home)
