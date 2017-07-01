@@ -34,10 +34,11 @@ const api_root = process.env.api_root || '' // in production api_root is the sam
 export const login = (username : string, password : string) => (dispatch : Dispatch) => {
   dispatch({ type: 'login_loading' })
   post({url: `${api_root}/api/login`, body: {username, password}})
-  .then((d : {success : boolean}) => {
-    d.success
-    ? dispatch({ type: 'login_success' })
-    : dispatch({ type: 'login_failed' })
+  .then((d : {success : boolean, token : string }) => {
+    if (d.success) {
+      dispatch({ type: 'login_success' })
+      localStorage.setItem('token', d.token)
+    } else { dispatch({ type: 'login_failed' }) }
     return d
   }).catch(d => {
     dispatch({ type: 'login_failed' })

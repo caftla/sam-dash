@@ -4,10 +4,11 @@ import * as R from 'ramda'
 
 export const post = async ({ url, body } : {url: string, body?: mixed}) => {
   const res = await fetch(url , {
-    credentials: 'include',
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      authorization: localStorage.getItem('token'),
+      'Content-Type': 'application/json',
+
     },
     body: JSON.stringify(body),
   })
@@ -23,7 +24,9 @@ export const get = async ({ url, nocache = false } : { url : string, nocache : b
       : url + `?`) + cache_buser
   }
   const res = await fetch(url, {
-    credentials: 'include'
+    headers: {
+      authorization: localStorage.getItem('token'),
+    },
   })
   const data = await res.json()
   return data
