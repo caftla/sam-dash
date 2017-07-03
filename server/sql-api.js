@@ -56,7 +56,7 @@ const query = (connection_string: string, query_template:string, params: Object)
   client.connect((err, conn, done) => {
     if(err) {
       client.end();
-      reject(err)
+      return reject(err)
     }
     console.info('---------', 'conn.processID = ', conn.processID, '---------')
     console.info(query)
