@@ -56,7 +56,11 @@ class Login extends React.Component {
       , invalid_password: false
     }
   }
-
+  componentWillMount(){
+    const token = fromQueryString(window.location.search.substring(1))
+    localStorage.setItem('token', token.token)
+    console.log(token)
+  }
   render() {
 
     const invalid_password_component = this.state.invalid_password
@@ -172,11 +176,12 @@ class Home extends React.Component {
         } else {
 
           const query = fromQueryString(window.location.search.substring(1))
+          console.log(query)
           if(!!query.login_redir) {
             window.location.href = decodeURIComponent(query.login_redir)
             return <div>redirecting ...</div>
           }
-
+          
           return maybe.maybe(
               _ => {
                 return <div>Loading...</div>
