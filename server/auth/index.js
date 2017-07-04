@@ -123,5 +123,5 @@ module.exports = (app) => {
       res.end(JSON.stringify({ success: false }))
     },
   )
-  return () => requireSignin
+  return () => requireAuth
 }
