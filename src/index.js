@@ -25,6 +25,7 @@ import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
 import { Body } from './components/Styled'
+import { fromQueryString } from './helpers'
 
 Offline.install()
 
@@ -36,6 +37,10 @@ const Redirect_Filter_Page_Section_Row = ({match, history}) => {
   history.push(`/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
   return <div>Redirecting ...</div>
 }
+
+const token = fromQueryString(window.location.search.substring(1))
+localStorage.setItem('token', token.token)
+console.log(token)
 
 export const Root = () => {
   return <Provider store={store}>

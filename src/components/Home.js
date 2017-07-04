@@ -56,11 +56,7 @@ class Login extends React.Component {
       , invalid_password: false
     }
   }
-  componentWillMount(){
-    const token = fromQueryString(window.location.search.substring(1))
-    localStorage.setItem('token', token.token)
-    console.log(token)
-  }
+
   render() {
 
     const invalid_password_component = this.state.invalid_password
