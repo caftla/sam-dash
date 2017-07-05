@@ -113,7 +113,7 @@ export default class Controls extends React.Component {
     )(this.props.affiliates)
     return R.pipe(
         R.map(k => [k, this.state[k]])
-      , R.filter(([k, v]) => !!v)
+      , R.reject(([key, value]) => !value || value == '-')
       , R.map(R.join('='))
       , R.join(',')
       , x => !x ? '-' : x
@@ -127,9 +127,9 @@ export default class Controls extends React.Component {
       , R.uniq
       , R.sortBy(x => x)
     )(countries)
-    const get_country_prop = prop => R.pipe(
+    const get_country_prop = (prop, def) => R.pipe(
         R.find(x => x.country_code == this.state.country_code)
-      , R.prop(prop)
+      , x => !x ? def : R.prop(prop)(x)
     )(countries)
 
     const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'hour', 'day', 'week', 'month']
@@ -176,11 +176,11 @@ export default class Controls extends React.Component {
         <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
-          value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes') } />
+          value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes', []) } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
-          value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
+          value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names', []) } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
-          value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
+          value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names', []) } />
         <LabelledInput name="Sales" style={{ width: '40px' }}>
           <NumberField type="number" value={ this.props.sort.rowSorter.minSales } onChange={ x => {
             this.props.set_min('sales', parseInt(x.target.value))

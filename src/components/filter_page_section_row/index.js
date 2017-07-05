@@ -108,7 +108,8 @@ class Filter_Page_Section_Row extends React.Component {
               )(nextProps.all_affiliates)
 
               params.filter = R.pipe(
-                R.map(([key, value]) => key == 'affiliate_name'
+                R.reject(([key, value]) => !value || value == '-')
+                , R.map(([key, value]) => key == 'affiliate_name'
                   ? ['affiliate_id', affiliate_ids]
                   : [key, value]
                 )
