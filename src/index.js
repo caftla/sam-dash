@@ -39,8 +39,9 @@ const Redirect_Filter_Page_Section_Row = ({match, history}) => {
 }
 
 const token = fromQueryString(window.location.search.substring(1))
-localStorage.setItem('token', token.token)
-console.log(token)
+if (typeof token.token !== 'undefined') {
+  localStorage.setItem('token', token.token)
+}
 
 export const Root = () => {
   return <Provider store={store}>
