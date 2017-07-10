@@ -41,7 +41,7 @@ passport.use(
 passport.use(
   new JwtStrategy(
     {
-      jwtFromRequest: ExtractJwt.fromHeader('authorization'),
+      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
       secretOrKey: 'dashman',
     },
     (payload, done) => {

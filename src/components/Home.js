@@ -172,11 +172,12 @@ class Home extends React.Component {
         } else {
 
           const query = fromQueryString(window.location.search.substring(1))
+          console.log(query)
           if(!!query.login_redir) {
             window.location.href = decodeURIComponent(query.login_redir)
             return <div>redirecting ...</div>
           }
-
+          
           return maybe.maybe(
               _ => {
                 return <div>Loading...</div>
