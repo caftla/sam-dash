@@ -28,11 +28,16 @@ module.exports = (params) => {
   return R.pipe(
       R.map(format)
     , R.map(x => {
-        if(!x.sales)
-          x.sales = 0
-        if(!x.views)
-          x.views = 0
-        return x
+        const breakdown = R.fromPairs([
+            [params.page, x.page]
+          , [params.section, x.section]
+          , [params.row, x.row]
+        ])
+
+        delete x.page
+        delete x.section
+        delete x.row
+        return R.merge(breakdown, x)
      })
     , R.map(add_ratios)
   )
