@@ -25,6 +25,7 @@ export default customSelectorCreator(
       return R.pipe(
           R.chain(x => R.map(afid => [afid, x.affiliate_name])(x.affiliate_ids))
         , R.fromPairs
+        , x => R.merge({'Unknown': 'Unknown'}, x)
       )(all_affiliates)
   }
 )

@@ -110,6 +110,16 @@ app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:
   )
 })
 
+app.get('/api/v1/filter_page_section_row/flat/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_jewel(
+      fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/filter_page_section_row/flat')(params)
+  )
+})
+
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
   respond_helix(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
