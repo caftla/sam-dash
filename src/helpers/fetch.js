@@ -18,7 +18,7 @@ export const post = async ({ url, body } : {url: string, body?: mixed}) => {
 
 export const get = async ({ url, nocache = false } : { url : string, nocache : boolean }) => {
   if(nocache) {
-    const cache_buser = `cache_buser=${new Date().valueOf()}`
+    const cache_buser = `cache_buster=${new Date().valueOf()}`
     url = (url.indexOf('?') > -1
       ? url + `&`
       : url + `?`) + cache_buser

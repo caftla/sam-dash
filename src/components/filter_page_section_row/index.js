@@ -187,7 +187,7 @@ class Filter_Page_Section_Row extends React.Component {
                     set_params={ params => {
                       this.props.set_params(params)
                       this.props.cleanup_fetch_filter_page_section_row()
-                      const query = params.nocache ? `?nocache=true` : '?'
+                      const query = params.nocache ? `?nocache=true&` : '?'
                       this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}`)
                     } }
                     set_min={ (views_or_sales, value) => {
