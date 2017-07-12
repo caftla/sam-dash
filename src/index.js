@@ -38,9 +38,17 @@ const Redirect_Filter_Page_Section_Row = ({match, history}) => {
   return <div>Redirecting ...</div>
 }
 
-const token = fromQueryString(window.location.search.substring(1))
-if (typeof token.token !== 'undefined') {
-  localStorage.setItem('token', token.token)
+const tokenFromURL = fromQueryString(window.location.search.substring(1))
+if (typeof tokenFromURL.token !== 'undefined') {
+  localStorage.setItem('token', tokenFromURL.token)
+}
+
+const token = localStorage.getItem('token')
+const queryString = fromQueryString(window.location.search.substring(1))
+if (!token && !queryString.login_redir) {
+  const url = window.location.href
+  const newUrl = '/?login_redir=' + encodeURIComponent(url)
+  window.location = newUrl
 }
 
 export const Root = () => {
