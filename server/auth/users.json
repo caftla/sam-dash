@@ -8,5 +8,10 @@
     "name": "sam-media",
     "email": "staff@sam-media.com",
     "password": "dashsam42"
+  },
+  {
+    "name": "sam-media",
+    "email": "sam-media",
+    "password": "dashsam42"
   }
 ]
