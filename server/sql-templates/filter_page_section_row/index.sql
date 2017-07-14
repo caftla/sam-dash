@@ -39,7 +39,7 @@ with Views as (
   select 
     page, section, row
   , sum(nvl(c.home_cpa, 0) * c1.paid_sales) :: float as cost
-  , avg(nvl(c.home_cpa, 0)) :: float as home_cpa 
+  , (case when sum(c1.paid_sales) = 0 then 0 else sum(nvl(c.home_cpa, 0) * c1.paid_sales) / sum(c1.paid_sales) end) :: float as home_cpa 
   from Cost1 as c1
   left join cpa c on c.cpa_id = c1.cpa_id
   group by page, section, row
