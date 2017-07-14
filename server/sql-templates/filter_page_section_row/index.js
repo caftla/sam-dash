@@ -21,22 +21,34 @@ module.exports = (params) => {
     , cq: safe_div(x.firstbillings, x.sales)
     , cost: x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0))
     , ecpa: safe_div(x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0)), x.sales)
+    , cpa: safe_div(x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0)), (x.paid_sales || 0))
     , active24: safe_div(x.sales - x.optout_24, x.sales)
+    , active: safe_div(x.sales - x.optouts, x.sales)
   })
   
- const reduce_data = data => add_ratios(data.reduce(
-    (acc, a) =>
-      R.merge(acc, {
-          views: acc.views + a.views
-        , leads: acc.leads + a.leads
-        , sales: acc.sales + a.sales
-        , pixels: acc.pixels + a.pixels
-        , firstbillings: acc.firstbillings + a.firstbillings
-        , cost: acc.cost + a.cost
-        , optout_24: acc.optout_24 + a.optout_24
-      })
-    , {sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optout_24: 0}
-  ))
+ const reduce_data = data => {
+   const xdata = add_ratios(data.reduce(
+      (acc, a) =>
+        R.merge(acc, {
+            views: acc.views + a.views
+          , leads: acc.leads + a.leads
+          , sales: acc.sales + a.sales
+          , paid_sales: acc.paid_sales + a.paid_sales
+          , pixels: acc.pixels + (+a.pixels)
+          , firstbillings: acc.firstbillings + a.firstbillings
+          , cost: acc.cost + a.cost
+          , optout_24: acc.optout_24 + a.optout_24
+          , optouts: acc.optouts + a.optouts
+          , day_optouts: acc.day_optouts + a.day_optouts
+        })
+      , {sales: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0}
+    ))
+
+    const home_cpa =  safe_div(R.pipe(R.map(x => x.home_cpa * x.paid_sales), R.sum)(data), R.pipe(R.map(x => x.paid_sales), R.sum)(data))
+    return R.merge(xdata, {
+        home_cpa: home_cpa
+    })
+  }
   
   return R.pipe(
       R.map(format)

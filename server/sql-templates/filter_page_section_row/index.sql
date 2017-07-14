@@ -9,7 +9,7 @@ with Views as (
   , sum(case when e.sale_pixel_direct or e.sale_pixel_delayed then 1 else 0 end) :: int as pixels
   , sum(case when(e.sale_pixel_direct or e.sale_pixel_delayed) and (e.scrub is not true) then 1 else 0 end) :: int as paid_sales
   , sum(case when e.firstbilling then 1 else 0 end) :: int as firstbillings
-  , sum(case when e.optout then 1 else 0 end) :: int as optouts
+  , sum(case when e.optout then 1 else 0 end) :: int as day_optouts
   from public.events e 
   where e.timestamp >= $[params.from_date_tz]$
     and e.timestamp < $[params.to_date_tz]$
@@ -39,6 +39,7 @@ with Views as (
   select 
     page, section, row
   , sum(nvl(c.home_cpa, 0) * c1.paid_sales) :: float as cost
+  , avg(nvl(c.home_cpa, 0)) :: float as home_cpa 
   from Cost1 as c1
   left join cpa c on c.cpa_id = c1.cpa_id
   group by page, section, row
@@ -59,8 +60,26 @@ with Views as (
   order by page, section, row
 )
 
-select v.*, o.optout_24, c.cost from Views v
+, Optouts as (
+
+  select 
+    $[params.f_page('e', 'timestamp')]$ as page
+  , $[params.f_section('e', 'timestamp')]$ as section
+  , $[params.f_row('e', 'timestamp')]$ as row
+  , sum(case when e.optout then 1 else 0 end) :: int as optouts
+  from events e
+  where e.start_timestamp >= $[params.from_date_tz]$
+    and e.start_timestamp < $[params.to_date_tz]$
+    and e.timestamp >= $[params.from_date_tz]$
+    and $[params.f_filter('e')]$
+  group by page, section, row
+  order by page, section, row
+)
+
+select v.*, o.optout_24, p.optouts, c.cost, c.home_cpa from Views v
 left join Optout24 o on v.page = o.page and v.section = o.section and v.row = o.row
 left join Cost2 c on v.page = c.page and v.section = c.section and v.row = c.row
+left join Optouts p on v.page = p.page and v.section = p.section and v.row = p.row
+
 order by v.page, v.section, v.row
 -- left join cpa c on c.cpa_id = v.cpa_id
