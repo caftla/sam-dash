@@ -10,6 +10,7 @@ import createHistory from 'history/createBrowserHistory'
 import { Route } from 'react-router'
 
 import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
+import './index.styl'
 
 const history = createHistory()
 
@@ -51,8 +52,7 @@ if (!token && !queryString.login_redir) {
   window.location = newUrl
 }
 
-export const Root = () => {
-  return <Provider store={store}>
+const bottom_right = <Provider store={store}>
     <ConnectedRouter history={history}>
       <Body>
         <Route exact path="/" component={Home} />
@@ -67,6 +67,18 @@ export const Root = () => {
       </Body>
     </ConnectedRouter>
   </Provider>
+
+export const Root = (args) => {
+  return <div id="main">
+    <div id="main-top">
+      <div className="main-left">Top Left</div>
+      <div className="main-right">Top Right</div>
+    </div>
+    <div id="main-bottom">
+      <div className="main-left">Bottom Left</div>
+      <div className="main-right">{  bottom_right }</div>
+    </div>
+  </div>
 }
 
 if (!module.hot) render(<Root />, document.querySelector('react'))
