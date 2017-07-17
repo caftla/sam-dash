@@ -52,7 +52,7 @@ if (!token && !queryString.login_redir) {
   window.location = newUrl
 }
 
-const bottom_right = <Provider store={store}>
+const main_bottom = <Provider store={store}>
     <ConnectedRouter history={history}>
       <Body>
         <Route exact path="/" component={Home} />
@@ -68,17 +68,45 @@ const bottom_right = <Provider store={store}>
     </ConnectedRouter>
   </Provider>
 
+
 export const Root = (args) => {
   return <div id="main">
     <div id="main-top">
-      <div className="main-left">Top Left</div>
-      <div className="main-right">Top Right</div>
+      <div className="main-left">
+      		
+      		<img src="logo.png" alt="Sam Media"/>
+      		
+	      <div className="status-area">
+	      		Loading...
+	      </div>
+      
+      </div>
+      <div className="main-right">
+      	
+      		<div className="upper-area">
+      		
+      			<h1>Dashboard</h1>
+      		
+      		</div>
+      		
+      		<div className="tabs-area">
+      		
+      		</div>
+      
+      </div>
     </div>
     <div id="main-bottom">
-      <div className="main-left">Bottom Left</div>
-      <div className="main-right">{  bottom_right }</div>
+      <div className="main-left">
+
+      </div>      
+      <div className="main-right">
+
+      	{main_bottom}
+      	
+      </div>
     </div>
   </div>
 }
+
 
 if (!module.hot) render(<Root />, document.querySelector('react'))

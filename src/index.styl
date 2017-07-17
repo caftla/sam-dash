@@ -1,16 +1,68 @@
+body
+  margin:0
+  padding:0
+  background-color: #ffffff
+  font-family: Arial, Helvetica, Sans-serif;
+
 #main
   display: block
 
 #main-top
   display: flex
-  height: 100px
+
+  .main-left 
+     width: 300px
+     height: 100px
+     position: relative
+     background-color: #8cc63e
+     
+     img
+       width:100px
+       display:block
+       margin:6px auto
+    
+	 .status-area
+	   left:0
+	   right:0
+	   bottom:0 
+	   color: #d6ff9f
+	   display: block
+	   font-size: 16px
+	   padding: 10px 10px
+	   position:absolute
+	   text-align:center
+	   background-color: #6da424
+
+   .main-right
+      flex: 1
+      background-color:#353843
+      
+      .upper-area
+        display: block
+        vertical-align: middle
+        
+        h1
+          margin:0
+          color:#ffffff
+          font-size:28px
+          padding:15px 25px
+          font-weight:normal
+          text-transform:uppercase
+          
+	.tabs-area
+	   height:38px
+	   display:block
+	   background-color:#3e424f
 
 #main-bottom
   display: flex
 
-#main
   .main-left 
-    width: 200px
+     width: 300px
+     background-color: #353843
 
-  .main-right
-    flex: 1
+   .main-right
+      flex: 1
+      overflow:scroll
+      background-color: #ffffff
+      
