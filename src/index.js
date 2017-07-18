@@ -61,8 +61,11 @@ const main_bottom = <Provider store={store}>
         <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Filter_Page_Section_Row} />
         <Route path="/filter_page_section_row" exact={ true } component={Filter_Page_Section_Row} />
         <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Redirect_Filter_Page_Section_Row} />
+        <Route path="/cohort" exact={ true } component={Cohort} />
         <Route path="/cohort/:date_from/:date_to/:filter" component={Cohort} />
+        <Route path="/converting_ips/" exact={ true } component={ConvertingIPs} />
         <Route path="/converting_ips/:date_from/:date_to/:filter" component={ConvertingIPs} />
+        <Route path="/monthly_reports/" exact={ true } component={MonthlyReports} />
         <Route path="/monthly_reports/:date_from/:date_to/:filter" component={MonthlyReports} />
         <Route path="/daily_reports_archive/:date_from" component={DailyReportsArchive} />
       </Body>
@@ -86,9 +89,15 @@ export const Root = (args) => {
 	      			<a onClick={ () => {
                   history.push(`/filter_page_section_row/`)
                 }}>Standard</a>
-	      			<a href="#">Converting IPs</a>
-	      			<a href="#">Cohort</a>
-	      			<a href="#">Monthly Report</a>
+	      			<a onClick={ () => {
+                  history.push(`/converting_ips/`)
+                }}>Converting IPs</a>
+	      			<a onClick={ () => {
+                  history.push(`/cohort/`)
+                }}>Cohort</a>
+	      			<a onClick={ () => {
+                  history.push(`/monthly_reports/`)
+                }}>Monthly Report</a>
       			</div>
       			
       			<div className="actions">

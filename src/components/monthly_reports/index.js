@@ -25,6 +25,8 @@ import {
 import Table from './Table'
 import Controls from './Controls'
 
+import moment from 'moment'
+
 const theme = {
     flexDirection: 'row'
   , formSectionWidth: '260px'
@@ -53,6 +55,24 @@ type Props = {
   , sort_row_filter_page_section_row: (field: string, order: number) => void
   , sort: { field: string, order: number }
   , set_params: (params: QueryParams) => void
+}
+
+const props_to_params = props => {
+  const {timeFormat} = require('d3-time-format')
+  const formatDate = timeFormat('%Y-%m-%d')
+  const m = moment().add(-6, 'months').startOf('month')
+  const defaultDateFrom = formatDate(m.toDate())
+  const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
+  const {params} = props.match
+  const { format : d3Format } = require('d3-format')
+  const formatTimezone = d3Format("+.1f")
+  // const query = fromQueryString(props.location.search)
+  const mparams = R.merge(params, R.applySpec({
+      date_from: p => p.date_from || defaultDateFrom
+    , date_to: p => p.date_to || defaultDateTo
+    , filter: p => p.filter || '-'
+  })(params))
+  return mparams
 }
 
 const Section = props => {
@@ -118,11 +138,11 @@ class MonthlyReport extends React.Component {
   }
 
   componentWillUpdate(nextProps : Props, b) {
-    const {params} = nextProps.match
-    const current_params = this.props.match.params
+    const params = props_to_params(nextProps)
+    const current_params = props_to_params(this.props)
 
     match({
-        Nothing: () => nextProps.fetch_monthly_reports(params.date_from, params.date_to, params.filter)
+        Nothing: () => params.filter != '-' ? nextProps.fetch_monthly_reports(params.date_from, params.date_to, params.filter) : void 9
       , Loading: () => void 9
       , Error: (error) => void 9
       , Loaded: (data) => void 9
@@ -134,8 +154,8 @@ class MonthlyReport extends React.Component {
   }
 
   render() {
-    const {params} = this.props.match
-    const data_component = match({
+    const params = props_to_params(this.props)
+    const data_component = params.filter == '-' ? <div className='route-message'>Please select some filters first</div> : match({
         Nothing: () => <div>Nothing</div>
       , Loading: () => <div>Loading...</div>
       , Error: (error) => <div>Error</div>

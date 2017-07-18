@@ -5,8 +5,8 @@ import R from 'ramda'
 import {TD, TH, TABLE} from '../plottables/table'
 import type { QueryParams } from 'my-types'
 import cell_formatter from './cell-formatter'
-
 import type { SorterState } from '../reducers/sort.js'
+import './Section.styl'
 
 const change_sign = (change) => {
   const r = Math.round(Math.abs(change) - 1.5)
@@ -31,7 +31,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
         <TH width={170} style={{ paddingLeft: '0.7em' }} value={ show_label_section(params.section, 'section') } onClick={ () => onSort('section', 'section', 1) }/>
         <TH width={params.row == 'hour' ? 220 : 160} value={ show_label_row(params.row, 'row') } onClick={ () => onSort('row', 'row', 1) }  />
         <TH width={100} value={ show_label_row('Views', 'views') } onClick={ () => onSort('row', 'views', 1) } />
-        <TH width={100} value={ show_label_row('Share%', 'section_sales_ratio') } onClick={ () => onSort('row', 'section_sales_ratio', 1) } />
+        {/* <TH width={100} value={ show_label_row('Share%', 'section_sales_ratio') } onClick={ () => onSort('row', 'section_sales_ratio', 1) } /> */}
         <TH width={100} value={ show_label_row('Sales', 'sales') } onClick={ () => onSort('row', 'sales', 1) }/>
         <TH width={100} value={ show_label_row('CR%', 'cr') } onClick={ () => onSort('row', 'cr', 1) }/>
         <TH width={100} value={ show_label_row('CQ%', 'cq') } onClick={ () => onSort('row', 'cq', 1) }/>
@@ -50,15 +50,15 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
         <TD width={170}  value={ formatter(params.section)(x.section) } style={{ paddingLeft: '0.7em' }}  />
         <TD width={params.row == 'hour' ? 220 : 160} value={ formatter(params.row)(x.row) } />
         <TD width='100'  value={d3.format(',')(+x.views) + change_sign(+x.views_change)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.section_sales_ratio)} />
+        {/* <TD width={100}  value={d3.format('0.0f')(100 * +x.section_sales_ratio)} /> */}
         <TD width={100}  value={d3.format(',')(+x.sales) + change_sign(+x.sales_change)} />
-        <TD width={100}  value={d3.format('0.2f')(100 * +x.cr) + change_sign(+x.cr_change)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.cq) + change_sign(+x.cq_change)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.resubrate) + change_sign(+x.resubrate_change)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.active24) + change_sign(+x.active24_change * 0.5)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.active) + change_sign(+x.active_change * 0.5)} />
+        <TD width={100} className="percent" value={d3.format('0.2f')(100 * +x.cr) + change_sign(+x.cr_change)} />
+        <TD width={100} className="percent" value={d3.format('0.0f')(100 * +x.cq) + change_sign(+x.cq_change)} />
+        <TD width={100} className="percent" value={d3.format('0.0f')(100 * +x.resubrate) + change_sign(+x.resubrate_change)} />
+        <TD width={100} className="percent" value={d3.format('0.0f')(100 * +x.active24) + change_sign(+x.active24_change * 0.5)} />
+        <TD width={100} className="percent" value={d3.format('0.0f')(100 * +x.active) + change_sign(+x.active_change * 0.5)} />
         <TD width={100}  value={d3.format(',')(+x.pixels) + change_sign(+x.pixels_change)} />
-        <TD width={100}  value={d3.format('0.0f')(100 * +x.pixels_ratio) + change_sign(+x.pixels_ratio_change)} />
+        <TD width={100} className="percent" value={d3.format('0.0f')(100 * +x.pixels_ratio) + change_sign(+x.pixels_ratio_change)} />
         <TD width={100}  value={d3.format('0.2f')(+x.ecpa) + change_sign(+x.ecpa_change)} />
         <TD width={100}  value={d3.format(',.2f')(+x.home_cpa) + change_sign(+x.home_cpa_change)} />
         <TD width={100}  value={d3.format(',.0f')(+x.cost) + change_sign(+x.cost_change)} />
@@ -68,7 +68,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
         <TD width={150}  value={ formatter(params.section)(data.section) } style={{ paddingLeft: '0.7em' }}  />
         <TD width={150} value="" />
         <TD width='100'  style={ { fontWeight: 'bold' } } value={d3.format(',')(+data.views) + change_sign(+data.views_change)} />
-        <TD width={100}  value="" />
+        {/* <TD width={100}  value="" /> */}
         <TD width={100}  style={ { fontWeight: 'bold' } } value={d3.format(',')(+data.sales) + change_sign(+data.sales_change)} />
         <TD width={100}  style={ { fontWeight: 'bold' } } value={d3.format('.2%')(+data.cr) + change_sign(+data.cr_change)} />
         <TD width={100}  style={ { fontWeight: 'bold' } } value={d3.format('.0%')(+data.cq) + change_sign(+data.cq_change)} />

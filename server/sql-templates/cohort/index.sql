@@ -27,7 +27,7 @@ with Days as(
   select * from Days d
   join lateral (
     select
-      r.country_code
+      ('-' :: text) as country_code
     , SUM(r.sale_count) as sale_count
     , SUM(r.home_cpa) as cost
     , SUM(r.firstbilling_count) as firstbilling_count
@@ -48,11 +48,10 @@ with Days as(
       and r.day < d.sale_window_end
       and d.day_after_subscription > 0
       and $[params.f_filter('r')]$
-    group by
-        r.country_code
+    group by country_code
   ) r on true
 
-  order by r.country_code, d.day_after_subscription
+  order by country_code, d.day_after_subscription
 )
 
 select

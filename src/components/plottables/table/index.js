@@ -1,5 +1,6 @@
 import React from 'react'
 import R from 'ramda'
+import './table.styl'
 
 const td_th_style = { textAlign: 'left' }
 const th_style = R.merge(td_th_style, {
@@ -9,7 +10,7 @@ const td_style = R.merge(td_th_style, {
   borderBottom: 'solid 1px #ddd', overflow: 'hidden', padding: '0.3em 0 0.3em 0'
 })
 
-export const TD = ({children, value, width, style}: any) => <td style={ { width: `${width}px`, ...td_style, ...(style || {}) } }>{children || value}</td>
+export const TD = ({children, value, width, style, className}: any) => <td className={ className } style={ { width: `${width}px`, ...td_style, ...(style || {}) } }>{children || value}</td>
 export const TH = ({children, value, width, style, onClick = (() => {})}: any) =>
   <th onClick={ onClick } style={ { cursor: 'pointer', width: `${width}px`, ...th_style, ...(style || {}) } }>{children || value}</th>
 export const TABLE = (props: any) =>

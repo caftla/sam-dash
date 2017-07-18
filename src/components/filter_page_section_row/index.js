@@ -26,11 +26,6 @@ import { fromQueryString } from '../../helpers'
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
-const {timeFormat} = require('d3-time-format')
-
-const formatDate = timeFormat('%Y-%m-%d')
-const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))
-const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
 
 
 const theme = {
@@ -67,21 +62,25 @@ type Props = {
 }
 
 const props_to_params = props => {
-    const {params} = props.match
-    const { format : d3Format } = require('d3-format')
-    const formatTimezone = d3Format("+.1f")
-    const query = fromQueryString(props.location.search)
-    const mparams = R.merge(params, R.applySpec({
-        timezone: () => parseFloat(params.timezone) || new Date().getTimezoneOffset() / -60
-      , nocache:  () => query.nocache == 'true' ? true : false
-      , date_from: p => p.date_from || defaultDateFrom
-      , date_to: p => p.date_to || defaultDateTo
-      , filter: p => p.filter || '-'
-      , page: p => p.page || '-'
-      , section: p => p.section || '-'
-      , row: p => p.row || 'day'
-    })(params))
-    return mparams
+  const {timeFormat} = require('d3-time-format')
+  const formatDate = timeFormat('%Y-%m-%d')
+  const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))
+  const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
+  const {params} = props.match
+  const { format : d3Format } = require('d3-format')
+  const formatTimezone = d3Format("+.1f")
+  const query = fromQueryString(props.location.search)
+  const mparams = R.merge(params, R.applySpec({
+      timezone: () => parseFloat(params.timezone) || new Date().getTimezoneOffset() / -60
+    , nocache:  () => query.nocache == 'true' ? true : false
+    , date_from: p => p.date_from || defaultDateFrom
+    , date_to: p => p.date_to || defaultDateTo
+    , filter: p => p.filter || '-'
+    , page: p => p.page || '-'
+    , section: p => p.section || '-'
+    , row: p => p.row || 'day'
+  })(params))
+  return mparams
 }
 
 const query_to_sort = props => {
