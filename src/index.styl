@@ -5,10 +5,17 @@ body
   font-family: Arial, Helvetica, Sans-serif;
 
 #main
-  display: block
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
 
 #main-top
   display: flex
+  height: 100px
 
   .main-left 
      width: 300px
@@ -54,8 +61,10 @@ body
 	   display:block
 	   background-color:#3e424f
 
-#main-bottom
-  display: flex
+.main-bottom
+  display: flex;
+  flex-grow: 1;
+  height: calc(100vh - 100px);
 
   .main-left 
      width: 300px

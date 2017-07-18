@@ -168,7 +168,7 @@ class Filter_Page_Section_Row extends React.Component {
           } />
     })(this.props.data)
 
-    return <div>
+    return <div className="main-bottom">
       <ThemeProvider theme={theme}>
         {
           maybe.maybe(
@@ -180,7 +180,9 @@ class Filter_Page_Section_Row extends React.Component {
                   return <div>Loading affiliates ...</div>
                 }
                 , all_affiliates => _ => {
-                  return  <Controls params={ params }
+                  return  <Controls
+                    className="main-left"
+                    params={ params }
                     countries={ all_countries }
                     affiliates={ all_affiliates }
                     sort={ this.props.sort }
@@ -193,7 +195,6 @@ class Filter_Page_Section_Row extends React.Component {
                     set_min={ (views_or_sales, value) => {
                       this.props.min_row_filter_page_section_row(views_or_sales, value)
                     } }
-                    className='top'
                   />
                 }
               , this.props.all_affiliates
@@ -202,7 +203,9 @@ class Filter_Page_Section_Row extends React.Component {
           )()
         }
       </ThemeProvider>
-      { data_component }
+      <div className="main-right">
+        { data_component } 
+      </div>
     </div>
   }
 }

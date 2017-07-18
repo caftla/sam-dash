@@ -135,7 +135,8 @@ export default class Controls extends React.Component {
     const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'hour', 'day', 'week', 'month']
 
     return <FormContainer className={ this.props.className }>
-      <FormSection>
+      // @Justin: you can add className to any of these elements
+      <FormSection className="date-filter">
         <FormTitle>Date Range:</FormTitle>
         <LabelledInput name="From">
           <DateTime value={ new Date(this.state.date_from) } onChange={ val => {

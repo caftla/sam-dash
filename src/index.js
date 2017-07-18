@@ -95,16 +95,7 @@ export const Root = (args) => {
       
       </div>
     </div>
-    <div id="main-bottom">
-      <div className="main-left">
-
-      </div>      
-      <div className="main-right">
-
-      	{main_bottom}
-      	
-      </div>
-    </div>
+    {main_bottom}
   </div>
 }
 
