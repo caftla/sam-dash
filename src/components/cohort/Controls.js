@@ -80,12 +80,12 @@ class Controls extends React.Component {
 
     return <FormContainer className={ this.props.className }>
       <FormSection>
-        <FormTitle>Date Range:</FormTitle>
+        <FormTitle>Date Range</FormTitle>
         <Input type="date" name="From" value={ this.state.date_from } onChange={ val => this.setState({ 'date_from': val }) } />
         <Input type="date" name="To" value={ this.state.date_to } onChange={ val => this.setState({ 'date_to': val }) } />
       </FormSection>
       <FilterFormSection style={ {width: '900px'} }>
-        <FormTitle>Filter:</FormTitle>
+        <FormTitle>Filter</FormTitle>
         <InputSelect name="Country" onChange={ on_change_with_fetch_traffic_breakdown(country_code => this.setState({ country_code: country_code, operator_code: '' })) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
