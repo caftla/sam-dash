@@ -13,7 +13,7 @@ export const TD = ({children, value, width, style}: any) => <td style={ { width:
 export const TH = ({children, value, width, style, onClick = (() => {})}: any) =>
   <th onClick={ onClick } style={ { cursor: 'pointer', width: `${width}px`, ...th_style, ...(style || {}) } }>{children || value}</th>
 export const TABLE = (props: any) =>
-  <table className="main-table" style={ { width: `${props.width}px`, backgroundColor: 'white', padding: '20px', fontSize: '14px', color: '#848690', ...(props.style || {}) } } cellSpacing="0" cellPadding="0">
+  <table className="main-table" style={ { width: `${props.width}px`, backgroundColor: 'white', padding: '20px', fontSize: '14px', color: '#1e1e1e', ...(props.style || {}) } } cellSpacing="0" cellPadding="0">
     { props.children }
   </table>
 
