@@ -72,7 +72,7 @@ const props_to_params = props => {
     const formatTimezone = d3Format("+.1f")
     const query = fromQueryString(props.location.search)
     const mparams = R.merge(params, R.applySpec({
-        timezone: () => parseFloat(params.timezone) || formatTimezone(new Date().getTimezoneOffset() / -60)
+        timezone: () => parseFloat(params.timezone) || new Date().getTimezoneOffset() / -60
       , nocache:  () => query.nocache == 'true' ? true : false
       , date_from: p => p.date_from || defaultDateFrom
       , date_to: p => p.date_to || defaultDateTo
