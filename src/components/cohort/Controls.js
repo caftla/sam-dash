@@ -25,6 +25,7 @@ type ControlsProps = {
     params: QueryParams
   , countries: Array<any>
   , set_params: QueryParams => any
+  , className?: string
 }
 
 type ControlsState = {
@@ -77,7 +78,7 @@ class Controls extends React.Component {
 
     const breakdown_list = [ 'affiliate_name', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'day']
 
-    return <FormContainer>
+    return <FormContainer className={ this.props.className }>
       <FormSection>
         <FormTitle>Date Range:</FormTitle>
         <Input type="date" name="From" value={ this.state.date_from } onChange={ val => this.setState({ 'date_from': val }) } />

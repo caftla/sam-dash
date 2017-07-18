@@ -26,6 +26,11 @@ import { fromQueryString } from '../../helpers'
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
+const {timeFormat} = require('d3-time-format')
+
+const formatDate = timeFormat('%Y-%m-%d')
+const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))
+const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
 
 
 const theme = {
@@ -63,10 +68,20 @@ type Props = {
 
 const props_to_params = props => {
     const {params} = props.match
-    params.timezone = parseFloat(params.timezone)
+    const { format : d3Format } = require('d3-format')
+    const formatTimezone = d3Format("+.1f")
     const query = fromQueryString(props.location.search)
-    params.nocache = query.nocache == 'true' ? true : false
-    return params
+    const mparams = R.merge(params, R.applySpec({
+        timezone: () => parseFloat(params.timezone) || formatTimezone(new Date().getTimezoneOffset() / -60)
+      , nocache:  () => query.nocache == 'true' ? true : false
+      , date_from: p => p.date_from || defaultDateFrom
+      , date_to: p => p.date_to || defaultDateTo
+      , filter: p => p.filter || '-'
+      , page: p => p.page || '-'
+      , section: p => p.section || '-'
+      , row: p => p.row || 'day'
+    })(params))
+    return mparams
 }
 
 const query_to_sort = props => {
@@ -83,13 +98,32 @@ class Filter_Page_Section_Row extends React.Component {
 
   props: Props
 
+  unlisten : any
+  route_changed: false
+
+
   constructor(props : Props) {
     super(props)
+
+    this.unlisten = this.props.history.listen((location, action) => {
+      this.props.cleanup_fetch_filter_page_section_row()
+      this.route_changed = true
+    });
+  }
+
+  componentWillUnMount() {
+    console.log('***** byebye')
+    if(!!this.unlisten) {
+      this.unlisten();
+    }
   }
 
   componentWillUpdate(nextProps, b) {
     const params = props_to_params(nextProps)
     const current_params = props_to_params(this.props)
+    
+    const data = this.route_changed ? fetchState.Nothing() : nextProps.data
+    this.route_changed = false
 
     match({
         Nothing: () => {
@@ -97,7 +131,7 @@ class Filter_Page_Section_Row extends React.Component {
           const filter = R.pipe(
               R.split(',')
             , R.map(R.split('='))
-          )(params.filter)
+          )(params.filter || '-')
           const affiliate_tuple = filter.find(([key, val]) => key == 'affiliate_name')
           if(!!affiliate_tuple) {
             if(maybe.isJust(nextProps.all_affiliates)) {
@@ -126,7 +160,7 @@ class Filter_Page_Section_Row extends React.Component {
       , Loading: () => void 9
       , Error: (error) => void 9
       , Loaded: (data) => void 9
-    })(nextProps.data)
+    })(data)
 
     if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
       nextProps.fetch_all_countries(params.date_from, params.date_to)
@@ -134,12 +168,16 @@ class Filter_Page_Section_Row extends React.Component {
   }
 
   componentWillMount() {
+    
+    const params = props_to_params(this.props)
     if(maybe.isNothing(this.props.all_affiliates)) {
-      this.props.fetch_all_affiliates()
+      this.props.fetch_all_affiliates(params.date_from, params.date_to)
     }
     if(maybe.isNothing(this.props.all_countries)) {
-      const {params} = this.props.match
-      this.props.fetch_all_countries(params.date_from, params.date_to)
+      this.props.fetch_all_countries(
+          params.date_from
+        , params.date_to
+      )
     }
 
     const sort = query_to_sort(this.props)

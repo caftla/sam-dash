@@ -152,7 +152,7 @@ class MonthlyReport extends React.Component {
         }
     })(this.props.data)
 
-    return <div>
+    return <div className="main-bottom">
       <ThemeProvider theme={theme}>
         {
           maybe.maybe(
@@ -161,7 +161,9 @@ class MonthlyReport extends React.Component {
                 return <div>Loading...</div>
               }
             , all_countries => _ => {
-                return  <Controls params={ params }
+                return  <Controls
+                  className="main-left"
+                  params={ params }
                   countries={ all_countries }
                   set_params={ params => {
                     this.props.set_params(params)
@@ -174,7 +176,9 @@ class MonthlyReport extends React.Component {
           )()
         }
       </ThemeProvider>
-      { data_component }
+      <div className="main-right">
+        { data_component }
+      </div>
     </div>
   }
 }

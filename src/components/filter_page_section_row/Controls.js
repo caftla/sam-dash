@@ -72,7 +72,7 @@ export default class Controls extends React.Component {
         R.split(',')
       , R.map(R.split('='))
       , R.fromPairs
-    )(params.filter)
+    )(params.filter || '-')
 
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
     const affiliate_name = params_affiliate_ids.length == 0 ? '' : R.pipe(
