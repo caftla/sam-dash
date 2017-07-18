@@ -135,9 +135,11 @@ export default class Controls extends React.Component {
     const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'hour', 'day', 'week', 'month']
 
     return <FormContainer className={ this.props.className }>
-      // @Justin: you can add className to any of these elements
+    
+      {/*@Justin: you can add className to any of these elements*/}
+      
       <FormSection className="date-filter">
-        <FormTitle>Date Range:</FormTitle>
+        <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
           <DateTime value={ new Date(this.state.date_from) } onChange={ val => {
               if(!!val.toJSON) {
@@ -173,7 +175,7 @@ export default class Controls extends React.Component {
           } />
       </FormSection>
       <FilterFormSection>
-        <FormTitle>Filter:</FormTitle>
+        <FormTitle>Filter</FormTitle>
         <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
@@ -194,7 +196,7 @@ export default class Controls extends React.Component {
         </LabelledInput>
       </FilterFormSection>
       <FormSection>
-        <FormTitle>Breakdown:</FormTitle>
+        <FormTitle>Breakdown</FormTitle>
         <InputSelect options={ breakdown_list }
             name="Tabs" value={ this.state.page } onChange={ val => this.setState({ 'page': val }) } />
         <InputSelect options={ breakdown_list }

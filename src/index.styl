@@ -2,16 +2,17 @@ body
   margin:0
   padding:0
   background-color: #ffffff
-  font-family: Arial, Helvetica, Sans-serif;
+  font-family: Arial, Helvetica, Sans-serif
+
 
 #main
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    flex-direction: column;
+    position: absolute
+    top: 0
+    left: 0
+    right: 0
+    bottom: 0
+    display: flex
+    flex-direction: column
 
 #main-top
   display: flex
@@ -44,34 +45,107 @@ body
       flex: 1
       background-color:#353843
       
-      .upper-area
-        display: block
-        vertical-align: middle
-        
-        h1
-          margin:0
-          color:#ffffff
-          font-size:28px
-          padding:15px 25px
-          font-weight:normal
-          text-transform:uppercase
-          
-	.tabs-area
-	   height:38px
-	   display:block
-	   background-color:#3e424f
+	.upper-area
+		display: block
+		position:relative
+		vertical-align: middle
+	
+		h1
+			margin:0
+			color:#ffffff
+			font-size:28px
+			padding:15px 20px
+			font-weight:normal
+			text-transform:uppercase
+			
+		.user-area
+			top: 0
+			right: 22px
+			width: 200px
+			height: 62px
+			display: block
+			position: absolute
+			
+			.avatar-area{
+				width:62px
+				height:62px
+				display:inline-block
+				background-color:#282b34
+			}
+			
+			a
+				top:24px
+				right:55px
+				color:#fff
+				font-size:14px
+				text-align:center
+				position:absolute
+				display:inline-block
+				text-decoration:none
+	
+	
+	.lower-area
+		height:38px
+		display:block
+		position:relative
+		background-color:#3e424f
+		
+		.tabs
+			margin:0 20px
+			display:block
+			
+			a
+				color:#999dac
+				font-size:16px
+				padding:9px 15px
+				margin:2px 2px 0 0
+				text-decoration:none
+				display:inline-block
+				background-color:#353843
+				border-radius: 6px 6px 0px 0px
+				
+				&:hover,
+				.active
+					color:#ffffff
+					background-color:#6da424
+		
+		.actions
+			top:4px
+			right:20px
+			position:absolute		
+			
+			a
+				width:80px
+				margin:0 1px
+				color:#ffffff
+				font-size:14px
+				padding:7px 10px
+				text-align:center
+				border-radius:4px
+				display:inline-block
+				text-decoration:none
+				background-color:#6da424
+				
+				&:hover
+					background-color:#8cc63e	
+					
 
 .main-bottom
   display: flex;
   flex-grow: 1;
-  height: calc(100vh - 100px);
+  height: calc(100vh - 100px)
 
   .main-left 
-     width: 300px
+     width: 270px
+     padding:15px
      background-color: #353843
 
    .main-right
       flex: 1
       overflow:scroll
       background-color: #ffffff
+      
+	tr:hover{
+		background-color:#ebffcf
+	}
       

@@ -74,7 +74,7 @@ export const Root = (args) => {
     <div id="main-top">
       <div className="main-left">
       		
-      		<img src="logo.png" alt="Sam Media"/>
+      		<img src="/logo.png" alt="Sam Media"/>
       		
 	      <div className="status-area">
 	      		Loading...
@@ -86,11 +86,33 @@ export const Root = (args) => {
       		<div className="upper-area">
       		
       			<h1>Dashboard</h1>
+      			
+      			<div className="user-area">
+      			
+      				<div className="avatar-area">
+      				
+      				</div>
+      				
+      				<a href="#">Hi! Admin</a>
+      				
+      			</div>
       		
       		</div>
       		
-      		<div className="tabs-area">
-      		
+      		<div className="lower-area">
+      			
+      			<div className="tabs">
+	      			<a href="#">Standard</a>
+	      			<a href="#">Converting IPs</a>
+	      			<a href="#">Cohort</a>
+	      			<a href="#">Monthly Report</a>
+      			</div>
+      			
+      			<div className="actions">
+					<a href="#">Export</a>
+					<a href="#">Share Link</a>
+      			</div>
+      			
       		</div>
       
       </div>
