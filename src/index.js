@@ -76,33 +76,13 @@ export const Root = (args) => {
       <div className="main-left">
       		
       		<img src="/logo.png" alt="Sam Media"/>
-      		
-	      <div className="status-area">
-	      		Loading...
-	      </div>
       
       </div>
       <div className="main-right">
-      	
-      		<div className="upper-area">
       		
-      			<h1>Dashboard</h1>
+      		<div className="menu-area">
       			
-      			<div className="user-area">
-      			
-      				<div className="avatar-area">
-      				
-      				</div>
-      				
-      				<a href="#">Hi! Admin</a>
-      				
-      			</div>
-      		
-      		</div>
-      		
-      		<div className="lower-area">
-      			
-      			<div className="tabs">
+				<div className="tabs">
 	      			<a onClick={ () => {
                   history.push(`/filter_page_section_row/`)
                 }}>Standard</a>

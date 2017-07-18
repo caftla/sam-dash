@@ -1,8 +1,9 @@
 body
   margin:0
   padding:0
+  height:100%
   background-color: #ffffff
-  font-family: Arial, Helvetica, Sans-serif
+  font-family: Osaka, CONSOLAS, monospace, sans-serif
 
 
 #main
@@ -16,76 +17,23 @@ body
 
 #main-top
   display: flex
-  height: 100px
 
   .main-left 
      width: 300px
-     height: 100px
-     position: relative
+     height: 60px
      background-color: #8cc63e
      
      img
        width:100px
        display:block
        margin:6px auto
-    
-	 .status-area
-	   left:0
-	   right:0
-	   bottom:0 
-	   color: #d6ff9f
-	   display: block
-	   font-size: 16px
-	   padding: 10px 10px
-	   position:absolute
-	   text-align:center
-	   background-color: #6da424
 
    .main-right
       flex: 1
       background-color:#353843
       
-	.upper-area
-		display: block
-		position:relative
-		vertical-align: middle
-	
-		h1
-			margin:0
-			color:#ffffff
-			font-size:28px
-			padding:15px 20px
-			font-weight:normal
-			text-transform:uppercase
-			
-		.user-area
-			top: 0
-			right: 22px
-			width: 200px
-			height: 62px
-			display: block
-			position: absolute
-			
-			.avatar-area{
-				width:62px
-				height:62px
-				display:inline-block
-				background-color:#282b34
-			}
-			
-			a
-				top:24px
-				right:55px
-				color:#fff
-				font-size:14px
-				text-align:center
-				position:absolute
-				display:inline-block
-				text-decoration:none
-	
-	
-	.lower-area
-		height:38px
+	.menu-area
+		height:60px
 		display:block
 		position:relative
 		background-color:#3e424f
@@ -95,14 +43,14 @@ body
 			display:block
 			
 			a
-				color:#999dac
-				font-size:16px
-				padding:9px 15px
-				margin:2px 2px 0 0
-				text-decoration:none
-				display:inline-block
-				background-color:#353843
-				border-radius: 6px 6px 0px 0px
+			 color:#999dac
+			 font-size:14px
+			 padding:9px 15px
+			 text-decoration:none
+			 display:inline-block
+			 margin: 22px 2px 0 2px
+			 background-color:#353843
+			 border-radius: 6px 6px 0px 0px
 				
 				&:hover,
 				.active
@@ -110,13 +58,13 @@ body
 					background-color:#6da424
 		
 		.actions
-			top:4px
+			top:14px
 			right:20px
 			position:absolute		
 			
 			a
 				width:80px
-				margin:0 1px
+				margin:0 3px
 				color:#ffffff
 				font-size:14px
 				padding:7px 10px
@@ -133,7 +81,7 @@ body
 .main-bottom
   display: flex;
   flex-grow: 1;
-  height: calc(100vh - 100px)
+  height: calc(100vh - 60px)
 
   .main-left 
      width: 270px
