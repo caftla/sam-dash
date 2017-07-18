@@ -153,7 +153,7 @@ class ConvertingIPs extends React.Component {
         }
     })(this.props.data)
 
-    return <div>
+    return <div className="main-bottom">
       <ThemeProvider theme={theme}>
         {
           maybe.maybe(
@@ -161,7 +161,9 @@ class ConvertingIPs extends React.Component {
                 return <div>Loading countries and affiliates...</div>
               }
             , ([all_countries, all_affiliates]) => _ => {
-                return <Controls params={ params }
+                return <Controls 
+                  className="main-left"
+                  params={ params }
                   countries={ all_countries }
                   affiliates={ all_affiliates }
                   history={ this.props.history }
@@ -171,7 +173,9 @@ class ConvertingIPs extends React.Component {
           )()
         }
       </ThemeProvider>
-      { data_component }
+      <div className="main-right">
+        { data_component }
+      </div>
     </div>
   }
 }
