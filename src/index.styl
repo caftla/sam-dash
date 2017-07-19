@@ -16,6 +16,10 @@ body
     display:block
     position:relative
     background-color: #8cc63e
+    
+    .left-btn,
+    .right-btn
+      display:none
 
     img
       left:0
@@ -108,9 +112,24 @@ body
  .logo-area
    width:100%!important
    
-   img
-    left:10px!important
-    margin:0!important
+	.left-btn,
+	.right-btn
+	  top:0
+	  z-index:5
+	  width:60px
+	  height:60px
+	  color:#ffffff
+	  cursor:pointer
+	  font-size:24px
+	  line-height:60px
+	  font-weight:bold
+	  position:absolute
+	  text-align:center
+	  display:block!important
+	  background-color:#6da424
+
+	.right-btn
+	  right:0
    
 	.actions
 	  display:none
