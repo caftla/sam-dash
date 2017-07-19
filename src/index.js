@@ -115,10 +115,10 @@ function Wrap(WrappedComponent) {
 const main_bottom = <Provider store={store}>
   <ConnectedRouter history={history}>
     <Body>
-      <Route exact path="/" component={Home} />
-      <Route exact path="/dashboard" component={Dashboard} />
+      <Route exact path="/" component={Wrap(Home)} />
+      <Route exact path="/dashboard" component={Wrap(Dashboard)} />
       {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-      <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Filter_Page_Section_Row} />
+      <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Filter_Page_Section_Row)} />
       <Route path="/filter_page_section_row" exact={true} component={Wrap(Filter_Page_Section_Row)} />
       <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Redirect_Filter_Page_Section_Row)} />
       <Route path="/cohort" exact={true} component={Wrap(Cohort)} />

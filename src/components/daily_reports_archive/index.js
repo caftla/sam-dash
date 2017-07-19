@@ -54,9 +54,9 @@ class DailyReportsArchive extends React.Component {
 
     const flags = params.date_from;
 
-    return <div>
+    return <div className='main-bottom' style={{ margin: '1em 1em 1em 1em' }}>
         <Elm src={Chat} flags={ flags } ports={setupPorts} />
-        <div ref="content" />
+        <div className='daily-reports-archive-content' ref="content" />
       </div>
   }
 }

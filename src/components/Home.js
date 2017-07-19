@@ -30,6 +30,8 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 
+import './Home.styl'
+
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 
@@ -66,19 +68,21 @@ class Login extends React.Component {
         </FormRow>
       : ''
 
-    return <FormContainer>
+    return <FormContainer className='login'>
       <FormSection>
-        <FormRow>
+        <FormRow className='row'>
           <FormLabel>Username</FormLabel>
           <DateField type="text" onChange={ e => this.setState({ username: e.target.value }) } />
         </FormRow>
-        <FormRow>
+        <FormRow className='row'>
           <FormLabel>Password</FormLabel>
           <DateField type="password" onChange={ e => this.setState({ password: e.target.value }) } />
         </FormRow>
         { invalid_password_component }
-        <FormRow>
-          <Submit onClick={ () => {
+        <FormRow className='row'>
+          <Submit 
+            className='login-button'
+            onClick={ () => {
             this.props.login( this.state.username, this.state.password )
           } }>Login</Submit>
         </FormRow>
@@ -177,62 +181,10 @@ class Home extends React.Component {
             window.location.href = decodeURIComponent(query.login_redir)
             return <div>redirecting ...</div>
           }
+
+          return <div className='route-message'>Please select a report from the top</div>
           
-          return maybe.maybe(
-              _ => {
-                return <div>Loading...</div>
-              }
-             , ([all_countries, all_affiliates]) => _ => {
-                return <div>
-                  <SimpleTabs>
-                    <div name="Standard">
-                      <StandardControls params={ params }
-                        countries={ all_countries }
-                        affiliates={ all_affiliates }
-                        nocache={ !!params.nocache }
-                        sort={ this.props.sort }
-                        set_min={ (views_or_sales, value) => {
-                          this.props.min_row_filter_page_section_row(views_or_sales, value)
-                        } }
-                        set_params={ params => {
-                          this.props.set_params(params)
-                          this.props.cleanup_fetch_filter_section_row()
-                          this.props.fetch_all_countries(params.date_from, params.date_to)
-                          const query = params.nocache ? `?nocache=true&` : '?'
-                          this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}`)
-                        } }
-                      />
-                    </div>
-                    <div name="Converting IPs">
-                      <ConvertingIPsControls params={ params }
-                        countries={ all_countries }
-                        affiliates={ all_affiliates }
-                        history={ this.props.history }
-                      />
-                    </div>
-                    <div name="Cohort">
-                      <CohortControls params={ params }
-                        countries={ all_countries }
-                        affiliates={ all_affiliates }
-                        history={ this.props.history }
-                      />
-                    </div>
-                    <div name="Monthly Reports">
-                      <MonthlyReportsControls params={ params }
-                        countries={ all_countries }
-                        set_params={ params => {
-                          this.props.set_params(params)
-                          this.props.cleanup_fetch_filter_section_row()
-                          this.props.fetch_all_countries(params.date_from, params.date_to)
-                          this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}`)
-                        } }
-                      />
-                    </div>
-                  </SimpleTabs>
-                </div>
-              }
-             , sequence([this.props.all_countries, this.props.all_affiliates])
-            )()
+          
         }
     }
     })(this.props.login_state)

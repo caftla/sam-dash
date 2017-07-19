@@ -8,7 +8,7 @@ import cell_formatter from './cell-formatter'
 const Page = ({page, sales, data, params, onSort, sort, affiliates} :
   { page: string, sales: number, data: Array<any>, params: QueryParams, onSort: (string, number) => void, sort: { field: string, order: number }, affiliates: Object }) =>
   <div>
-    <h4 style={ { paddingLeft: '1em' } }>{ page }</h4>
+    <h4 className='fpsr-tab-name'>{ page }</h4>
     { 
       data.map((x,i) => <Section key={i} affiliates={affiliates} data={x} params={params} onSort={onSort} sort={sort} />) 
     }
