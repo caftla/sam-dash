@@ -78,6 +78,9 @@ function Wrap(WrappedComponent) {
 				<div className="logo-area">
 				
 					<img src="/logo.png" alt="Sam Media" />
+					
+					<div className="left-btn">F</div>
+					<div className="right-btn">M</div>
 				
 				</div>
 				
