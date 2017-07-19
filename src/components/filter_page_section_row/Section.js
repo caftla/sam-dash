@@ -31,7 +31,18 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
     const width = typeof(more.width) == 'number' ? more.width :  100
     return {
       th: <TH {...more} width={ width } value={ label } onClick={ onClick } />
-    , td: (x) => <TD {...more} width={ width } value={ value(x) } />
+    , td: (x, i) => <TD {...more} width={ width } value={ value(x) } 
+        onMouseEnter={ () => 
+          [...document.getElementsByClassName('fpsr_table')].map(table => 
+            table.classList.add(`highlight-${i+1}`)
+          )
+        } 
+        onMouseLeave={ () => 
+          [...document.getElementsByClassName('fpsr_table')].map(table => 
+            table.classList.remove(`highlight-${i+1}`)
+          )
+        } 
+      />
     , tf: (data) => <TD {...more} style={ R.merge(more.style || {}, { 'font-weight': 'bold' }) } width={ width }  value={ footer(data) } />
     }
   }
@@ -140,13 +151,13 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
     )
   ]
 
-  return <TABLE width={1400}>
+  return <TABLE width={1400} className="fpsr_table">
     <thead>
       { columns.map((c, i) => c.th) } 
     </thead>
     <tbody>
       { data.data.map((x, i) => <tr key={i}>
-          { columns.map((c, i) => c.td(x)) }
+          { columns.map((c, i) => c.td(x, i)) }
         </tr>)
       } 
       <tr>

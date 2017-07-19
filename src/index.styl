@@ -99,6 +99,15 @@ body
   tr:hover
     background-color:#ebffcf
 
+  &.highlight-1
+    td:nth-child(1)
+      background-color:#ebffcf
+
+  for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+      &.highlight-{n}
+        td:nth-child({n})
+          background-color:#ebffcf
+
 .route-message
   font-size: 1em
   margin: 2em
