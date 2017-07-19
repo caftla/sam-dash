@@ -98,8 +98,8 @@ function Wrap(WrappedComponent) {
               </div>
 
               <div className="actions">
-                <a href="#">Export</a>
-                <a href="#">Share Link</a>
+                {/* <a href="#">Export</a>
+                <a href="#">Share Link</a> */}
               </div>
 
             </div>
