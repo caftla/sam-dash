@@ -1,103 +1,98 @@
 body
   margin:0
   padding:0
-  height:100%
   background-color: #ffffff
   font-family: Osaka, CONSOLAS, monospace, sans-serif
 
-
-#main
-    position: absolute
-    top: 0
-    left: 0
-    right: 0
-    bottom: 0
-    display: flex
-    flex-direction: column
-
 #main-top
-  display: flex
+  height:60px
+  display:block
+  position:relative
+  background-color:#353843
 
-  .main-left 
-     width: 300px
-     height: 60px
-     background-color: #8cc63e
-     
-     img
-       width:100px
-       display:block
-       margin:6px auto
+  .logo-area
+    height:60px
+    width:300px
+    display:block
+    position:relative
+    background-color: #8cc63e
 
-   .main-right
-      flex: 1
-      background-color:#353843
+    img
+      left:0
+      right:0
+      top:6px
+      width:100px
+      display:block
+      margin:0 auto
+      position:absolute
       
-	.menu-area
-		height:60px
-		display:block
-		position:relative
-		background-color:#3e424f
-		
-		.tabs
-			margin:0 20px
-			display:block
-			
-			a
-			 color:#999dac
-			 font-size:14px
-			 padding:9px 15px
-			 text-decoration:none
-			 display:inline-block
-			 margin: 22px 2px 0 2px
-			 background-color:#353843
-			 border-radius: 6px 6px 0px 0px
-				
-				&:hover,
-				&.active
-					color:#ffffff
-					background-color:#6da424
-		
-		.actions
-			top:14px
-			right:20px
-			position:absolute		
-			
-			a
-				width:80px
-				margin:0 3px
-				color:#ffffff
-				font-size:14px
-				padding:7px 10px
-				text-align:center
-				border-radius:4px
-				display:inline-block
-				text-decoration:none
-				background-color:#6da424
-				
-				&:hover
-					background-color:#8cc63e	
+   .tabs
+     top:0
+     left:320px
+     position:absolute
+     
+	  a
+	    color:#999dac
+	    font-size:14px
+	    cursor:pointer
+	    padding:9px 15px
+	    text-decoration:none
+	    display:inline-block
+	    margin: 22px 2px 0 2px
+	    background-color:#3e424f
+	    border-radius: 6px 6px 0px 0px
+	
+	    &:hover,
+	    &.active
+	     color:#ffffff
+	     background-color:#6da424
+	     
+   .actions
+     top:14px
+     right:20px
+     position:absolute		
+
+     a
+       width:80px
+       margin:0 3px
+       color:#ffffff
+       font-size:14px
+       padding:7px 10px
+       text-align:center
+       border-radius:4px
+       display:inline-block
+       text-decoration:none
+       background-color:#6da424
+
+       &:hover
+        background-color:#8cc63e	
 					
 
 .main-bottom
-  display: flex;
-  flex-grow: 1;
-  height: calc(100vh - 60px)
+  display:block
+  position:relative
 
-  .main-left 
-     width: 270px
-     padding:15px
-     background-color: #353843
+.main-left
+  top:0
+  left:0
+  bottom:0
+  width: 270px
+  padding:15px
+  display:block
+  position:absolute
+  height:calc(100vh - 90px) 
+  background-color: #353843
 
-   .main-right
-      flex: 1
-      overflow:scroll
-      background-color: #ffffff
-      
-	tr:hover{
-		background-color:#ebffcf
-	}
-      
+.main-right
+  display:block
+  overflow:scroll
+  margin-left:300px
+  height:calc(100vh - 60px) 
+  background-color: #ffffff
+
+tr:hover
+  background-color:#ebffcf
 
 .route-message
-	font-size: 1em;
-	margin: 2em;
+  font-size: 1em
+  margin: 2em
