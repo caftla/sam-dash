@@ -30,6 +30,7 @@ body
      top:0
      left:320px
      position:absolute
+
      
 	  a
 	    color:#999dac
@@ -82,6 +83,8 @@ body
   position:absolute
   height:calc(100vh - 90px) 
   background-color: #353843
+  transition:0.5s ease-in-out
+  -webkit-transition:0.5s ease-in-out
 
 .main-right
   display:block
@@ -90,9 +93,52 @@ body
   height:calc(100vh - 60px) 
   background-color: #ffffff
 
-tr:hover
-  background-color:#ebffcf
+.main-table
+  width:100%
+
+  tr:hover
+    background-color:#ebffcf
 
 .route-message
   font-size: 1em
   margin: 2em
+  
+ @media only screen and (max-width : 768px)
+ 
+ .logo-area
+   width:100%!important
+   
+   img
+    left:10px!important
+    margin:0!important
+   
+	.actions
+	  display:none
+	  
+	.tabs
+	  display:none
+	  left:0!important
+	  right:0!important
+	  top:60px!important
+	  z-index:2!important
+	  position:absolute!important
+
+		a
+		 margin:0px!important
+		 display:block!important
+		 border-radius:0px!important
+
+	
+	.main-left
+	  left:-330px
+	  overflow:hidden
+	  overflow-y:scroll
+	
+	.main-right
+	  margin:0 10px
+	  overflow:scroll
+	
+	.main-table
+	  padding:10px 0!important
+	  width:1020px!important
+	
