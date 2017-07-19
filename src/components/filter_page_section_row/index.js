@@ -111,7 +111,6 @@ class Filter_Page_Section_Row extends React.Component {
   }
 
   componentWillUnMount() {
-    console.log('***** byebye')
     if(!!this.unlisten) {
       this.unlisten();
     }

@@ -30,10 +30,10 @@ import { fromQueryString } from './helpers'
 
 Offline.install()
 
-const Redirect_Filter_Page_Section_Row = ({match, history}) => {
-  const { format : d3Format } = require('d3-format')
+const Redirect_Filter_Page_Section_Row = ({ match, history }) => {
+  const { format: d3Format } = require('d3-format')
   const formatTimezone = d3Format("+.1f")
-  const {params} = match
+  const { params } = match
   const timezone = new Date().getTimezoneOffset() / -60
   history.push(`/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}`)
   return <div>Redirecting ...</div>
@@ -52,65 +52,89 @@ if (!token && !queryString.login_redir) {
   window.location = newUrl
 }
 
+function Wrap(WrappedComponent) {
+  return class PP extends React.Component {
+    constructor(props : Props) {
+      super(props)
+      this.state = {route: props.location.pathname.substring(1).split('/')[0]}
+
+      this.unlisten = this.props.history.listen((location, action) => {
+        this.setState({
+          route: location.pathname.substring(1).split('/')[0]
+        })
+      });
+    }
+    componentWillUnMount() {
+      if(!!this.unlisten) {
+        this.unlisten();
+      }
+    }
+    render() {
+      console.log('%%%% ', this.state.route)
+      return <div id="main">
+        <div id="main-top">
+          <div className="main-left">
+
+            <img src="/logo.png" alt="Sam Media" />
+
+          </div>
+          <div className="main-right">
+
+            <div className="menu-area">
+
+              <div className="tabs">
+                <a className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  } onClick={() => {
+                  history.push(`/filter_page_section_row/`)
+                }}>Standard</a>
+                <a className={ this.state.route == 'converting_ips' ? 'active' : ''  } onClick={() => {
+                  history.push(`/converting_ips/`)
+                }}>Converting IPs</a>
+                <a className={ this.state.route == 'cohort' ? 'active' : ''  } onClick={() => {
+                  history.push(`/cohort/`)
+                }}>Cohort</a>
+                <a className={ this.state.route == 'monthly_reports' ? 'active' : ''  } onClick={() => {
+                  history.push(`/monthly_reports/`)
+                }}>Monthly Report</a>
+              </div>
+
+              <div className="actions">
+                <a href="#">Export</a>
+                <a href="#">Share Link</a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+        <WrappedComponent {...this.props} />
+      </div>
+    }
+  }
+}
+
 const main_bottom = <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <Body>
-        <Route exact path="/" component={Home} />
-        <Route exact path="/dashboard" component={Dashboard} />
-        {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Filter_Page_Section_Row} />
-        <Route path="/filter_page_section_row" exact={ true } component={Filter_Page_Section_Row} />
-        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Redirect_Filter_Page_Section_Row} />
-        <Route path="/cohort" exact={ true } component={Cohort} />
-        <Route path="/cohort/:date_from/:date_to/:filter" component={Cohort} />
-        <Route path="/converting_ips/" exact={ true } component={ConvertingIPs} />
-        <Route path="/converting_ips/:date_from/:date_to/:filter" component={ConvertingIPs} />
-        <Route path="/monthly_reports/" exact={ true } component={MonthlyReports} />
-        <Route path="/monthly_reports/:date_from/:date_to/:filter" component={MonthlyReports} />
-        <Route path="/daily_reports_archive/:date_from" component={DailyReportsArchive} />
-      </Body>
-    </ConnectedRouter>
-  </Provider>
+  <ConnectedRouter history={history}>
+    <Body>
+      <Route exact path="/" component={Home} />
+      <Route exact path="/dashboard" component={Dashboard} />
+      {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
+      <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Filter_Page_Section_Row} />
+      <Route path="/filter_page_section_row" exact={true} component={Wrap(Filter_Page_Section_Row)} />
+      <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Redirect_Filter_Page_Section_Row)} />
+      <Route path="/cohort" exact={true} component={Wrap(Cohort)} />
+      <Route path="/cohort/:date_from/:date_to/:filter" component={Wrap(Cohort)} />
+      <Route path="/converting_ips/" exact={true} component={Wrap(ConvertingIPs)} />
+      <Route path="/converting_ips/:date_from/:date_to/:filter" component={Wrap(ConvertingIPs)} />
+      <Route path="/monthly_reports/" exact={true} component={Wrap(MonthlyReports)} />
+      <Route path="/monthly_reports/:date_from/:date_to/:filter" component={Wrap(MonthlyReports)} />
+      <Route path="/daily_reports_archive/:date_from" component={Wrap(DailyReportsArchive)} />
+    </Body>
+  </ConnectedRouter>
+</Provider>
 
 
 export const Root = (args) => {
-  return <div id="main">
-    <div id="main-top">
-      <div className="main-left">
-      		
-      		<img src="/logo.png" alt="Sam Media"/>
-      
-      </div>
-      <div className="main-right">
-      		
-      		<div className="menu-area">
-      			
-				<div className="tabs">
-	      			<a onClick={ () => {
-                  history.push(`/filter_page_section_row/`)
-                }}>Standard</a>
-	      			<a onClick={ () => {
-                  history.push(`/converting_ips/`)
-                }}>Converting IPs</a>
-	      			<a onClick={ () => {
-                  history.push(`/cohort/`)
-                }}>Cohort</a>
-	      			<a onClick={ () => {
-                  history.push(`/monthly_reports/`)
-                }}>Monthly Report</a>
-      			</div>
-      			
-      			<div className="actions">
-					<a href="#">Export</a>
-					<a href="#">Share Link</a>
-      			</div>
-      			
-      		</div>
-      
-      </div>
-    </div>
-    {main_bottom}
-  </div>
+  return main_bottom
 }
 
 
