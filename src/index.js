@@ -77,7 +77,7 @@ function Wrap(WrappedComponent) {
 	        	
 				<div className="logo-area">
 				
-					<img src="/logo.png" alt="Sam Media" />
+					<img src="/logo-s.png" alt="Sam Media" />
 					
 					<div className="left-btn" onClick={
             () => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
