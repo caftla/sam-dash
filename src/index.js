@@ -79,8 +79,12 @@ function Wrap(WrappedComponent) {
 				
 					<img src="/logo.png" alt="Sam Media" />
 					
-					<div className="left-btn">F</div>
-					<div className="right-btn">M</div>
+					<div className="left-btn" onClick={
+            () => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
+           }>C</div>
+					<div className="right-btn" onClick={
+            () => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
+           }>M</div>
 				
 				</div>
 				
