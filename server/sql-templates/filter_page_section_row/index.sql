@@ -28,6 +28,7 @@ with Views as (
     from public.events e 
     where e.timestamp >= $[params.from_date_tz]$
       and e.timestamp < $[params.to_date_tz]$
+      and $[params.f_filter('e')]$
       and e.sale
     group by page, section, row, msisdn
     order by page, section, row, msisdn
