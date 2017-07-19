@@ -11,7 +11,8 @@ const Table = ({data}) => {
     , R.uniq
     , R.sortBy(x => x)
   )(data)
-  return <TABLE style={ { minWidth: '900px' } } cellSpacing="0" cellPadding="0">
+  return <TABLE cellSpacing="0" cellPadding="0">
+  {/*<TABLE style={ { minWidth: '900px' } } cellSpacing="0" cellPadding="0">*/}
     <thead>
       <tr>
         <TH></TH>
