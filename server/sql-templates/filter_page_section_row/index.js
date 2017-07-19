@@ -17,6 +17,7 @@ module.exports = (params) => {
     
   const add_ratios = x => R.merge(x, {
       cr: safe_div(x.sales, x.views)
+    , pixels_cr: safe_div(x.pixels, x.views)
     , pixels_ratio: safe_div(x.pixels, x.sales)
     , cq: safe_div(x.firstbillings, x.sales)
     , cost: x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0))

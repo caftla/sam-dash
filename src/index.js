@@ -72,41 +72,55 @@ function Wrap(WrappedComponent) {
     render() {
       console.log('%%%% ', this.state.route)
       return <div id="main">
-        <div id="main-top">
-          <div className="main-left">
-
-            <img src="/logo.png" alt="Sam Media" />
-
-          </div>
-          <div className="main-right">
-
-            <div className="menu-area">
-
-              <div className="tabs">
-                <a className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  } onClick={() => {
-                  history.push(`/filter_page_section_row/`)
-                }}>Standard</a>
-                <a className={ this.state.route == 'converting_ips' ? 'active' : ''  } onClick={() => {
-                  history.push(`/converting_ips/`)
-                }}>Converting IPs</a>
-                <a className={ this.state.route == 'cohort' ? 'active' : ''  } onClick={() => {
-                  history.push(`/cohort/`)
-                }}>Cohort</a>
-                <a className={ this.state.route == 'monthly_reports' ? 'active' : ''  } onClick={() => {
-                  history.push(`/monthly_reports/`)
-                }}>Monthly Report</a>
-              </div>
-
-              <div className="actions">
-                {/* <a href="#">Export</a>
-                <a href="#">Share Link</a> */}
-              </div>
-
+      
+	        <div id="main-top">
+	        	
+				<div className="logo-area">
+				
+					<img src="/logo.png" alt="Sam Media" />
+					
+					<div className="left-btn" onClick={
+            () => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
+           }>C</div>
+					<div className="right-btn" onClick={
+            () => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
+           }>M</div>
+				
+				</div>
+				
+				<div className="tabs">
+				
+					<a className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  } onClick={() => {
+					history.push(`/filter_page_section_row/`)
+					}}>Standard</a>
+					
+					<a className={ this.state.route == 'converting_ips' ? 'active' : ''  } onClick={() => {
+					history.push(`/converting_ips/`)
+					}}>Converting IPs</a>
+					
+					<a className={ this.state.route == 'cohort' ? 'active' : ''  } onClick={() => {
+					history.push(`/cohort/`)
+					}}>Cohort</a>
+					
+					<a className={ this.state.route == 'monthly_reports' ? 'active' : ''  } onClick={() => {
+					history.push(`/monthly_reports/`)
+					}}>Monthly Report</a>
+				
+				</div>
+				
+		        <div className="actions">
+              
+	                {/* <a href="#">Export</a>
+	                
+	                <a href="#">Share Link</a> */}
+                
+				</div>
+				
             </div>
-
-          </div>
-        </div>
-        <WrappedComponent {...this.props} />
+            
+			<WrappedComponent {...this.props} />
+			
+			
       </div>
     }
   }
