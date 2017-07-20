@@ -62,6 +62,19 @@ type ControlsState = {
   , nocache: boolean
 }
 
+const get_all_props_ = props => (prop: string) => R.pipe(
+      R.chain(R.prop(prop))
+    , R.uniq
+    , R.sortBy(x => x)
+  )(props)
+
+const ifExists_ = (props, country_code) => (field: string, value: any) => (!country_code || country_code == '-' ? get_all_props_(props)(field) : get_country_prop_(props, country_code)(field, [])).some(e => e == value) ? value : ''
+
+const get_country_prop_ = (props, country_code) => (prop: string, def: any) => R.pipe(
+      R.find(x => x.country_code == country_code)
+    , x => !x ? def : R.prop(prop)(x)
+  )(props.countries)
+
 export default class Controls extends React.Component {
   props: ControlsProps
   state: ControlsState
@@ -73,15 +86,18 @@ export default class Controls extends React.Component {
       , R.map(R.split('='))
       , R.fromPairs
     )(params.filter || '-')
+    const ifExists = ifExists_(props, filter_params.country_code)
 
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
-    const affiliate_name = params_affiliate_ids.length == 0 ? '' : R.pipe(
-        x => x[0]
-      , affiliate_id => R.pipe(
-          R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
-        , x => !x ? '' : x.affiliate_name
-      )(props.affiliates)
-    )(params_affiliate_ids)
+    const affiliate_name = ifExists('affiliate_names', 
+      params_affiliate_ids.length == 0 ? '' : R.pipe(
+          x => x[0]
+        , affiliate_id => R.pipe(
+            R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
+          , x => !x ? '' : x.affiliate_name
+        )(props.affiliates)
+      )(params_affiliate_ids)
+    )
 
     const add_time = date => date.indexOf('T') > -1
       ? date
@@ -90,6 +106,11 @@ export default class Controls extends React.Component {
 
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
 
+    const e_filter_params = R.merge(filter_params, {
+        handle_name: ifExists('handle_names', filter_params.handle_name)
+      , operator_code: ifExists('operator_codes', filter_params.operator_code)
+    })
+
     this.state = {
         date_from: add_time(params.date_from)
       , date_to: add_time(params.date_to)
@@ -97,7 +118,7 @@ export default class Controls extends React.Component {
       , page: fix_affiliate_name(params.page)
       , section: fix_affiliate_name(params.section)
       , row: fix_affiliate_name(params.row)
-      , ...filter_params
+      , ...e_filter_params
       , affiliate_name
       , nocache: !!params.nocache
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
@@ -122,22 +143,16 @@ export default class Controls extends React.Component {
 
   render() {
     const {countries, affiliates} = this.props
-    const get_all_props = prop => R.pipe(
-        R.chain(R.prop(prop))
-      , R.uniq
-      , R.sortBy(x => x)
-    )(countries)
-    const get_country_prop = (prop, def) => R.pipe(
-        R.find(x => x.country_code == this.state.country_code)
-      , x => !x ? def : R.prop(prop)(x)
-    )(countries)
+    const get_all_props = get_all_props_(this.props)
+    const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'gateway', 'hour', 'day', 'week', 'month']
+    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'country_code', 'operator_code', 'handle_name', 'product_type', 'device_class', 'service_identifier1', 'service_identifier2', 'scenario_name', 'gateway', 'hour', 'day', 'week', 'month']
 
-    return <FormContainer className={ this.props.className }>
+    const get_options = (field) => 
+      !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
+
     
-      {/*@Justin: you can add className to any of these elements*/}
-      
+    return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
@@ -176,14 +191,19 @@ export default class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>
-        <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
+        <InputSelect name="Country" onChange={ country_code => this.setState({ 
+              country_code: country_code
+            , operator_code: ''
+            , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
+            , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
+          }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
-          value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes', []) } />
+          value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
-          value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names', []) } />
+          value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
-          value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names', []) } />
+          value={ this.state.handle_name } options={ get_options('handle_names') } />
         <LabelledInput name="Sales" style={{ width: '40px' }}>
           <NumberField type="number" value={ this.props.sort.rowSorter.minSales } onChange={ x => {
             this.props.set_min('sales', parseInt(x.target.value))

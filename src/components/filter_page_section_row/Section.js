@@ -15,6 +15,7 @@ const change_sign = (change) => {
 }
 
 const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+
   const show_label = (row_or_section) => (name, key = null) => {
     const sort_field = key == null ? name : key
     const sname = name == 'country_code' ? 'country' : name
@@ -151,12 +152,13 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
     )
   ]
 
+  const ldata = R.take(10, data.data)
   return <TABLE width={1400} className="fpsr_table">
     <thead>
       { columns.map((c, i) => c.th) } 
     </thead>
     <tbody>
-      { data.data.map((x, i) => <tr key={i}>
+      { ldata.map((x, i) => <tr key={i}>
           { columns.map((c, i) => c.td(x, i)) }
         </tr>)
       } 
