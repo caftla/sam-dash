@@ -19,7 +19,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
     const sort_field = key == null ? name : key
     const sname = name == 'country_code' ? 'country' : name
     const sorter = sort[row_or_section == 'row' ? 'rowSorter' : 'sectionSorter']
-    return sort_field == sorter.field
+    return sort_field == sorter.field && sname != '-'
       ? `${sname} ` + (sorter.order > 0 ? '▲' : '▼')
       : sname
   }

@@ -103,7 +103,7 @@ const exportToExcel = (formatter, params, pages) => {
       }
     ]
     , R.map(sheet => ({
-          name: formatter(params.page)(sheet.page)
+          name: 'data' // after flatteing sheet name is irrelevant formatter(params.page)(sheet.page)
         , data: R.concat([R.pipe(
                 R.keys
               , R.reject(x => x == 'section_sales_ratio')
