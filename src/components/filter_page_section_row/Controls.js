@@ -67,7 +67,7 @@ const get_all_props_ = props => (prop: string) => R.pipe(
       R.chain(R.prop(prop))
     , R.uniq
     , R.sortBy(x => x)
-  )(props)
+  )(props.countries)
 
 const ifExists_ = (props, country_code) => (field: string, value: any) => (!country_code || country_code == '-' ? get_all_props_(props)(field) : get_country_prop_(props, country_code)(field, [])).some(e => e == value) ? value : ''
 
@@ -153,6 +153,7 @@ export default class Controls extends React.Component {
     const get_options = (field) => 
       !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
 
+    debugger
     
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
@@ -204,7 +205,7 @@ export default class Controls extends React.Component {
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
-        <InputSelect name="Ad Nme" onChange={ ad_name => this.setState({ ad_name }) }
+        <InputSelect name="Ad Name" onChange={ ad_name => this.setState({ ad_name }) }
           value={ this.state.ad_name } options={ get_options('ad_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ get_options('handle_names') } />
