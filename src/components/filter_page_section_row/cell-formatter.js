@@ -9,5 +9,5 @@ export default (affiliates: Object, timezone: number) => (interval: string) => (
   : interval == 'day' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD')
   : interval == 'week' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD')
   : interval == 'month' ? moment(value).utcOffset(timezone).format('YYYY-MM')
-  : interval == 'affiliate_id' ? affiliates[value] 
+  : interval == 'affiliate_id' ? affiliates[value] || value
   : value

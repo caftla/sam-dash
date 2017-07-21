@@ -18,6 +18,32 @@ with Views as (
   order by page, section, row
 )
 
+, FirstBillings as (
+  
+  select page, section, row, count(*) :: int as firstbillings from (
+    select 
+        $[params.f_page('s', 'timestamp')]$ as page
+      , $[params.f_section('s', 'timestamp')]$ as section
+      , $[params.f_row('s', 'timestamp')]$ as row
+      , b.rockman_id 
+    
+    from events b
+    
+    inner join events s on 
+          s.rockman_id = b.rockman_id
+      and s.timestamp >= $[params.from_date_tz]$
+      and s.timestamp < $[params.to_date_tz]$
+      and $[params.f_filter('s')]$
+      and s.sale
+      
+    where b.timestamp >= $[params.from_date_tz]$
+      and $[params.f_filter('b')]$
+      and b.firstbilling
+  ) group by page, section, row
+
+)
+
+
 , ReSubs as (
   with ReSubs1 as (
     select 
@@ -99,10 +125,12 @@ with Views as (
   order by page, section, row
 )
 
-select v.*, nvl(r.uniquesales, 0) as uniquesales, o.optout_24, p.optouts, c.cost, c.home_cpa from Views v
+select v.*
+, nvl(f.firstbillings, 0) as firstbillings
+, nvl(r.uniquesales, 0) as uniquesales, o.optout_24, p.optouts, c.cost, c.home_cpa from Views v
 left join Optout24 o on v.page = o.page and v.section = o.section and v.row = o.row
 left join Cost2 c on v.page = c.page and v.section = c.section and v.row = c.row
 left join Optouts p on v.page = p.page and v.section = p.section and v.row = p.row
 left join ReSubs r on v.page = r.page and v.section = r.section and v.row = r.row
+left join FirstBillings f on v.page = f.page and v.section = f.section and v.row = f.row
 order by v.page, v.section, v.row
--- left join cpa c on c.cpa_id = v.cpa_id
