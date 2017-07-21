@@ -152,7 +152,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
     )
   ]
 
-  const ldata = R.take(10, data.data)
+  const ldata = data.data // R.take(10, data.data)
   return <TABLE width={1400} className="fpsr_table">
     <thead>
       { columns.map((c, i) => c.th) } 
