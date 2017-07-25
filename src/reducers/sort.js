@@ -1,4 +1,6 @@
-// @flow
+// The functionality of this module has been moved to controls.js reducer
+// TODO: This is obsolete
+
 import R from 'ramda'
 
 export type Sorter = {
@@ -16,9 +18,16 @@ export type SorterState = {
 const defaultState = {
     rowSorter: { field: 'row', order: 1, minViews: 0, minSales: 0 }
   , sectionSorter: { field: 'section', order: 1, minViews: 0, minSales: 0 }
+  , tabSorter: { field: 'section', order: 1, minViews: 0, minSales: 0 }
 }
 export default (state = defaultState, action: Action) : SorterState => {
   switch (action.type) {
+    case 'set_sorters':
+      return {
+        rowSorter: R.merge(state, action.payload.rowSorter)
+      , sectionSorter: R.merge(state, action.payload.sectionSorter)
+      , tabSorter: R.merge(state, action.payload.tabSorter)
+      }
     case 'sort_row_filter_page_section_row':
       var { field } = action.payload
       var sorter = state.rowSorter

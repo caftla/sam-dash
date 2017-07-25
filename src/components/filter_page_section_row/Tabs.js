@@ -61,7 +61,7 @@ export default class Tabs extends React.Component {
             , backgroundColor: '#eee'} }
       onClick={ () => exportToExcel(formatter, this.props.params, this.props.pages) }>🗒 Export</div>
       {
-        this.props.pages.map((x, i) => {
+        R.take(32, this.props.pages).map((x, i) => {
           const selected = selected_page == i
           return <div onClick={ () => this.setState({selected_page: i}) } key={i}
             style={ {padding: '0 12px', fontWeight: selected ? 'bold': 'normal'
@@ -74,7 +74,10 @@ export default class Tabs extends React.Component {
           </div>
         }) }
       </div>
-      {this.props.pages.map((x, i) => {
+      {
+        this.props.pages.length > 32 ? <div style={ { color: 'red', padding: '1em' } }>There are { this.props.pages.length } tabs in this report. Showing the top 32 only</div> : ''
+      }
+      {R.take(32, this.props.pages).map((x, i) => {
         const seleted = selected_page == i
         return <div key={i} style={ {display: seleted ? 'block' : 'none'} }>
           <Page 

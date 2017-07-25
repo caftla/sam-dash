@@ -8,31 +8,12 @@ import styled from 'styled-components'
 import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
+import { Input, LabelledInput, InputSelect } from './FormElementsUtils'
+import BreakdownItem from './BreakdownItem'
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
-
-const Input = ({type, name, value, onChange, style} : {type: string, name: string, value: string, onChange: string => void}) =>
-  <FormRow>
-    <FormLabel>{name}</FormLabel>
-    <DateField value={value} type={type} onChange={ x => onChange(x.target.value) } style={ style || {} } />
-  </FormRow>
-
-const LabelledInput = ({name, children} : {name: string, children?: Array<any>}) =>
-  <FormRow>
-    <FormLabel>{name}</FormLabel>
-    { children }
-  </FormRow>
-
-const InputSelect = ({name, value, options, onChange}) =>
-  <FormRow>
-    <FormLabel>{name}</FormLabel>
-    <Select value={ value } onChange={ e => onChange(e.target.value) }>
-      <option value="-">Select</option>
-      { options.map((c, i) => <option key={ i } value={ !!c && c.hasOwnProperty('value') ? c.value : c }>{ !!c && c.hasOwnProperty('name') ? c.name : c }</option>) }
-    </Select>
-  </FormRow>
 
 const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
@@ -53,7 +34,6 @@ type ControlsState = {
   , timezone: number
   , page: string
   , section: string
-  , row: string
   , country_code: string
   , operator_code: string
   , affiliate_name: string
@@ -81,6 +61,14 @@ export default class Controls extends React.Component {
   state: ControlsState
   constructor(props: ControlsProps) {
     super(props)
+    this.setProps(props)
+  }
+
+  componentWillReceiveProps(props) {
+    this.setProps(props)
+  }
+
+  setProps(props) {
     const { params } = props
     const filter_params = R.pipe(
         R.split(',')
@@ -124,6 +112,9 @@ export default class Controls extends React.Component {
       , affiliate_name
       , nocache: !!params.nocache
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
+      , rowSorter: params.rowSorter
+      , sectionSorter: params.sectionSorter
+      , tabSorter: params.tabSorter
     }
   }
 
@@ -152,9 +143,11 @@ export default class Controls extends React.Component {
 
     const get_options = (field) => 
       !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
-
-    debugger
     
+    const makeLens = p => R.lens(R.prop(p), (a, s) => typeof a != 'undefined' && a != null ? R.merge(s, R.assoc(p)(a, s)) : s)
+    const overState = (p, val) => 
+      R.over(makeLens(p), R.always(val))
+
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
@@ -209,25 +202,38 @@ export default class Controls extends React.Component {
           value={ this.state.ad_name } options={ get_options('ad_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ get_options('handle_names') } />
-        <LabelledInput name="Sales" style={{ width: '40px' }}>
-          <NumberField type="number" value={ this.props.sort.rowSorter.minSales } onChange={ x => {
-            this.props.set_min('sales', parseInt(x.target.value))
-            } } />
-        </LabelledInput>
-        <LabelledInput name="Views" style={{ width: '40px' }}>
-          <NumberField value={ this.props.sort.rowSorter.minViews } type="number" onChange={ x => {
-            this.props.set_min('views', parseInt(x.target.value))
-            } } />
-        </LabelledInput>
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown</FormTitle>
-        <InputSelect options={ breakdown_list }
-            name="Tabs" value={ this.state.page } onChange={ val => this.setState({ 'page': val }) } />
-        <InputSelect options={ breakdown_list }
-            name="Section" value={ this.state.section } onChange={ val => this.setState({ 'section': val }) } />
-        <InputSelect options={ breakdown_list }
-            name="Row" value={ this.state.row } onChange={ val => this.setState({ 'row': val }) } />
+
+        
+        <BreakdownItem 
+            label="Tab"
+            breakdownList={ breakdown_list }
+            onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('page', breakDownLevel), overState('tabSorter', sorter))) }
+            breakDownLevel='page'
+            breakDownLevelName={ this.state.page }
+            sorter={ this.state.tabSorter }
+          / >
+        
+        <BreakdownItem 
+            label="Section"
+            breakdownList={ breakdown_list }
+            onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('section', breakDownLevel), overState('sectionSorter', sorter))) }
+            breakDownLevel='section'
+            breakDownLevelName={ this.state.section }
+            sorter={ this.state.sectionSorter }
+          / >
+
+        <BreakdownItem 
+            label="Row"
+            breakdownList={ breakdown_list }
+            onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('row', breakDownLevel), overState('rowSorter', sorter))) }
+            breakDownLevel='row'
+            breakDownLevelName={ this.state.row }
+            sorter={ this.state.rowSorter }
+          / >
+
       </FormSection>
       <FormSectionButtons>
       <CheckBoxDiv>
@@ -253,6 +259,9 @@ export default class Controls extends React.Component {
           , section: this.state.section
           , row: this.state.row
           , nocache: this.state.nocache
+          , tabSorter: this.state.tabSorter
+          , sectionSorter: this.state.sectionSorter
+          , rowSorter: this.state.rowSorter
         })
       } }>
         GO
