@@ -106,6 +106,9 @@ export const min_row_filter_page_section_row = (field: string, value: number) =>
 export const min_row_filter_page_section = (field: string, value: number) => (dispatch: Dispatch) =>
   dispatch({ type: 'min_row_filter_page_section', payload: {field, value} })
 
+export const set_sorters = (sorters) => (dispatch : Dispatch) =>
+  dispatch({ type: 'set_sorters', payload: sorters })
+
 
 // cohort
 

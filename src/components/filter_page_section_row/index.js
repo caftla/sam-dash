@@ -70,6 +70,12 @@ const props_to_params = props => {
   const { format : d3Format } = require('d3-format')
   const formatTimezone = d3Format("+.1f")
   const query = fromQueryString(props.location.search)
+  const toSorter = x => !x ? null : R.pipe(
+      R.split(',')
+    , xs => [R.head(xs)].concat(R.map(parseInt)(R.tail(xs)))
+    , ([field, order, minViews, minSales]) => ({field, order, minViews, minSales})
+    )(x)
+
   const mparams = R.merge(params, R.applySpec({
       timezone: () => parseFloat(params.timezone) || new Date().getTimezoneOffset() / -60
     , nocache:  () => query.nocache == 'true' ? true : false
@@ -79,18 +85,26 @@ const props_to_params = props => {
     , page: p => p.page || '-'
     , section: p => p.section || '-'
     , row: p => p.row || 'day'
+    , tabSorter: _ => toSorter(query.tabSorter) || props.controls.tabSorter
+    , sectionSorter: _ => toSorter(query.sectionSorter) || props.controls.sectionSorter
+    , rowSorter: _ => toSorter(query.rowSorter) || props.controls.rowSorter
   })(params))
-  return mparams
+  return R.merge(props.controls, mparams)
 }
 
-const query_to_sort = props => {
-  const defaultSort = props.sort
-    const query = fromQueryString(props.location.search)
-    return R.merge(defaultSort, {
-      rowSorter: { ...defaultSort.rowSorter, minViews: (!!query.min_views ? parseInt(query.min_views) : 0), minSales: (!!query.min_sales ? parseInt(query.min_sales) : 0) }
-    })
-}
+const go = (history, params) => {
+  const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${ field },${ order },${ minViews },${ minSales }`
+  const makeQuery = tuples => '?' + R.pipe(R.filter(x => !!x), R.join('&'))(tuples)
 
+  const query = makeQuery([
+      (params.nocache ? `nocache=true` : '')
+    , sortToQuery('tabSorter', params.tabSorter)
+    , sortToQuery('sectionSorter', params.sectionSorter)
+    , sortToQuery('rowSorter', params.rowSorter)
+  ])
+
+  history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`)
+}
 
 // This is a route
 class Filter_Page_Section_Row extends React.Component {
@@ -108,6 +122,8 @@ class Filter_Page_Section_Row extends React.Component {
       this.props.cleanup_fetch_filter_page_section_row()
       this.route_changed = true
     });
+
+    this.props.set_params(props_to_params(props))
   }
 
   componentWillUnMount() {
@@ -177,10 +193,6 @@ class Filter_Page_Section_Row extends React.Component {
         , params.date_to
       )
     }
-
-    const sort = query_to_sort(this.props)
-    this.props.min_row_filter_page_section_row('views', sort.rowSorter.minViews)
-    this.props.min_row_filter_page_section_row('sales', sort.rowSorter.minSales)
   }
 
   render() {
@@ -195,12 +207,22 @@ class Filter_Page_Section_Row extends React.Component {
         : <Tabs 
           pages={data} 
           params={params}
-          sort={ this.props.sort }
+          sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
           affiliates={ this.props.affiliates_mapping }
-          onSort={ (row_or_section, field, order) => 
-            row_or_section == 'row'
-              ? this.props.sort_row_filter_page_section_row(field, order) 
-              : this.props.sort_row_filter_page_section(field, order)
+          onSort={ (row_or_section, field, order) => {
+            //TODO: remove sort_row_filter_page_section_row and sort_row_filter_page_section functions from actions
+            const nparams = row_or_section == 'row'
+              ? R.merge(params, {
+                rowSorter: R.merge(params.rowSorter, { field, order: (params.rowSorter.field == field ? -1 : 1) * params.rowSorter.order  })
+              }) 
+              : R.merge(params, {
+                sectionSorter: R.merge(params.sectionSorter, { field, order: (params.sectionSorter.field == field ? -1 : 1) * params.sectionSorter.order  })
+              })
+
+              this.props.set_params(nparams)
+
+              go(this.props.history, nparams)
+          }
           } />
     })(this.props.data)
 
@@ -221,12 +243,15 @@ class Filter_Page_Section_Row extends React.Component {
                     params={ params }
                     countries={ all_countries }
                     affiliates={ all_affiliates }
-                    sort={ this.props.sort }
+                    sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
                     set_params={ params => {
+
                       this.props.set_params(params)
                       this.props.cleanup_fetch_filter_page_section_row()
-                      const query = params.nocache ? `?nocache=true&` : '?'
-                      this.props.history.push(`/filter_page_section_row/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}`)
+
+                      //TODO: remove all traces of min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}
+                      
+                      go(this.props.history, params)
                     } }
                     set_min={ (views_or_sales, value) => {
                       this.props.min_row_filter_page_section_row(views_or_sales, value)
@@ -253,6 +278,7 @@ export default connect(
       , sort: state.sort
       , all_countries: state.all_countries 
       , all_affiliates: state.all_affiliates
+      , controls: state.controls
     })
   , {
         fetch_all_countries

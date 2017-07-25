@@ -151,5 +151,6 @@ export const Root = (args) => {
   return main_bottom
 }
 
+window.store = store
 
 if (!module.hot) render(<Root />, document.querySelector('react'))
