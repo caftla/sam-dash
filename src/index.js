@@ -77,14 +77,15 @@ function Wrap(WrappedComponent) {
 	        	
 				<div className="logo-area">
 				
-					<img src="/logo-s.png" alt="Sam Media" />
-					
 					<div className="left-btn" onClick={
-            () => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
-           }>C</div>
+					() => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
+					}><img src="/c-icon.svg" alt="" /></div>
+					
 					<div className="right-btn" onClick={
-            () => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
-           }>M</div>
+					() => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
+					}><img src="/m-icon.svg" alt="" /></div>
+				
+					<img src="/logo-s.png" alt="Sam Media" className="logo" />
 				
 				</div>
 				
