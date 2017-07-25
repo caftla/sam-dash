@@ -217,7 +217,7 @@ class Filter_Page_Section_Row extends React.Component {
                 }
                 , all_affiliates => _ => {
                   return  <Controls
-                    className="main-left"
+                    className="main-left show"
                     params={ params }
                     countries={ all_countries }
                     affiliates={ all_affiliates }
@@ -239,7 +239,7 @@ class Filter_Page_Section_Row extends React.Component {
           )()
         }
       </ThemeProvider>
-      <div className="main-right">
+      <div className="main-right expand">
         { data_component } 
       </div>
     </div>

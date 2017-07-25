@@ -18,11 +18,33 @@ body
     position:relative
     background-color: #8cc63e
     
+    .left-btn
+      left:0px
+      display:block
+      
+    .right-btn
+      right:0px
+      display:none
+    
     .left-btn,
     .right-btn
-      display:none
+      top:0px
+      width:60px
+      height:60px
+      color:#ffffff
+      cursor:pointer
+      font-weight:bold
+      text-align:center
+      position:absolute
+      background-color:#6da424
+	  
+      
+      img
+        width:40px
+        margin-top:10px
+      
 
-    img
+    .logo
       left:0
       right:0
       top:6px
@@ -82,23 +104,30 @@ body
 
 .main-left
   top:0
-  left:0
   bottom:0
+  left:-330px
   width: 270px
   padding:15px
   display:block
+  overflow:hidden
+  overflow-y:scroll
   position:absolute
   height:calc(100vh - 90px) 
   background-color: #353843
   transition:0.5s ease-in-out
   -webkit-transition:0.5s ease-in-out
+  
+  &.show
+    left:0px
 
 .main-right
   display:block
   overflow:scroll
-  margin-left:300px
   height:calc(100vh - 60px) 
   background-color: #ffffff
+  
+  &.expand
+    margin-left:300px
 
 .main-table
   width:100%
@@ -118,31 +147,15 @@ body
 .route-message
   font-size: 1em
   margin: 2em
-  
- @media only screen and (max-width : 768px)
- 
- .logo-area
-   width:100%!important
-   
-	.left-btn,
-	.right-btn
-	  top:0
-	  z-index:5
-	  width:60px
-	  height:60px
-	  color:#ffffff
-	  cursor:pointer
-	  font-size:24px
-	  line-height:60px
-	  font-weight:bold
-	  position:absolute
-	  text-align:center
-	  display:block!important
-	  background-color:#6da424
 
+ @media only screen and (max-width : 768px) 
+	
+	.logo-area
+	  width:100%!important
+ 
 	.right-btn
-	  right:0
-   
+	  display:block!important
+	  
 	.actions
 	  display:none
 	  
@@ -160,26 +173,17 @@ body
 	    transform:translateY(0)
 	    -webkit-transform:translateY(0)	
 
-
 		a
 		 margin:0px!important
 		 display:block!important
 		 border-radius:0px!important
-
-	
-	.main-left
-	  left:-330px
-	  overflow:hidden
-	  overflow-y:scroll
-	  
-	  &.show
-	   left:0px!important
-	
+		 
 	.main-right
-	  margin:0 10px
 	  overflow:scroll
+	  
+	  &.expand
+	    margin:0 10px!important
 	
 	.main-table
 	  padding:10px 0!important
 	  width:1020px!important
-	
