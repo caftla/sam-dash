@@ -71,6 +71,11 @@ function Wrap(WrappedComponent) {
 			[...document.getElementsByClassName('main-right')].map(e => e.classList.toggle('expand'))
 	
 	}
+	
+	copyUrl(){
+		var getURL = document.location.href	
+			alert(getURL)
+	}
 
     componentWillUnMount() {
       if(!!this.unlisten) {
@@ -119,7 +124,7 @@ function Wrap(WrappedComponent) {
               
 	                <a href="#">Export</a>
 	                
-	                <a href="#">Share Link</a> 
+	                <a onClick={this.copyUrl}>Share Link</a> 
                 
 				</div>
 				
