@@ -179,7 +179,7 @@ class ConvertingIPs extends React.Component {
               }
             , ([all_countries, all_affiliates]) => _ => {
                 return <Controls 
-                  className="main-left"
+                  className="main-left show"
                   params={ params }
                   countries={ all_countries }
                   affiliates={ all_affiliates }
@@ -190,7 +190,7 @@ class ConvertingIPs extends React.Component {
           )()
         }
       </ThemeProvider>
-      <div className="main-right">
+      <div className="main-right expand">
         { data_component }
       </div>
     </div>
