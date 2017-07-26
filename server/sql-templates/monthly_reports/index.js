@@ -4,8 +4,12 @@ const query = require('../../sql-api')
 const fs = require('fs')
 const R = require('ramda')
 
+const trace = (x, y) => { console.log(x); return y; }
+const trace_ = x => trace(x, x)
+
 const transform = R.pipe(
     R.chain(x => x)
+  , R.reject(x => !x)
   , R.groupBy(x => `${x.country_code}-${x.operator_code}-${x.year_code}-${x.month_code}`)
   , R.map(R.reduce(R.merge, {}))
   , R.values

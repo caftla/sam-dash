@@ -201,6 +201,7 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', authenticate(), (
       res.json(data)
     })
     .catch(ex => {
+      console.error(ex)
       res.status(500)
       res.end(ex.toString())
     })
