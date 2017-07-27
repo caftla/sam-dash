@@ -40,6 +40,7 @@ type ControlsState = {
   , ad_name: string
   , handle_name: string
   , scenario_name: string
+  , service_identifier1: string
   , cache_buster_id: string
   , nocache: boolean
 }
@@ -101,6 +102,7 @@ export default class Controls extends React.Component {
       , handle_name: ifExists('handle_names', filter_params.handle_name)
       , operator_code: ifExists('operator_codes', filter_params.operator_code)
       , scenario_name: ifExists('scenario_names', filter_params.scenario_name)
+      , service_identifier1: ifExists('service_identifier1s', filter_params.service_identifier1)
     })
 
     this.state = {
@@ -134,7 +136,7 @@ export default class Controls extends React.Component {
       , R.join(',')
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
-    )(["country_code", "operator_code", "ad_name", "handle_name", "scenario_name"].concat(with_publisher_id ? ["publisher_id", "sub_id"] : [])) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+    )(["country_code", "operator_code", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id", "sub_id"] : [])) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
   }
 
   render() {
@@ -207,6 +209,8 @@ export default class Controls extends React.Component {
           value={ this.state.handle_name } options={ get_options('handle_names') } />
         <InputSelect name="Scenario" onChange={ scenario_name => this.setState({ scenario_name }) }
           value={ this.state.scenario_name }  options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('scenario_names', []) } />
+        <InputSelect name="Service Identifier 1" onChange={ service_identifier1 => this.setState({ service_identifier1 }) }
+          value={ this.state.service_identifier1 } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('service_identifier1s', []) } />
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown</FormTitle>
@@ -254,7 +258,7 @@ export default class Controls extends React.Component {
           , R.map(R.join('='))
           , R.join(',')
           , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affiliate_name", "ad_name", "handle_name", "scenario_name"])
+        )(["country_code", "operator_code", "affiliate_name", "ad_name", "handle_name", "scenario_name", "service_identifier1"])
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to
