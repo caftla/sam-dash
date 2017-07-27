@@ -64,6 +64,19 @@ function Wrap(WrappedComponent) {
         })
       });
     }
+    
+	handleToggle(){
+	
+			[...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show')),
+			[...document.getElementsByClassName('main-right')].map(e => e.classList.toggle('expand'))
+	
+	}
+	
+	copyUrl(){
+		var getURL = document.location.href	
+			alert(getURL)
+	}
+
     componentWillUnMount() {
       if(!!this.unlisten) {
         this.unlisten();
@@ -77,9 +90,7 @@ function Wrap(WrappedComponent) {
 	        	
 				<div className="logo-area">
 				
-					<div className="left-btn" onClick={
-					() => [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show'))
-					}><img src="/c-icon.svg" alt="" /></div>
+					<div className="left-btn" onClick={this.handleToggle}><img src="/c-icon.svg" alt="" /></div>
 					
 					<div className="right-btn" onClick={
 					() => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
@@ -113,7 +124,7 @@ function Wrap(WrappedComponent) {
               
 	                <a href="#">Export</a>
 	                
-	                <a href="#">Share Link</a> 
+	                <a onClick={this.copyUrl}>Share Link</a> 
                 
 				</div>
 				
@@ -153,5 +164,6 @@ export const Root = (args) => {
 }
 
 window.store = store
+
 
 if (!module.hot) render(<Root />, document.querySelector('react'))
