@@ -39,7 +39,7 @@ type alias Model =
 
 init : String -> ( Model, Cmd Msg )
 init dateFrom =
-    ( Model dateFrom "" [], downloadHTML ("https://caftla.github.io/slack-reports/archive/" ++ dateFrom ++ ".html") )
+    ( Model dateFrom "" [], downloadHTML ("https://caftla.github.io/daily-monitor/archive/" ++ dateFrom ++ ".html") )
 
 
 

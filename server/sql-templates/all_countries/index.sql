@@ -6,6 +6,8 @@ select
   , array_agg(distinct c.platform) as platforms
   , array_agg(distinct c.gateway) as gateways
   , array_agg(distinct c.ad_name) as ad_names
+  , array_agg(distinct c.scenario_name) as scenario_names
+  , array_agg(distinct c.service_identifier1) as service_identifier1s
 
 from reports_ams.conversion_daily c
 where c.date_tz >= '$from_date$'

@@ -4,6 +4,9 @@ const query = require('../../sql-api')
 const fs = require('fs')
 const R = require('ramda')
 
+const trace = (x, y) => { console.log(x); return y; }
+const trace_ = x => trace(x, x)
+
 const transform = R.pipe(
     R.chain(x => x)
   , R.groupBy(x => `${x.country_code}-${x.operator_code}-${x.year_code}-${x.month_code}`)
@@ -40,6 +43,7 @@ module.exports = async function (helix_connection_string: string, jewel_connecti
 
   const helix = () => Promise.all(['rps', 'drt'].map(x =>
     query(helix_connection_string, fs.readFileSync(`./server/sql-templates/monthly_reports/${x}.sql`, 'utf8'), params)
+    .then(r => x == 'rps' ? R.find(y => y.rows.length > 0)(r) : r)
   ))
 
   const res = await Promise.all([jewel(), helix()])

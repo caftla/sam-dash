@@ -26,6 +26,11 @@ module.exports = (params) => {
     , active24: safe_div(x.sales - x.optout_24, x.sales)
     , active: safe_div(x.sales - x.optouts, x.sales)
     , resubrate: safe_div(x.sales - x.uniquesales, x.sales)
+    , releadrate: safe_div(x.leads - x.uniqueleads, x.leads)
+    , uniqueleadsrate: safe_div(x.uniqueleads, x.leads)
+    , uniquesubsrate: safe_div(x.uniquesales, x.sales)
+    , resubs: safe_div(x.sales, x.uniquesales)
+    , releads: safe_div(x.leads, x.uniqueleads)
   })
   
  const reduce_data = data => {
@@ -36,6 +41,7 @@ module.exports = (params) => {
           , leads: acc.leads + a.leads
           , sales: acc.sales + a.sales
           , uniquesales: acc.uniquesales + a.uniquesales
+          , uniqueleads: acc.uniqueleads + a.uniqueleads
           , paid_sales: acc.paid_sales + a.paid_sales
           , pixels: acc.pixels + (+a.pixels)
           , firstbillings: acc.firstbillings + a.firstbillings
@@ -44,7 +50,7 @@ module.exports = (params) => {
           , optouts: acc.optouts + a.optouts
           , day_optouts: acc.day_optouts + a.day_optouts
         })
-      , {sales: 0, uniquesales: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0}
+      , {sales: 0, uniquesales: 0, uniqueleads: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0}
     ))
 
     const home_cpa =  safe_div(R.pipe(R.map(x => x.home_cpa * x.paid_sales), R.sum)(data), R.pipe(R.map(x => x.paid_sales), R.sum)(data))

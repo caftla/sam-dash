@@ -7,7 +7,7 @@ select
   , sum(d.cpa_cost) :: int as cost
   , sum(d.sale_count) :: int as sales
   , sum(d.sale_pixel_delayed_count + d.sale_pixel_direct_count) :: int as pixels
-from reports_ams.drt d
+from reports_ams.drt_full d
 where d.day >= '$from_date$'
   and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `d.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
 group by country_code, operator_code, year_code, month_code
