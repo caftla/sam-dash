@@ -119,7 +119,7 @@ function Wrap(WrappedComponent) {
 					}}>Monthly Report</a>
 				
 				</div>
-				
+          {/*
 		        <div className="actions">
               
 	                <a href="#">Export</a>
@@ -127,6 +127,7 @@ function Wrap(WrappedComponent) {
 	                <a onClick={this.copyUrl}>Share Link</a> 
                 
 				</div>
+        */}
 				
             </div>
             
