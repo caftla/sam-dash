@@ -49,6 +49,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
   }
 
   const pcolumn = (label, onClick, value, footer, more = {}) => column(label, onClick, value, footer, {...more, className: 'percent'})
+  const tcolumn = (label, onClick, value, footer, more = {}) => column(label, onClick, value, footer, {...more, className: 'times'})
 
   const width = p => 
     p == '-' ? 10
@@ -77,6 +78,12 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       , () => onSort('row', 'views', 1)
       , x => d3.format(',')(x.views) 
       , data => d3.format(',')(data.views)
+    ),
+    column(
+        show_label_row('Leads', 'leads')
+      , () => onSort('row', 'leads', 1)
+      , x => d3.format(',')(x.leads) 
+      , data => d3.format(',')(data.leads)
     ),
     column(
         show_label_row('Sales', 'sales')
@@ -108,11 +115,17 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       , x => d3.format('0.0f')(100 * x.cq)
       , data => d3.format('0.0f')(100 * data.cq)
     ),
-    pcolumn(
-        show_label_row('ReSub%', 'resubrate')
-      , () => onSort('row', 'resubrate', 1)
-      , x => d3.format('0.0f')(100 * x.resubrate)
-      , data => d3.format('0.0f')(100 * data.resubrate)
+    tcolumn(
+        show_label_row('ReSubs', 'resubs')
+      , () => onSort('row', 'resubs', 1)
+      , x => d3.format('0.1f')(x.resubs)
+      , data => d3.format('0.1f')(data.resubs)
+    ),
+    tcolumn(
+        show_label_row('ReLeads', 'releads')
+      , () => onSort('row', 'releads', 1)
+      , x => d3.format('0.1f')(x.releads)
+      , data => d3.format('0.1f')(data.releads)
     ),
     pcolumn(
         show_label_row('Active24%', 'active24')
@@ -153,7 +166,7 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
   ]
 
   const ldata = data.data // R.take(10, data.data)
-  return <TABLE width={1400} className="fpsr_table">
+  return <TABLE width={1400} className="fpsr_table" style={ { minWidth: '1200px' } }>
     <thead>
       { columns.map((c, i) => c.th) } 
     </thead>

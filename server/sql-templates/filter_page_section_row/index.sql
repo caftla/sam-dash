@@ -39,6 +39,9 @@ with Views as (
     where b.timestamp >= $[params.from_date_tz]$
       and $[params.f_filter('b')]$
       and b.firstbilling
+
+    group by page, section, row, b.rockman_id
+    
   ) group by page, section, row
 
 )
@@ -61,6 +64,28 @@ with Views as (
   )
   
   select page, section, row, count(*) :: int as uniquesales from ReSubs1 r 
+  group by page, section, row
+  order by page, section, row
+
+)
+
+, ReLeads as (
+  with ReLeads1 as (
+    select 
+      $[params.f_page('e', 'timestamp')]$ as page
+    , $[params.f_section('e', 'timestamp')]$ as section
+    , $[params.f_row('e', 'timestamp')]$ as row
+    , e.msisdn as msisdn
+    from public.events e 
+    where e.timestamp >= $[params.from_date_tz]$
+      and e.timestamp < $[params.to_date_tz]$
+      and $[params.f_filter('e')]$
+      and e.lead
+    group by page, section, row, msisdn
+    order by page, section, row, msisdn
+  )
+  
+  select page, section, row, count(*) :: int as uniqueleads from ReLeads1 r 
   group by page, section, row
   order by page, section, row
 
@@ -96,41 +121,68 @@ with Views as (
 
 , Optout24 as (
 
-  select 
-    $[params.f_page('e', 'timestamp')]$ as page
-  , $[params.f_section('e', 'timestamp')]$ as section
-  , $[params.f_row('e', 'timestamp')]$ as row
-  , sum(case when e.optout and e.active_duration is not null and e.active_duration <= 86400 then 1 else 0 end) :: int as optout_24
-  from events e
-  where e.timestamp >= $[params.from_date_tz]$
-    and e.timestamp < dateadd(day, 1, $[params.to_date_tz]$)
-    and $[params.f_filter('e')]$
-  group by page, section, row
-  order by page, section, row
+  select page, section, row, count(*) :: int as optout_24 from (
+    select 
+        $[params.f_page('s', 'timestamp')]$ as page
+      , $[params.f_section('s', 'timestamp')]$ as section
+      , $[params.f_row('s', 'timestamp')]$ as row
+      , b.rockman_id 
+    
+    from events b
+    
+    inner join events s on 
+          s.rockman_id = b.rockman_id
+      and s.timestamp >= $[params.from_date_tz]$
+      and s.timestamp < $[params.to_date_tz]$
+      and ((b.timestamp - s.timestamp) <= interval '1 day')
+      and $[params.f_filter('s')]$
+      and s.sale
+      
+    where b.timestamp >= $[params.from_date_tz]$
+      and $[params.f_filter('b')]$
+      and b.optout
+
+    group by page, section, row, b.rockman_id
+      
+  ) group by page, section, row
 )
 
 , Optouts as (
 
-  select 
-    $[params.f_page('e', 'timestamp')]$ as page
-  , $[params.f_section('e', 'timestamp')]$ as section
-  , $[params.f_row('e', 'timestamp')]$ as row
-  , sum(case when e.optout then 1 else 0 end) :: int as optouts
-  from events e
-  where e.start_timestamp >= $[params.from_date_tz]$
-    and e.start_timestamp < $[params.to_date_tz]$
-    and e.timestamp >= $[params.from_date_tz]$
-    and $[params.f_filter('e')]$
-  group by page, section, row
-  order by page, section, row
+  select page, section, row, count(*) :: int as optouts from (
+    select 
+        $[params.f_page('s', 'timestamp')]$ as page
+      , $[params.f_section('s', 'timestamp')]$ as section
+      , $[params.f_row('s', 'timestamp')]$ as row
+      , b.rockman_id 
+    
+    from events b
+    
+    inner join events s on 
+          s.rockman_id = b.rockman_id
+      and s.timestamp >= $[params.from_date_tz]$
+      and s.timestamp < $[params.to_date_tz]$
+      and $[params.f_filter('s')]$
+      and s.sale
+      
+    where b.timestamp >= $[params.from_date_tz]$
+      and $[params.f_filter('b')]$
+      and b.optout
+
+    group by page, section, row, b.rockman_id
+
+  ) group by page, section, row
 )
 
 select v.*
 , nvl(f.firstbillings, 0) as firstbillings
-, nvl(r.uniquesales, 0) as uniquesales, o.optout_24, p.optouts, c.cost, c.home_cpa from Views v
+, nvl(r.uniquesales, 0) as uniquesales
+, nvl(l.uniqueleads, 0) as uniqueleads
+, o.optout_24, p.optouts, c.cost, c.home_cpa from Views v
 left join Optout24 o on v.page = o.page and v.section = o.section and v.row = o.row
 left join Cost2 c on v.page = c.page and v.section = c.section and v.row = c.row
 left join Optouts p on v.page = p.page and v.section = p.section and v.row = p.row
 left join ReSubs r on v.page = r.page and v.section = r.section and v.row = r.row
+left join ReLeads l on v.page = l.page and v.section = l.section and v.row = l.row
 left join FirstBillings f on v.page = f.page and v.section = f.section and v.row = f.row
 order by v.page, v.section, v.row
