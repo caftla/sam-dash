@@ -57,7 +57,7 @@ const respond = (connection_string: string, sql, params, res, map = x => x) => {
   .then(x => {
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
-    res.end(JSON.stringify(map(x.rows)))
+    res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))
   })
   .catch(x => {
     console.error(x)
@@ -152,6 +152,16 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
     , params
     , res
     , require('./sql-templates/cohort')(params)
+  )
+})
+
+app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_helix(
+      fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/arpu')(params)
   )
 })
 
