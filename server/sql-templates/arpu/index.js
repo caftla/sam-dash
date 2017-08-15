@@ -10,4 +10,15 @@ module.exports = (params) => R.pipe(
         , R.sortBy(x => x.day_after_subscription)
         )(d.data)})
     )
+      // group the result into page, seciton, row format (nested)
+    , R.pipe(
+          R.groupBy(x => x.page)  
+        , R.map(R.pipe(
+            R.groupBy(y => y.section)
+          , R.toPairs
+          , R.map(([_, data]) => ({page: data[0].page, section: data[0].section, data}))
+        ))
+        , R.toPairs
+        , R.map(([_, data]) => ({page: data[0].page, data}))
+      )
   )
