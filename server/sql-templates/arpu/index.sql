@@ -36,11 +36,11 @@ with Days as(
   select * from Days d
   join lateral (
     select 
-      r.country_code
-    , r.operator_code
-    , pg_temp.fix_gateway(r.gateway, r.country_code) as gateway
-    , r.affiliate_name
-    , r.tariff
+      $[params.f_page('r', 'country_code', { fix_gateway: 'gateway' })]$ as page
+    , $[params.f_section('r', 'country_code', { fix_gateway: 'gateway' })]$ as section
+    , $[params.f_row('r', 'country_code', { fix_gateway: 'gateway' })]$ as row -- pg_temp.fix_gateway(r.gateway, r.country_code) as gateway
+    -- , r.affiliate_name
+    -- , r.tariff
     , SUM(r.sale_count) as sale_count
     , SUM(r.home_cpa) as cost
     , SUM(r.firstbilling_count) as firstbilling_count
@@ -60,25 +60,25 @@ with Days as(
     where r.day >= d.sale_window_start
       and r.day < d.sale_window_end
       and d.day_after_subscription > 0
-      and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `r.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
+      and $[params.f_filter('r')]$
     group by
-        r.country_code
-      , r.operator_code
-      , gateway
-      , r.affiliate_name
-      , r.tariff
+        page
+      ,  section
+      , row
+      -- , r.affiliate_name
+      -- , r.tariff
   ) r on true
   
-  order by r.country_code, r.operator_code, r.gateway, d.day_after_subscription
+  order by r.page, r.section, r.row, d.day_after_subscription -- r.country_code, r.operator_code, r.row, d.day_after_subscription
 )
 , UnGrouped_Data as (
 
   select
-      d.country_code
-    , d.operator_code
-    , d.gateway
-    , d.affiliate_name
-    , d.tariff
+      d.page
+    , d.section
+    , d.row
+    -- , d.affiliate_name
+    -- , d.tariff
     , date_trunc('month', d.sale_window_start) as sale_window_start
     , d.day_after_subscription
     , SUM(d.sale_count) :: int as sale_count
@@ -91,29 +91,29 @@ with Days as(
     , stddev_pop(d.sale_count) :: float as sale_stddev
     from Daily_Data d  
     group by 
-        d.country_code
-      , d.operator_code
-      , d.gateway
-      , d.affiliate_name
-      , d.tariff
+        d.page
+      , d.section
+      , d.row
+      -- , d.affiliate_name
+      -- , d.tariff
       , date_trunc('month', d.sale_window_start)
       , d.day_after_subscription
     order by 
-        d.country_code
-      , d.operator_code
-      , d.gateway
-      , d.affiliate_name
-      , d.tariff
+        d.page
+      , d.section
+      , d.row
+      -- , d.affiliate_name
+      -- , d.tariff
       , date_trunc('month', d.sale_window_start)
       , d.day_after_subscription
 )
 
 select 
-  d.country_code
-, d.operator_code
-, d.gateway
-, d.affiliate_name
-, d.tariff
+  d.page
+, d.section
+, d.row
+-- , d.affiliate_name
+-- , d.tariff
 , d.sale_window_start
 , json_agg(json_build_object(
     'day_after_subscription', d.day_after_subscription
@@ -130,17 +130,17 @@ select
 from UnGrouped_Data d
 
 group by
-  d.country_code
-, d.operator_code
-, d.gateway
-, d.affiliate_name
-, d.tariff
+  d.page
+, d.section
+, d.row
+-- , d.affiliate_name
+-- , d.tariff
 , d.sale_window_start
 
 order by
-  d.country_code
-, d.operator_code
-, d.gateway
-, d.affiliate_name
-, d.tariff
+  d.page
+, d.section
+, d.row
+-- , d.affiliate_name
+-- , d.tariff
 , d.sale_window_start
