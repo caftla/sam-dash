@@ -19,7 +19,7 @@ const query = (connection_string: string, query_template:string, params: Object)
         : param_value == 'day'   ? `date_trunc('day', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
         : param_value == 'week'  ? `date_trunc('week', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
         : param_value == 'month' ? `date_trunc('month', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
-        : param_value == 'gateway' && !!options.fix_gateway ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
+        : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : `coalesce(${table}.${param_value}, 'Unknown')`
 
       return params

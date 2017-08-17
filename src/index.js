@@ -21,6 +21,7 @@ import Home from './components/Home'
 import Dashboard from './components/Dashboard'
 import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
+import Transactions from './components/transactions'
 import Cohort from './components/cohort'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
@@ -113,6 +114,10 @@ function Wrap(WrappedComponent) {
 					<a className={ this.state.route == 'cohort' ? 'active' : ''  } onClick={() => {
 					history.push(`/cohort/`)
 					}}>Cohort</a>
+
+          <a className={ this.state.route == 'transactions' ? 'active' : ''  } onClick={() => {
+					history.push(`/transactions/`)
+					}}>Transactions</a>
 					
 					<a className={ this.state.route == 'monthly_reports' ? 'active' : ''  } onClick={() => {
 					history.push(`/monthly_reports/`)
@@ -148,6 +153,8 @@ const main_bottom = <Provider store={store}>
       <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Filter_Page_Section_Row)} />
       <Route path="/filter_page_section_row" exact={true} component={Wrap(Filter_Page_Section_Row)} />
       <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Redirect_Filter_Page_Section_Row)} />
+      <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Transactions)} />
+      <Route path="/transactions" exact={true} component={Wrap(Transactions)} />
       <Route path="/cohort" exact={true} component={Wrap(Cohort)} />
       <Route path="/cohort/:date_from/:date_to/:filter" component={Wrap(Cohort)} />
       <Route path="/converting_ips/" exact={true} component={Wrap(ConvertingIPs)} />

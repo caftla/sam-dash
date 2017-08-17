@@ -110,6 +110,18 @@ export const set_sorters = (sorters) => (dispatch : Dispatch) =>
   dispatch({ type: 'set_sorters', payload: sorters })
 
 
+// transactions
+
+export const fetch_transactions = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_transactions_loading' })
+  get({url: `${api_root}/api/v1/transactions/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
+  .then(d => dispatch({ type: 'fetch_transactions_success', payload: d }))
+}
+
+export const cleanup_fetch_transactions = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_transactions' })
+
+
 // cohort
 
 export const fetch_cohort = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
