@@ -9,6 +9,7 @@ import all_affiliates from './all_affiliates'
 import traffic_breakdown from './traffic_breakdown'
 import filter_section_row from './filter_section_row'
 import filter_page_section_row from './filter_page_section_row'
+import arpu from './arpu'
 import transactions from './transactions'
 import cohort from './cohort'
 import converting_ips from './converting_ips'
@@ -24,6 +25,7 @@ const rootReducer = combineReducers({
   , traffic_breakdown
   , filter_section_row
   , filter_page_section_row
+  , arpu
   , transactions
   , cohort
   , converting_ips
