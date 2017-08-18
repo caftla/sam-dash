@@ -3,7 +3,20 @@ body
   padding:0
   background-color: #ffffff
   font-family: Osaka, CONSOLAS, monospace, sans-serif
+    
+select 
+	padding:5px 10px
+	background-size:8px 11px
+	background-color: #ffffff
+	background-repeat:no-repeat;
+	background-position: 96% center 
+	background-image: url('/arrow.png')
+	
+	-webkit-appearance: none
+	-moz-appearance: none
+	appearance: none
 
+    
 #main-top
   height:60px
   display:block
@@ -112,7 +125,8 @@ body
   overflow:visible
   // overflow-y:auto
   position:absolute
-  height:calc(100vh - 90px) 
+  /*height:calc(100vh - 90px)*/
+  height:100%;
   background-color: #353843
   transition:0.2s ease-in-out
   -webkit-transition:0.2s ease-in-out
