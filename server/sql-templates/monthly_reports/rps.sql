@@ -20,7 +20,7 @@ select
   , safediv(SUM(pg_temp.after(d.day, 30, d.tb_first_month_revenue)), SUM(pg_temp.after(d.day, 30, d.sale_count))) :: float as arpu_month_1
   , safediv(SUM(pg_temp.after(d.day, 61, d.tb_first_month_revenue + tb_second_month_revenue)), SUM(pg_temp.after(d.day, 61, d.sale_count))) :: float as arpu_month_2
   , safediv(SUM(pg_temp.after(d.day, 91, d.tb_three_month_revenue)), SUM(pg_temp.after(d.day, 91, d.sale_count))) :: float as arpu_month_3
-from reports_ams.rps d
+from reports_ams.rps_full d
 where d.day >= '$from_date$'
   and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v])=> `d.${k}='${v}'`), R.splitEvery(2), R.split(','))(x))(params.filter)]$
 group by country_code, operator_code, year_code, month_code

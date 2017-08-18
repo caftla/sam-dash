@@ -19,44 +19,33 @@ const customSelectorCreator = createSelectorCreator(defaultMemoize,
 
 export default customSelectorCreator(
   [
-      x => x.filter_page_section_row
+      x => x.transactions
     , x => {
         const {rowSorter, sectionSorter, tabSorter} = x.controls
         return {rowSorter, sectionSorter, tabSorter}
     }
   ]
   , (res, sorter : SorterState) => {
+      
       const {rowSorter, sectionSorter, tabSorter} = sorter
 
       console.log(rowSorter, sectionSorter, tabSorter)
 
       // [row] -> [row]
       const rowSelector = R.pipe(
-          R.filter(r => // r for row
-                  r.sales >= rowSorter.minSales
-              &&  r.views >= rowSorter.minViews
-          )
-        , R.sortBy(R.prop(rowSorter.field))
+          R.sortBy(R.prop(rowSorter.field))
         , rowSorter.order > 0 ? id : R.reverse
       )
       
       // [section] -> [section]
       const sectionSelector = R.pipe(
-          R.filter(s => // s for section
-                  s.sales >= sectionSorter.minSales
-              &&  s.views >= sectionSorter.minViews
-          )
-        , R.sortBy(R.prop(sectionSorter.field))
+          R.sortBy(R.prop(sectionSorter.field))
         , sectionSorter.order > 0 ? id : R.reverse
         , R.map(x => R.merge(x, {data: rowSelector(x.data)}))
       )
 
       return fetchState.map(R.pipe(
-            R.filter(p => // p for page (tab)
-                 p.sales >= tabSorter.minSales
-              && p.views >= tabSorter.minViews
-            ) 
-          , R.sortBy(R.prop(tabSorter.field))
+            R.sortBy(R.prop(tabSorter.field))
           , tabSorter.order > 0 ? id : R.reverse
           , R.map(p => R.merge(p, { data: sectionSelector(p.data) }))
         ), res)

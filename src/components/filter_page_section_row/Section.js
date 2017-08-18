@@ -3,60 +3,13 @@ import React from 'react'
 const d3 = require('d3-format')
 import R from 'ramda'
 import {TD, TH, TABLE} from '../plottables/table'
-import type { QueryParams } from 'my-types'
 import cell_formatter from './cell-formatter'
-import type { SorterState } from '../reducers/sort.js'
 import './Section.styl'
+import Section from '../common-controls/page_section_rows_sections'
 
-const change_sign = (change) => {
-  const r = Math.round(Math.abs(change) - 1.5)
-  const sign = r > 0 ? R.repeat(change > 0 ? '+' : '-', r).join('') : ''
-  return sign.substr(0, 4)
-}
-
-const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
-  const show_label = (row_or_section) => (name, key = null) => {
-    const sort_field = key == null ? name : key
-    const sname = name == 'country_code' ? 'country' : name
-    const sorter = sort[row_or_section == 'row' ? 'rowSorter' : 'sectionSorter']
-    return sort_field == sorter.field
-      ? `${sname} ` + (sorter.order > 0 ? '▲' : '▼')
-      : sname
-  }
-  const show_label_row = show_label('row') 
-  const show_label_section = show_label('section') 
-  const formatter = cell_formatter(affiliates, params.timezone)
-
-  const column = (label, onClick, value, footer, more = {}) => {
-    const width = typeof(more.width) == 'number' ? more.width :  100
-    return {
-      th: <TH {...more} width={ width } value={ label } onClick={ onClick } />
-    , td: (x, i) => <TD {...more} width={ width } value={ value(x) } 
-        onMouseEnter={ () => 
-          [...document.getElementsByClassName('fpsr_table')].map(table => 
-            table.classList.add(`highlight-${i+1}`)
-          )
-        } 
-        onMouseLeave={ () => 
-          [...document.getElementsByClassName('fpsr_table')].map(table => 
-            table.classList.remove(`highlight-${i+1}`)
-          )
-        } 
-      />
-    , tf: (data) => <TD {...more} style={ R.merge(more.style || {}, { 'font-weight': 'bold' }) } width={ width }  value={ footer(data) } />
-    }
-  }
-
-  const pcolumn = (label, onClick, value, footer, more = {}) => column(label, onClick, value, footer, {...more, className: 'percent'})
-
-  const width = p => 
-    p == '-' ? 10
-    : p == 'country_code' ? 80
-    : p == 'day' ? 120
-    : p == 'hour' ? 220
-    : 170
-
-  const columns = [
+export default Section({
+  cell_formatter, 
+  columns_maker: ({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, width, onSort}) => ([
     column(
         show_label_section(params.section, 'section')
       , () => onSort('section', 'section', 1)
@@ -76,6 +29,12 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       , () => onSort('row', 'views', 1)
       , x => d3.format(',')(x.views) 
       , data => d3.format(',')(data.views)
+    ),
+    column(
+        show_label_row('Leads', 'leads')
+      , () => onSort('row', 'leads', 1)
+      , x => d3.format(',')(x.leads) 
+      , data => d3.format(',')(data.leads)
     ),
     column(
         show_label_row('Sales', 'sales')
@@ -107,11 +66,17 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       , x => d3.format('0.0f')(100 * x.cq)
       , data => d3.format('0.0f')(100 * data.cq)
     ),
-    pcolumn(
-        show_label_row('ReSub%', 'resubrate')
-      , () => onSort('row', 'resubrate', 1)
-      , x => d3.format('0.0f')(100 * x.resubrate)
-      , data => d3.format('0.0f')(100 * data.resubrate)
+    tcolumn(
+        show_label_row('ReSubs', 'resubs')
+      , () => onSort('row', 'resubs', 1)
+      , x => d3.format('0.1f')(x.resubs)
+      , data => d3.format('0.1f')(data.resubs)
+    ),
+    tcolumn(
+        show_label_row('ReLeads', 'releads')
+      , () => onSort('row', 'releads', 1)
+      , x => d3.format('0.1f')(x.releads)
+      , data => d3.format('0.1f')(data.releads)
     ),
     pcolumn(
         show_label_row('Active24%', 'active24')
@@ -149,22 +114,5 @@ const Section = ({data, params, onSort, sort, affiliates} : { data : any, params
       , x => d3.format(',.0f')(x.cost)
       , data => d3.format(',.0f')(data.cost)
     )
-  ]
-
-  return <TABLE width={1400} className="fpsr_table">
-    <thead>
-      { columns.map((c, i) => c.th) } 
-    </thead>
-    <tbody>
-      { data.data.map((x, i) => <tr key={i}>
-          { columns.map((c, i) => c.td(x, i)) }
-        </tr>)
-      } 
-      <tr>
-        { columns.map((c, i) => c.tf(data)) }
-      </tr>
-    </tbody>
-  </TABLE>
-}
-
-export default Section
+  ])
+})

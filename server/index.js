@@ -57,7 +57,7 @@ const respond = (connection_string: string, sql, params, res, map = x => x) => {
   .then(x => {
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
-    res.end(JSON.stringify(map(x.rows)))
+    res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))
   })
   .catch(x => {
     console.error(x)
@@ -155,6 +155,26 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
   )
 })
 
+app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_helix(
+      fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/arpu')(params)
+  )
+})
+
+app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_jewel(
+      fs.readFileSync('./server/sql-templates/transactions/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/transactions')(params)
+  )
+})
+
 app.get('/api/v1/all_affiliates', (req, res) => {
   respond_jewel(`select * from affiliate_mapping`, {}, res, R.pipe(
       R.groupBy(x => x.affiliate_name)
@@ -201,6 +221,7 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', authenticate(), (
       res.json(data)
     })
     .catch(ex => {
+      console.error(ex)
       res.status(500)
       res.end(ex.toString())
     })

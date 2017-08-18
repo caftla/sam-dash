@@ -21,6 +21,9 @@ const defaultParams : QueryParams = {
   , page:      'country_code'
   , section:   'country_code'
   , row:       'affiliate_name'
+  , rowSorter: { field: 'row', order: 1, minViews: 0, minSales: 0 }
+  , sectionSorter: { field: 'section', order: 1, minViews: 0, minSales: 0 }
+  , tabSorter: { field: 'page', order: 1, minViews: 0, minSales: 0 }
 }
 
 type AppState = QueryParams
@@ -30,6 +33,8 @@ const controls = (state : AppState = defaultParams , action: Action) => {
   switch (action.type) {
     case 'SET_Params':
       return R.merge(state, action.payload)
+    case 'sort_row_filter_page_section_row':
+      return R.over(R.lensProp('rowSorter'), R.flip(R.merge)({ field: action.payload.field, order: action.payload.order }), state)
     default:
       return state
   }

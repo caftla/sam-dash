@@ -6,7 +6,7 @@ import moment from 'moment'
 
 export default (affiliates: Object, timezone: number) => (interval: string) => (value: string) =>
     interval == 'hour' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD HH')
-  : interval == 'day' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD')
+  : interval == 'day' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD ddd')
   : interval == 'week' ? moment(value).utcOffset(timezone).format('YYYY-MM-DD')
   : interval == 'month' ? moment(value).utcOffset(timezone).format('YYYY-MM')
   : interval == 'affiliate_id' ? affiliates[value] || value
