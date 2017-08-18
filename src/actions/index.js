@@ -110,6 +110,17 @@ export const set_sorters = (sorters) => (dispatch : Dispatch) =>
   dispatch({ type: 'set_sorters', payload: sorters })
 
 
+// ARPU
+
+export const fetch_arpu = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_arpu_loading' })
+  get({url: `${api_root}/api/v1/arpu/2017-06-14/2017-08-16/country_code=GR/operator_code/gateway/affiliate_id`, nocache})
+  .then(d => dispatch({ type: 'fetch_arpu_success', payload: d }))
+}
+
+export const cleanup_fetch_arpu = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_arpu' })
+
 // transactions
 
 export const fetch_transactions = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
@@ -166,3 +177,5 @@ export const fetch_monthly_reports = (date_from : string, date_to : string, filt
 
 export const cleanup_fetch_monthly_reports = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_monthly_reports' })
+
+  

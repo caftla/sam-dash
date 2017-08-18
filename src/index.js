@@ -23,6 +23,7 @@ import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import Transactions from './components/transactions'
 import Cohort from './components/cohort'
+import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
@@ -105,7 +106,11 @@ function Wrap(WrappedComponent) {
 				
 					<a className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  } onClick={() => {
 					history.push(`/filter_page_section_row/`)
-					}}>Standard</a>
+          }}>Standard</a>
+          
+          <a className={ this.state.route == 'arpu' ? 'active' : ''  } onClick={() => {
+            history.push(`/arpu/`)
+            }}>ARPU</a>
 					
 					<a className={ this.state.route == 'converting_ips' ? 'active' : ''  } onClick={() => {
 					history.push(`/converting_ips/`)
@@ -156,6 +161,7 @@ const main_bottom = <Provider store={store}>
       <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Transactions)} />
       <Route path="/transactions" exact={true} component={Wrap(Transactions)} />
       <Route path="/cohort" exact={true} component={Wrap(Cohort)} />
+      <Route path="/arpu" exact={true} component={Wrap(Arpu)} />      
       <Route path="/cohort/:date_from/:date_to/:filter" component={Wrap(Cohort)} />
       <Route path="/converting_ips/" exact={true} component={Wrap(ConvertingIPs)} />
       <Route path="/converting_ips/:date_from/:date_to/:filter" component={Wrap(ConvertingIPs)} />

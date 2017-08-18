@@ -13,6 +13,10 @@ export type Action =
   // -- all_countries
   | { type: 'fetch_all_countries_loading' }
   | { type: 'fetch_all_countries_success', payload: Array<any> }
+  // -- arpu
+  | { type: 'fetch_arpu_loading' }
+  | { type: 'fetch_arpu_success', payload: Array<any> }
+  
   // -- all_affiliates
   | { type: 'fetch_all_affiliates_loading' }
   | { type: 'fetch_all_affiliates_success', payload: Array<any> }
