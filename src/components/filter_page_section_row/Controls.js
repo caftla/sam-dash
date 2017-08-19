@@ -142,6 +142,7 @@ export default class Controls extends React.Component {
         , R.chain(x => x.data)
         , R.sortBy(x => x.sales * -1)
         , R.map(x => x.row)
+        , R.take(256)
         , publisher_ids => this.setState({ publisher_ids })
       )) 
     } else {
