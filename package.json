@@ -49,8 +49,8 @@
     "style-loader": "^0.18.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
-    "webpack": "2.2.0-rc.4",
-    "webpack-dev-server": "2.2.0-rc.0"
+    "webpack": "2.2.1",
+    "webpack-dev-server": "2.2.1"
   },
   "dependencies": {
     "body-parser": "^1.17.1",
@@ -74,7 +74,7 @@
     "pg": "^7.0.2",
     "ramda": "^0.24.1",
     "react": "^15.4.1",
-    "react-datetime": "^2.8.10",
+    "react-datetime": "^2.9.0",
     "react-dom": "^15.4.1",
     "react-elm-components": "^1.0.1",
     "react-hammerjs": "^0.5.0",
