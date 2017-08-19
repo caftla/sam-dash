@@ -45,7 +45,7 @@ export default class BreakdownItem extends React.Component  {
           value={ toBreakDownLevelName(this.props.sorter.field) }
         />
          
-        <InputSelect options={['ASC', 'DESC']} name="Order" onChange={ val =>
+        <InputSelect options={['DESC', 'ASC']} name="Order" onChange={ val =>
             onSorterChange({ order: 'ASC' == val ? 1 : -1 })
           } 
           value={ this.props.sorter.order == 1 ? 'ASC' : 'DESC' }

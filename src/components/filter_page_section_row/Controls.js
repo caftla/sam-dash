@@ -10,8 +10,13 @@ import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
+import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
+
+const api_root = process.env.api_root || '' // in production api_root is the same as the client server
+const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
+  get({url: `${api_root}/api/v1/filter_page_section_row/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
@@ -41,8 +46,10 @@ type ControlsState = {
   , handle_name: string
   , scenario_name: string
   , service_identifier1: string
+  , publisher_id: string
   , cache_buster_id: string
   , nocache: boolean
+  , publisher_ids: Array<string>
 }
 
 const get_all_props_ = props => (prop: string) => R.pipe(
@@ -77,6 +84,7 @@ export default class Controls extends React.Component {
       , R.map(R.split('='))
       , R.fromPairs
     )(params.filter || '-')
+
     const ifExists = ifExists_(props, filter_params.country_code)
 
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
@@ -103,6 +111,7 @@ export default class Controls extends React.Component {
       , operator_code: ifExists('operator_codes', filter_params.operator_code)
       , scenario_name: ifExists('scenario_names', filter_params.scenario_name)
       , service_identifier1: ifExists('service_identifier1s', filter_params.service_identifier1)
+      , publisher_id: filter_params.publisher_id
     })
 
     this.state = {
@@ -113,6 +122,7 @@ export default class Controls extends React.Component {
       , section: fix_affiliate_name(params.section)
       , row: fix_affiliate_name(params.row)
       , ...e_filter_params
+      , publisher_ids: []
       , affiliate_name
       , nocache: !!params.nocache
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
@@ -120,9 +130,26 @@ export default class Controls extends React.Component {
       , sectionSorter: params.sectionSorter
       , tabSorter: params.tabSorter
     }
+
+    this.reload_publisher_ids()
   }
 
-  get_filter_string(with_publisher_id: boolean) {
+  reload_publisher_ids() {
+    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
+      api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
+      .then(R.pipe(
+          R.chain(x => x.data)
+        , R.chain(x => x.data)
+        , R.sortBy(x => x.sales * -1)
+        , R.map(x => x.row)
+        , publisher_ids => this.setState({ publisher_ids })
+      )) 
+    } else {
+      this.setState({ publisher_ids: [] })
+    }
+  }
+
+  get_filter_string_by_fields(fields) {
     const affiliate_ids = R.pipe(
         R.filter(x => x.affiliate_name == this.state.affiliate_name)
       , R.map(x => x.affiliate_ids)
@@ -136,7 +163,12 @@ export default class Controls extends React.Component {
       , R.join(',')
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
-    )(["country_code", "operator_code", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id", "sub_id"] : [])) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+    )(fields) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+  }
+
+  get_filter_string() {
+    const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
+    return this.get_filter_string_by_fields(["country_code", "operator_code", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
   render() {
@@ -178,10 +210,7 @@ export default class Controls extends React.Component {
               className: 'date_input'
             } } />
         </LabelledInput>
-        <InputSelect name="Timezone" onChange={ timezone => {
-          console.log('setting_timezone', timezone)
-          this.setState({ timezone: timezone }) 
-        }}
+        <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
             R.pipe(
                 R.map(x => (12 - x / 2) )
@@ -201,8 +230,12 @@ export default class Controls extends React.Component {
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
-        <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
+        <InputSelect name="Affiliate" onChange={ affiliate_name => 
+            this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
+          }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
+        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+          value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } />
         <InputSelect name="Ad Name" onChange={ ad_name => this.setState({ ad_name }) }
           value={ this.state.ad_name } options={ get_options('ad_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
@@ -252,18 +285,12 @@ export default class Controls extends React.Component {
           id={ this.state.cache_buster_id } type="checkbox" />
       </CheckBoxDiv>
       <Submit onClick={ _ => {
-        const filter = R.pipe(
-            R.map(k => [k, this.state[k]])
-          , R.filter(([k, v]) => !!v)
-          , R.map(R.join('='))
-          , R.join(',')
-          , x => !x ? '-' : x
-        )(["country_code", "operator_code", "affiliate_name", "ad_name", "handle_name", "scenario_name", "service_identifier1"])
+
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to
           , timezone: this.state.timezone
-          , filter: this.get_filter_string(false)
+          , filter: this.get_filter_string()
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row
