@@ -11,6 +11,7 @@ import filter_section_row from './filter_section_row'
 import filter_page_section_row from './filter_page_section_row'
 import arpu from './arpu'
 import transactions from './transactions'
+import arpu_long from './arpu_long'
 import cohort from './cohort'
 import converting_ips from './converting_ips'
 import monthly_reports from './monthly_reports'
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   , filter_page_section_row
   , arpu
   , transactions
+  , arpu_long
   , cohort
   , converting_ips
   , monthly_reports

@@ -3,7 +3,8 @@ const R = require('ramda')
 const pg = require('pg')
 
 type ParamsOptions = {
-  fix_gateway?: string
+    fix_gateway?: string
+  , no_timezone?: boolean
 }
 
 const query = (connection_string: string, query_template:string, params: Object) => new Promise((resolve, reject) => {
@@ -13,14 +14,17 @@ const query = (connection_string: string, query_template:string, params: Object)
   
   const add_date_trunc_params = (param_name : string) => {
       const param_value = params[param_name]
-      params[`f_${param_name}`] = (table: string, day_column: string, options: ParamsOptions) => 
-        (!param_value || param_value == '-') ? `'-'`
-        : param_value == 'hour'  ? `date_trunc('hour', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
-        : param_value == 'day'   ? `date_trunc('day', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
-        : param_value == 'week'  ? `date_trunc('week', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
-        : param_value == 'month' ? `date_trunc('month', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
+      params[`f_${param_name}`] = (table: string, day_column: string, options: ParamsOptions) => {
+
+        const date_exp = !!options && options.no_timezone 
+        ? `date_trunc('${param_value}', ${table}.${day_column})`
+        : `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
+
+        return (!param_value || param_value == '-') ? `'-'`
+        : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : `coalesce(${table}.${param_value}, 'Unknown')`
+      }
 
       return params
   }

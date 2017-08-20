@@ -29,10 +29,11 @@ export default function({columns_maker, cell_formatter}) {
     const formatter = cell_formatter(affiliates, params.timezone)
 
     const column = (label, onClick, value, footer, more = {}) => {
+      const to_f = (p, x) => typeof p == 'function' ? p(x) : p || {}
       const width = typeof(more.width) == 'number' ? more.width :  100
       return {
         th: <TH {...more} width={ width } value={ label } onClick={ onClick } />
-      , td: (x, i) => <TD {...more} width={ width } value={ value(x) } 
+      , td: (x, i) => <TD {...more} style={ to_f(more.style, x) } width={ width } value={ value(x) } 
           onMouseEnter={ () => 
             [...document.getElementsByClassName('fpsr_table')].map(table => 
               table.classList.add(`highlight-${i+1}`)
@@ -44,7 +45,7 @@ export default function({columns_maker, cell_formatter}) {
             )
           } 
         />
-      , tf: (data) => <TD {...more} style={ R.merge(more.style || {}, { 'font-weight': 'bold' }) } width={ width }  value={ footer(data) } />
+      , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } width={ width }  value={ footer(data) } />
       }
     }
 

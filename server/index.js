@@ -175,6 +175,16 @@ app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:secti
   )
 })
 
+app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_helix(
+      fs.readFileSync('./server/sql-templates/arpu_long/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/arpu_long')(params)
+  )
+})
+
 app.get('/api/v1/all_affiliates', (req, res) => {
   respond_jewel(`select * from affiliate_mapping`, {}, res, R.pipe(
       R.groupBy(x => x.affiliate_name)
