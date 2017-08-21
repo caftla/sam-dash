@@ -41,6 +41,7 @@ type ControlsState = {
   , section: string
   , country_code: string
   , operator_code: string
+  , gateway: string
   , affiliate_name: string
   , ad_name: string
   , handle_name: string
@@ -109,6 +110,7 @@ export default class Controls extends React.Component {
         ad_name: ifExists('ad_names', filter_params.ad_name)        
       , handle_name: ifExists('handle_names', filter_params.handle_name)
       , operator_code: ifExists('operator_codes', filter_params.operator_code)
+      , gateway: ifExists('gateways', filter_params.gateway)
       , scenario_name: ifExists('scenario_names', filter_params.scenario_name)
       , service_identifier1: ifExists('service_identifier1s', filter_params.service_identifier1)
       , publisher_id: filter_params.publisher_id
@@ -169,7 +171,7 @@ export default class Controls extends React.Component {
 
   get_filter_string() {
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    return this.get_filter_string_by_fields(["country_code", "operator_code", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
+    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
   render() {
@@ -231,6 +233,8 @@ export default class Controls extends React.Component {
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
+        <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
+          value={ this.state.gateway } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('gateways', []) } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => 
             this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
           }
