@@ -23,6 +23,7 @@ module.exports = (params) => {
     , pixels_ratio: safe_div(x.pixels, x.sales)
 
     , arpu_week_1  : safe_div(x.revenue_week_1  , x.sales_week_1  )
+    , arpu_week_2  : safe_div(x.revenue_week_2  , x.sales_week_2  )
     , arpu_month_1 : safe_div(x.revenue_month_1 , x.sales_month_1 )
     , arpu_month_2 : safe_div(x.revenue_month_2 , x.sales_month_2 )
     , arpu_month_3 : safe_div(x.revenue_month_3 , x.sales_month_3 )
@@ -48,6 +49,7 @@ module.exports = (params) => {
             , firstbillings: a.firstbillings + acc.firstbillings
 
             , revenue_week_1: a.revenue_week_1 + acc.revenue_week_1
+            , revenue_week_2: a.revenue_week_2 + acc.revenue_week_2
             , revenue_month_1: a.revenue_month_1 + acc.revenue_month_1
             , revenue_month_2: a.revenue_month_2 + acc.revenue_month_2
             , revenue_month_3: a.revenue_month_3 + acc.revenue_month_3
@@ -62,6 +64,7 @@ module.exports = (params) => {
             , revenue_month_12: a.revenue_month_12 + acc.revenue_month_12
 
             , sales_week_1: a.sales_week_1 + acc.sales_week_1
+            , sales_week_2: a.sales_week_2 + acc.sales_week_2
             , sales_month_1: a.sales_month_1 + acc.sales_month_1
             , sales_month_2: a.sales_month_2 + acc.sales_month_2
             , sales_month_3: a.sales_month_3 + acc.sales_month_3
@@ -83,6 +86,7 @@ module.exports = (params) => {
           , firstbillings: 0
 
           , revenue_week_1: 0
+          , revenue_week_2: 0
           , revenue_month_1: 0
           , revenue_month_2: 0
           , revenue_month_3: 0
@@ -97,6 +101,7 @@ module.exports = (params) => {
           , revenue_month_12: 0
 
           , sales_week_1: 0
+          , sales_week_2: 0
           , sales_month_1: 0
           , sales_month_2: 0
           , sales_month_3: 0

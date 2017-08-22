@@ -194,7 +194,7 @@ app.get('/api/v1/all_affiliates', (req, res) => {
   ))
 })
 
-app.get('/api/v1/converting_ips/:from_date/:to_date/:filter', authenticate(), (req, res) => {
+app.get('/api/v1/converting_ips/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_jewel(
       fs.readFileSync('./server/sql-templates/converting_ips/index.sql', 'utf8')

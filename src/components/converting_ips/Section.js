@@ -20,17 +20,40 @@ export default Section({
       , { width: width(params.section), style: {  paddingLeft: '0.7em' } }
     ), 
     column(
-        show_label_row(params.row, 'row')
-      , () => onSort('row', 'row', 1)
-      , x => formatter(params.row)(x.row)
-      , data => ''
-      , { width: width(params.row) }
+        show_label_row('From', 'from')
+      , () => onSort('row', 'from', 1)
+      , x => (x.from)
+      , data => (data.from)
+    ),
+    column(
+        show_label_row('To', 'to')
+      , () => onSort('row', 'to', 1)
+      , x => (x.to)
+      , data => (data.to)
+    ),
+    column(
+        show_label_row('Views', 'views')
+      , () => onSort('row', 'views', 1)
+      , x => d3.format(',')(x.views) 
+      , data => d3.format(',')(data.views)
     ),
     column(
         show_label_row('Sales', 'sales')
       , () => onSort('row', 'sales', 1)
       , x => d3.format(',')(x.sales) 
       , data => d3.format(',')(data.sales)
+    ),
+    pcolumn(
+        show_label_row('CR S%', 'cr')
+      , () => onSort('row', 'cr', 1)
+      , x => d3.format('0.2f')(100 * x.cr)
+      , data => d3.format('0.2f')(100 * data.cr)
+    ),
+    pcolumn(
+        show_label_row('CQ%', 'cq')
+      , () => onSort('row', 'cq', 1)
+      , x => d3.format('0.0f')(100 * x.cq)
+      , data => d3.format('0.0f')(100 * data.cq)
     ),
     column(
         show_label_row('eCPA', 'ecpa')
@@ -43,24 +66,6 @@ export default Section({
       , () => onSort('row', 'cpa', 1)
       , x => d3.format('0.2f')(x.cpa)
       , data => d3.format('0.2f')(data.cpa)
-    ),
-    column(
-        show_label_row('Week1', 'arpu_week_1')
-      , () => onSort('row', 'arpu_week_1', 1)
-      , x => d3.format('0.2f')(x.arpu_week_1)
-      , data => d3.format('0.2f')(data.arpu_week_1)
-    ),
-    column(
-        show_label_row('Week2', 'arpu_week_2')
-      , () => onSort('row', 'arpu_week_2', 1)
-      , x => d3.format('0.2f')(x.arpu_week_2)
-      , data => d3.format('0.2f')(data.arpu_week_2)
-    ),
-  ].concat(R.range(1,13).map(m => column(
-    show_label_row(`Month${m}`, `arpu_month_${m}`)
-    , () => onSort('row', `arpu_month_${m}`, 1)
-    , x => empty_null(d3.format('0.2f'))(x[`arpu_month_${m}`]) // x[`arpu_month_${m}`] > x.ecpa ? '*' : '')
-    , data => empty_null(d3.format('0.2f'))(data[`arpu_month_${m}`])
-    , { style: x => x[`arpu_month_${m}`] > x.ecpa ? { color: 'green' } : {} }
-  ))))
+    )
+  ])
 })

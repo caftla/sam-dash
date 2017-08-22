@@ -18,6 +18,9 @@ select
 
   , SUM(pg_temp.after(d.day, 7, d.tb_first_week_revenue)) :: float as revenue_week_1
   , SUM(pg_temp.after(d.day, 7, d.sale_count)) :: float as sales_week_1
+
+  , SUM(pg_temp.after(d.day, 14, d.tb_first_week_revenue + d.tb_second_week_revenue)) :: float as revenue_week_2
+  , SUM(pg_temp.after(d.day, 14, d.sale_count)) :: float as sales_week_2
   
   , SUM(pg_temp.after(d.day, 30, d.tb_first_month_revenue)) :: float as revenue_month_1
   , SUM(pg_temp.after(d.day, 30, d.sale_count)) :: float as sales_month_1

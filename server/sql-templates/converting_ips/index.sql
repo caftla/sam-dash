@@ -1,64 +1,19 @@
-with RawSales as (
-  select
-      e.rockman_id
-    , e.country_code
-    , e.operator_code
-    , e.affiliate_id
-    , SUM(case when e.sale then 1 else 0 end) as sales
-    , SUM(case when e.firstbilling then 1 else 0 end) as firstbillings
-  from public.events e
-  where e.timestamp >= '$from_date$'
-    and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    and (e.sale = 1 or e.firstbilling = 1)
-  group by
-      e.rockman_id
-    , e.country_code
-    , e.operator_code
-    , e.affiliate_id
-)
+select 
+  $[params.f_page('e', 'day')]$ as page
+, $[params.f_section('e', 'day')]$ as section
+, e.ip3 as row
+, sum(case when e.impression > 0 then 1 else 0 end) :: int as views
+, sum(case when e.pixel > 0 then 1 else 0 end) :: int as pixels
+, sum(case when e.sale > 0 then 1 else 0 end) :: int as sales
+, sum(case when e.firstbilling then 1 else 0 end) :: int as firstbillings
+, sum(coalesce(c.home_cpa, 0)) :: float as cost
+from public.user_sessions e
+left join cpa c on c.cpa_id = e.cpa_id
+where e.timestamp >= '$from_date$'
+  and e.timestamp <= '$to_date$'
+  and $[params.f_filter('e')]$
+  
+group by page, section, row
+order by page, section, row
 
-, Sales as (
 
-  select
-      s.rockman_id
-    , s.operator_code
-    , e.ip_address
-    , reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1)) as ip3
-    , s.sales
-    , s.firstbillings
-  from RawSales s
-  inner join public.events e
-  on e.rockman_id = s.rockman_id
-  where e.timestamp >= '$from_date$'
-    and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    and e.view = 1
-
-)
-
-, SalesIPs as (
-
-  select s.operator_code, s.ip3
-    , sum(case when s.sales > 0 then 1 else 0 end) :: int as sales
-    , sum(case when s.firstbillings > 0 then 1 else 0 end) :: int  as firstbillings
-  from Sales s
-  group by s.operator_code, s.ip3
-)
-
-, Views as (
-
-  select reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1)) as ip3
-    , SUM(1) :: int as views
-
-  from public.events e
-  where e.timestamp >= '$from_date$'
-    and e.timestamp <= '$to_date$'
-    and $[(x => !x ? 'true' : R.compose(R.join(' and '), R.map(([k, v]) => R.compose(x => `(${x})`, R.join(' or '), R.map(v => `e.${k}='${v}'`), R.split(';'))(v)), R.splitEvery(2), R.split(','))(x))(params.filter)]$
-    and e.view = 1
-  group by reverse(substring(reverse(coalesce(e.ip_address, '0.0.0.0')) from position('.' in reverse(coalesce( e.ip_address, '0.0.0.0'))) + 1))
-)
-
-select s.operator_code, s.sales, s.firstbillings, v.ip3, v.views
-from SalesIPs s
-right join Views v on s.ip3 = v.ip3

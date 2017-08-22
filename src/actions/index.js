@@ -157,9 +157,9 @@ export const cleanup_fetch_cohort = () => (dispatch: Dispatch) =>
 
 // converting_ips
 
-export const fetch_converting_ips = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
+export const fetch_converting_ips = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_converting_ips_loading' })
-  get({url: `${api_root}/api/v1/converting_ips/${date_from}/${date_to}/${filter}`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `${api_root}/api/v1/converting_ips/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
   .then(d => dispatch({ type: 'fetch_converting_ips_success', payload: d }))
 }
 

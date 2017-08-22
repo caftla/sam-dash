@@ -3,7 +3,7 @@
 import { combineReducers } from 'redux'
 
 import dashboard from './dashboard'
-import controls from './controls'
+import makeControls from './controls'
 import all_countries from './all_countries'
 import all_affiliates from './all_affiliates'
 import traffic_breakdown from './traffic_breakdown'
@@ -19,7 +19,13 @@ import sort from './sort'
 import login from './login'
 
 const rootReducer = combineReducers({
-  dashboard, controls
+    dashboard
+  , controls: makeControls({})
+  , converting_ips_controls: makeControls({
+      rowSorter: { field: 'sales', order: -1, minViews: 0, minSales: 10 }
+    , sectionSorter: { field: 'sales', order: -1, minViews: 0, minSales: 0 }
+    , tabSorter: { field: 'sales', order: -1, minViews: 0, minSales: 0 }
+    })
   // ---
   , all_countries
   , all_affiliates
