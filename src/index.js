@@ -103,25 +103,15 @@ function Wrap(WrappedComponent) {
 				
 				<div className="tabs">
 				
-					<a className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  } onClick={() => {
-					history.push(`/filter_page_section_row/`)
-					}}>Standard</a>
+					<a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
 					
-					<a className={ this.state.route == 'converting_ips' ? 'active' : ''  } onClick={() => {
-					history.push(`/converting_ips/`)
-					}}>Converting IPs</a>
+					<a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>
 					
-					<a className={ this.state.route == 'cohort' ? 'active' : ''  } onClick={() => {
-					history.push(`/cohort/`)
-					}}>Cohort</a>
+					<a href="/cohort/" className={ this.state.route == 'cohort' ? 'active' : ''  }>Cohort</a>
 
-          <a className={ this.state.route == 'transactions' ? 'active' : ''  } onClick={() => {
-					history.push(`/transactions/`)
-					}}>Transactions</a>
+					<a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
 					
-					<a className={ this.state.route == 'monthly_reports' ? 'active' : ''  } onClick={() => {
-					history.push(`/monthly_reports/`)
-					}}>Monthly Report</a>
+					<a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
 				
 				</div>
           {/*
