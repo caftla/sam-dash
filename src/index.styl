@@ -123,11 +123,12 @@ select
   padding:15px 15px 15px 15px
   display:block
   overflow:visible
+  -webkit-overflow-scrolling: touch
   // overflow-y:auto
   position:absolute
   /*height:calc(100vh - 90px)*/
-  height:100%;
-  overflow:auto;
+  height:100%
+  -webkit-overflow-scrolling: touch
   background-color: #353843
   transition:0.2s ease-in-out
   -webkit-transition:0.2s ease-in-out
@@ -138,6 +139,7 @@ select
 .main-right
   display:block
   overflow:scroll
+  -webkit-overflow-scrolling: touch
   height:calc(100vh - 60px) 
   background-color: #ffffff
   
@@ -195,6 +197,7 @@ select
 		 
 	.main-right
 	  overflow:scroll
+    -webkit-overflow-scrolling: touch
 	  margin:0 10px!important	    
 	
 	.main-table

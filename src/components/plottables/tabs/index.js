@@ -35,6 +35,7 @@ export default class Tabs extends React.Component {
           display: 'flex'
         , justifyContent: 'flex-start'
         , overflow: 'auto'
+        , '-webkit-overflow-scrolling': 'touch'
         , backgroundColor: '#eee'
         , alignItems: 'flex-end'
       } }>

@@ -21,9 +21,9 @@ const defaultParams : QueryParams = {
   , page:      'country_code'
   , section:   'country_code'
   , row:       'affiliate_name'
-  , rowSorter: { field: 'row', order: 1, minViews: 0, minSales: 0 }
-  , sectionSorter: { field: 'section', order: 1, minViews: 0, minSales: 0 }
-  , tabSorter: { field: 'page', order: 1, minViews: 0, minSales: 0 }
+  , rowSorter: { field: 'row', order: -1, minViews: 0, minSales: 0 }
+  , sectionSorter: { field: 'section', order: -1, minViews: 0, minSales: 0 }
+  , tabSorter: { field: 'page', order: -1, minViews: 0, minSales: 0 }
 }
 
 type AppState = QueryParams
