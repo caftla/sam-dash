@@ -77,7 +77,9 @@ const props_to_params = props => {
 
 
 
-export default function({make_path, Tabs, Controls}) {
+export default function(component_params) {
+
+  const {make_path, Tabs, Controls, require_filter, render, DataComponent} = component_params
 
   const go = (history, params) => {
     const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${ field },${ order },${ minViews },${ minSales }`
@@ -85,7 +87,7 @@ export default function({make_path, Tabs, Controls}) {
 
     const query = makeQuery([
         (params.nocache ? `nocache=true` : '')
-      , sortToQuery('tabSorter', params.tabSorter)
+      , (!!params.tabSorter ? sortToQuery('tabSorter', params.tabSorter) : '')
       , sortToQuery('sectionSorter', params.sectionSorter)
       , sortToQuery('rowSorter', params.rowSorter)
     ])
@@ -128,34 +130,38 @@ export default function({make_path, Tabs, Controls}) {
 
       match({
           Nothing: () => {
-            // compatiblity with affiliate_name in the filter part of the URL
-            const filter = R.pipe(
-                R.split(',')
-              , R.map(R.split('='))
-            )(params.filter || '-')
-            const affiliate_tuple = filter.find(([key, val]) => key == 'affiliate_name')
-            if(!!affiliate_tuple) {
-              if(maybe.isJust(nextProps.all_affiliates)) {
-                const affiliate_ids = R.pipe(
-                    R.filter(x => x.affiliate_name == affiliate_tuple[1])
-                  , R.chain(x => x.affiliate_ids)
-                  , R.join(';')
-                )(nextProps.all_affiliates)
-
-                params.filter = R.pipe(
-                  R.reject(([key, value]) => !value || value == '-')
-                  , R.map(([key, value]) => key == 'affiliate_name'
-                    ? ['affiliate_id', affiliate_ids]
-                    : [key, value]
-                  )
-                  , R.map(R.join('='))
-                  , R.join(',')
-                )(filter)
-
-                nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)  
-              }
+            if(params.filter == '-' && require_filter) {
+              void 9
             } else {
-              nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
+              // compatiblity with affiliate_name in the filter part of the URL
+              const filter = R.pipe(
+                  R.split(',')
+                , R.map(R.split('='))
+              )(params.filter || '-')
+              const affiliate_tuple = filter.find(([key, val]) => key == 'affiliate_name')
+              if(!!affiliate_tuple) {
+                if(maybe.isJust(nextProps.all_affiliates)) {
+                  const affiliate_ids = R.pipe(
+                      R.filter(x => x.affiliate_name == affiliate_tuple[1])
+                    , R.chain(x => x.affiliate_ids)
+                    , R.join(';')
+                  )(nextProps.all_affiliates)
+
+                  params.filter = R.pipe(
+                    R.reject(([key, value]) => !value || value == '-')
+                    , R.map(([key, value]) => key == 'affiliate_name'
+                      ? ['affiliate_id', affiliate_ids]
+                      : [key, value]
+                    )
+                    , R.map(R.join('='))
+                    , R.join(',')
+                  )(filter)
+
+                  nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)  
+                }
+              } else {
+                nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
+              }
             }
           }
         , Loading: () => void 9
@@ -185,13 +191,17 @@ export default function({make_path, Tabs, Controls}) {
     render() {
       const params = props_to_params(this.props)
 
-      const data_component = match({
-          Nothing: () => <div>Nothing</div>
-        , Loading: () => <div>Loading</div>
-        , Error: (error) => <div>Error</div>
-        , Loaded: (data) => maybe.isNothing(this.props.affiliates_mapping)
-          ? <div>Loading affiliates...</div>
-          : <Tabs 
+      if(!!component_params.render) {
+        return component_params.render.apply(this, [params, go])
+      }
+
+      const TabsComponent = data => component_params.DataComponent
+        ? <DataComponent 
+            data={data} 
+            params={params}
+            sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
+            affiliates={ this.props.affiliates_mapping } />
+        : <Tabs 
             pages={data} 
             params={params}
             sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
@@ -211,6 +221,14 @@ export default function({make_path, Tabs, Controls}) {
                 go(this.props.history, nparams)
             }
             } />
+
+      const data_component = match({
+          Nothing: () => <div style={ {margin: '2em'} }>{(params.filter == '-' && require_filter) ? 'Please select some filters first' : 'Nothing' } </div>
+        , Loading: () => <div>Loading</div>
+        , Error: (error) => <div>Error</div>
+        , Loaded: (data) => maybe.isNothing(this.props.affiliates_mapping)
+          ? <div>Loading affiliates...</div>
+          : TabsComponent(data)
       })(this.props.data)
 
       return <div className="main-bottom">

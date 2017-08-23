@@ -20,7 +20,7 @@ import Index from '../common-controls/page_section_rows_index'
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
-const make_path = (params, query) => `/converting_ips/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`
+const make_path = (params, query) => `/converting_ips/${params.date_from}/${params.date_to}/${params.filter}/${query}`
 
 
 export default connect(
@@ -40,4 +40,6 @@ export default connect(
       , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
       , set_params 
     }
-)(Index({make_path, Tabs, Controls}))
+)(Index({
+    make_path, Tabs, Controls, require_filter: true
+}))

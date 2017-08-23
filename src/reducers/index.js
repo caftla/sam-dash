@@ -23,8 +23,7 @@ const rootReducer = combineReducers({
   , controls: makeControls({})
   , converting_ips_controls: makeControls({
       rowSorter: { field: 'sales', order: -1, minViews: 0, minSales: 10 }
-    , sectionSorter: { field: 'sales', order: -1, minViews: 0, minSales: 0 }
-    , tabSorter: { field: 'sales', order: -1, minViews: 0, minSales: 0 }
+    , sectionSorter: { field: 'sales', order: -1, minViews: 0, minSales: 10 }
     })
   // ---
   , all_countries

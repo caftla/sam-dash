@@ -244,31 +244,23 @@ export default class Controls extends React.Component {
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown</FormTitle>
-
         
-        <BreakdownItem 
-            label="Tab"
-            breakdownList={ breakdown_list }
-            onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('page', breakDownLevel), overState('tabSorter', sorter))) }
-            breakDownLevel='page'
-            breakDownLevelName={ this.state.page }
-            sorter={ this.state.tabSorter }
-          / >
-        
-        <BreakdownItem 
+        <FilterSortItem 
             label="Section"
             breakdownList={ breakdown_list }
             onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('section', breakDownLevel), overState('sectionSorter', sorter))) }
             breakDownLevel='section'
+            sortBreakdownLevel='ip3'
             breakDownLevelName={ this.state.section }
             sorter={ this.state.sectionSorter }
           / >
-
+        <hr />
         <FilterSortItem 
             label="Row"
             breakdownList={ breakdown_list }
             onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('row', breakDownLevel), overState('rowSorter', sorter))) }
             breakDownLevel='row'
+            sortBreakdownLevel='operator_code'
             breakDownLevelName={ this.state.row }
             sorter={ this.state.rowSorter }
           / >
@@ -292,7 +284,6 @@ export default class Controls extends React.Component {
           , section: this.state.section
           , row: this.state.row
           , nocache: this.state.nocache
-          , tabSorter: this.state.tabSorter
           , sectionSorter: this.state.sectionSorter
           , rowSorter: this.state.rowSorter
         })
@@ -324,7 +315,7 @@ class FilterSortItem extends React.Component  {
       
 
       <div>
-        <InputSelect options={[this.props.breakDownLevelName, 'views', 'sales', 'cost']} name="Sort By" 
+        <InputSelect options={[this.props.sortBreakdownLevel, 'views', 'sales', 'cost']} name="Sort By" 
           onChange={ field => 
             onSorterChange({ field })
           } 

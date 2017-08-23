@@ -175,7 +175,7 @@ const main_bottom = <Provider store={store}>
       <Route path="/cohort/:date_from/:date_to/:filter" component={Wrap(Cohort)} />
       
       <Route path="/converting_ips/" exact={true} component={Wrap(ConvertingIPs)} />
-      <Route path="/converting_ips/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(ConvertingIPs)} />
+      <Route path="/converting_ips/:date_from/:date_to/:filter" component={Wrap(ConvertingIPs)} />
       
       <Route path="/monthly_reports/" exact={true} component={Wrap(MonthlyReports)} />
       <Route path="/monthly_reports/:date_from/:date_to/:filter" component={Wrap(MonthlyReports)} />

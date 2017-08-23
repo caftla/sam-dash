@@ -12,7 +12,7 @@ const change_sign = (change) => {
   return sign.substr(0, 4)
 }
 
-export default function({columns_maker, cell_formatter}) {
+export default function({columns_maker, cell_formatter, try_merge_body_and_footer, footer}) {
 
   const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
 
@@ -33,7 +33,7 @@ export default function({columns_maker, cell_formatter}) {
       const width = typeof(more.width) == 'number' ? more.width :  100
       return {
         th: <TH {...more} width={ width } value={ label } onClick={ onClick } />
-      , td: (x, i) => <TD {...more} style={ to_f(more.style, x) } width={ width } value={ value(x) } 
+      , td: (x, i) => <TD {...more} data-is-empty={ value(x) == '' } style={ to_f(more.style, x) } width={ width } value={ value(x) } 
           onMouseEnter={ () => 
             [...document.getElementsByClassName('fpsr_table')].map(table => 
               table.classList.add(`highlight-${i+1}`)
@@ -67,14 +67,22 @@ export default function({columns_maker, cell_formatter}) {
         { columns.map((c, i) => c.th) } 
       </thead>
       <tbody>
-        { ldata.map((x, i) => <tr key={i}>
+        { !!try_merge_body_and_footer && ldata.length == 1 ? '' : ldata.map((x, i) => <tr key={i}>
             { columns.map((c, i) => c.td(x, i)) }
           </tr>)
         } 
         <tr>
-          { columns.map((c, i) => c.tf(data)) }
+          { columns.map((c, i) => c.tf(ldata.length == 1 && !!try_merge_body_and_footer ? try_merge_body_and_footer(data, ldata[0]) : data)) }
         </tr>
       </tbody>
+      {
+        !!footer ? (<tfoot>
+            <tr>
+              <td colSpan={ columns.length  }>{footer(data)}</td>
+            </tr>
+          </tfoot>) : ''
+      }
+
     </TABLE>
   }
 

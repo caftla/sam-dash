@@ -1,12 +1,38 @@
 const R = require('ramda')
 
 module.exports = (params) =>  data => {
-  
+
   const safe_div = (x, y) => y == 0 && x == 0 ? 0
     : y == 0 ? Infinity
     : x / y
+
+  const all_operators = R.pipe(
+      R.groupBy(x => x.operator_code || 'Unknown')
+    , R.keys
+    , R.sortBy(x => x)
+  )(data)
+
+  const summerize = data => {
+      
+    const summary = data.reduce((acc, a) => ({
+        views: acc.views + a.views
+      , sales: acc.sales + a.sales
+      , pixels: acc.pixels + a.pixels
+      , firstbillings: acc.firstbillings + a.firstbillings
+      , cost: acc.cost + a.cost
+    }), { views: 0, sales: 0, pixels: 0, firstbillings: 0, cost: 0 })
     
-    
+    return summary
+  }
+
+  const summerize_ip3  = data => data.reduce((acc, a) => ({
+      views: acc.views > 0 ? acc.views : a.views
+    , sales: acc.sales + a.sales
+    , pixels: acc.pixels + a.pixels
+    , firstbillings: acc.firstbillings + a.firstbillings
+    , cost: acc.cost + a.cost
+  }), { views: 0, sales: 0, pixels: 0, firstbillings: 0, cost: 0 })
+
   const add_ratios = x => R.merge(x, {
       cr: safe_div(x.sales, x.views)
     , pixels_cr: safe_div(x.pixels, x.views)
@@ -15,135 +41,72 @@ module.exports = (params) =>  data => {
     , ecpa: safe_div(x.cost, x.sales)
     , cpa: safe_div(x.cost, x.pixels)
   })
-  
- const reduce_data = data => {
-   return add_ratios(data.reduce(
-      (acc, a) =>
-        R.merge(acc, {
-            views: acc.views + a.views
-          , leads: acc.leads + a.leads
-          , sales: acc.sales + a.sales
-          , pixels: acc.pixels + (+a.pixels)
-          , firstbillings: acc.firstbillings + a.firstbillings
-          , cost: acc.cost + a.cost
-        })
-      , {sales: 0, views: 0, pixels: 0, firstbillings: 0, cost: 0}
-    ))
-  }
-  
-  return R.pipe(
-      R.reject(x => !x.row)
-    , R.groupBy(x => x.page)
-    , R.map(R.pipe(
-        R.groupBy(x => x.section)
-      
-      , R.map(
-        R.pipe(
-            R.map(R.applySpec({
-                ips: x => x.row.split('.').map(x => parseInt(x))
-              , sales: x => x.sales
-              , firstbillings: x => x.firstbillings
-              , views: x => x.views
-              , cost: x => x.cost
-              , pixels: x => x.pixels
-            }))
-          , R.groupBy(x => x.ips[0])
-          , R.map(R.groupBy(x => x.ips[1]))
-          , R.map(R.map(R.pipe(
-              R.map(R.applySpec({
-                  ip3: x => x.ips[2]
-                , sales: x => x.sales
-                , firstbillings: x => x.firstbillings
-                , views: x => x.views
-                , cost: x => x.cost
-                , pixels: x => x.pixels
-              }))
-            , R.sortBy(x => x.ip3)
-            , R.reduce(
-                (acc, a) => { if(acc.length == 0) {
-                    return acc.concat([{
-                        from: a.ip3, to: a.ip3
-                      , sales: a.sales, views: a.views, firstbillings: a.firstbillings, cost: a.cost, pixels: a.pixels}])
-                  } else {
-                    const last = R.last(acc)
-                    if(a.ip3 <= last.to + 8) {
-                      return R.init(acc).concat([{
-                          from: last.from, to: a.ip3
-                        , sales: a.sales + last.sales
-                        , views: a.views + last.views
-                        , firstbillings: a.firstbillings + last.firstbillings
-                        , cost: a.cost + last.cost
-                        , pixels: a.pixels + last.pixels
-                      }])
-                    } else {
-                      return acc.concat([{from: a.ip3, to: a.ip3, sales: a.sales, views: a.views, firstbillings: a.firstbillings, cost: a.cost, pixels: a.pixels}])
-                    }
-                  }
-              }, [])
-            , R.applySpec({
-                sales: R.pipe(R.map(x => x.sales), R.sum),
-                views: R.pipe(R.map(x => x.views), R.sum),
-                firstbillings: R.pipe(R.map(x => x.firstbillings), R.sum),
-                cost: R.pipe(R.map(x => x.cost), R.sum),
-                pixels: R.pipe(R.map(x => x.pixels), R.sum),
-                values: R.sortBy(x => x.from)
-              })
-            )))
-          , R.map(R.pipe(
-                R.toPairs
-              , R.map(([ip2, values]) => R.merge({ip2: parseInt(ip2)}, values))
-              , R.applySpec({
-                  sales: R.pipe(R.map(x => x.sales), R.sum),
-                  views: R.pipe(R.map(x => x.views), R.sum),
-                  firstbillings: R.pipe(R.map(x => x.firstbillings), R.sum),
-                  cost: R.pipe(R.map(x => x.cost), R.sum),
-                  pixels: R.pipe(R.map(x => x.pixels), R.sum),
-                  values: R.sortBy(x => x.ip2) //R.sortBy(x => x.sales * -1)
-                })
-            ))
-          , R.toPairs
-          , R.map(([ip1, values]) => R.merge({ip1: parseInt(ip1)}, values))
-          , R.sortBy(x => x.ip1)
-          , R.chain(({ip1, values}) =>
-              R.map(R.merge({ip1: ip1}))(values)
-            )
-          , R.chain(({ip1, ip2, values}) =>
-              R.map(R.merge({ip1, ip2}))(values)
-            )
-          , R.map(({ip1, ip2, from, to, sales, views, firstbillings, cost, pixels}) => ({
-              from: `${ip1}.${ip2}.${from}.0`,
-              to: `${ip1}.${ip2}.${to}.255`,
-              views: views,
-              sales: sales,
-              firstbillings: firstbillings,
-              cost: cost,
-              pixels: pixels
-            }))
-        )
-      )
+
+  const merge_ip3s = (last, a = {views: 0, sales: 0, pixels: 0, firstbillings: 0, cost: 0, operators: []}) => ({
+      views: last.views + a.views
+    , sales: last.sales + a.sales
+    , pixels: last.pixels + a.pixels
+    , firstbillings: last.firstbillings + a.firstbillings
+    , cost: last.cost + a.cost
+    , ip3From: last.ip3
+    , ip3: last.ip3
+    , ip3To: a.ip3 || last.ip3
+    , _ip3: last._ip3
+    , operators: R.pipe(
+        R.groupBy(x => x.operator_code)
       , R.toPairs
-      , R.map(([section, data]) => ({section, data}))
-    ))
-  
-    , R.toPairs
-    , R.map(([page, values]) => ({
-        page, 
-        data: R.map(y => R.merge(y, {
-            page
-          , data: y.data.map(R.compose(add_ratios, R.merge({page,section:y.section}))) 
-        }) )(values)
-    }))
+      , R.map(([operator_code, data]) => {
+          return add_ratios(R.merge(R.reduce((acc, a) => 
+              ({sales: acc.sales + a.sales, pixels: acc.pixels + a.pixels, firstbillings: acc.firstbillings + a.firstbillings, cost: acc.cost + a.cost})
+            , {sales: 0, pixels: 0, firstbillings: 0, cost: 0}
+            )(data), {operator_code}))
+        })
+      , operators => all_operators.map(p => operators.find(o => o.operator_code == p) || { operator_code: p, sales: 0, pixels: 0, firstbillings: 0, cost: 0 })
+      )(last.operators.concat(a.operators))
+  })
+
+  return R.pipe(
+    R.reject(x => !x.ip3)
+  // , R.filter(x => x.ip3.startsWith( '37.236'))
     
-    , R.map(({page, data}) => 
-      ({
-          page
-        , data: R.map(({section, data}) => 
-          R.merge(reduce_data(data), {
-              section
-            , data: data
-          }))(data)
-      })
-    )
-    , R.map(({page, data}) => R.merge(reduce_data(data), {page, data}))
+  , R.map(x => R.merge(x, {
+        ip1: x.ip3.split('.')[0]
+      , ip2: R.pipe(R.take(2), R.join('.'))(x.ip3.split('.'))
+      , operator_code: !x.operator_code ? 'Unknown' : x.operator_code
+    }))
+  , R.groupBy(x => x.ip1)
+  , R.map(R.pipe( // ip1
+        R.groupBy(x => x.ip2)
+      , R.map(R.pipe(//ip2
+            R.groupBy(x => x.ip3)
+          , R.toPairs, R.map(([ip3, operators]) => R.merge(summerize_ip3(operators), {
+                ip3
+              , _ip3: parseInt(ip3.split('.')[2])
+              , operators: operators.map(d => ({operator_code: d.operator_code, sales: d.sales, pixels: d.pixels, firstbillings: d.firstbillings, cost: d.cost}))
+            }))
+          // group nearby ips
+          , R.sortBy(x => x._ip3)
+          , R.reduce(
+                ({acc, _lastip3}, a) => ({
+                    acc: acc.length == 0 
+                    ? [merge_ip3s(a)] 
+                    : (a._ip3 - _lastip3) > params.resolution
+                      ? acc.concat([merge_ip3s(a)])
+                      : R.init(acc).concat([merge_ip3s(R.last(acc), a)])
+                  , _lastip3: a._ip3})
+              , {acc: [], _lastip3: 0}
+            )
+          , x => x.acc
+          , R.sortBy(x => x.sales * -1)
+        ))
+      , R.toPairs, R.map(([ip2, data]) => R.merge(summerize(data), {ip2, data}))
+      , R.sortBy(x => x.sales * -1)
+    ))
+  , R.toPairs, R.map(([ip1, data]) => R.merge(summerize(data), {ip1, data}))
+  , R.sortBy(x => x.sales  * -1)
+
+  , R.chain(x => R.chain(y => y.data)(x.data))
+  , R.map(add_ratios)
   )(data)
+
 }

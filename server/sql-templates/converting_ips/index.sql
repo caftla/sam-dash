@@ -1,19 +1,29 @@
-select 
-  $[params.f_page('e', 'day')]$ as page
-, $[params.f_section('e', 'day')]$ as section
-, e.ip3 as row
-, sum(case when e.impression > 0 then 1 else 0 end) :: int as views
-, sum(case when e.pixel > 0 then 1 else 0 end) :: int as pixels
-, sum(case when e.sale > 0 then 1 else 0 end) :: int as sales
-, sum(case when e.firstbilling then 1 else 0 end) :: int as firstbillings
-, sum(coalesce(c.home_cpa, 0)) :: float as cost
-from public.user_sessions e
-left join cpa c on c.cpa_id = e.cpa_id
-where e.timestamp >= '$from_date$'
-  and e.timestamp <= '$to_date$'
-  and $[params.f_filter('e')]$
-  
-group by page, section, row
-order by page, section, row
+with Views as (
+  select 
+    e.ip3 as ip3
+  , sum(case when e.impression > 0 then 1 else 0 end) :: int as views
+  from public.user_sessions e
+  where e.timestamp >= '$from_date$'
+    and e.timestamp <= '$to_date$'
+    and $[params.f_filter('e')]$
+    and e.impression > 0
+  group by ip3
+), Sales as (
+  select 
+    e.ip3 as ip3
+  , e.operator_code as operator_code
+  , sum(case when e.pixel > 0 or e.delayed_pixel > 0 then 1 else 0 end) :: int as pixels
+  , sum(case when e.sale > 0 then 1 else 0 end) :: int as sales
+  , sum(case when e.firstbilling then 1 else 0 end) :: int as firstbillings
+  , sum(e.home_cpa) :: float as cost
+  from public.user_subscriptions e
+  where e.timestamp >= '$from_date$'
+    and e.timestamp <= '$to_date$'
+    and $[params.f_filter('e')]$
+    and e.impression > 0
+  group by ip3, operator_code
+)
 
+select v.ip3, v.views, s.operator_code, s.pixels, s.sales, s.firstbillings, s.cost from Views v
+left join Sales s on V.ip3 = s.ip3
 
