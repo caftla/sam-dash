@@ -3,7 +3,7 @@
 import { combineReducers } from 'redux'
 
 import dashboard from './dashboard'
-import controls from './controls'
+import makeControls from './controls'
 import all_countries from './all_countries'
 import all_affiliates from './all_affiliates'
 import traffic_breakdown from './traffic_breakdown'
@@ -11,6 +11,7 @@ import filter_section_row from './filter_section_row'
 import filter_page_section_row from './filter_page_section_row'
 import arpu from './arpu'
 import transactions from './transactions'
+import arpu_long from './arpu_long'
 import cohort from './cohort'
 import converting_ips from './converting_ips'
 import monthly_reports from './monthly_reports'
@@ -18,7 +19,12 @@ import sort from './sort'
 import login from './login'
 
 const rootReducer = combineReducers({
-  dashboard, controls
+    dashboard
+  , controls: makeControls({})
+  , converting_ips_controls: makeControls({
+      rowSorter: { field: 'sales', order: -1, minViews: 0, minSales: 10 }
+    , sectionSorter: { field: 'sales', order: -1, minViews: 0, minSales: 10 }
+    })
   // ---
   , all_countries
   , all_affiliates
@@ -27,6 +33,7 @@ const rootReducer = combineReducers({
   , filter_page_section_row
   , arpu
   , transactions
+  , arpu_long
   , cohort
   , converting_ips
   , monthly_reports

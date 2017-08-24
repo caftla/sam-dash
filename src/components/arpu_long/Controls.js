@@ -15,8 +15,8 @@ const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
-const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
-  get({url: `${api_root}/api/v1/filter_page_section_row/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
+const api_get = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
+  get({url: `${api_root}/api/v1/arpu_long/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
@@ -138,7 +138,7 @@ export default class Controls extends React.Component {
 
   reload_publisher_ids() {
     if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
-      api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
+      api_get(this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
       .then(R.pipe(
           R.chain(x => x.data)
         , R.chain(x => x.data)
@@ -179,7 +179,7 @@ export default class Controls extends React.Component {
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month']
+    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'gateway', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month']
 
     const get_options = (field) => 
       !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
@@ -213,14 +213,6 @@ export default class Controls extends React.Component {
               className: 'date_input'
             } } />
         </LabelledInput>
-        <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
-          value={ this.state.timezone } options={ 
-            R.pipe(
-                R.map(x => (12 - x / 2) )
-              , R.sortBy(x => x)
-              , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
-            )(R.range(0, 48)) 
-          } />
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>

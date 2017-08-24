@@ -28,16 +28,19 @@ const defaultParams : QueryParams = {
 
 type AppState = QueryParams
 
-const controls = (state : AppState = defaultParams , action: Action) => {
-  console.log('action', action)
-  switch (action.type) {
-    case 'SET_Params':
-      return R.merge(state, action.payload)
-    case 'sort_row_filter_page_section_row':
-      return R.over(R.lensProp('rowSorter'), R.flip(R.merge)({ field: action.payload.field, order: action.payload.order }), state)
-    default:
-      return state
-  }
-}
+const makeControls = (override) => {
 
-export default controls
+  const controls = (state : AppState = R.merge(defaultParams, override) , action: Action) => {
+    console.log('action', action)
+    switch (action.type) {
+      case 'SET_Params':
+        return R.merge(state, action.payload)
+      case 'sort_row_filter_page_section_row':
+        return R.over(R.lensProp('rowSorter'), R.flip(R.merge)({ field: action.payload.field, order: action.payload.order }), state)
+      default:
+        return state
+    }
+  }
+  return controls
+}
+export default makeControls
