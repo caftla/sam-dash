@@ -180,9 +180,9 @@ export const fetch_traffic_breakdown = (date_from : string, date_to : string, fi
 
 // monthly_reports
 
-export const fetch_monthly_reports = (date_from : string, date_to : string, filter : string) => (dispatch : Dispatch) => {
+export const fetch_monthly_reports = (date_from : string, date_to : string, filter : string, breakdown: string) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_monthly_reports_loading' })
-  get({url: `${api_root}/api/v1/monthly_reports/${date_from}/${date_to}/${filter}`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `${api_root}/api/v1/monthly_reports/${date_from}/${date_to}/${filter}/${breakdown}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_monthly_reports_success', payload: d }))
 }
 

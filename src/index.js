@@ -161,7 +161,7 @@ const main_bottom = <Provider store={store}>
       <Route path="/converting_ips/:date_from/:date_to/:filter" component={Wrap(ConvertingIPs)} />
       
       <Route path="/monthly_reports/" exact={true} component={Wrap(MonthlyReports)} />
-      <Route path="/monthly_reports/:date_from/:date_to/:filter" component={Wrap(MonthlyReports)} />
+      <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={Wrap(MonthlyReports)} />
       <Route path="/daily_reports_archive/:date_from" component={Wrap(DailyReportsArchive)} />
     </Body>
   </ConnectedRouter>

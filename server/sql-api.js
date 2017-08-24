@@ -36,6 +36,9 @@ const query = (connection_string: string, query_template:string, params: Object)
   params.from_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.from_date}')`
   params.to_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.to_date}')`
 
+  params.f_normalize_gateway = (country_code, gateway) =>
+    `(case when position('_' in ${gateway}) > -1 then ${gateway} else (${country_code} || '_' || ${gateway}) end)`
+
   params.f_filter = (table: string) => (
     x => !x 
     ? 'true' 

@@ -133,25 +133,43 @@ class MonthlyReport extends React.Component {
 
   props: Props
 
+  unlisten : any
+  route_changed: false
+
   constructor(props : any) {
     super(props)
+
+    this.unlisten = this.props.history.listen((location, action) => {
+      this.props.cleanup_fetch_monthly_reports()
+      this.route_changed = true
+    });
+  }
+
+  componentWillUnMount() {
+    if(!!this.unlisten) {
+      this.unlisten();
+    }
   }
 
   componentWillUpdate(nextProps : Props, b) {
     const params = props_to_params(nextProps)
     const current_params = props_to_params(this.props)
 
+    const data = this.route_changed ? fetchState.Nothing() : nextProps.data
+    this.route_changed = false
+
     match({
-        Nothing: () => params.filter != '-' ? nextProps.fetch_monthly_reports(params.date_from, params.date_to, params.filter) : void 9
+        Nothing: () => params.filter != '-' ? nextProps.fetch_monthly_reports(params.date_from, params.date_to, params.filter, params.breakdown) : void 9
       , Loading: () => void 9
       , Error: (error) => void 9
       , Loaded: (data) => void 9
-    })(nextProps.data)
+    })(data)
 
     if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
       nextProps.fetch_all_countries(params.date_from, params.date_to)
     }
   }
+
 
   render() {
     const params = props_to_params(this.props)
@@ -188,7 +206,7 @@ class MonthlyReport extends React.Component {
                   set_params={ params => {
                     this.props.set_params(params)
                     this.props.cleanup_fetch_monthly_reports()
-                    this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}`)
+                    this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}/${params.breakdown}`)
                   } }
                 />
               }
@@ -207,6 +225,7 @@ export default connect(
     state => ({
         all_countries: state.all_countries
       , data: state.monthly_reports
+      , controls: state.controls
     })
   , {
         fetch_all_countries, set_params

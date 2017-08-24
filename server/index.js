@@ -3,7 +3,8 @@ const express = require('express');
 const query = require('./sql-api')
 const fs = require('fs')
 const R = require('ramda')
-const query_monthly_reports = require('./sql-templates/monthly_reports')
+const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
+const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
 
 const app = express();
 app.use(express.static('dist'))
@@ -212,7 +213,7 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', authenticate(),
   )
 })
 
-app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', authenticate(), (req, res) => {
+app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:breakdown', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
 
   const helix_connection_string = connection_strings.helix_connection_string
@@ -224,7 +225,8 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter', authenticate(), (
     res.status(500)
     res.end(`Error:\njewel_connection_string env variable is not provided.`)
   } else {
-    query_monthly_reports(helix_connection_string, jewel_connection_string, params)
+    const q = req.params.breakdown == 'operator_code' ? query_monthly_reports_operator_code : query_monthly_reports_gateway
+    q(helix_connection_string, jewel_connection_string, params)
     .then(data => {
       res.set('Content-Type', 'text/json')
       res.set('Cache-Control', 'public, max-age=7200')

@@ -10,11 +10,11 @@ const Input = ({type, name, value, onChange} : {type: string, name: string, valu
     <DateField value={value} type={type} onChange={ x => onChange(x.target.value) } />
   </FormRow>
 
-const InputSelect = ({name, value, options, onChange}) =>
+const InputSelect = ({name, value, options, onChange, no_default}) =>
   <FormRow>
     <FormLabel>{name}</FormLabel>
     <Select value={ value } onChange={ e => onChange(e.target.value) }>
-      <option value="">Select</option>
+      { !!no_default ? '' : <option value="">Select</option> }
       { options.map(c => <option key={ c }>{ c }</option>) }
     </Select>
   </FormRow>
@@ -36,6 +36,7 @@ type ControlsState = {
   , operator_code: string
   , affiliate_name: string
   , handle_name: string
+  , breakdown: string
 }
 
 export default class Controls extends React.Component {
@@ -56,6 +57,7 @@ export default class Controls extends React.Component {
       , section: params.section
       , row: params.row
       , ...filter_params
+      , breakdown: params.breakdown || 'operator_code'
     }
   }
 
@@ -93,6 +95,11 @@ export default class Controls extends React.Component {
           value={ this.state.gateway } options={ !this.state.country_code ? get_all_props('gateways') : get_country_prop('gateways') } />
         <InputSelect name="Platform" onChange={ platform => this.setState({ platform }) }
           value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
+      <FormSection>
+        <FormTitle></FormTitle>
+        <InputSelect name="Breakdown" onChange={ breakdown => this.setState({ breakdown }) }
+          value={ this.state.breakdown } options={ ['operator_code', 'gateway'] } no_default={ true } />
+      </FormSection>
       </FilterFormSection>
       <Submit onClick={ _ => {
         const filter = R.pipe(
@@ -109,6 +116,7 @@ export default class Controls extends React.Component {
           , page: this.state.page
           , section: this.state.section
           , row: this.state.row
+          , breakdown: this.state.breakdown
         })
       } }>
         Go!
