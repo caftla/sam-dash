@@ -23,14 +23,14 @@ export default Section({
     column(
         show_label_row('From', 'ip3From')
       , () => onSort('row', 'ip3From', 1)
-      , x => (x.ip3From)
-      , data => (data.ip3From)
+      , x => x.ip3From + '.0'
+      , data => data.ip3From + '.0'
     ),
     column(
         show_label_row('To', 'ip3To')
       , () => onSort('row', 'ip3To', 1)
-      , x => (x.ip3To)
-      , data => (data.ip3To)
+      , x => x.ip3To + '.255'
+      , data => data.ip3To + '.255'
     ),
     column(
         show_label_row('Operator', 'operator_code')
