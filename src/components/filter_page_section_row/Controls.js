@@ -5,7 +5,6 @@ import R from 'ramda'
 import type { QueryParams } from 'my-types'
 import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
-import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
@@ -13,6 +12,11 @@ import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
+
+const DateTime = ({value, onChange, disabled, readonly}) => <input 
+  disabled={ disabled } readonly={ readonly }
+  onChange={ event => { onChange(new Date(event.target.value)) } } 
+  value={ value } type='datetime-local' />
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
@@ -77,8 +81,8 @@ const until_today = date => date.indexOf('day') > -1
 const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
 
 const since = date => date.indexOf('days') > -1
-? find_relative_date(parseInt(date))
-: add_time(date)
+  ? find_relative_date(parseInt(date))
+  : add_time(date)
 
 export default class Controls extends React.Component {
   props: ControlsProps
@@ -143,6 +147,8 @@ export default class Controls extends React.Component {
       , rowSorter: params.rowSorter
       , sectionSorter: params.sectionSorter
       , tabSorter: params.tabSorter
+      , is_relative_date: params.is_relative_date
+      , relative_date_from: params.relative_date_from
     }
 
     this.reload_publisher_ids()
@@ -204,31 +210,28 @@ export default class Controls extends React.Component {
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : new Date(this.state.date_from) } 
+					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_from } 
 						onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val.toDate()) })
+                this.setState({ 'date_from': format_date(val) })
               } else {
                 // wrong date
               }
-            } } inputProps={ {
-              className: 'date_input'
-						, disabled: `${this.state.is_relative_date === true ? 'disabled' : ''}`
-						, readonly: 'readonly'
-            } } />
+            } }
+						disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
+            />
         </LabelledInput>
         <LabelledInput name="To">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : new Date(this.state.date_to) } 
+					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_to } 
 						onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val.toDate()) })
+                this.setState({ 'date_to': format_date(val) })
               } else {
                 // wrong date
               }
-            } } inputProps={{
-              className: 'date_input'
-            , disabled: `${this.state.is_relative_date === true ? 'disabled' : ''}`
-            }}/>
+            } }
+            disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
+            />
         </LabelledInput>
         <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
@@ -245,7 +248,7 @@ export default class Controls extends React.Component {
             id={ this.state.cache_buster_id } type="checkbox" />
         </CheckBoxDiv>
           <InputSelect name="Last" disable={this.state.is_relative_date} onChange={ relative_date => this.setState({ date_from: relative_date, date_to: 'today' }) }
-          value={ this.state.date_from } options={ 
+          value={ this.state.relative_date_from } options={ 
             R.pipe(
                 R.map(x => (x + 1) )
               , R.sortBy(x => x)
@@ -334,6 +337,8 @@ export default class Controls extends React.Component {
           , tabSorter: this.state.tabSorter
           , sectionSorter: this.state.sectionSorter
           , rowSorter: this.state.rowSorter
+          , is_relative_date: this.state.is_relative_date
+          , relative_date_from: this.state.relative_date_from
         })
       } }>
         GO

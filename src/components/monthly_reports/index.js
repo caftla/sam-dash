@@ -190,34 +190,41 @@ class MonthlyReport extends React.Component {
         }
     })(this.props.data)
 
+    const controls_component = <ThemeProvider theme={theme}>
+      {
+        maybe.maybe(
+            _ => {
+              this.props.fetch_all_countries(params.date_from, params.date_to)
+              return <div>Loading...</div>
+            }
+          , all_countries => _ => {
+              return  <Controls
+                className="main-left show"
+                params={ params }
+                countries={ all_countries }
+                set_params={ params => {
+                  this.props.set_params(params)
+                  this.props.cleanup_fetch_monthly_reports()
+                  this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}/${params.breakdown}`)
+                } }
+              />
+            }
+          , this.props.all_countries
+        )()
+      }
+    </ThemeProvider>
+
     return <div className="main-bottom">
-      <ThemeProvider theme={theme}>
-        {
-          maybe.maybe(
-              _ => {
-                this.props.fetch_all_countries(params.date_from, params.date_to)
-                return <div>Loading...</div>
-              }
-            , all_countries => _ => {
-                return  <Controls
-                  className="main-left show"
-                  params={ params }
-                  countries={ all_countries }
-                  set_params={ params => {
-                    this.props.set_params(params)
-                    this.props.cleanup_fetch_monthly_reports()
-                    this.props.history.push(`/monthly_reports/${params.date_from}/${params.date_to}/${params.filter}/${params.breakdown}`)
-                  } }
-                />
-              }
-            , this.props.all_countries
-          )()
-        }
-      </ThemeProvider>
-      <div className="main-right expand">
-        { data_component }
+      <div id="sidebar" className="visible">
+        <div id="filters">
+          { controls_component }
+        </div>
+      </div>
+      <div id="container" className="default">
+        { data_component } 
       </div>
     </div>
+
   }
 }
 

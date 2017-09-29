@@ -5,13 +5,16 @@ import R from 'ramda'
 import type { QueryParams } from 'my-types'
 import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
-import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
+
+const DateTime = ({value, onChange}) => <input 
+  onChange={ event => { onChange(new Date(event.target.value)) } } 
+  value={ value.split('T')[0] } type='date' />
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
@@ -157,9 +160,9 @@ export default class Controls extends React.Component {
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
-          <DateTime value={ new Date(this.state.date_from) } onChange={ val => {
+          <DateTime value={ this.state.date_from } onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val.toDate()) })
+                this.setState({ 'date_from': format_date(val) })
               } else {
                 // wrong date
               }
@@ -168,9 +171,9 @@ export default class Controls extends React.Component {
             } } />
         </LabelledInput>
         <LabelledInput name="To">
-          <DateTime value={ new Date(this.state.date_to) } onChange={ val => {
+          <DateTime value={ this.state.date_to } onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val.toDate()) })
+                this.setState({ 'date_to': format_date(val) })
               } else {
                 // wrong date
               }
@@ -254,8 +257,8 @@ export default class Controls extends React.Component {
           , x => !x ? '-' : x
         )(["country_code", "operator_code", "gateway", "service_identifier1"])
         this.props.set_params({
-            date_from: this.state.date_from
-          , date_to: this.state.date_to
+            date_from: this.state.date_from.split('T')[0]
+          , date_to: this.state.date_to.split('T')[0]
           , timezone: this.state.timezone
           , filter: this.get_filter_string(false)
           , page: this.state.page

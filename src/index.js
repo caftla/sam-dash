@@ -10,6 +10,7 @@ import createHistory from 'history/createBrowserHistory'
 import { Route } from 'react-router'
 
 import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
+// import './index.styl'
 import './index.styl'
 
 const history = createHistory()
@@ -88,51 +89,60 @@ function Wrap(WrappedComponent) {
     render() {
       console.log('%%%% ', this.state.route)
       return <div id="main">
-      
-	        <div id="main-top">
-	        	
-				<div className="logo-area">
-				
-					<div className="left-btn" onClick={this.handleToggle}><img src="/c-icon.svg" alt="" /></div>
-					
-					<div className="right-btn" onClick={
-					() => [...document.getElementsByClassName('tabs')].map(e => e.classList.toggle('show'))
-					}><img src="/m-icon.svg" alt="" /></div>
-				
-					<img src="/logo-s.png" alt="Sam Media" className="logo" />
-				
-				</div>
-				
-				<div className="tabs">
-				
-					<a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
-          
-					<a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>          
 
-					<a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU</a>
-										
-					<a href="/cohort/" className={ this.state.route == 'cohort' ? 'active' : ''  }>Cohort</a>
-
-					<a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
-					
-					<a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
-				
-				</div>
-          {/*
-		        <div className="actions">
+        <div id="header">
+            
+            <ul id="main-area">
+            
+              <li id="filter-menu" class="active" onClick={ () => {
+                var filterMenu = document.getElementById("filter-menu"),
+                  sidebar = document.getElementById("sidebar"),
+                  container = document.getElementById("container"),
+                  tabsMenu = document.getElementById("tabs-menu"),
+                  tabsArea = document.getElementById("tabs-area");
+                  
+                  filterMenu.classList.toggle("active");
+                  sidebar.classList.toggle("visible");
+                  container.classList.toggle("default");
+                  
+              }}><span></span></li>
               
-	                <a href="#">Export</a>
-	                
-	                <a onClick={this.copyUrl}>Share Link</a> 
-                
-				</div>
-        */}
-				
+              <li id="sam-media-logo"><a href="/"></a></li>	
+              
+              <li id="tabs-menu" onClick={ () => {
+                var filterMenu = document.getElementById("filter-menu"),
+                  sidebar = document.getElementById("sidebar"),
+                  container = document.getElementById("container"),
+                  tabsMenu = document.getElementById("tabs-menu"),
+                  tabsArea = document.getElementById("tabs-area");
+
+                tabsMenu.classList.toggle("active");	
+                tabsArea.classList.toggle("show"); 
+              } }><span></span></li>
+            
+            </ul>
+            
+            <div id="tabs-area">
+            
+              <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
+              
+              <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>          
+
+              <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU Cohorts</a>
+
+              <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
+              
+              <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
+            
+            
             </div>
             
-			<WrappedComponent {...this.props} />
-			
-			
+            <div id="bar"></div>
+                    
+        </div>	
+
+        <WrappedComponent {...this.props} />
+
       </div>
     }
   }

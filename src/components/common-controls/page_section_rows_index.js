@@ -231,45 +231,51 @@ export default function(component_params) {
           : TabsComponent(data)
       })(this.props.data)
 
-      return <div className="main-bottom">
-        <ThemeProvider theme={theme}>
-          {
-            maybe.maybe(
+      const controls_component = <ThemeProvider theme={theme}>
+        {
+          maybe.maybe(
+              _ => {
+                return <div>Loading...</div>
+              }
+            , all_countries => _ => maybe.maybe(
                 _ => {
-                  return <div>Loading...</div>
+                  return <div>Loading affiliates ...</div>
                 }
-              , all_countries => _ => maybe.maybe(
-                  _ => {
-                    return <div>Loading affiliates ...</div>
-                  }
-                  , all_affiliates => _ => {
-                    return  <Controls
-                      className="main-left show"
-                      params={ params }
-                      countries={ all_countries }
-                      affiliates={ all_affiliates }
-                      sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
-                      set_params={ params => {
+                , all_affiliates => _ => {
+                  return  <Controls
+                    className="main-left show"
+                    params={ params }
+                    countries={ all_countries }
+                    affiliates={ all_affiliates }
+                    sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
+                    set_params={ params => {
 
-                        this.props.set_params(params)
-                        this.props.cleanup_fetch_data()
+                      this.props.set_params(params)
+                      this.props.cleanup_fetch_data()
 
-                        //TODO: remove all traces of min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}
-                        
-                        go(this.props.history, params)
-                      } }
-                      set_min={ (views_or_sales, value) => {
-                        this.props.min_row_filter_page_section_row(views_or_sales, value)
-                      } }
-                    />
-                  }
-                , this.props.all_affiliates
-              )()
-              , this.props.all_countries
+                      //TODO: remove all traces of min_views=${this.props.sort.rowSorter.minViews}&min_sales=${this.props.sort.rowSorter.minSales}
+                      
+                      go(this.props.history, params)
+                    } }
+                    set_min={ (views_or_sales, value) => {
+                      this.props.min_row_filter_page_section_row(views_or_sales, value)
+                    } }
+                  />
+                }
+              , this.props.all_affiliates
             )()
-          }
+            , this.props.all_countries
+          )()
+        }
         </ThemeProvider>
-        <div className="main-right expand">
+
+      return <div className="main-bottom">
+        <div id="sidebar" className="visible">
+          <div id="filters">
+            { controls_component }
+          </div>
+        </div>
+        <div id="container" className="default">
           { data_component } 
         </div>
       </div>
