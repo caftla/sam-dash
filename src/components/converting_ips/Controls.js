@@ -5,7 +5,6 @@ import R from 'ramda'
 import type { QueryParams } from 'my-types'
 import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
-import DateTime from 'react-datetime'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
@@ -13,6 +12,10 @@ import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
+
+const DateTime = ({value, onChange}) => <input 
+  onChange={ event => { onChange(new Date(event.target.value)) } } 
+  value={ value } type='datetime-local' />
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 const api_get = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
@@ -192,9 +195,9 @@ export default class Controls extends React.Component {
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
-          <DateTime value={ new Date(this.state.date_from) } onChange={ val => {
+          <DateTime value={ this.state.date_from } onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val.toDate()) })
+                this.setState({ 'date_from': format_date(val) })
               } else {
                 // wrong date
               }
@@ -203,9 +206,9 @@ export default class Controls extends React.Component {
             } } />
         </LabelledInput>
         <LabelledInput name="To">
-          <DateTime value={ new Date(this.state.date_to) } onChange={ val => {
+          <DateTime value={ this.state.date_to } onChange={ val => {
               if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val.toDate()) })
+                this.setState({ 'date_to': format_date(val) })
               } else {
                 // wrong date
               }
