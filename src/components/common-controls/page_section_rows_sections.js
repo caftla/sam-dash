@@ -62,14 +62,29 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     const columns = columns_maker({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, width, onSort})
 
     const ldata = data.data // R.take(10, data.data)
-    return <TABLE width={1400} className="fpsr_table" style={ { minWidth: '1200px' } }>
+    return <TABLE width={1400} className="fpsr_table" style={ { minWidth: '1200px', marginTop: '1em' } }>
+      <colgroup>
+        <col span="1" style={ { width: '170px' } } />
+      </colgroup>
       <thead>
         { columns.map((c, i) => c.th) } 
       </thead>
       <tbody>
-        { !!try_merge_body_and_footer && ldata.length == 1 ? '' : ldata.map((x, i) => <tr key={i}>
+        { !!try_merge_body_and_footer && ldata.length == 1 ? '' : ldata.map((x, i) => { 
+          return <tr data-row={ x.row } key={i}
+            onMouseEnter={ () => 
+              [...document.querySelectorAll(`tr[data-row="${x.row}"]`)].map(tr => 
+                tr.classList.add(`highlight`)
+              )
+            } 
+            onMouseLeave={ () => 
+              [...document.querySelectorAll(`tr[data-row="${x.row}"]`)].map(tr => 
+                tr.classList.remove(`highlight`)
+              )
+            } 
+          >
             { columns.map((c, i) => c.td(x, i)) }
-          </tr>)
+          </tr> })
         } 
         <tr>
           { columns.map((c, i) => c.tf(ldata.length == 1 && !!try_merge_body_and_footer ? try_merge_body_and_footer(data, ldata[0]) : data)) }
