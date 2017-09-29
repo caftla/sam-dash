@@ -64,6 +64,10 @@ export const fetch_all_countries = (date_from : string, date_to : string) => (di
     // all_countries API can only query up to one month ago from the current date
     date_from = new Date(new Date().valueOf() - 29 * 24 * 3600 * 1000).toISOString().substr(0, 10)
     date_to = new Date(new Date().valueOf()).toISOString().substr(0, 10)
+  } else if (date_to == 'today' && date_from.indexOf('days') > -1) {
+    const today =  new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().substr(0, 10) 
+    date_to = today
+    date_from = new Date(new Date().valueOf() - 29 * 24 * 3600 * 1000).toISOString().substr(0, 10)
   }
   dispatch({ type: 'fetch_all_countries_loading' })
   get({url: `${api_root}/api/v1/all_countries/${date_from}/${date_to}`, cache: "force-cache"}, {cache: "force-cache"})
@@ -87,6 +91,14 @@ export const fetch_filter_section_row = (date_from : string, date_to : string, f
 
 export const fetch_filter_page_section_row = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_filter_page_section_row_loading' })
+  // support for relative date begins
+  if (date_to == 'today' && date_from.indexOf('days') > -1) {
+    const today =  new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().substr(0, 10) 
+    date_to = today
+    const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+    date_from = find_relative_date(parseInt(date_from))    
+  }
+  // support for relative date ends
   get({url: `${api_root}/api/v1/filter_page_section_row/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
   .then(d => dispatch({ type: 'fetch_filter_page_section_row_success', payload: d }))
 }

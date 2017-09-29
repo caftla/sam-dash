@@ -66,6 +66,20 @@ const get_country_prop_ = (props, country_code) => (prop: string, def: any) => R
     , x => !x ? def : R.prop(prop)(x)
   )(props.countries)
 
+const add_time = date => date.indexOf('T') > -1
+  ? date
+  : date + 'T00:00:00'
+
+const until_today = date => date.indexOf('day') > -1
+  ? new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+  : add_time(date)
+
+const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+
+const since = date => date.indexOf('days') > -1
+? find_relative_date(parseInt(date))
+: add_time(date)
+
 export default class Controls extends React.Component {
   props: ControlsProps
   state: ControlsState
@@ -87,7 +101,6 @@ export default class Controls extends React.Component {
     )(params.filter || '-')
 
     const ifExists = ifExists_(props, filter_params.country_code)
-
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
     const affiliate_name = ifExists('affiliate_names', 
       params_affiliate_ids.length == 0 ? '' : R.pipe(
@@ -99,11 +112,8 @@ export default class Controls extends React.Component {
       )(params_affiliate_ids)
     )
 
-    const add_time = date => date.indexOf('T') > -1
-      ? date
-      : date + 'T00:00:00'
-
-
+    
+    
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
 
     const e_filter_params = R.merge(filter_params, {
@@ -117,8 +127,10 @@ export default class Controls extends React.Component {
     })
 
     this.state = {
-        date_from: add_time(params.date_from)
-      , date_to: add_time(params.date_to)
+        date_from: since(params.date_from)
+      , date_to: until_today(params.date_to)
+      , is_relative_date: false
+      , relative_date: 0
       , timezone: params.timezone
       , page: fix_affiliate_name(params.page)
       , section: fix_affiliate_name(params.section)
@@ -167,7 +179,7 @@ export default class Controls extends React.Component {
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
     )(fields) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
-  }
+	}
 
   get_filter_string() {
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
@@ -192,7 +204,8 @@ export default class Controls extends React.Component {
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <LabelledInput name="From">
-          <DateTime value={ new Date(this.state.date_from) } onChange={ val => {
+					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : new Date(this.state.date_from) } 
+						onChange={ val => {
               if(!!val.toJSON) {
                 this.setState({ 'date_from': format_date(val.toDate()) })
               } else {
@@ -200,18 +213,22 @@ export default class Controls extends React.Component {
               }
             } } inputProps={ {
               className: 'date_input'
+						, disabled: `${this.state.is_relative_date === true ? 'disabled' : ''}`
+						, readonly: 'readonly'
             } } />
         </LabelledInput>
         <LabelledInput name="To">
-          <DateTime value={ new Date(this.state.date_to) } onChange={ val => {
+					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : new Date(this.state.date_to) } 
+						onChange={ val => {
               if(!!val.toJSON) {
                 this.setState({ 'date_to': format_date(val.toDate()) })
               } else {
                 // wrong date
               }
-            } } inputProps={ {
+            } } inputProps={{
               className: 'date_input'
-            } } />
+            , disabled: `${this.state.is_relative_date === true ? 'disabled' : ''}`
+            }}/>
         </LabelledInput>
         <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
@@ -220,6 +237,20 @@ export default class Controls extends React.Component {
               , R.sortBy(x => x)
               , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
             )(R.range(0, 48)) 
+          } />
+          <CheckBoxDiv>
+          <label>Relative Date</label><input 
+            checked={ this.state.is_relative_date } 
+            onChange={ e => this.setState({ is_relative_date: !!e.target.checked }) }
+            id={ this.state.cache_buster_id } type="checkbox" />
+        </CheckBoxDiv>
+          <InputSelect name="Last" disable={this.state.is_relative_date} onChange={ relative_date => this.setState({ date_from: relative_date, date_to: 'today' }) }
+          value={ this.state.date_from } options={ 
+            R.pipe(
+                R.map(x => (x + 1) )
+              , R.sortBy(x => x)
+              , R.map(x => ({value: `${x}-days-ago`, name: `${x} days`}))
+            )(R.range(1, 31)) 
           } />
       </FormSection>
       <FilterFormSection>

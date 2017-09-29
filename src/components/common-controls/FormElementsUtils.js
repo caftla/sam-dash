@@ -15,10 +15,10 @@ export const LabelledInput = ({name, children} : {name: string, children?: Array
     { children }
   </FormRow>
 
-export const InputSelect = ({name, value, options, onChange}) =>
+export const InputSelect = ({name, value, options, onChange, disable}) =>
   <FormRow>
     <FormLabel>{name}</FormLabel>
-    <Select value={ value } onChange={ e => onChange(e.target.value) }>
+    <Select value={ value } onChange={ e => onChange(e.target.value) } disabled={disable === false ? 'disabled' : ''}>
       <option value="-">Select</option>
       { options.map((c, i) => <option key={ i } value={ !!c && c.hasOwnProperty('value') ? c.value : c }>{ !!c && c.hasOwnProperty('name') ? c.name : c }</option>) }
     </Select>
