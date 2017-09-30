@@ -155,6 +155,17 @@ export const fetch_arpu_long = (date_from : string, date_to : string, filter : s
 export const cleanup_fetch_arpu_long = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_arpu_long' })
 
+// weekly_reports
+  
+export const fetch_weekly_reports = (timezone, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_weekly_reports_loading' })
+  get({url: `${api_root}/api/v1/weekly_reports/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
+  .then(d => dispatch({ type: 'fetch_weekly_reports_success', payload: d }))
+}
+
+export const cleanup_fetch_weekly_reports = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_weekly_reports' })
+
 
 // cohort
 

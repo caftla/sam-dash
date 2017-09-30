@@ -5,6 +5,7 @@ const pg = require('pg')
 type ParamsOptions = {
     fix_gateway?: string
   , no_timezone?: boolean
+  , double_quote?: boolean
 }
 
 const query = (connection_string: string, query_template:string, params: Object) => new Promise((resolve, reject) => {
@@ -16,14 +17,22 @@ const query = (connection_string: string, query_template:string, params: Object)
       const param_value = params[param_name]
       params[`f_${param_name}`] = (table: string, day_column: string, options: ParamsOptions) => {
 
-        const date_exp = !!options && options.no_timezone 
+        const date_exp = !!options && options.no_timezone === true
         ? `date_trunc('${param_value}', ${table}.${day_column})`
-        : `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
+        : (!!options && options.no_timezone === 0
+          ? `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '0'`
+          : `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`
+        )
 
-        return (!param_value || param_value == '-') ? `'-'`
+        let result = (!param_value || param_value == '-') ? `'-'`
         : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : `coalesce(${table}.${param_value}, 'Unknown')`
+
+        if (!!options && options.double_quote) {
+          result = result.replace(/\'/g, "''")
+        }
+        return result
       }
 
       return params
@@ -36,10 +45,13 @@ const query = (connection_string: string, query_template:string, params: Object)
   params.from_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.from_date}')`
   params.to_date_tz = `CONVERT_TIMEZONE('${-1 * parseFloat(params.timezone)}', '0', '${params.to_date}')`
 
+  params.from_date_tz_double_quote = `CONVERT_TIMEZONE(''${-1 * parseFloat(params.timezone)}'', ''0'', ''${params.from_date}'')`
+  params.to_date_tz_double_quote = `CONVERT_TIMEZONE(''${-1 * parseFloat(params.timezone)}'', ''0'', ''${params.to_date}'')`
+
   params.f_normalize_gateway = (country_code, gateway) =>
     `(case when position('_' in ${gateway}) > -1 then ${gateway} else (${country_code} || '_' || ${gateway}) end)`
 
-  params.f_filter = (table: string) => (
+  params.f_filter = (table: string, options: ParamsOptions) => (
     x => !x 
     ? 'true' 
     : R.compose(
@@ -47,7 +59,7 @@ const query = (connection_string: string, query_template:string, params: Object)
         , R.map(([k, v]) => R.compose(
               x => `(${x})`
             , R.join(' or ')
-            , R.map(v => `${table}.${k}='${v}'`)
+            , R.map(v => !!options && !!options.double_quote ? `${table}.${k}=''${v}''` : `${table}.${k}='${v}'` )
             , R.split(';'))(v)
           )
         , R.splitEvery(2)

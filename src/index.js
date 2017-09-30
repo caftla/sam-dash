@@ -24,6 +24,7 @@ import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import Transactions from './components/transactions'
 import ARPU_Long from './components/arpu_long'
+import Weekly_Reports from './components/weekly_reports'
 import Cohort from './components/cohort'
 import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
@@ -125,13 +126,15 @@ function Wrap(WrappedComponent) {
             <div id="tabs-area">
             
               <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
+
+              <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
               
               <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>          
 
               <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU Cohorts</a>
 
               <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
-              
+
               <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
             
             
@@ -162,6 +165,9 @@ const main_bottom = <Provider store={store}>
 
       <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(ARPU_Long)} />
       <Route path="/arpu_long" exact={true} component={Wrap(ARPU_Long)} />
+
+      <Route path="/weekly_reports/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Weekly_Reports)} />
+      <Route path="/weekly_reports" exact={true} component={Wrap(Weekly_Reports)} />
 
       <Route path="/cohort" exact={true} component={Wrap(Cohort)} />
       <Route path="/arpu" exact={true} component={Wrap(Arpu)} />      

@@ -17,35 +17,44 @@ const customSelectorCreator = createSelectorCreator(defaultMemoize,
     }
   })
 
-export default customSelectorCreator(
+export default (selector) => customSelectorCreator(
   [
-      x => x.transactions
+      selector
     , x => {
         const {rowSorter, sectionSorter, tabSorter} = x.controls
         return {rowSorter, sectionSorter, tabSorter}
     }
   ]
   , (res, sorter : SorterState) => {
-      
       const {rowSorter, sectionSorter, tabSorter} = sorter
-
-      console.log('--- sort selector', rowSorter, sectionSorter, tabSorter)
 
       // [row] -> [row]
       const rowSelector = R.pipe(
-          R.sortBy(R.prop(rowSorter.field))
+          R.filter(r => // r for row
+                  r.sales >= rowSorter.minSales
+              &&  r.views >= rowSorter.minViews
+          )
+        , R.sortBy(R.prop(rowSorter.field))
         , rowSorter.order > 0 ? id : R.reverse
       )
       
       // [section] -> [section]
       const sectionSelector = R.pipe(
-          R.sortBy(R.prop(sectionSorter.field))
+          R.filter(s => // s for section
+                  s.sales >= sectionSorter.minSales
+              &&  s.views >= sectionSorter.minViews
+          )
+        , R.sortBy(R.prop(sectionSorter.field))
         , sectionSorter.order > 0 ? id : R.reverse
         , R.map(x => R.merge(x, {data: rowSelector(x.data)}))
       )
 
       return fetchState.map(R.pipe(
-            R.sortBy(R.prop(tabSorter.field))
+            R.filter(p => // p for page (tab)
+                 p.sales >= tabSorter.minSales
+              && p.views >= tabSorter.minViews
+            ) 
+          , R.sortBy(R.prop(tabSorter.field))
           , tabSorter.order > 0 ? id : R.reverse
           , R.map(p => R.merge(p, { data: sectionSelector(p.data) }))
         ), res)

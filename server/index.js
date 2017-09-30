@@ -56,6 +56,7 @@ const connection_strings = {
 const respond = (connection_string: string, sql, params, res, map = x => x) => {
   query(connection_string, sql, params)
   .then(x => {
+    console.log(JSON.stringify(x.fields, null, 2))
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
     res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))
@@ -238,6 +239,16 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:breakdown', authen
       res.end(ex.toString())
     })
   }
+})
+
+app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_helix(
+      fs.readFileSync('./server/sql-templates/weekly_reports/index.sql', 'utf8')
+    , R.merge(params, {timezone: '2'})
+    , res
+    , require('./sql-templates/weekly_reports')(R.merge(params, {timezone: '2'}))
+  )
 })
 
 app.use('/*', express.static('dist'))
