@@ -38,6 +38,7 @@ export default customSelectorCreator(
       const rowSelector = R.pipe(
         R.filter(r => // r for row
                 r.sales >= rowSorter.minSales
+            // &&  r.views >= rowSorter.minViews
         )
       , R.sortBy(R.prop(rowSorter.field))
       , rowSorter.order > 0 ? id : R.reverse
@@ -47,6 +48,7 @@ export default customSelectorCreator(
       const sectionSelector = R.pipe(
           R.filter(s => // s for section
                   s.sales >= sectionSorter.minSales
+              // &&  s.views >= sectionSorter.minViews
           )
         , R.sortBy(R.prop(sectionSorter.field))
         , sectionSorter.order > 0 ? id : R.reverse
