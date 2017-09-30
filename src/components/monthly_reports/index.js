@@ -103,9 +103,11 @@ const Page = ({page, sales, data, params, onSort, sort} :
 
   const format_null = (lens, format) => R.pipe(lens, x => x == null || isNaN(x) ? '' : format(x))
 
-  return <TABLE width={1020} style={{marginTop: '1em'}}>
+  return <TABLE width={1020} style={{marginTop: '1em'}} data-id={ page }>
     <thead>
-      <TH width='150'></TH>
+      <TH width='150' className='clipboard-hover' onClick={ () => {
+        window.clipboard.copy({"text/html": document.querySelectorAll(`table[data-id="${ page }"]`)[0].outerHTML})
+      } }>{ page }</TH>
         { data.map((d, i) => <TH key={i} width='90'>{d.year_code}-{d.month_code}</TH>) }
       </thead>
     <TBody>
