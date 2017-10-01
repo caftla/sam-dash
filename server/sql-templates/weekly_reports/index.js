@@ -40,21 +40,21 @@ const transform = (params) => {
    const xdata = add_ratios(data.reduce(
       (acc, a) =>
         R.merge(acc, {
-            views: acc.views + a.views
-          , leads: acc.leads + a.leads
-          , sales: acc.sales + a.sales
-          , uniquesales: acc.uniquesales + a.uniquesales
-          , uniqueleads: acc.uniqueleads + a.uniqueleads
-          , paid_sales: acc.paid_sales + a.paid_sales
-          , pixels: acc.pixels + (+a.pixels)
-          , firstbillings: acc.firstbillings + a.firstbillings
-          , cost: acc.cost + a.cost
-          , optout_24: acc.optout_24 + a.optout_24
-          , optouts: acc.optouts + a.optouts
-          , day_optouts: acc.day_optouts + a.day_optouts
-          , revenue: acc.revenue + a.revenue
+            views: acc.views + (a.views || 0)
+          , leads: acc.leads + (a.leads || 0)
+          , sales: acc.sales + (a.sales || 0)
+          , uniquesales: acc.uniquesales + (a.uniquesales || 0)
+          , uniqueleads: acc.uniqueleads + (a.uniqueleads || 0)
+          , paid_sales: acc.paid_sales + (a.paid_sales || 0)
+          , pixels: acc.pixels + (+a.pixels || 0)
+          , firstbillings: acc.firstbillings + (a.firstbillings || 0)
+          , cost: acc.cost + (a.cost || 0)
+          , optout_24: acc.optout_24 + (a.optout_24 || 0)
+          , optouts: acc.optouts + (a.optouts || 0)
+          , day_optouts: acc.day_optouts + (a.day_optouts || 0)
+          , revenue: acc.revenue + (a.revenue || 0)
           , delivered: (a.delivered || 0) + acc.delivered
-          , total: (a.total || 0) + acc.total
+          , total: (+a.total || 0) + acc.total
         })
       , {
             sales: 0, uniquesales: 0, uniqueleads: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0
