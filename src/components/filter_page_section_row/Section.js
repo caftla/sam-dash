@@ -9,20 +9,19 @@ import Section from '../common-controls/page_section_rows_sections'
 
 export default Section({
   cell_formatter, 
-  columns_maker: ({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, width, onSort}) => ([
+  columns_maker: ({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, onSort}) => ([
     column(
         show_label_section(params.section, 'section')
       , () => onSort('section', 'section', 1)
       , x => formatter(params.section)(x.section)
       , data => formatter(params.section)(data.section)
-      , { width: width(params.section), style: {  paddingLeft: '0.7em' } }
+      , {  style: { paddingLeft: '0.7em' } }
     ), 
     column(
         show_label_row(params.row, 'row')
       , () => onSort('row', 'row', 1)
       , x => formatter(params.row)(x.row)
       , data => ''
-      , { width: width(params.row) }
     ),
     column(
         show_label_row('Views', 'views')
@@ -79,13 +78,13 @@ export default Section({
       , data => d3.format('0.1f')(data.releads)
     ),
     pcolumn(
-        show_label_row('Active24%', 'active24')
+        show_label_row('Act24%', 'active24')
       , () => onSort('row', 'active24', 1)
       , x => d3.format('0.0f')(100 * x.active24)
       , data => d3.format('0.0f')(100 * data.active24)
     ),
     pcolumn(
-        show_label_row('Active%', 'active')
+        show_label_row('Act%', 'active')
       , () => onSort('row', 'active', 1)
       , x => d3.format('0.0f')(100 * x.active)
       , data => d3.format('0.0f')(100 * data.active)

@@ -3,15 +3,20 @@ import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
 
-export default function({Section, cell_formatter, exportToExcel}) {
+export default function({Section, cell_formatter, exportToExcel, no_summary}) {
 
-  const Page = ({page, sales, data, params, onSort, sort, affiliates} :
+  const Page = ({page, sales, data, params, onSort, sort, affiliates, pageData} :
     { page: string, sales: number, data: Array<any>, params: QueryParams, onSort: (string, number) => void, sort: { field: string, order: number }, affiliates: Object }) =>
     <div>
       <h4 className='fpsr-tab-name'>{ page }</h4>
       {
         data.length > 365 ? <div style={ { color: 'red', padding: '1em' } }>There are { data.length } sections in this report. Showing the top 365 only</div> : ''
       }
+      
+      {
+        no_summary ? '' : <Section is_summary={ true } affiliates={affiliates} data={ {data: [pageData] } } params={params} onSort={onSort} sort={sort} />
+      }
+      
       { 
         R.take(365, data).map((x,i) => <Section key={i} affiliates={affiliates} data={x} params={params} onSort={onSort} sort={sort} />) 
       }
@@ -85,6 +90,7 @@ export default function({Section, cell_formatter, exportToExcel}) {
               key={i} affiliates={ this.props.affiliates } params={ this.props.params } {...x} 
               onSort={ this.props.onSort } sort={ this.props.sort } 
               page={ formatter(this.props.params.page)(x.page) }
+              pageData={ x }
             />
           </div>
           } ) }

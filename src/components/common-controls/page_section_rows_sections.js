@@ -14,7 +14,7 @@ const change_sign = (change) => {
 
 export default function({columns_maker, cell_formatter, try_merge_body_and_footer, footer}) {
 
-  const Section = ({data, params, onSort, sort, affiliates} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+  const Section = ({data, params, onSort, sort, affiliates, is_summary} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
 
     const show_label = (row_or_section) => (name, key = null) => {
       const sort_field = key == null ? name : key
@@ -30,10 +30,11 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
 
     const column = (label, onClick, value, footer, more = {}) => {
       const to_f = (p, x) => typeof p == 'function' ? p(x) : p || {}
-      const width = typeof(more.width) == 'number' ? more.width :  100
+      const val = R.pipe(value, x => x == '-' ? '' : x)
       return {
-        th: <TH {...more} width={ width } value={ label } onClick={ onClick } />
-      , td: (x, i) => <TD {...more} data-is-empty={ value(x) == '' } style={ to_f(more.style, x) } width={ width } value={ value(x) } 
+        label: label
+      , th: <TH {...more} value={ label == '-' ? '' : label } onClick={ onClick } />
+      , td: (x, i) => <TD {...more} data-is-empty={ value(x) == '' } style={ to_f(more.style, x) } value={ val(x) } 
           onMouseEnter={ () => 
             [...document.getElementsByClassName('fpsr_table')].map(table => 
               table.classList.add(`highlight-${i+1}`)
@@ -45,7 +46,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
             )
           } 
         />
-      , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } width={ width }  value={ footer(data) } />
+      , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } value={ footer(data) } />
       }
     }
 
@@ -59,13 +60,18 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       : p == 'hour' ? 220
       : 170
 
-    const columns = columns_maker({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, width, onSort})
+    const columns = R.pipe(
+      cs => is_summary 
+        ? [0, 1].map(i => ({label: cs[i].label, th: <TH/>, td: () => <TD />})).concat(R.drop(2, cs))
+        : cs
+    )(columns_maker({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, width, formatter, onSort}))
 
     const ldata = data.data // R.take(10, data.data)
-    return <TABLE width={1400} className="fpsr_table" style={ { minWidth: '1200px', marginTop: '1em' } }>
-      <colgroup>
-        <col span="1" style={ { width: '170px' } } />
-      </colgroup>
+    return <TABLE width={1400} className={`fpsr_table${ is_summary ? ' summary' : '' }`} style={ { minWidth: '1200px', marginTop: '1em' } }>
+      { columns.map((c, i) => (<colgroup key={i}>
+          <col span="1" style={ { width: c.label == '-' ? '1%' : c.label == 'Transactions' || c.label == 'Views' ? '7%' : (i < 2 ? '7%' : '5%') } } />
+        </colgroup>))
+      } 
       <thead>
         { columns.map((c, i) => c.th) } 
       </thead>
@@ -87,7 +93,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
           </tr> })
         } 
         <tr>
-          { columns.map((c, i) => c.tf(ldata.length == 1 && !!try_merge_body_and_footer ? try_merge_body_and_footer(data, ldata[0]) : data)) }
+          { is_summary ? '' : columns.map((c, i) => c.tf(ldata.length == 1 && !!try_merge_body_and_footer ? try_merge_body_and_footer(data, ldata[0]) : data)) }
         </tr>
       </tbody>
       {

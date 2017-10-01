@@ -274,6 +274,7 @@ body
 .main-table 
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed
 
   tr
     &.highlight
@@ -287,6 +288,11 @@ body
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+
+  &.summary
+    border: 2px rgb(228, 216, 224) solid !important
+    th
+      background-color: white
 
   th.clipboard-hover:hover:after
     content: '📋';

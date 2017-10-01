@@ -8,5 +8,6 @@ export default Tabs({
   Section: Section
 , cell_formatter: cell_formatter
 , exportToExcel: null
+, no_summary: true
 })
 
