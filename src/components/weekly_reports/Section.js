@@ -103,10 +103,10 @@ export default Section({
       , data => d3.format(',.0f')(data.cost)
     ),
     column(
-        show_label_row('Transactions', 'total_transactions')
-      , () => onSort('row', 'total_transactions', 1)
-      , x => d3.format(',')(x.total_transactions) 
-      , data => d3.format(',')(data.total_transactions)
+        show_label_row('Transactions', 'total')
+      , () => onSort('row', 'total', 1)
+      , x => d3.format(',')(x.total) 
+      , data => d3.format(',')(data.total)
     ),
     pcolumn(
         show_label_row('Billed%', 'billed')

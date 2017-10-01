@@ -5,6 +5,7 @@ const fs = require('fs')
 const R = require('ramda')
 const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
 const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
+const query_weekly_reports = require('./sql-templates/weekly_reports')
 
 const app = express();
 app.use(express.static('dist'))
@@ -242,13 +243,29 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:breakdown', authen
 })
 
 app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
-      fs.readFileSync('./server/sql-templates/weekly_reports/index.sql', 'utf8')
-    , R.merge(params, {timezone: '2'})
-    , res
-    , require('./sql-templates/weekly_reports')(R.merge(params, {timezone: '2'}))
-  )
+  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter), timezone: '2' })
+
+  const helix_connection_string = connection_strings.helix_connection_string
+  const jewel_connection_string = connection_strings.jewel_connection_string
+  if(helix_connection_string == null) {
+    res.status(500)
+    res.end(`Error:\nhelix_connection_string env variable is not provided.`)
+  } else if(jewel_connection_string == null) {
+    res.status(500)
+    res.end(`Error:\njewel_connection_string env variable is not provided.`)
+  } else {
+    query_weekly_reports(helix_connection_string, jewel_connection_string, params)
+    .then(data => {
+      res.set('Content-Type', 'text/json')
+      res.set('Cache-Control', 'public, max-age=7200')
+      res.json(data)
+    })
+    .catch(ex => {
+      console.error(ex)
+      res.status(500)
+      res.end(ex.toString())
+    })
+  }
 })
 
 app.use('/*', express.static('dist'))

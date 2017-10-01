@@ -1,6 +1,8 @@
+const query = require('../../sql-api')
+const fs = require('fs')
 const R = require('ramda')
 
-module.exports = (params) => {
+const transform = (params) => {
   const is_date_param = param_value => ['hour', 'day', 'week', 'month'].some(p => p == param_value)
   
   const id = x => x
@@ -31,7 +33,7 @@ module.exports = (params) => {
     , uniquesubsrate: safe_div(x.uniquesales, x.sales)
     , resubs: safe_div(x.sales, x.uniquesales)
     , releads: safe_div(x.leads, x.uniqueleads)
-    , billed: safe_div(x.delivered_transactions, x.total_transactions)
+    , billed: safe_div(x.delivered, x.total)
   })
   
  const reduce_data = data => {
@@ -51,12 +53,12 @@ module.exports = (params) => {
           , optouts: acc.optouts + a.optouts
           , day_optouts: acc.day_optouts + a.day_optouts
           , revenue: acc.revenue + a.revenue
-          , delivered_transactions: a.delivered_transactions + acc.delivered_transactions
-          , total_transactions: a.total_transactions + acc.total_transactions
+          , delivered: (a.delivered || 0) + acc.delivered
+          , total: (a.total || 0) + acc.total
         })
       , {
             sales: 0, uniquesales: 0, uniqueleads: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0
-          , revenue: 0, delivered_transactions: 0, total_transactions: 0
+          , revenue: 0, delivered: 0, total: 0
         }
     ))
 
@@ -65,9 +67,13 @@ module.exports = (params) => {
         home_cpa: home_cpa
     })
   }
-  
+
   return R.pipe(
-      R.map(format)
+      R.chain(x => x)
+    , R.groupBy(x => `${x.page}-${x.section}-${x.row}`)  
+    , R.map(R.reduce(R.merge, {}))
+    , R.values
+    , R.map(format)
     , R.map(add_ratios)
     , R.groupBy(p => p.page)  
     , R.map(R.pipe(
@@ -92,4 +98,19 @@ module.exports = (params) => {
     , R.map(([page, data]) => R.merge(reduce_data(data), {page, data}))
     , R.sortBy(x => is_date_param(params.page) ? new Date(x.page).valueOf() : x.sales * -1)
   )
+}
+
+module.exports = async function (helix_connection_string: string, jewel_connection_string: string, params: Object) {
+  const jewel = () => Promise.all(['views', 'transactions'].map(x =>
+    query(jewel_connection_string, fs.readFileSync(`./server/sql-templates/weekly_reports/${x}.sql`, 'utf8'), params)
+  )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)))
+
+  const helix = () => Promise.all(['revenue'].map(x =>
+    query(helix_connection_string, fs.readFileSync(`./server/sql-templates/weekly_reports/${x}.sql`, 'utf8'), params)
+  )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)))
+
+  const res = await Promise.all([jewel(), helix()])
+  .then(R.chain(x => x))
+
+  return transform(params)(res)
 }
