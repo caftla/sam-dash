@@ -15,15 +15,9 @@ const exportToExcel = (formatter, params, pages) => {
           , row: formatter(params.row)(r.row)
         })) )(x.data)
       }))
-    , sheets => [ // flatten
-      {
-        name: 'data',
-        page: 'data',
-        data: R.chain(x => x)(sheets.map(x => x.data))
-      }
-    ]
+    , sheets => sheets.map(s => ({ name: s.page, page: s.page, data: s.data }))
     , R.map(sheet => ({
-          name: 'data' // after flatteing sheet name is irrelevant formatter(params.page)(sheet.page)
+          name: sheet.name 
         , data: R.concat([R.pipe(
                 R.keys
               , R.reject(x => x == 'section_sales_ratio')
