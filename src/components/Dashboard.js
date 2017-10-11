@@ -65,10 +65,10 @@ class Dashboard extends React.Component {
   }
 }
 
-Dashboard.propTypes = {
-    maybe_dashboard: React.PropTypes.shape({})
-  , params: React.PropTypes.shape({})
-  , query: React.PropTypes.func.isRequired
-}
+// Dashboard.propTypes = {
+//     maybe_dashboard: React.PropTypes.shape({})
+//   , params: React.PropTypes.shape({})
+//   , query: React.PropTypes.func.isRequired
+// }
 
 export default connect(state => ({ maybe_dashboard: state.dashboard, params: state.controls }), { query, cleanup_fetch_filter_section_row })(Dashboard)
