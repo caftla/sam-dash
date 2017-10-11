@@ -18,16 +18,18 @@ export const LabelledInput = ({name, children} : {name: string, children?: Array
   </FormRow>
 
 export const InputSelect = ({name, value, options, onChange, disable}) => {
-  const defaultOption = options.find(o => !!o && (o.value == value || o == value))
-  const defaultLabel = !!defaultOption ? (defaultOption.name || defaultOption) : value
-  const defaultValue = !!defaultOption ? (defaultOption.value || defaultOption) : value
-  console.log(value, defaultOption)
+  const options1 = [{name: 'Select', value:'-'}].concat(options)
+  const defaultOption = !value ? { name: 'Select', value: '-' } : options.find(o => !!o && (o.value == value || o == value))
+  const defaultLabel =  ((!!defaultOption ? (defaultOption.name || defaultOption) : value) || '-').toString()
+  const defaultValue = ((!!defaultOption ? (defaultOption.value || defaultOption) : value) || '-').toString()
+  console.log('--', name, value, defaultOption, defaultValue)
   return <FormRow>
     <FormLabel>{name}</FormLabel>
     <SimpleSelect placeholder="" 
-      value={ { label: defaultLabel, value: defaultValue } } tether={ true } onValueChange={ e => onChange(e)  } disabled={disable === false ? 'disabled' : ''}
+      value={ { label: defaultLabel, value: defaultValue } } tether={ true } onValueChange={ e => onChange(e.value)  } 
+      disabled={disable === false ? 'disabled' : ''}
       >
-      { [{name: 'Select', value:'-'}].concat(options)
+      {   options1
           .map((c, i) => {
             const value = ((!!c && c.hasOwnProperty('value') ? c.value : c) || '').toString()
             const label = ((!!c && c.hasOwnProperty('name') ? c.name : c) || '').toString()

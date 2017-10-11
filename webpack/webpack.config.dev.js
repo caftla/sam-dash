@@ -11,8 +11,8 @@ module.exports = {
     resolve(__dirname, 'hotReload'),
   ],
   externals: {
-    // react: 'React',
-    // 'react-dom': 'ReactDOM',
+    react: 'React',
+    'react-dom': 'ReactDOM',
   },
   output: {
     filename: 'bundle.js',
