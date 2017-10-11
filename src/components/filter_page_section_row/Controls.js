@@ -7,7 +7,7 @@ import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormCont
 import styled from 'styled-components'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
+import { Input, LabelledInput, InputSelect, InputMultiSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
@@ -63,7 +63,11 @@ const get_all_props_ = props => (prop: string) => R.pipe(
     , R.sortBy(x => x)
   )(props.countries)
 
-const ifExists_ = (props, country_code) => (field: string, value: any) => (!country_code || country_code == '-' ? get_all_props_(props)(field) : get_country_prop_(props, country_code)(field, [])).some(e => e == value) ? value : ''
+const ifExists_ = (props, country_code) => (field: string, value: any) => (
+  !country_code || country_code == '-' 
+    ? get_all_props_(props)(field) 
+    : R.pipe( R.map(c => get_country_prop_(props, c)(field, [])), R.flatten )(country_code.split(';'))
+  ).some(e => !value ? false : value.split(';').some(v => v == e)) ? value : ''
 
 const get_country_prop_ = (props, country_code) => (prop: string, def: any) => R.pipe(
       R.find(x => x.country_code == country_code)
@@ -106,16 +110,12 @@ export default class Controls extends React.Component {
 
     const ifExists = ifExists_(props, filter_params.country_code)
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
-    const affiliate_name = ifExists('affiliate_names', 
-      params_affiliate_ids.length == 0 ? '' : R.pipe(
-          x => x[0]
-        , affiliate_id => R.pipe(
-            R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
-          , x => !x ? '' : x.affiliate_name
+    const affiliate_name = params_affiliate_ids.length == 0 ? '' :  R.pipe(
+        affiliate_ids => R.pipe(
+            R.filter(x => x.affiliate_ids.some(a => affiliate_ids.some(i => i == a)))
+          , xs => !xs ? '' : xs.map(x => x.affiliate_name).join(';')
         )(props.affiliates)
       )(params_affiliate_ids)
-    )
-
     
     
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
@@ -133,7 +133,6 @@ export default class Controls extends React.Component {
     this.state = {
         date_from: since(params.date_from)
       , date_to: until_today(params.date_to)
-      , is_relative_date: false
       , relative_date: 0
       , timezone: params.timezone
       , page: fix_affiliate_name(params.page)
@@ -147,7 +146,7 @@ export default class Controls extends React.Component {
       , rowSorter: params.rowSorter
       , sectionSorter: params.sectionSorter
       , tabSorter: params.tabSorter
-      , is_relative_date: params.is_relative_date
+      , is_relative_date: params.is_relative_date || false
       , relative_date_from: params.relative_date_from
     }
 
@@ -155,7 +154,8 @@ export default class Controls extends React.Component {
   }
 
   reload_publisher_ids() {
-    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
+    if(!!this.state.affiliate_name && this.state.affiliate_name != '-' && this.state.affiliate_name.split(';').length == 1) {
+      // only fetch publishers if one affiliate is selected
       api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
       .then(R.pipe(
           R.chain(x => x.data)
@@ -172,7 +172,7 @@ export default class Controls extends React.Component {
 
   get_filter_string_by_fields(fields) {
     const affiliate_ids = R.pipe(
-        R.filter(x => x.affiliate_name == this.state.affiliate_name)
+        R.filter(x => this.state.affiliate_name.split(';').some(a => a == x.affiliate_name))
       , R.map(x => x.affiliate_ids)
       , R.chain(x => x)
       , R.join(';')
@@ -199,8 +199,13 @@ export default class Controls extends React.Component {
 
     const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month']
 
-    const get_options = (field) => 
-      !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
+    const get_options = (field) =>  {
+      return !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : R.pipe(
+        R.map(c => get_country_prop_(this.props, c)(field, []))
+      , R.flatten
+      , R.uniq
+      )(this.state.country_code.split(';'))
+    }
     
     const makeLens = p => R.lens(R.prop(p), (a, s) => typeof a != 'undefined' && a != null ? R.merge(s, R.assoc(p)(a, s)) : s)
     const overState = (p, val) => 
@@ -233,7 +238,8 @@ export default class Controls extends React.Component {
             disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
             />
         </LabelledInput>
-        <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
+        <InputSelect className='timezone' name="Timezone" 
+          onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
             R.pipe(
                 R.map(x => (12 - x / 2) )
@@ -241,13 +247,13 @@ export default class Controls extends React.Component {
               , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
             )(R.range(0, 48)) 
           } />
-          <CheckBoxDiv>
+        {/*<CheckBoxDiv>
           <label>Relative Date</label><input 
             checked={ this.state.is_relative_date } 
             onChange={ e => this.setState({ is_relative_date: !!e.target.checked }) }
             id={ this.state.cache_buster_id } type="checkbox" />
         </CheckBoxDiv>
-          <InputSelect name="Last" disable={this.state.is_relative_date} onChange={ relative_date => this.setState({ date_from: relative_date, date_to: 'today' }) }
+          <InputSelect name="Last" disable={ !this.state.is_relative_date } onChange={ relative_date => this.setState({ date_from: relative_date, date_to: 'today' }) }
           value={ this.state.relative_date_from } options={ 
             R.pipe(
                 R.map(x => (x + 1) )
@@ -255,25 +261,31 @@ export default class Controls extends React.Component {
               , R.map(x => ({value: `${x}-days-ago`, name: `${x} days`}))
             )(R.range(1, 31)) 
           } />
+        */}
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>
-        <InputSelect name="Country" onChange={ country_code => this.setState({ 
-              country_code: country_code
-            , operator_code: ''
-            , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
-            , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
-          }) }
+        <InputMultiSelect name="Country"
+          onChange={ country_code => { 
+            return this.setState({ 
+                country_code: country_code
+              , operator_code: ''
+              , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
+              , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
+            }) } }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
-        <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
+        <InputSelect name="Operator" 
+          onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
-        <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
+        <InputSelect name="Gateway" 
+          onChange={ gateway => this.setState({ gateway }) }
           value={ this.state.gateway } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('gateways', []) } />
-        <InputSelect name="Affiliate" onChange={ affiliate_name => 
+        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => 
             this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
           }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
         <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+          disable={ this.state.affiliate_name.split(';').length > 1 }
           value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } />
         <InputSelect name="Ad Name" onChange={ ad_name => this.setState({ ad_name }) }
           value={ this.state.ad_name } options={ get_options('ad_names') } />

@@ -31,6 +31,7 @@ export default class BreakdownItem extends React.Component  {
     return <div style={ this.state.showExtra ? { borderBottom: 'solid 1px silver', marginBottom: '1em', paddingBottom: '1em' } : {} }>
       
       <InputSelect options={ this.props.breakdownList }
+          showLabel={ true }
           name={ <span onClick={ () => this.setState(s => R.merge(s, {showExtra: !s.showExtra})) }>{ !this.state.showExtra ? '▼' : '▲' }
             &nbsp; { this.props.label } 
             </span> } 
@@ -39,6 +40,7 @@ export default class BreakdownItem extends React.Component  {
 
       <div ref="extra" style={ { display: this.state.showExtra ? 'block' : 'none' } }>
         <InputSelect options={[this.props.breakDownLevelName, 'views', 'sales', 'cost']} name="Sort By" 
+          showLabel={ true }
           onChange={ field => 
             onSorterChange({ field })
           } 
@@ -48,16 +50,17 @@ export default class BreakdownItem extends React.Component  {
         <InputSelect options={['DESC', 'ASC']} name="Order" onChange={ val =>
             onSorterChange({ order: 'ASC' == val ? 1 : -1 })
           } 
+          showLabel={ true }
           value={ this.props.sorter.order == 1 ? 'ASC' : 'DESC' }
          />
-        <LabelledInput name="Views">
+        <LabelledInput hasLabel={ true } name="Views">
           <NumberField value={ this.props.sorter.minViews } type="number" onChange={ e => 
               onSorterChange({ minViews: parseInt(e.target.value) })
             }
             value={ this.props.sorter.minViews }
           />
         </LabelledInput>
-        <LabelledInput name="Sales">
+        <LabelledInput hasLabel={ true } name="Sales">
           <NumberField value={ this.props.sorter.minSales } type="number" onChange={ e => 
               onSorterChange({ minSales: parseInt(e.target.value) })
             }

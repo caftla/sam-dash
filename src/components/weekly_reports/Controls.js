@@ -237,7 +237,7 @@ export default class Controls extends React.Component {
             disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
             />
         </LabelledInput>
-        <InputSelect name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
+        <InputSelect className='timezone' name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
             R.pipe(
                 R.map(x => (12 - x / 2) )
@@ -245,7 +245,7 @@ export default class Controls extends React.Component {
               , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
             )(R.range(0, 48)) 
           } />
-          <CheckBoxDiv>
+        {/*<CheckBoxDiv>
           <label>Relative Date</label><input 
             checked={ this.state.is_relative_date } 
             onChange={ e => this.setState({ is_relative_date: !!e.target.checked }) }
@@ -259,6 +259,7 @@ export default class Controls extends React.Component {
               , R.map(x => ({value: `${x}-days-ago`, name: `${x} days`}))
             )(R.range(1, 31)) 
           } />
+        */}
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>

@@ -95,8 +95,7 @@ export const FilterFormSection = styled(FormSection)`
 // display: flex;
 //   align-items: baseline;
 //   justify-content: flex-end;
-export const FormRow = styled.div`
-`
+export const FormRow = ({hasLabel, className, children}) => <div className={ `form-row ${className} ${hasLabel ? 'has-label': ''}` }>{ children }</div>
 
   // font-size: ${props => props.theme.fontSize || '1.5em'};
   // width: ${props => props.theme.formLabelWidth || 'auto'};

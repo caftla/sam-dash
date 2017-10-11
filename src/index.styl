@@ -182,9 +182,9 @@ body
 
 
 #filters
-  width:280px;
+  width:273px;
   display: block;
-  margin:90px auto 100px auto;
+  margin:72px auto 200px auto;
   background-color: transparent;
 
 
@@ -196,25 +196,28 @@ body
 
 
   label
-    width: 115px;
+    width: 58px;
     color: #868a98;
     font-size: 12px;
     user-select: none;
     font-weight: bold;
     display: inline-block;
+    overflow: hidden
 
 
   input[type="text"], 
   input[type="date"],
   input[type="datetime-local"], 
-  input[type="number"]
-    width: 145px;
+  input[type="number"],
+  select
+    width: 194px;
     border: none;
     margin-top: 5px;
-    padding: 5px 10px;
+    padding: 11px 10px
     border-radius: 3px;
     outline-color: #8cc63e;
     font-family: Arial, Helvetica, Sans-serif;
+
 
 
   select
@@ -359,3 +362,36 @@ body
 
 .tether-element
     z-index: 10000000 !important;
+
+.react-selectize.root-node
+    font-size: 12px
+    width: 273px !important;
+
+.has-label
+  label
+    width: 92px !important
+  .react-selectize.root-node
+      font-size: 12px
+      width: 180px !important;
+      display: inline-block
+  input[type="number"]
+    width: 160px !important;
+    
+.timezone
+  .react-selectize.root-node
+    margin-left: 57px;
+    font-size: 12px;
+    width: 215px !important;
+    display: inline-block;
+    margin-top: 4px;
+
+.react-selectize.root-node.disabled * 
+    background: rgb(204, 204, 204) !important;
+
+.react-selectize.dropdown-menu.default
+    font-size: 12px
+.simple-select.react-selectize.default.root-node:not(.open) .react-selectize-control
+  background-image: none !important
+
+.form-row
+    margin: 8px 0
