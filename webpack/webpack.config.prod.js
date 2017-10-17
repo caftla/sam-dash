@@ -23,6 +23,11 @@ module.exports = {
     path: resolve(__dirname, '../dist'),
     publicPath: '/',
   },
+  resolve: {
+    alias: {
+      moment: 'moment/moment.js',
+    }
+  },
   module: {
     rules: [
       {

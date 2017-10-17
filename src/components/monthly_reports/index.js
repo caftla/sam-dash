@@ -25,7 +25,7 @@ import {
 import Table from './Table'
 import Controls from './Controls'
 
-import moment from 'moment/moment'
+import moment from 'moment'
 
 const theme = {
     flexDirection: 'row'

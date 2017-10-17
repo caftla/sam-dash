@@ -52,7 +52,7 @@ class DailyReportsArchive extends React.Component {
       sendEmojiToChat(':)')
     };
 
-    const flags = params.date_from;
+    const flags = { dateFrom: params.date_from, directory: this.props.match.path.indexOf('/hourly_reports_archive') == 0 ? 'hourly-archive' : 'archive' };
 
     return <div className='main-bottom' style={{ margin: '6em 1em 1em 1em' }}>
         <Elm src={Chat} flags={ flags } ports={setupPorts} />

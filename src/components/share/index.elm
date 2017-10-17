@@ -16,7 +16,7 @@ import Html.Events exposing (..)
 import Http
 
 
-main : Program String Model Msg
+main : Program Flags Model Msg
 main =
     Html.programWithFlags
         { init = init
@@ -29,6 +29,11 @@ main =
 
 -- MODEL
 
+type alias Flags =
+  { dateFrom : String
+  , directory : String
+  }
+
 
 type alias Model =
     { server : String
@@ -37,9 +42,9 @@ type alias Model =
     }
 
 
-init : String -> ( Model, Cmd Msg )
-init dateFrom =
-    ( Model dateFrom "" [], downloadHTML ("https://caftla.github.io/daily-monitor/archive/" ++ dateFrom ++ ".html") )
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( Model (flags.dateFrom) "" [], downloadHTML ("https://caftla.github.io/daily-monitor/" ++ (flags.directory) ++ "/" ++ (flags.dateFrom) ++ ".html") )
 
 
 

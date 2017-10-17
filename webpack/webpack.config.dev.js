@@ -20,6 +20,11 @@ module.exports = {
     publicPath: '/',
   },
   context: resolve(__dirname, '../src'),
+  resolve: {
+    alias: {
+      moment: 'moment/moment.js',
+    }
+  },
   devtool: 'inline-source-map',
   devServer: {
     hot: true,
