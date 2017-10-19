@@ -6,6 +6,7 @@ const R = require('ramda')
 const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
 const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
+const cache = require('./cache')
 
 const app = express();
 app.use(express.static('dist'))
@@ -55,9 +56,9 @@ const connection_strings = {
 }
 
 const respond = (connection_string: string, sql, params, res, map = x => x) => {
-  query(connection_string, sql, params)
+  (!!params.cache_buster ? query(connection_string, sql, params) : cache(60*60, query, connection_string, sql, params))
   .then(x => {
-    console.log(JSON.stringify(x.fields, null, 2))
+    // console.log(JSON.stringify(x.fields, null, 2))
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
     res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))
@@ -120,7 +121,7 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
 })
 
 app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
       fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
     , params
