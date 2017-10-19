@@ -2,11 +2,18 @@ const R = require('ramda')
 
 module.exports = (params) => {
   const is_date_param = param_value => ['hour', 'day', 'week', 'month'].some(p => p == param_value)
+  const is_numeric_param = param_value => param_value == 'hour_of_day'
   
   const id = x => x
   const format = R.pipe(
-      is_date_param(params.row) ? x => R.merge(x, {row: new Date(x.row).toISOString()}) : id
-    , is_date_param(params.section) ? x => R.merge(x, {section: new Date(x.section).toISOString()}) : id
+      is_date_param(params.row) 
+      ? x => R.merge(x, {row: new Date(x.row).toISOString()}) 
+      : x => is_numeric_param(params.row) ? R.merge(x, {row: parseFloat(x.row)}) 
+      : id
+    , is_date_param(params.section) 
+      ? x => R.merge(x, {section: new Date(x.section).toISOString()}) 
+      : x => is_numeric_param(params.section) ? R.merge(x, {section: parseFloat(x.section)}) 
+      : id
     , is_date_param(params.page) ? x => R.merge(x, {page: new Date(x.page).toISOString()}) : id
   )
 
@@ -69,7 +76,7 @@ module.exports = (params) => {
         , R.map(([section, data]) => {
             const reduced_section = reduce_data(data)
             return R.merge(reduced_section, {
-                section
+                section: is_numeric_param(params.section) ? parseFloat(section) : section
               , page: data[0].page
               , data: R.pipe(
                   R.map(x => R.merge(x, { section_sales_ratio: safe_div(x.sales, reduced_section.sales) }))

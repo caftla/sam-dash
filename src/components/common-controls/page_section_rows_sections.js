@@ -67,7 +67,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     )(columns_maker({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, width, formatter, onSort}))
 
     const ldata = data.data // R.take(10, data.data)
-    const tableId = `table-${Math.round(Math.random() * 10000)}`
+    const tableId = `table-${Math.round(Math.random() * 100000)}`
     return <TABLE width={1400} data-id={ tableId } className={`fpsr_table${ is_summary ? ' summary' : '' }`} style={ { minWidth: '1200px', marginTop: '1em' } }>
       { columns.map((c, i) => (<colgroup key={i}>
           <col span="1" style={ { width: c.label == '-' ? '1%' : c.label == 'Transactions' || c.label == 'Views' ? '7%' : (i < 2 ? '7%' : '5%') } } />

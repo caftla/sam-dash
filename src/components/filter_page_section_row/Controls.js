@@ -3,11 +3,11 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
+import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
 import styled from 'styled-components'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect, InputMultiSelect } from '../common-controls/FormElementsUtils'
+import { Input, LabelledInput, InputSelect, InputMultiSelect, MySimpleSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
@@ -134,6 +134,8 @@ export default class Controls extends React.Component {
         date_from: since(params.date_from)
       , date_to: until_today(params.date_to)
       , relative_date: 0
+      , from_hour: '0'
+      , to_hour: '24'
       , timezone: params.timezone
       , page: fix_affiliate_name(params.page)
       , section: fix_affiliate_name(params.section)
@@ -189,7 +191,7 @@ export default class Controls extends React.Component {
 
   get_filter_string() {
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
+    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "from_hour", "to_hour"].concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
   render() {
@@ -197,7 +199,7 @@ export default class Controls extends React.Component {
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month']
+    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month', 'hour_of_day']
 
     const get_options = (field) =>  {
       return !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : R.pipe(
@@ -247,6 +249,23 @@ export default class Controls extends React.Component {
               , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
             )(R.range(0, 48)) 
           } />
+        <FormRow className='hour_filter'>
+          <FormLabel>Hour</FormLabel> 
+          <MySimpleSelect className='from_hour' name="From" 
+            onChange={ from_hour => this.setState({ from_hour: from_hour }) }
+            value={ this.state.from_hour } options={ 
+              R.pipe(
+                R.map(x => ({value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`)}))
+              )(R.range(0, 25)) 
+            } />
+          <MySimpleSelect className='to_hour' name="To" 
+            onChange={ to_hour => this.setState({ to_hour: to_hour }) }
+            value={ this.state.to_hour } options={ 
+              R.pipe(
+                R.map(x => ({value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`)}))
+              )(R.range(0, 25)) 
+            } />
+        </FormRow>
         {/*<CheckBoxDiv>
           <label>Relative Date</label><input 
             checked={ this.state.is_relative_date } 

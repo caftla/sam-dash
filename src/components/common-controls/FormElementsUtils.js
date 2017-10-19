@@ -22,7 +22,6 @@ export const InputSelect = ({name, value, options, onChange, disable, showLabel,
   const defaultOption = !value ? null: options.find(o => !!o && (o.value == value || o == value))
   const defaultLabel =  ((!!defaultOption ? (defaultOption.name || defaultOption) : value) || '-').toString()
   const defaultValue = ((!!defaultOption ? (defaultOption.value || defaultOption) : value) || '-').toString()
-  console.log('--', name, value, disable)
   return <FormRow hasLabel={ showLabel } className={ className || '' }>
     {
       showLabel ? <FormLabel>{name}</FormLabel> : ''
@@ -40,6 +39,28 @@ export const InputSelect = ({name, value, options, onChange, disable, showLabel,
       }
     </SimpleSelect>
   </FormRow>
+}
+
+export const MySimpleSelect = ({name, value, options, onChange, disable, className}) => {
+  const options1 = options // [{name: 'Select', value:'-'}].concat(options)
+  const defaultOption = !value ? null: options.find(o => !!o && (o.value == value || o == value))
+  const defaultLabel =  ((!!defaultOption ? (defaultOption.name || defaultOption) : value) || '-').toString()
+  const defaultValue = ((!!defaultOption ? (defaultOption.value || defaultOption) : value) || '-').toString()
+  return <SimpleSelect placeholder={ name } 
+    className={ className }
+    value={ !!defaultOption ? { label: defaultLabel, value: defaultValue } : null  } 
+    tether={ true } 
+    onValueChange={ e => onChange(!e ? '' : e.value)  } 
+    disabled={!!disable}
+    >
+    {   options1
+        .map((c, i) => {
+          const value = ((!!c && c.hasOwnProperty('value') ? c.value : c) || '').toString()
+          const label = ((!!c && c.hasOwnProperty('name') ? c.name : c) || '').toString()
+          return <option key={ i } value={ value } label={ label }>{ label }</option>
+        })
+    }
+  </SimpleSelect>
 }
 
 export const InputMultiSelect = ({name, value, options, onChange, disable, hasLabel}) => {

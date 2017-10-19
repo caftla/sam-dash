@@ -27,6 +27,7 @@ const query = (connection_string: string, query_template:string, params: Object)
         let result = (!param_value || param_value == '-') ? `'-'`
         : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
+        : param_value == 'hour_of_day' ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
         : `coalesce(${table}.${param_value}, 'Unknown')`
 
         if (!!options && options.double_quote) {
@@ -59,7 +60,13 @@ const query = (connection_string: string, query_template:string, params: Object)
         , R.map(([k, v]) => R.compose(
               x => `(${x})`
             , R.join(' or ')
-            , R.map(v => !!options && !!options.double_quote ? `${table}.${k}=''${v}''` : `${table}.${k}='${v}'` )
+            , R.map(v => 
+                k == 'from_hour'
+                ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.timestamp) ) >= ${v}`
+                : k == 'to_hour'
+                ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.timestamp) ) < ${v}`
+                : !!options && !!options.double_quote ? `${table}.${k}=''${v}''` : `${table}.${k}='${v}'` 
+              )
             , R.split(';'))(v)
           )
         , R.splitEvery(2)
