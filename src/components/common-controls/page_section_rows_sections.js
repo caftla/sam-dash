@@ -67,11 +67,23 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     )(columns_maker({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, width, formatter, onSort}))
 
     const ldata = data.data // R.take(10, data.data)
-    return <TABLE width={1400} className={`fpsr_table${ is_summary ? ' summary' : '' }`} style={ { minWidth: '1200px', marginTop: '1em' } }>
+    const tableId = `table-${Math.round(Math.random() * 10000)}`
+    return <TABLE width={1400} data-id={ tableId } className={`fpsr_table${ is_summary ? ' summary' : '' }`} style={ { minWidth: '1200px', marginTop: '1em' } }>
       { columns.map((c, i) => (<colgroup key={i}>
           <col span="1" style={ { width: c.label == '-' ? '1%' : c.label == 'Transactions' || c.label == 'Views' ? '7%' : (i < 2 ? '7%' : '5%') } } />
         </colgroup>))
       } 
+      <caption align="bottom"  className='clipboard-hover' onClick={ () => {
+        const caption = document.querySelectorAll(`table[data-id="${ tableId }"] caption`)[0]
+        const html = caption.innerHTML
+        caption.innerHTML = `<div style='text-align: left'><a href='${document.location.href}'>Report</a></div>`
+        caption.setAttribute('align', 'bottom')
+        window.clipboard.copy({"text/html": document.querySelectorAll(`table[data-id="${ tableId }"]`)[0].outerHTML})
+        caption.innerHTML = html
+        caption.setAttribute('align', 'top')
+
+      } }>
+      </caption>
       <thead>
         { columns.map((c, i) => c.th) } 
       </thead>
