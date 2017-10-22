@@ -172,7 +172,12 @@ export default class Controls extends React.Component {
     }
   }
 
-  get_filter_string_by_fields(fields) {
+  get_filter_string_by_fields(ofields) {
+
+    const fields = ((this.state['from_hour'] == 0 || !this.states['from_hour']) && (this.state['to_hour'] == 24 || !this.state['to_hour']))
+    ? ofields = R.reject(x => x == 'from_hour' || x == 'to_hour')(ofields)
+    : ofields
+
     const affiliate_ids = R.pipe(
         R.filter(x => this.state.affiliate_name.split(';').some(a => a == x.affiliate_name))
       , R.map(x => x.affiliate_ids)

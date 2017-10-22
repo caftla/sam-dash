@@ -1,4 +1,6 @@
 const R = require('ramda')
+const trace = (x, y) => { console.log(x); return y }
+const tracef = f => x => { console.log(f(x)); return x }
 
 module.exports = (params) => {
   const is_date_param = param_value => ['hour', 'day', 'week', 'month'].some(p => p == param_value)
@@ -8,13 +10,19 @@ module.exports = (params) => {
   const format = R.pipe(
       is_date_param(params.row) 
       ? x => R.merge(x, {row: new Date(x.row).toISOString()}) 
-      : x => is_numeric_param(params.row) ? R.merge(x, {row: parseFloat(x.row)}) 
+      : is_numeric_param(params.row) 
+      ? x =>  R.merge(x, {row: parseFloat(x.row)}) 
       : id
     , is_date_param(params.section) 
       ? x => R.merge(x, {section: new Date(x.section).toISOString()}) 
-      : x => is_numeric_param(params.section) ? R.merge(x, {section: parseFloat(x.section)}) 
+      : is_numeric_param(params.section) 
+      ? x => R.merge(x, {section: parseFloat(x.section)}) 
       : id
-    , is_date_param(params.page) ? x => R.merge(x, {page: new Date(x.page).toISOString()}) : id
+    , is_date_param(params.page) 
+      ? x => R.merge(x, {page: new Date(x.page).toISOString()}) 
+      : is_numeric_param(params.page) 
+      ? x => R.merge(x, {page: parseFloat(x.page)}) 
+      : id
   )
 
   const safe_div = (x, y) => y == 0 && x == 0 ? 0
