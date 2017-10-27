@@ -80,6 +80,7 @@
     "prop-types": "^15.6.0",
     "ramda": "^0.24.1",
     "react": "^16.0.0",
+    "react-bootstrap-daterangepicker": "^3.4.1",
     "react-datetime": "^2.9.0",
     "react-dom": "^16.0.0",
     "react-dom-factories": "^1.0.0",

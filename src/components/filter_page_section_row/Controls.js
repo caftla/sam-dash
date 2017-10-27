@@ -3,13 +3,15 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
+import { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
 import styled from 'styled-components'
-import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect, InputMultiSelect, MySimpleSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
+import moment from 'moment'
+import DateRangePicker from 'react-bootstrap-daterangepicker'
+
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
 
@@ -78,15 +80,15 @@ const add_time = date => date.indexOf('T') > -1
   ? date
   : date + 'T00:00:00'
 
-const until_today = date => date.indexOf('day') > -1
-  ? new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
-  : add_time(date)
+// const until_today = date => date.indexOf('day') > -1
+//   ? new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+//   : add_time(date)
 
-const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+// const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
 
-const since = date => date.indexOf('days') > -1
-  ? find_relative_date(parseInt(date))
-  : add_time(date)
+// const since = date => date.indexOf('days') > -1
+//   ? find_relative_date(parseInt(date))
+//   : add_time(date)
 
 export default class Controls extends React.Component {
   props: ControlsProps
@@ -131,9 +133,16 @@ export default class Controls extends React.Component {
     })
 
     this.state = {
-        date_from: since(params.date_from)
-      , date_to: until_today(params.date_to)
-      , relative_date: 0
+      ranges: {
+				'Today': [moment(), moment().add(1, 'days')],
+				'Yesterday': [moment().subtract(1, 'days'), moment().add(1, 'days')],
+				'Last 7 Days': [moment().subtract(6, 'days'), moment().add(1, 'days')],
+				'Last 30 Days': [moment().subtract(29, 'days'), moment().add(1, 'days')],
+				'This Month': [moment().startOf('month'), moment().endOf('month')],
+				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+			}
+      , date_from: add_time(params.date_from)
+      , date_to: add_time(params.date_to)
       , from_hour: '0'
       , to_hour: '24'
       , timezone: params.timezone
@@ -149,12 +158,10 @@ export default class Controls extends React.Component {
       , sectionSorter: params.sectionSorter
       , tabSorter: params.tabSorter
       , is_relative_date: params.is_relative_date || false
-      , relative_date_from: params.relative_date_from
     }
-
     this.reload_publisher_ids()
   }
-
+  
   reload_publisher_ids() {
     if(!!this.state.affiliate_name && this.state.affiliate_name != '-' && this.state.affiliate_name.split(';').length == 1) {
       // only fetch publishers if one affiliate is selected
@@ -199,6 +206,12 @@ export default class Controls extends React.Component {
     return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "from_hour", "to_hour"].concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
+  handleChange(event, picker) {
+    this.setState({
+      date_from: add_time(moment(picker.startDate).format('YYYY-MM-DD'))
+    , date_to: add_time(moment(picker.endDate).format('YYYY-MM-DD'))
+    })
+  }
   render() {
     const {countries, affiliates} = this.props
     const get_all_props = get_all_props_(this.props)
@@ -221,30 +234,19 @@ export default class Controls extends React.Component {
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
-        <LabelledInput name="From">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_from } 
-						onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } }
-						disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
-            />
-        </LabelledInput>
-        <LabelledInput name="To">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_to } 
-						onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } }
-            disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
-            />
-        </LabelledInput>
+        <FormRow className='date_picker'>
+          <DateRangePicker 
+            startDate={moment(this.state.date_from)}
+            endDate={moment(this.state.date_to)} 
+            ranges={this.state.ranges} 
+            onEvent={(event, picker) => this.handleChange(event, picker)}>
+            <div className='date-range-btn'>
+              <i className='fa fa-calendar calendar-icon' aria-hidden='true'/>           
+              {moment(this.state.date_from).format('YYYY/MM/DD')} - {moment(this.state.date_to).format('YYYY/MM/DD')}
+              <i className='fa fa-caret-down caret-icon' aria-hidden='true'/>
+            </div>
+          </DateRangePicker>
+        </FormRow>
         <InputSelect className='timezone' name="Timezone" 
           onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
