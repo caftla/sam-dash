@@ -32,6 +32,12 @@ export default Section({
       , x => d3.format(',')(x.sales) 
       , data => d3.format(',')(data.sales)
     ),
+    pcolumn(
+      show_label_row('Active%', 'active')
+    , () => onSort('row', 'active', 1)
+    , x => d3.format('0.0f')(x.active * 100) 
+    , data => d3.format('0.0f')(data.active * 100)
+  ),
     column(
         show_label_row('eCPA', 'ecpa')
       , () => onSort('row', 'ecpa', 1)
@@ -56,7 +62,7 @@ export default Section({
       , x => d3.format('0.2f')(x.arpu_week_2)
       , data => d3.format('0.2f')(data.arpu_week_2)
     ),
-  ].concat(R.range(1,13).map(m => column(
+  ].concat(R.range(1,12).map(m => column(
     show_label_row(`Month${m}`, `arpu_month_${m}`)
     , () => onSort('row', `arpu_month_${m}`, 1)
     , x => empty_null(d3.format('0.2f'))(x[`arpu_month_${m}`]) // x[`arpu_month_${m}`] > x.ecpa ? '*' : '')
