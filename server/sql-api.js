@@ -28,7 +28,7 @@ const query = (connection_string: string, query_template:string, params: Object)
         : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : param_value == 'hour_of_day' ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
-        : `coalesce(${table}.${param_value}, 'Unknown')`
+        : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`
 
         if (!!options && options.double_quote) {
           result = result.replace(/\'/g, "''")
