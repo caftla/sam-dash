@@ -1,15 +1,28 @@
-select
-    c.country_code
-  , array_agg(distinct c.operator_code) as operator_codes
-  , array_agg(distinct c.affiliate_name) as affiliate_names
-  , array_agg(distinct c.handle_name) as handle_names
-  , array_agg(distinct c.platform) as platforms
-  , array_agg(distinct c.gateway) as gateways
-  , array_agg(distinct c.ad_name) as ad_names
-  , array_agg(distinct c.scenario_name) as scenario_names
-  , array_agg(distinct c.service_identifier1) as service_identifier1s
-
-from reports_ams.conversion_daily c
-where c.date_tz >= '$from_date$'
-  and c.date_tz <= '$to_date$'
-group by c.country_code
+with T as (
+  select
+      c.country_code
+    , c.operator_code 
+    , c.affiliate_id
+    , c.handle_name
+    , c.platform
+    , c.gateway
+    , c.ad_name
+    , c.scenario_name
+    , c.service_identifier1
+  
+  from events c
+  where c.timestamp >= '$from_date$'
+    and c.timestamp <= '$to_date$'
+  group by
+      c.country_code
+    , c.operator_code 
+    , c.affiliate_id
+    , c.handle_name
+    , c.platform
+    , c.gateway
+    , c.ad_name
+    , c.scenario_name
+    , c.service_identifier1
+) 
+select T.*, a.affiliate_name from T inner join affiliate_mapping a
+on a.affiliate_id = T.affiliate_id

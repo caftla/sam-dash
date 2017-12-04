@@ -141,11 +141,12 @@ app.get('/api/v1/filter_page_section_row/flat/:timezone/:from_date/:to_date/:fil
 })
 
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
-  respond_helix(
+  const params = R.merge(req.params, { })
+  respond_jewel(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
-    , req.params
+    , params
     , res
-    , x => x
+    , require('./sql-templates/all_countries')(params)
   )
 })
 
@@ -181,7 +182,7 @@ app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:secti
 
 app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
+  respond_jewel(
       fs.readFileSync('./server/sql-templates/arpu_long/index.sql', 'utf8')
     , params
     , res
