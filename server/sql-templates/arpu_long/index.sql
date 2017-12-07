@@ -1,7 +1,7 @@
 select  
-    $[params.f_page('us', 'sale_timestamp', {no_timezone: true})]$ as page
-  , $[params.f_section('us', 'sale_timestamp', {no_timezone: true})]$ as section
-  , $[params.f_row('us', 'sale_timestamp', {no_timezone: true})]$ as row
+    $[params.f_page('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as page
+  , $[params.f_section('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as section
+  , $[params.f_row('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as row
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when us.pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
@@ -65,6 +65,6 @@ select
 from user_subscriptions us
 where us.sale_timestamp >= '$from_date$'
   and us.sale_timestamp < '$to_date$'
-  and $[params.f_filter('us')]$
+  and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
 group by page, section, row
 order by page, section, row
