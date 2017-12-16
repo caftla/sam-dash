@@ -16,6 +16,23 @@ export const post = async ({ url, body } : {url: string, body?: mixed}) => {
   return data
 }
 
+export const postMayReturnError = async ({ url, body }: { url: string, body?: mixed }) => {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      authorization: localStorage.getItem('token'),
+      'Content-Type': 'application/json',
+
+    },
+    body: JSON.stringify(body),
+  })
+  const data = await res.text()
+  if (data == 'Unauthorized') {
+    throw 'Unauthorized'
+  } else
+  return JSON.parse(data)
+}
+
 export const get = async ({ url, nocache = false } : { url : string, nocache : boolean }) => {
   if(nocache) {
     const cache_buser = `cache_buster=${new Date().valueOf()}`

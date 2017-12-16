@@ -15,6 +15,8 @@ const reducer = (state: FetchState<boolean> = fetchState.Nothing(), action: Acti
       return fetchState.Loading()
     case 'login_failed':
       return fetchState.Loaded(false)
+    case 'login_error':
+      return fetchState.Error(action.payload)
     default:
       return state
   }

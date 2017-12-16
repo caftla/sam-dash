@@ -1,6 +1,6 @@
 // @flow
 
-import { post, get, toQueryString } from '../helpers'
+import { post, postMayReturnError, get, toQueryString } from '../helpers'
 
 import type { QueryParams } from 'my-types'
 import type { Dispatch } from './types'
@@ -41,14 +41,13 @@ export const login = (username : string, password : string) => (dispatch : Dispa
     } else { dispatch({ type: 'login_failed' }) }
     return d
   }).catch(d => {
-    dispatch({ type: 'login_failed' })
+    dispatch({ type: 'login_error', payload: d })
     console.error(d)
-    throw d
   })
 }
 
 export const check_loggedin = () => (dispatch : Dispatch) =>
-  post({url: `${api_root}/api/is_loggedin`})
+  postMayReturnError({url: `${api_root}/api/is_loggedin`})
   .then((d : {success : boolean}) => {
     d.success
     ? dispatch({ type: 'login_success' })
@@ -56,7 +55,9 @@ export const check_loggedin = () => (dispatch : Dispatch) =>
     return d
   }).catch(d => {
     console.error(d)
-    throw d
+    d.toString() == 'Unauthorized'
+      ? dispatch({ type: 'login_failed' })
+    : dispatch({ type: 'login_error', payload: d })
   })
 
 export const fetch_all_countries = (date_from : string, date_to : string) => (dispatch : Dispatch) => {
