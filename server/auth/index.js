@@ -1,67 +1,113 @@
 // @flow
 
-const jwt = require('jwt-simple')
-const userModel = require('./userModel.js').user
+const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const LocalStrategy = require('passport-local').Strategy
+const LdapStrategy = require('passport-ldapauth')
+const ActiveDirectory = require('activedirectory')
 
-passport.serializeUser((user, callback) => callback(null, user.email))
-passport.deserializeUser((email, callback) => {
-  userModel.getUserByEmail(email, (err, obj) => {
-    callback(err, obj)
+// options
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
+  secretOrKey: process.env.secret,
+  ignoreExpiration: false,
+}
+
+const LDAPconfig = {
+  server: {
+    url: 'ldaps://ldap.sam-media.com',
+    searchBase: 'ou=user,dc=sam-media,dc=com',
+    searchFilter: '(mail={{username}})'
+  },
+}
+
+const activeDirectoryConfig = {
+  url: 'ldaps://ldap.sam-media.com',
+  baseDN: 'ou=user,dc=sam-media,dc=com',
+}
+
+const ad = new ActiveDirectory(activeDirectoryConfig)
+
+const userExists = username => new Promise((resolve, reject) => {
+  ad.userExists({ filter: `mail=${username}` }, username, (err, exists) => {
+    if (err) {
+      reject(false)
+    }
+    if (!exists) {
+      console.log(username + ' exists: ' + exists)
+      reject(false)
+    }
+    if (exists) {
+      console.log(username + ' exists: ' + exists)
+      resolve(true)
+    }
   })
 })
 
-const token = (user) => {
-  const timestamp = new Date().getTime()
-  return jwt.encode({ username: user, createdAt: timestamp }, 'dashman')
+const sign = (username, exp, secret) => {
+  const str = username.concat(exp, secret)
+  const h = [0x6295c58d, 0x62b82555, 0x07bb0102, 0x6c62272e]
+  for (let i = 0; i < str.length; i++) {
+    h[i % 4] ^= str.charCodeAt(i)
+    h[i % 4] *= 0x01000193
+  }
+  /* returns 4 concatenated hex representations */
+  return h[0].toString(16) + h[1].toString(16) + h[2].toString(16) + h[3].toString(16);
+}
+
+const validateSignature = (x, y) => x === y
+const validateExpiry = e => e >= new Date().valueOf()
+
+const token = user => jwt.sign(
+  { username: user }
+  , jwtOptions.secretOrKey
+  , { expiresIn: '1m' }
+)
+
+const checkLdapPayload = (email, done) => {
+  if (typeof email !== 'undefined') {
+    return done(null, email)
+  }
+  return done('fail', null)
 }
 
 passport.use(
-  new LocalStrategy(
-    (username, password, done) => {
-      userModel.getUserByEmail(username, (err, obj) => {
+  new LdapStrategy(LDAPconfig,
+    (payload, done) => {
+      console.log('LDAP authentication started')      
+      checkLdapPayload(payload.mail, (err, user) => {
         if (err) {
           return done(err)
         }
-        if (!obj) {
-          return done(null, false, { message: 'incorrect email!' })
+        if (!user) {
+          return done(null, false, { message: 'incorrect username' })
         }
-        if (!userModel.compareUser(obj, password)) {
-          return done(null, false, { message: 'incorrect password' })
-        }
-        return done(null, obj)
+        return done(null, user)
       })
     },
   ),
 )
 
 passport.use(
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
-      secretOrKey: 'dashman',
-    },
+  new JwtStrategy(jwtOptions,
     (payload, done) => {
       console.log('jwt authentication started')
-      console.log(payload)
-      userModel.getUserByEmail(payload.username, (err, obj) => {
+      checkLdapPayload(payload.username, (err, user) => {
         if (err) {
-          return done(err)
+          return done(err, null)
         }
-        if (!obj) {
-          return done(null, false, { message: 'incorrect email!' })
+        if (!user) {
+          return done(null, false, { message: 'incorrect username' })
         }
-        return done(null, obj)
+        return done(null, user)
       })
     },
   ),
 )
 
 module.exports = (app) => {
-  const requireSignin = passport.authenticate('local', { failwitherror: true })
+  const requireSignin = passport.authenticate('ldapauth', { session: false })
   const requireAuth = passport.authenticate('jwt', { session: false })
 
   app.use(passport.initialize())
@@ -76,12 +122,42 @@ module.exports = (app) => {
     next()
   })
 
+  app.use((req, res, next) => {
+    if ('undefined' !== typeof req.query.username) {
+      const base = req.url.split('?')[0]
+      const dir = req.url.substr(0, req.url.lastIndexOf('/'))
+      const { username, exp_ts, hash } = req.query
+      const signature = sign(username, exp_ts, process.env.secret)
+      
+      const isValidated = validateSignature(signature, hash)
+      console.log(isValidated)
+      
+      const notExpired = validateExpiry(exp_ts)
+      console.log(notExpired)
+
+      if (isValidated && notExpired) {
+        userExists(username)
+          .then(x => x ?
+            res.redirect(base + '?token=' + token(username))
+          : res.redirect(base)
+          )
+          .catch(x => !x ?
+            res.redirect(base)
+          : res.redirect(base)
+          )
+      } else {
+        res.redirect(base)
+      }
+    } else {
+      next()
+    }
+  })
+
   app.post('/api/login',
     requireSignin,
     (req, res, next) => {
         // success
-      const username = req.user.email
-      console.log(username)
+      const username = req.body.username
       res.end(JSON.stringify({ success: true, token: token(username) }))
     }
     , (err, req, res, next) => {
@@ -90,36 +166,30 @@ module.exports = (app) => {
     },
   )
 
-  // app.use((req, res, next) => {
-  //   // try logging in by cookie
-  //   const login = (username, callback) => {
-  //     req.login({username: username}, () => {
-  //       res.cookie('username', req.user.username , { expires: new Date(new Date().valueOf() + 1000 * 3600 * 24 * 30), path: '/', httpOnly: true })
-  //       if(!!callback)
-  //         callback()
-  //       else
-  //         next()
-  //     })
-  //   }
-  //   if(req.isAuthenticated()) {
-  //     next()
-  //   } else if(!!req.cookies && !!req.cookies.username) {
-  //     login(req.cookies.username)
-  //   } else if(!!req.query.username && !!req.query.hash) {
-  //     if(decrypt(req.query.hash) == req.query.username) {
-  //       // TODO: improve redirection by just removing username and hash from query string not all query params
-  //       login(req.query.username, () => res.redirect(req.originalUrl.split('?')[0]))
-  //     }
-  //   } else {
-  //     next()
-  //   }
-  // })
-
-  app.post('/api/is_loggedin', requireAuth,
-    (req, res, next) => {
-      res.end(JSON.stringify({ success: true }))
+  app.post('/api/is_loggedin',
+    (req, res) => {
+      const recievedToken = req.headers.authorization
+      jwt.verify(recievedToken, process.env.secret, (err, decode) => {
+        if (err) {
+          if (err.name === 'TokenExpiredError') {
+            const decoded = jwt.decode(recievedToken, { json: true })
+            console.log('Token expired , username:', decoded)
+            userExists(decoded.username)
+              .then(x => x ?
+                res.end(JSON.stringify({ success: x, token: token(decoded.username) }))
+              : res.end(JSON.stringify({ success: x, err: err }))
+              )
+              .catch(x => !x ?
+                res.end(JSON.stringify({ success: x, err: err }))
+              : res.end(JSON.stringify({ success: x, err: err }))
+              )
+          }
+        } else {
+          res.end(JSON.stringify({ success: true }))
+        }
+      })
     },
-    (err, req, res, next) => {
+    (err, req, res) => {
       res.end(JSON.stringify({ success: false }))
     },
   )

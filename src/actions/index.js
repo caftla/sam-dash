@@ -49,9 +49,12 @@ export const login = (username : string, password : string) => (dispatch : Dispa
 export const check_loggedin = () => (dispatch : Dispatch) =>
   postMayReturnError({url: `${api_root}/api/is_loggedin`})
   .then((d : {success : boolean}) => {
-    d.success
-    ? dispatch({ type: 'login_success' })
-    : dispatch({ type: 'login_failed' })
+    if (d.success) {
+      dispatch({ type: 'login_success' })
+      d.token
+      ? localStorage.setItem('token', d.token)
+      : null
+    } else { dispatch({ type: 'login_failed' }) }
     return d
   }).catch(d => {
     console.error(d)
