@@ -62,7 +62,7 @@ const validateExpiry = e => e >= new Date().valueOf()
 const token = user => jwt.sign(
   { username: user }
   , jwtOptions.secretOrKey
-  , { expiresIn: '1m' }
+  , { expiresIn: '7d' }
 )
 
 const checkLdapPayload = (email, done) => {
@@ -183,6 +183,8 @@ module.exports = (app) => {
                 res.end(JSON.stringify({ success: x, err: err }))
               : res.end(JSON.stringify({ success: x, err: err }))
               )
+          } else {
+            res.end(JSON.stringify({ success: false }))  
           }
         } else {
           res.end(JSON.stringify({ success: true }))

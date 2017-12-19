@@ -21,7 +21,6 @@ const DateTime = ({value, onChange, disabled, readonly}) => <input
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
   {
-    debugger;
     return get({url: `${api_root}/api/v1/weekly_reports/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
   }
 
