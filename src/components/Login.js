@@ -187,7 +187,7 @@ class Home extends React.Component {
             return <div>redirecting ...</div>
           }
 
-          return <div className='route-message'>Please select a report from the top</div>
+          return <redirect to='/' />
 
 
         }

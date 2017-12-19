@@ -7,7 +7,8 @@ import { render } from 'react-dom'
 // import { BrowserRouter, Route } from 'react-router-dom'
 
 import createHistory from 'history/createBrowserHistory'
-import { Route } from 'react-router'
+import { Route, Switch } from 'react-router'
+import { Redirect } from 'react-router'
 import { match } from './adts'
 
 import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
@@ -37,6 +38,7 @@ import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
+import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
 
@@ -182,33 +184,38 @@ const WrapAndAuth = x => RequiresAuth(Wrap(x))
 const main_bottom = <Provider store={store}>
   <ConnectedRouter history={history}>
     <Body>
-      <Route exact path="/" component={WrapAndAuth(Home)} />
-      <Route exact path="/login" component={Wrap(Login)} />
-      <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
-      {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-      <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
-      <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
-      <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
-      <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
-      <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
+      <Switch>
+        <Route exact path="/" component={WrapAndAuth(Home)} />
+        <Route exact path="/login" component={Wrap(Login)} />
+        <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
+        {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
+        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
+        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
+        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
+        <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
+        <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
-      <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(ARPU_Long)} />
-      <Route path="/arpu_long" exact={true} component={WrapAndAuth(ARPU_Long)} />
+        <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(ARPU_Long)} />
+        <Route path="/arpu_long" exact={true} component={WrapAndAuth(ARPU_Long)} />
 
-      <Route path="/weekly_reports/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Weekly_Reports)} />
-      <Route path="/weekly_reports" exact={true} component={WrapAndAuth(Weekly_Reports)} />
+        <Route path="/weekly_reports/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Weekly_Reports)} />
+        <Route path="/weekly_reports" exact={true} component={WrapAndAuth(Weekly_Reports)} />
 
-      <Route path="/cohort" exact={true} component={WrapAndAuth(Cohort)} />
-      <Route path="/arpu" exact={true} component={WrapAndAuth(Arpu)} />      
-      <Route path="/cohort/:date_from/:date_to/:filter" component={WrapAndAuth(Cohort)} />
-      
-      <Route path="/converting_ips/" exact={true} component={WrapAndAuth(ConvertingIPs)} />
-      <Route path="/converting_ips/:date_from/:date_to/:filter" component={WrapAndAuth(ConvertingIPs)} />
-      
-      <Route path="/monthly_reports/" exact={true} component={WrapAndAuth(MonthlyReports)} />
-      <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
-      <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
-      <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route path="/cohort" exact={true} component={WrapAndAuth(Cohort)} />
+        <Route path="/arpu" exact={true} component={WrapAndAuth(Arpu)} />      
+        <Route path="/cohort/:date_from/:date_to/:filter" component={WrapAndAuth(Cohort)} />
+        
+        <Route path="/converting_ips/" exact={true} component={WrapAndAuth(ConvertingIPs)} />
+        <Route path="/converting_ips/:date_from/:date_to/:filter" component={WrapAndAuth(ConvertingIPs)} />
+        
+        <Route path="/monthly_reports/" exact={true} component={WrapAndAuth(MonthlyReports)} />
+        <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
+        <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route exact path="*" component={Wrap(NotFound)} >
+          <Route Route exact path="*" component={Wrap(NotFound)} />
+        </Route>
+      </Switch>
     </Body>
   </ConnectedRouter>
 </Provider>
