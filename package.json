@@ -55,7 +55,6 @@
     "webpack-dev-server": "2.2.1"
   },
   "dependencies": {
-    "activedirectory": "^0.7.2",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
     "d3-format": "^1.2.0",
@@ -74,8 +73,8 @@
     "object-hash": "^1.2.0",
     "offline-plugin": "^4.5.3",
     "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
-    "passport-ldapauth": "^2.0.0",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "pg": "^7.0.2",
