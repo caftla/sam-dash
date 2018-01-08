@@ -6,6 +6,7 @@ const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 const googleConfig = require('./google_config')
+const URI = require('urijs')
 
 
 passport.serializeUser((user, done) => {
@@ -26,8 +27,6 @@ const jwtOptions = {
 
 const validateSignature = (x, y) => x === y
 const validateExpiry = e => e >= new Date().valueOf()
-
-const redirectURL = (loginRedir, noLoginRedir) => loginRedir ? loginRedir : noLoginRedir
 
 const token = user => jwt.sign(
   { username: user }
@@ -75,7 +74,6 @@ passport.use(
 passport.use(
   new JwtStrategy(jwtOptions,
     (payload, done) => {
-      console.log('jwt authentication started')
       checkPayload(payload.username, (err, user) => {
         if (err) {
           return done(err, null)
@@ -90,7 +88,7 @@ passport.use(
 )
 
 module.exports = (app) => {
-  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'] })
+  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'], hd: 'sam-media.com' })
   const requireAuth = passport.authenticate('jwt', { session: false })
 
   app.use(passport.initialize())
@@ -115,10 +113,8 @@ module.exports = (app) => {
       const notExpired = validateExpiry(exp_ts)
       
       if (isValidated && notExpired) {
-        console.log('validated and not expired')
         res.redirect(base + '?token=' + token(username))
       } else {
-        console.log('either not validated or not expired')
         res.redirect(base)
       }
     } else {
@@ -126,40 +122,45 @@ module.exports = (app) => {
     }
   })
 
-  app.get('/api/google_login', requireSignin, (req, res, next) => {
-  })
+  app.get('/api/google_login', requireSignin)
 
-  app.get('/api/google_callback',
-    passport.authenticate('google', {
-      failureRedirect: `/api/login`
-    }),
-  (req, res) => {
-    // Authenticated successfully
+  app.get('/api/google_callback', requireSignin, (req, res) => {
+    // Authenticated successfully, now find where to go next
     const user = req.user
-    const sessionState = decodeURIComponent(req.headers.referer)
-    const parsedSessionState = sessionState.split('login_redir=').pop()
-    res.redirect(redirectURL(parsedSessionState, sessionState) + `?token=${token(user.emails[0].value)}`);
+    const clientReferer = req.headers.referer
+
+    if ('undefined' !== typeof clientReferer) {
+      const loginRedir = URI(clientReferer).query(true)['login_redir']
+
+      loginRedir !== 'undefined'
+        ? res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value) }))
+        : res.redirect(URI(clientReferer).query({ token: token(user.emails[0].value) }))
+    } else {
+      res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
+    }
   })
 
   app.post('/api/is_loggedin',
     (req, res) => {
       const recievedToken = req.headers.authorization
-      jwt.verify(recievedToken, secret, (err, decode) => {
-        if (err) {
-          if (err.name === 'TokenExpiredError') {
-            const decoded = jwt.decode(recievedToken, { json: true })
-            console.log('Token expired , username:', decoded)
-            res.end(JSON.stringify({ success: false, err }))
-          } else {
-            res.end(JSON.stringify({ success: false, err }))
-          }
-        } else {
-          res.end(JSON.stringify({ success: true }))
-        }
-      })
+      jwt.verify(recievedToken, secret, err =>
+        // if (err) {
+        //   // if (err.name === 'TokenExpiredError') {
+        //     // const decoded = jwt.decode(recievedToken, { json: true })
+        //     // console.log('Token expired , username:', decoded)
+        //     // res.end(JSON.stringify({ success: false, err }))
+        //   res.end(JSON.stringify({ success: false, err }))
+        //   // }
+        // } else {
+        //   res.end(JSON.stringify({ success: true }))
+        // }
+        err
+          ? res.end(JSON.stringify({ success: false, err }))
+          : res.end(JSON.stringify({ success: true })),
+      )
     },
     (err, req, res) => {
-      res.end(JSON.stringify({ success: false }))
+      res.end(JSON.stringify({ success: false, err }))
     },
   )
   return () => requireAuth
