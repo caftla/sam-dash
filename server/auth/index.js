@@ -1,10 +1,12 @@
 // @flow
 
+
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const validate = require('./validateModel').validate
 const googleConfig = require('./google_config')
 const URI = require('urijs')
 
@@ -18,6 +20,7 @@ passport.deserializeUser((obj, done) => {
 })
 
 const secret = process.env.secret
+if (!secret) { throw Error('Please set "secret" environment variable, it is used to encode and decode JWT tokens') }
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
@@ -25,44 +28,16 @@ const jwtOptions = {
   ignoreExpiration: false,
 }
 
-const validateSignature = (x, y) => x === y
-const validateExpiry = e => e >= new Date().valueOf()
-
 const token = user => jwt.sign(
   { username: user }
   , jwtOptions.secretOrKey
   , { expiresIn: '7d' }
 )
 
-const sign = (username, exp, secret) => {
-  const str = username.concat(exp, secret)
-  const h = [0x6295c58d, 0x62b82555, 0x07bb0102, 0x6c62272e]
-  for (let i = 0; i < str.length; i++) {
-    h[i % 4] ^= str.charCodeAt(i)
-    h[i % 4] *= 0x01000193
-  }
-    /* returns 4 concatenated hex representations */
-  return h[0].toString(16) + h[1].toString(16) + h[2].toString(16) + h[3].toString(16);
-}
-
-const checkProfilePayload = (profile, done) => {
-  if (profile._json.domain == 'sam-media.com') {
-    return done(null, profile)
-  }
-  return done('no user found', null)
-}
-
-const checkPayload = (email, done) => {
-  if (typeof email !== 'undefined') {
-    return done(null, email)
-  }
-  return done('fail', null)
-}
-
 passport.use(
   new GoogleStrategy(googleConfig.google,
     (accessToken, refreshToken, profile, done) => {
-      checkProfilePayload(profile, (err, user) => {
+      validate.checkProfilePayload(profile, (err, user) => {
         if (!user) {
           return done(null, false, { message: 'incorrect username' })
         }
@@ -74,7 +49,7 @@ passport.use(
 passport.use(
   new JwtStrategy(jwtOptions,
     (payload, done) => {
-      checkPayload(payload.username, (err, user) => {
+      validate.checkPayload(payload.username, (err, user) => {
         if (err) {
           return done(err, null)
         }
@@ -107,10 +82,10 @@ module.exports = (app) => {
     if ('undefined' !== typeof req.query.username) {
       const base = req.url.split('?')[0]
       const { username, exp_ts, hash } = req.query
-      const signature = sign(username, exp_ts, secret)
+      const signature = validate.sign(username, exp_ts, secret)
       
-      const isValidated = validateSignature(signature, hash)
-      const notExpired = validateExpiry(exp_ts)
+      const isValidated = validate.signature(signature, hash)
+      const notExpired = validate.expiry(exp_ts)
       
       if (isValidated && notExpired) {
         res.redirect(base + '?token=' + token(username))
