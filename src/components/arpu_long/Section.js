@@ -33,8 +33,8 @@ export default Section({
       , data => d3.format(',')(data.sales)
     ),
     pcolumn(
-      show_label_row('Active%', 'active')
-    , () => onSort('row', 'active', 1)
+      show_label_row('Act%', 'act')
+    , () => onSort('row', 'act', 1)
     , x => d3.format('0.0f')(x.active * 100) 
     , data => d3.format('0.0f')(data.active * 100)
   ),
@@ -49,6 +49,24 @@ export default Section({
       , () => onSort('row', 'cpa', 1)
       , x => d3.format('0.2f')(x.cpa)
       , data => d3.format('0.2f')(data.cpa)
+    ),
+    pcolumn(
+        show_label_row('CQ%', 'cq')
+      , () => onSort('row', 'cq', 1)
+      , x => d3.format('0.0f')(100 * x.cq)
+      , data => d3.format('0.0f')(100 * data.cq)
+    ),
+    pcolumn(
+        show_label_row('ReSub%', 'resubs')
+      , () => onSort('row', 'resubs', 1)
+      , x => d3.format('0.0f')(100 * x.resubs_ratio)
+      , data => d3.format('0.0f')(100 * data.resubs_ratio)
+    ),
+    pcolumn(
+      show_label_row('B&Act%', 'B&Act%')
+    , () => onSort('row', 'B&Act%', 1)
+    , x => d3.format('0.0f')(100 * x.firstbillings_and_active24)
+    , data => d3.format('0.0f')(100 * data.firstbillings_and_active24)
     ),
     column(
         show_label_row('Week1', 'arpu_week_1')
