@@ -1,11 +1,14 @@
 // @flow
 
+
 const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const validate = require('./validateModel').validate
 const googleConfig = require('./google_config')
+const URI = require('urijs')
 
 
 passport.serializeUser((user, done) => {
@@ -17,6 +20,7 @@ passport.deserializeUser((obj, done) => {
 })
 
 const secret = process.env.secret
+if (!secret) { throw Error('Please set "secret" environment variable, it is used to encode and decode JWT tokens') }
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
@@ -24,46 +28,16 @@ const jwtOptions = {
   ignoreExpiration: false,
 }
 
-const validateSignature = (x, y) => x === y
-const validateExpiry = e => e >= new Date().valueOf()
-
-const redirectURL = (loginRedir, noLoginRedir) => loginRedir ? loginRedir : noLoginRedir
-
 const token = user => jwt.sign(
   { username: user }
   , jwtOptions.secretOrKey
   , { expiresIn: '1m' }
 )
 
-const sign = (username, exp, secret) => {
-  const str = username.concat(exp, secret)
-  const h = [0x6295c58d, 0x62b82555, 0x07bb0102, 0x6c62272e]
-  for (let i = 0; i < str.length; i++) {
-    h[i % 4] ^= str.charCodeAt(i)
-    h[i % 4] *= 0x01000193
-  }
-    /* returns 4 concatenated hex representations */
-  return h[0].toString(16) + h[1].toString(16) + h[2].toString(16) + h[3].toString(16);
-}
-
-const checkProfilePayload = (profile, done) => {
-  if (profile._json.domain == 'sam-media.com') {
-    return done(null, profile)
-  }
-  return done('no user found', null)
-}
-
-const checkPayload = (email, done) => {
-  if (typeof email !== 'undefined') {
-    return done(null, email)
-  }
-  return done('fail', null)
-}
-
 passport.use(
   new GoogleStrategy(googleConfig.google,
     (accessToken, refreshToken, profile, done) => {
-      checkProfilePayload(profile, (err, user) => {
+      validate.checkProfilePayload(profile, (err, user) => {
         if (!user) {
           return done(null, false, { message: 'incorrect username' })
         }
@@ -75,8 +49,7 @@ passport.use(
 passport.use(
   new JwtStrategy(jwtOptions,
     (payload, done) => {
-      console.log('jwt authentication started')
-      checkPayload(payload.username, (err, user) => {
+      validate.checkPayload(payload.username, (err, user) => {
         if (err) {
           return done(err, null)
         }
@@ -90,7 +63,7 @@ passport.use(
 )
 
 module.exports = (app) => {
-  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'] })
+  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'], hd: 'sam-media.com' })
   const requireAuth = passport.authenticate('jwt', { session: false })
 
   app.use(passport.initialize())
@@ -109,16 +82,14 @@ module.exports = (app) => {
     if ('undefined' !== typeof req.query.username) {
       const base = req.url.split('?')[0]
       const { username, exp_ts, hash } = req.query
-      const signature = sign(username, exp_ts, secret)
+      const signature = validate.sign(username, exp_ts, secret)
       
-      const isValidated = validateSignature(signature, hash)
-      const notExpired = validateExpiry(exp_ts)
+      const isValidated = validate.signature(signature, hash)
+      const notExpired = validate.expiry(exp_ts)
       
       if (isValidated && notExpired) {
-        console.log('validated and not expired')
         res.redirect(base + '?token=' + token(username))
       } else {
-        console.log('either not validated or not expired')
         res.redirect(base)
       }
     } else {
@@ -126,40 +97,45 @@ module.exports = (app) => {
     }
   })
 
-  app.get('/api/google_login', requireSignin, (req, res, next) => {
-  })
+  app.get('/api/google_login', requireSignin)
 
-  app.get('/api/google_callback',
-    passport.authenticate('google', {
-      failureRedirect: `/api/login`
-    }),
-  (req, res) => {
-    // Authenticated successfully
+  app.get('/api/google_callback', requireSignin, (req, res) => {
+    // Authenticated successfully, now find where to go next
     const user = req.user
-    const sessionState = decodeURIComponent(req.headers.referer)
-    const parsedSessionState = sessionState.split('login_redir=').pop()
-    res.redirect(redirectURL(parsedSessionState, sessionState) + `?token=${token(user.emails[0].value)}`);
+    const clientReferer = req.headers.referer
+
+    if ('undefined' !== typeof clientReferer) {
+      const loginRedir = URI(clientReferer).query(true)['login_redir']
+
+      loginRedir !== 'undefined'
+        ? res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value) }))
+        : res.redirect(URI(clientReferer).query({ token: token(user.emails[0].value) }))
+    } else {
+      res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
+    }
   })
 
   app.post('/api/is_loggedin',
     (req, res) => {
       const recievedToken = req.headers.authorization
-      jwt.verify(recievedToken, secret, (err, decode) => {
-        if (err) {
-          if (err.name === 'TokenExpiredError') {
-            const decoded = jwt.decode(recievedToken, { json: true })
-            console.log('Token expired , username:', decoded)
-            res.end(JSON.stringify({ success: false, err }))
-          } else {
-            res.end(JSON.stringify({ success: false, err }))
-          }
-        } else {
-          res.end(JSON.stringify({ success: true }))
-        }
-      })
+      jwt.verify(recievedToken, secret, err =>
+        // if (err) {
+        //   // if (err.name === 'TokenExpiredError') {
+        //     // const decoded = jwt.decode(recievedToken, { json: true })
+        //     // console.log('Token expired , username:', decoded)
+        //     // res.end(JSON.stringify({ success: false, err }))
+        //   res.end(JSON.stringify({ success: false, err }))
+        //   // }
+        // } else {
+        //   res.end(JSON.stringify({ success: true }))
+        // }
+        err
+          ? res.end(JSON.stringify({ success: false, err }))
+          : res.end(JSON.stringify({ success: true })),
+      )
     },
     (err, req, res) => {
-      res.end(JSON.stringify({ success: false }))
+      res.end(JSON.stringify({ success: false, err }))
     },
   )
   return () => requireAuth

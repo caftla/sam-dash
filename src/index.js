@@ -11,6 +11,8 @@ import { Route, Switch } from 'react-router'
 import { Redirect } from 'react-router'
 import { match } from './adts'
 
+import URI from 'urijs'
+
 import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
 // import './index.styl'
 import './index.styl'
@@ -56,6 +58,7 @@ const Redirect_Filter_Page_Section_Row = ({ match, history }) => {
 const tokenFromURL = fromQueryString(window.location.search.substring(1))
 if (typeof tokenFromURL.token !== 'undefined') {
   localStorage.setItem('token', tokenFromURL.token)
+  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch('token'))
 }
 
 const token = localStorage.getItem('token')

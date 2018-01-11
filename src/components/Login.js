@@ -143,7 +143,7 @@ class Home extends React.Component {
             return <div>redirecting ...</div>
           }
 
-          return <redirect to='/' />
+          return <Redirect to='/' />
 
 
         }

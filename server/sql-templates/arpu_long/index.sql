@@ -8,6 +8,8 @@ select
   , sum(us.home_cpa) :: float as cost
   , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
   , sum(case when us.optout > 0 and date_diff('hours', us.sale_timestamp, us.optout_timestamp) < 24 then 1 else 0 end) :: float as optout_24h
+  , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
+
   
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then 1 else null end) :: float as sales_week_1
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then 1 else null end) :: float as sales_week_2
