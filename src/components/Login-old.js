@@ -1,4 +1,5 @@
 // @flow
+// this component is left for reference
 
 import React from 'react'
 import { connect } from 'react-redux'
@@ -28,7 +29,7 @@ import { fromQueryString } from '../helpers'
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
-import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select, GoogleButton } from './Styled'
+import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 
 import './Login.styl'
 
@@ -37,17 +38,61 @@ import URI from 'urijs'
 const { format: d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 
-const api_root = process.env.api_root || ''
+type LoginProps = {
+  login: (username: string, password: string) => void
+}
 
-const Login = () => (
-  <FormContainer className='login'>
-    <FormSection>
-      <FormRow className='row'>
-        <GoogleButton className='google-button' href={`${api_root}/api/google_login`} text='Sign in with Google '/>
+type LoginState = {
+  username: string
+  , password: string
+  , invalid_password: boolean
+}
+
+class Login extends React.Component {
+
+  state: LoginState
+  props: LoginProps
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      username: ''
+      , password: ''
+      , invalid_password: false
+    }
+  }
+
+  render() {
+
+    const invalid_password_component = this.state.invalid_password
+      ? <FormRow>
+        <FormLabel>&nbsp;</FormLabel>
+        <div>Invalid Password</div>
       </FormRow>
-    </FormSection>
-  </FormContainer>
-)
+      : ''
+
+    return <FormContainer className='login'>
+      <FormSection>
+        <FormRow className='row'>
+          <FormLabel>Username</FormLabel>
+          <DateField type="text" onChange={e => this.setState({ username: e.target.value })} />
+        </FormRow>
+        <FormRow className='row'>
+          <FormLabel>Password</FormLabel>
+          <DateField type="password" onChange={e => this.setState({ password: e.target.value })} />
+        </FormRow>
+        {invalid_password_component}
+        <FormRow className='row'>
+          <Submit
+            className='login-button'
+            onClick={() => {
+              this.props.login(this.state.username, this.state.password)
+            }}>Login</Submit>
+        </FormRow>
+      </FormSection>
+    </FormContainer>
+  }
+}
 
 type HomeProps = {
   params: QueryParams

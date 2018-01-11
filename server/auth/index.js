@@ -4,46 +4,36 @@ const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const LdapStrategy = require('passport-ldapauth')
-const ActiveDirectory = require('activedirectory')
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const googleConfig = require('./google_config')
 
-// options
+
+passport.serializeUser((user, done) => {
+  done(null, user)
+})
+
+passport.deserializeUser((obj, done) => {
+  done(null, obj)
+})
+
+const secret = process.env.secret
+
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
-  secretOrKey: process.env.secret,
+  secretOrKey: secret,
   ignoreExpiration: false,
 }
 
-const LDAPconfig = {
-  server: {
-    url: 'ldaps://ldap.sam-media.com',
-    searchBase: 'ou=user,dc=sam-media,dc=com',
-    searchFilter: '(mail={{username}})'
-  },
-}
+const validateSignature = (x, y) => x === y
+const validateExpiry = e => e >= new Date().valueOf()
 
-const activeDirectoryConfig = {
-  url: 'ldaps://ldap.sam-media.com',
-  baseDN: 'ou=user,dc=sam-media,dc=com',
-}
+const redirectURL = (loginRedir, noLoginRedir) => loginRedir ? loginRedir : noLoginRedir
 
-const ad = new ActiveDirectory(activeDirectoryConfig)
-
-const userExists = username => new Promise((resolve, reject) => {
-  ad.userExists({ filter: `mail=${username}` }, username, (err, exists) => {
-    if (err) {
-      reject(false)
-    }
-    if (!exists) {
-      console.log(username + ' exists: ' + exists)
-      reject(false)
-    }
-    if (exists) {
-      console.log(username + ' exists: ' + exists)
-      resolve(true)
-    }
-  })
-})
+const token = user => jwt.sign(
+  { username: user }
+  , jwtOptions.secretOrKey
+  , { expiresIn: '1m' }
+)
 
 const sign = (username, exp, secret) => {
   const str = username.concat(exp, secret)
@@ -52,20 +42,18 @@ const sign = (username, exp, secret) => {
     h[i % 4] ^= str.charCodeAt(i)
     h[i % 4] *= 0x01000193
   }
-  /* returns 4 concatenated hex representations */
+    /* returns 4 concatenated hex representations */
   return h[0].toString(16) + h[1].toString(16) + h[2].toString(16) + h[3].toString(16);
 }
 
-const validateSignature = (x, y) => x === y
-const validateExpiry = e => e >= new Date().valueOf()
+const checkProfilePayload = (profile, done) => {
+  if (profile._json.domain == 'sam-media.com') {
+    return done(null, profile)
+  }
+  return done('no user found', null)
+}
 
-const token = user => jwt.sign(
-  { username: user }
-  , jwtOptions.secretOrKey
-  , { expiresIn: '7d' }
-)
-
-const checkLdapPayload = (email, done) => {
+const checkPayload = (email, done) => {
   if (typeof email !== 'undefined') {
     return done(null, email)
   }
@@ -73,27 +61,22 @@ const checkLdapPayload = (email, done) => {
 }
 
 passport.use(
-  new LdapStrategy(LDAPconfig,
-    (payload, done) => {
-      console.log('LDAP authentication started')      
-      checkLdapPayload(payload.mail, (err, user) => {
-        if (err) {
-          return done(err)
-        }
+  new GoogleStrategy(googleConfig.google,
+    (accessToken, refreshToken, profile, done) => {
+      checkProfilePayload(profile, (err, user) => {
         if (!user) {
           return done(null, false, { message: 'incorrect username' })
         }
         return done(null, user)
       })
     },
-  ),
-)
+))
 
 passport.use(
   new JwtStrategy(jwtOptions,
     (payload, done) => {
       console.log('jwt authentication started')
-      checkLdapPayload(payload.username, (err, user) => {
+      checkPayload(payload.username, (err, user) => {
         if (err) {
           return done(err, null)
         }
@@ -107,7 +90,7 @@ passport.use(
 )
 
 module.exports = (app) => {
-  const requireSignin = passport.authenticate('ldapauth', { session: false })
+  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'] })
   const requireAuth = passport.authenticate('jwt', { session: false })
 
   app.use(passport.initialize())
@@ -125,27 +108,17 @@ module.exports = (app) => {
   app.use((req, res, next) => {
     if ('undefined' !== typeof req.query.username) {
       const base = req.url.split('?')[0]
-      const dir = req.url.substr(0, req.url.lastIndexOf('/'))
       const { username, exp_ts, hash } = req.query
-      const signature = sign(username, exp_ts, process.env.secret)
+      const signature = sign(username, exp_ts, secret)
       
       const isValidated = validateSignature(signature, hash)
-      console.log(isValidated)
-      
       const notExpired = validateExpiry(exp_ts)
-      console.log(notExpired)
-
+      
       if (isValidated && notExpired) {
-        userExists(username)
-          .then(x => x ?
-            res.redirect(base + '?token=' + token(username))
-          : res.redirect(base)
-          )
-          .catch(x => !x ?
-            res.redirect(base)
-          : res.redirect(base)
-          )
+        console.log('validated and not expired')
+        res.redirect(base + '?token=' + token(username))
       } else {
+        console.log('either not validated or not expired')
         res.redirect(base)
       }
     } else {
@@ -153,38 +126,32 @@ module.exports = (app) => {
     }
   })
 
-  app.post('/api/login',
-    requireSignin,
-    (req, res, next) => {
-        // success
-      const username = req.body.username
-      res.end(JSON.stringify({ success: true, token: token(username) }))
-    }
-    , (err, req, res, next) => {
-        // failure
-      res.end(JSON.stringify({ success: false }))
-    },
-  )
+  app.get('/api/google_login', requireSignin, (req, res, next) => {
+  })
+
+  app.get('/api/google_callback',
+    passport.authenticate('google', {
+      failureRedirect: `/api/login`
+    }),
+  (req, res) => {
+    // Authenticated successfully
+    const user = req.user
+    const sessionState = decodeURIComponent(req.headers.referer)
+    const parsedSessionState = sessionState.split('login_redir=').pop()
+    res.redirect(redirectURL(parsedSessionState, sessionState) + `?token=${token(user.emails[0].value)}`);
+  })
 
   app.post('/api/is_loggedin',
     (req, res) => {
       const recievedToken = req.headers.authorization
-      jwt.verify(recievedToken, process.env.secret, (err, decode) => {
+      jwt.verify(recievedToken, secret, (err, decode) => {
         if (err) {
           if (err.name === 'TokenExpiredError') {
             const decoded = jwt.decode(recievedToken, { json: true })
             console.log('Token expired , username:', decoded)
-            userExists(decoded.username)
-              .then(x => x ?
-                res.end(JSON.stringify({ success: x, token: token(decoded.username) }))
-              : res.end(JSON.stringify({ success: x, err: err }))
-              )
-              .catch(x => !x ?
-                res.end(JSON.stringify({ success: x, err: err }))
-              : res.end(JSON.stringify({ success: x, err: err }))
-              )
+            res.end(JSON.stringify({ success: false, err }))
           } else {
-            res.end(JSON.stringify({ success: false }))  
+            res.end(JSON.stringify({ success: false, err }))
           }
         } else {
           res.end(JSON.stringify({ success: true }))
