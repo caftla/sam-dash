@@ -29,24 +29,6 @@ app.post('/api/v1/run_query', (req, res) => {
   })
 })
 
-app.use((req, res, next) => {
-  if('sam-media' == req.query.username  && '37b90bce2765c2072c' == req.query.hash) {
-    const base = req.url.split('?')[0]
-    const params = R.pipe(
-      R.toPairs
-    , R.reject(([k, v]) => k == 'username' || k == 'hash')
-    , R.map(R.join('='))
-    , R.join('&')
-    )(R.merge(
-      {token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InN0YWZmQHNhbS1tZWRpYS5jb20iLCJjcmVhdGVkQXQiOjE0OTk2OTE2NTYzNDJ9.i7ekGnl9gZM6iUBPsvYkKcZA1agNbjzUf2Txi7mNqxw'}
-      , req.query))
-    return res.redirect(base + '?' + params)
-  }
-  next();
-})
-
-
-
 // login
 const authenticate = require('./auth')(app)
 
@@ -141,11 +123,12 @@ app.get('/api/v1/filter_page_section_row/flat/:timezone/:from_date/:to_date/:fil
 })
 
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
-  respond_helix(
+  const params = R.merge(req.params, { })
+  respond_jewel(
       fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
-    , req.params
+    , params
     , res
-    , x => x
+    , require('./sql-templates/all_countries')(params)
   )
 })
 
@@ -181,7 +164,7 @@ app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:secti
 
 app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
+  respond_jewel(
       fs.readFileSync('./server/sql-templates/arpu_long/index.sql', 'utf8')
     , params
     , res

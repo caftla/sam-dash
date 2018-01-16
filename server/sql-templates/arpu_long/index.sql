@@ -1,66 +1,72 @@
-CREATE OR REPLACE FUNCTION pg_temp.after(a timestamp, b integer, c numeric) RETURNS numeric AS $$
-  BEGIN
-    RETURN CASE WHEN EXTRACT(day from now() - a) > b THEN c ELSE null END;
-  END;
-$$ LANGUAGE plpgsql
-IMMUTABLE
-RETURNS NULL ON NULL INPUT;
+select  
+    $[params.f_page('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as page
+  , $[params.f_section('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as section
+  , $[params.f_row('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as row
+  , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
+  , sum(case when us.pixel > 0 then 1 else 0 end) :: float as pixels
+  , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
+  , sum(us.home_cpa) :: float as cost
+  , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
+  , sum(case when us.optout > 0 and date_diff('hours', us.sale_timestamp, us.optout_timestamp) < 24 then 1 else 0 end) :: float as optout_24h
+  , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
 
-select
-    $[params.f_page('d', 'day', {no_timezone: true})]$ as page
-  , $[params.f_section('d', 'day', {no_timezone: true})]$ as section
-  , $[params.f_row('d', 'day', {no_timezone: true})]$ as row
-  , sum(d.home_cpa) :: int as cost
-  , sum(d.sale_count) :: int as sales
-  , sum(d.sale_pixel_delayed_count + d.sale_pixel_direct_count) :: int as pixels
-  , sum(d.optout_24h) :: int as optout_24h
-  , sum(d.firstbilling_count) :: int as firstbillings
+  
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then 1 else null end) :: float as sales_week_1
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then 1 else null end) :: float as sales_week_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then 1 else null end) :: float as sales_month_1
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then 1 else null end) :: float as sales_month_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then 1 else null end) :: float as sales_month_3
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 122 then 1 else null end) :: float as sales_month_4
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 153 then 1 else null end) :: float as sales_month_5
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 183 then 1 else null end) :: float as sales_month_6
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 214 then 1 else null end) :: float as sales_month_7
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 244 then 1 else null end) :: float as sales_month_8
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 274 then 1 else null end) :: float as sales_month_9
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 305 then 1 else null end) :: float as sales_month_10
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 335 then 1 else null end) :: float as sales_month_11
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 365 then 1 else null end) :: float as sales_month_12
 
-  , SUM(pg_temp.after(d.day, 7, d.tb_first_week_revenue)) :: float as revenue_week_1
-  , SUM(pg_temp.after(d.day, 7, d.sale_count)) :: float as sales_week_1
-
-  , SUM(pg_temp.after(d.day, 14, d.tb_first_week_revenue + d.tb_second_week_revenue)) :: float as revenue_week_2
-  , SUM(pg_temp.after(d.day, 14, d.sale_count)) :: float as sales_week_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then us.tb_first_week_revenue else 0 end) :: float as revenue_week_1
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then us.tb_first_week_revenue + us.tb_second_week_revenue else 0 end) :: float as revenue_week_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then us.tb_first_month_revenue else 0 end) :: float as revenue_month_1
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then us.tb_first_month_revenue + us.tb_second_month_revenue else 0 end) :: float as revenue_month_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then us.tb_three_month_revenue else 0 end) :: float as revenue_month_3
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 122 then us.tb_three_month_revenue + us.tb_4th_month_revenue else 0 end) :: float as revenue_month_4
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 153 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue else 0 end) :: float as revenue_month_5
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 183 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue else 0 end) :: float as revenue_month_6
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 214 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue else 0 end) :: float as revenue_month_7
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 244 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue else 0 end) :: float as revenue_month_8
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 274 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue  + tb_9th_month_revenue else 0 end) :: float as revenue_month_9
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 305 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue  + us.tb_9th_month_revenue  + us.tb_10th_month_revenue else 0 end) :: float as revenue_month_10
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 335 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue + us.tb_9th_month_revenue  + us.tb_10th_month_revenue + us.tb_11th_month_revenue else 0 end) :: float as revenue_month_11
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 365 then us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue + us.tb_9th_month_revenue + us.tb_10th_month_revenue + us.tb_11th_month_revenue + tb_12th_month_revenue else 0 end) :: float as revenue_month_12
   
-  , SUM(pg_temp.after(d.day, 30, d.tb_first_month_revenue)) :: float as revenue_month_1
-  , SUM(pg_temp.after(d.day, 30, d.sale_count)) :: float as sales_month_1
   
-  , SUM(pg_temp.after(d.day, 61, d.tb_first_month_revenue + d.tb_second_month_revenue)) :: float as revenue_month_2
-  , SUM(pg_temp.after(d.day, 61, d.sale_count)) :: float as sales_month_2
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then us.tb_first_week_revenue                               else null end) as arpu_week_1
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then us.tb_first_week_revenue + us.tb_second_week_revenue   else null end) as arpu_week_2
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then us.tb_first_month_revenue                              else null end) as arpu_month_1
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then us.tb_first_month_revenue + us.tb_second_month_revenue else null end) as arpu_month_2
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then us.tb_three_month_revenue                              else null end) as arpu_month_3
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 122 then us.tb_three_month_revenue + us.tb_4th_month_revenue    else null end) as arpu_month_4
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 153 then us.tb_three_month_revenue + us.tb_4th_month_revenue 
+  --                                                                                                                                 + us.tb_5th_month_revenue    else null end) as arpu_month_5
+  -- , avg(       case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 183 then us.tb_three_month_revenue + us.tb_4th_month_revenue 
+  --                                                                                                       + us.tb_5th_month_revenue + us.tb_6th_month_revenue    else null end) as arpu_month_6
   
-  , SUM(pg_temp.after(d.day, 91, d.tb_three_month_revenue)) :: float as revenue_month_3
-  , SUM(pg_temp.after(d.day, 91, d.sale_count)) :: float as sales_month_3
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then us.tb_first_week_revenue                               else null end) as arpu_stddev_7
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then us.tb_first_week_revenue + us.tb_second_week_revenue   else null end) as arpu_stddev_14
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then us.tb_first_month_revenue                              else null end) as arpu_stddev_30
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then us.tb_first_month_revenue + us.tb_second_month_revenue else null end) as arpu_stddev_61
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then us.tb_three_month_revenue                              else null end) as arpu_stddev_92
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 122 then us.tb_three_month_revenue + us.tb_4th_month_revenue    else null end) as arpu_stddev_122
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 153 then us.tb_three_month_revenue + us.tb_4th_month_revenue 
+                                                                                                                                  + us.tb_5th_month_revenue    else null end) as arpu_stddev_153
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 183 then us.tb_three_month_revenue + us.tb_4th_month_revenue 
+                                                                                                        + us.tb_5th_month_revenue + us.tb_6th_month_revenue    else null end) as arpu_stddev_183
   
-  , SUM(pg_temp.after(d.day, 122, d.tb_three_month_revenue + d.tb_4th_month_revenue)) :: float as revenue_month_4
-  , SUM(pg_temp.after(d.day, 122, d.sale_count)) :: float as sales_month_4
-  
-  , SUM(pg_temp.after(d.day, 152, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue)) :: float as revenue_month_5
-  , SUM(pg_temp.after(d.day, 152, d.sale_count)) :: float as sales_month_5
-  
-  , SUM(pg_temp.after(d.day, 183, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue)) :: float as revenue_month_6
-  , SUM(pg_temp.after(d.day, 183, d.sale_count)) :: float as sales_month_6
-  
-  , SUM(pg_temp.after(d.day, 214, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue)) :: float as revenue_month_7
-  , SUM(pg_temp.after(d.day, 214, d.sale_count)) :: float as sales_month_7
-  
-  , SUM(pg_temp.after(d.day, 244, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue + d.tb_8th_month_revenue)) :: float as revenue_month_8
-  , SUM(pg_temp.after(d.day, 244, d.sale_count)) :: float as sales_month_8
-  
-  , SUM(pg_temp.after(d.day, 274, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue + d.tb_8th_month_revenue + d.tb_9th_month_revenue)) :: float as revenue_month_9
-  , SUM(pg_temp.after(d.day, 274, d.sale_count)) :: float as sales_month_9
-  
-  , SUM(pg_temp.after(d.day, 305, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue + d.tb_8th_month_revenue + d.tb_9th_month_revenue + d.tb_10th_month_revenue)) :: float as revenue_month_10
-  , SUM(pg_temp.after(d.day, 305, d.sale_count)) :: float as sales_month_10
-  
-  , SUM(pg_temp.after(d.day, 335, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue + d.tb_8th_month_revenue + d.tb_9th_month_revenue + d.tb_10th_month_revenue + d.tb_11th_month_revenue)) :: float as revenue_month_11
-  , SUM(pg_temp.after(d.day, 335, d.sale_count)) :: float as sales_month_11
-  
-  , SUM(pg_temp.after(d.day, 365, d.tb_three_month_revenue + d.tb_4th_month_revenue + d.tb_5th_month_revenue + d.tb_6th_month_revenue + d.tb_7th_month_revenue + d.tb_8th_month_revenue + d.tb_9th_month_revenue + d.tb_10th_month_revenue + d.tb_11th_month_revenue + d.tb_12th_month_revenue)) :: float as revenue_month_12
-  , SUM(pg_temp.after(d.day, 365, d.sale_count)) :: float as sales_month_12
-
-from reports_ams.rps_full d
-where d.day >= '$from_date$'
-  and d.day < '$to_date$'
-  and $[params.f_filter('d')]$
+from user_subscriptions us
+where us.sale_timestamp >= '$from_date$'
+  and us.sale_timestamp < '$to_date$'
+  and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
 group by page, section, row
 order by page, section, row

@@ -1,67 +1,69 @@
 // @flow
 
-const jwt = require('jwt-simple')
-const userModel = require('./userModel.js').user
+
+const jwt = require('jsonwebtoken')
 const passport = require('passport')
 const JwtStrategy = require('passport-jwt').Strategy
 const ExtractJwt = require('passport-jwt').ExtractJwt
-const LocalStrategy = require('passport-local').Strategy
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
+const validate = require('./validateModel').validate
+const googleConfig = require('./google_config')
+const URI = require('urijs')
 
-passport.serializeUser((user, callback) => callback(null, user.email))
-passport.deserializeUser((email, callback) => {
-  userModel.getUserByEmail(email, (err, obj) => {
-    callback(err, obj)
-  })
+
+passport.serializeUser((user, done) => {
+  done(null, user)
 })
 
-const token = (user) => {
-  const timestamp = new Date().getTime()
-  return jwt.encode({ username: user, createdAt: timestamp }, 'dashman')
+passport.deserializeUser((obj, done) => {
+  done(null, obj)
+})
+
+const secret = process.env.secret
+if (!secret) { throw Error('Please set "secret" environment variable, it is used to encode and decode JWT tokens') }
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
+  secretOrKey: secret,
+  ignoreExpiration: false,
 }
 
-passport.use(
-  new LocalStrategy(
-    (username, password, done) => {
-      userModel.getUserByEmail(username, (err, obj) => {
-        if (err) {
-          return done(err)
-        }
-        if (!obj) {
-          return done(null, false, { message: 'incorrect email!' })
-        }
-        if (!userModel.compareUser(obj, password)) {
-          return done(null, false, { message: 'incorrect password' })
-        }
-        return done(null, obj)
-      })
-    },
-  ),
+const token = user => jwt.sign(
+  { username: user }
+  , jwtOptions.secretOrKey
+  , { expiresIn: '7d' }
 )
 
 passport.use(
-  new JwtStrategy(
-    {
-      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwt.fromHeader('authorization'), ExtractJwt.fromUrlQueryParameter('token')]),
-      secretOrKey: 'dashman',
+  new GoogleStrategy(googleConfig.google,
+    (accessToken, refreshToken, profile, done) => {
+      validate.checkProfilePayload(profile, (err, user) => {
+        if (!user) {
+          return done(null, false, { message: 'incorrect username' })
+        }
+        return done(null, user)
+      })
     },
+))
+
+passport.use(
+  new JwtStrategy(jwtOptions,
     (payload, done) => {
-      console.log('jwt authentication started')
-      console.log(payload)
-      userModel.getUserByEmail(payload.username, (err, obj) => {
+      validate.checkPayload(payload.username, (err, user) => {
         if (err) {
-          return done(err)
+          return done(err, null)
         }
-        if (!obj) {
-          return done(null, false, { message: 'incorrect email!' })
+        if (!user) {
+          return done(null, false, { message: 'incorrect username' })
         }
-        return done(null, obj)
+        return done(null, user)
       })
     },
   ),
 )
 
 module.exports = (app) => {
-  const requireSignin = passport.authenticate('local', { failwitherror: true })
+  const requireSignin = passport.authenticate('google', { scope: ['openid email profile'], hd: 'sam-media.com' })
   const requireAuth = passport.authenticate('jwt', { session: false })
 
   app.use(passport.initialize())
@@ -76,51 +78,64 @@ module.exports = (app) => {
     next()
   })
 
-  app.post('/api/login',
-    requireSignin,
-    (req, res, next) => {
-        // success
-      const username = req.user.email
-      console.log(username)
-      res.end(JSON.stringify({ success: true, token: token(username) }))
+  app.use((req, res, next) => {
+    if ('undefined' !== typeof req.query.username) {
+      const base = req.url.split('?')[0]
+      const { username, exp_ts, hash } = req.query
+      const signature = validate.sign(username, exp_ts, secret)
+      
+      const isValidated = validate.signature(signature, hash)
+      const notExpired = validate.expiry(exp_ts)
+      
+      if (isValidated && notExpired) {
+        res.redirect(base + '?token=' + token(username))
+      } else {
+        res.redirect(base)
+      }
+    } else {
+      next()
     }
-    , (err, req, res, next) => {
-        // failure
-      res.end(JSON.stringify({ success: false }))
-    },
-  )
+  })
 
-  // app.use((req, res, next) => {
-  //   // try logging in by cookie
-  //   const login = (username, callback) => {
-  //     req.login({username: username}, () => {
-  //       res.cookie('username', req.user.username , { expires: new Date(new Date().valueOf() + 1000 * 3600 * 24 * 30), path: '/', httpOnly: true })
-  //       if(!!callback)
-  //         callback()
-  //       else
-  //         next()
-  //     })
-  //   }
-  //   if(req.isAuthenticated()) {
-  //     next()
-  //   } else if(!!req.cookies && !!req.cookies.username) {
-  //     login(req.cookies.username)
-  //   } else if(!!req.query.username && !!req.query.hash) {
-  //     if(decrypt(req.query.hash) == req.query.username) {
-  //       // TODO: improve redirection by just removing username and hash from query string not all query params
-  //       login(req.query.username, () => res.redirect(req.originalUrl.split('?')[0]))
-  //     }
-  //   } else {
-  //     next()
-  //   }
-  // })
+  app.get('/api/google_login', requireSignin)
 
-  app.post('/api/is_loggedin', requireAuth,
-    (req, res, next) => {
-      res.end(JSON.stringify({ success: true }))
+  app.get('/api/google_callback', requireSignin, (req, res) => {
+    // Authenticated successfully, now find where to go next
+    const user = req.user
+    const clientReferer = req.headers.referer
+
+    if ('undefined' !== typeof clientReferer) {
+      const loginRedir = URI(clientReferer).query(true)['login_redir']
+
+      loginRedir !== 'undefined'
+        ? res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value) }))
+        : res.redirect(URI(clientReferer).query({ token: token(user.emails[0].value) }))
+    } else {
+      res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
+    }
+  })
+
+  app.post('/api/is_loggedin',
+    (req, res) => {
+      const recievedToken = req.headers.authorization
+      jwt.verify(recievedToken, secret, err =>
+        // if (err) {
+        //   // if (err.name === 'TokenExpiredError') {
+        //     // const decoded = jwt.decode(recievedToken, { json: true })
+        //     // console.log('Token expired , username:', decoded)
+        //     // res.end(JSON.stringify({ success: false, err }))
+        //   res.end(JSON.stringify({ success: false, err }))
+        //   // }
+        // } else {
+        //   res.end(JSON.stringify({ success: true }))
+        // }
+        err
+          ? res.end(JSON.stringify({ success: false, err }))
+          : res.end(JSON.stringify({ success: true })),
+      )
     },
-    (err, req, res, next) => {
-      res.end(JSON.stringify({ success: false }))
+    (err, req, res) => {
+      res.end(JSON.stringify({ success: false, err }))
     },
   )
   return () => requireAuth

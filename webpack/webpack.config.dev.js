@@ -28,13 +28,13 @@ module.exports = {
   devtool: 'inline-source-map',
   devServer: {
     hot: true,
-    host: '0.0.0.0',
+    host: '127.0.0.1',
     contentBase: resolve(__dirname, '../assets'),
     publicPath: '/',
     historyApiFallback: true,
     proxy: {
       '/api/*': {
-        target: 'http://0.0.0.0:3081/', // 'https://api.ipify.org/',
+        target: 'http://127.0.0.1:3081/', // 'https://api.ipify.org/',
         changeOrigin: true,
         ws: true,
       }

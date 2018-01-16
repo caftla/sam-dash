@@ -7,7 +7,11 @@ import { render } from 'react-dom'
 // import { BrowserRouter, Route } from 'react-router-dom'
 
 import createHistory from 'history/createBrowserHistory'
-import { Route } from 'react-router'
+import { Route, Switch } from 'react-router'
+import { Redirect } from 'react-router'
+import { match } from './adts'
+
+import URI from 'urijs'
 
 import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
 // import './index.styl'
@@ -17,8 +21,14 @@ const history = createHistory()
 
 
 import { store } from './store'
+import { connect } from 'react-redux'
+import {
+  login, check_loggedin
+} from './actions'
+
 
 import Home from './components/Home'
+import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
@@ -30,6 +40,7 @@ import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
+import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
 
@@ -47,13 +58,14 @@ const Redirect_Filter_Page_Section_Row = ({ match, history }) => {
 const tokenFromURL = fromQueryString(window.location.search.substring(1))
 if (typeof tokenFromURL.token !== 'undefined') {
   localStorage.setItem('token', tokenFromURL.token)
+  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch('token'))
 }
 
 const token = localStorage.getItem('token')
 const queryString = fromQueryString(window.location.search.substring(1))
 if (!token && !queryString.login_redir) {
   const url = window.location.href
-  const newUrl = '/?login_redir=' + encodeURIComponent(url)
+  const newUrl = '/login?login_redir=' + encodeURIComponent(url)
   window.location = newUrl
 }
 
@@ -151,35 +163,62 @@ function Wrap(WrappedComponent) {
   }
 }
 
+function RequiresAuth(WrappedComponent) {
+  return connect(state => ({ login_state: state.login }), { check_loggedin})(props => {
+    const url = window.location.href
+    const newUrl = '/login?login_redir=' + encodeURIComponent(url)
+    return match({
+      Nothing: () => { props.check_loggedin(); return <div>Nothing</div> }
+      , Loading: () => <div>Loading...</div>
+      , Error: (error) => <div>Error: {error.toString()}</div>
+      , Loaded: (data) => {
+        try {
+          return !data ? window.location.href = newUrl : <WrappedComponent {...props} />
+        } catch(ex) {
+          return <div>ERROR</div>
+        }
+      }
+    })(props.login_state)
+  })
+}
+
+const WrapAndAuth = x => RequiresAuth(Wrap(x))
+
 const main_bottom = <Provider store={store}>
   <ConnectedRouter history={history}>
     <Body>
-      <Route exact path="/" component={Wrap(Home)} />
-      <Route exact path="/dashboard" component={Wrap(Dashboard)} />
-      {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-      <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Filter_Page_Section_Row)} />
-      <Route path="/filter_page_section_row" exact={true} component={Wrap(Filter_Page_Section_Row)} />
-      <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Redirect_Filter_Page_Section_Row)} />
-      <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Transactions)} />
-      <Route path="/transactions" exact={true} component={Wrap(Transactions)} />
+      <Switch>
+        <Route exact path="/" component={WrapAndAuth(Home)} />
+        <Route exact path="/login" component={Wrap(Login)} />
+        <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
+        {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
+        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
+        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
+        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
+        <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
+        <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
-      <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(ARPU_Long)} />
-      <Route path="/arpu_long" exact={true} component={Wrap(ARPU_Long)} />
+        <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(ARPU_Long)} />
+        <Route path="/arpu_long" exact={true} component={WrapAndAuth(ARPU_Long)} />
 
-      <Route path="/weekly_reports/:date_from/:date_to/:filter/:page/:section/:row" component={Wrap(Weekly_Reports)} />
-      <Route path="/weekly_reports" exact={true} component={Wrap(Weekly_Reports)} />
+        <Route path="/weekly_reports/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Weekly_Reports)} />
+        <Route path="/weekly_reports" exact={true} component={WrapAndAuth(Weekly_Reports)} />
 
-      <Route path="/cohort" exact={true} component={Wrap(Cohort)} />
-      <Route path="/arpu" exact={true} component={Wrap(Arpu)} />      
-      <Route path="/cohort/:date_from/:date_to/:filter" component={Wrap(Cohort)} />
-      
-      <Route path="/converting_ips/" exact={true} component={Wrap(ConvertingIPs)} />
-      <Route path="/converting_ips/:date_from/:date_to/:filter" component={Wrap(ConvertingIPs)} />
-      
-      <Route path="/monthly_reports/" exact={true} component={Wrap(MonthlyReports)} />
-      <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={Wrap(MonthlyReports)} />
-      <Route path="/daily_reports_archive/:date_from" component={Wrap(DailyReportsArchive)} />
-      <Route path="/hourly_reports_archive/:date_from" component={Wrap(DailyReportsArchive)} />
+        <Route path="/cohort" exact={true} component={WrapAndAuth(Cohort)} />
+        <Route path="/arpu" exact={true} component={WrapAndAuth(Arpu)} />      
+        <Route path="/cohort/:date_from/:date_to/:filter" component={WrapAndAuth(Cohort)} />
+        
+        <Route path="/converting_ips/" exact={true} component={WrapAndAuth(ConvertingIPs)} />
+        <Route path="/converting_ips/:date_from/:date_to/:filter" component={WrapAndAuth(ConvertingIPs)} />
+        
+        <Route path="/monthly_reports/" exact={true} component={WrapAndAuth(MonthlyReports)} />
+        <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
+        <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route exact path="*" component={Wrap(NotFound)} >
+          <Route Route exact path="*" component={Wrap(NotFound)} />
+        </Route>
+      </Switch>
     </Body>
   </ConnectedRouter>
 </Provider>

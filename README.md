@@ -3,5 +3,5 @@
 To start the web app run:
 
 ```
-npm run start
+secret=duck npm run start
 ```

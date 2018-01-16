@@ -18,9 +18,12 @@ module.exports = (params) => {
   const add_ratios = x => R.merge(x, {
       cq: safe_div(x.firstbillings, x.sales)
     , active24: safe_div(x.sales - x.optout_24h, x.sales)
+    , active: safe_div(x.sales - x.optouts, x.sales)
     , ecpa: safe_div(x.cost, x.sales)
     , cpa: safe_div(x.cost, x.pixels)
     , pixels_ratio: safe_div(x.pixels, x.sales)
+    , resubs_ratio: safe_div(x.resubs, x.sales)
+    , firstbillings_and_active24: safe_div(x.firstbillings && x.optout_24h, x.sales)
 
     , arpu_week_1  : safe_div(x.revenue_week_1  , x.sales_week_1  )
     , arpu_week_2  : safe_div(x.revenue_week_2  , x.sales_week_2  )
@@ -36,6 +39,7 @@ module.exports = (params) => {
     , arpu_month_10: safe_div(x.revenue_month_10, x.sales_month_10)
     , arpu_month_11: safe_div(x.revenue_month_11, x.sales_month_11)
     , arpu_month_12: safe_div(x.revenue_month_12, x.sales_month_12)
+
   })
   
  const reduce_data = data => {
@@ -46,7 +50,9 @@ module.exports = (params) => {
             , sales: a.sales + acc.sales
             , pixels: a.pixels + acc.pixels
             , optout_24h: a.optout_24h + acc.optout_24h
+            , optouts: a.optouts + acc.optouts
             , firstbillings: a.firstbillings + acc.firstbillings
+            , resubs: a.resubs + acc.resubs
 
             , revenue_week_1: a.revenue_week_1 + acc.revenue_week_1
             , revenue_week_2: a.revenue_week_2 + acc.revenue_week_2
@@ -83,7 +89,9 @@ module.exports = (params) => {
           , sales: 0
           , pixels: 0
           , optout_24h: 0
+          , optouts: 0
           , firstbillings: 0
+          , resubs: 0
 
           , revenue_week_1: 0
           , revenue_week_2: 0

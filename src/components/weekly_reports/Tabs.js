@@ -7,6 +7,9 @@ import Tabs from '../common-controls/page_section_rows_tabs'
 
 // exporting to excel
 const exportToExcel = (formatter, params, pages) => {
+
+  const selected_columns = ['page', 'row', 'views', 'leads', 'sales', 'pixels', 'cr', 'pixels_cr', 'pixels_ratio', 'releads',  'resubs', 'active24', 'cq', 'ecpa', 'cpa',  'cost', 'revenue', 'total', 'billed']
+
   const data = R.pipe(
       R.map(x => R.merge(x, {
         data: R.chain(y => y.data.map(r => R.merge(r, {
@@ -20,7 +23,9 @@ const exportToExcel = (formatter, params, pages) => {
           name: sheet.name 
         , data: R.concat([R.pipe(
                 R.keys
+              , R.filter(x => selected_columns.some(s => s == x))
               , R.reject(x => x == 'section_sales_ratio')
+              , R.sortBy(k => R.indexOf(k, selected_columns))
               , R.map(x => ({
                     v: x
                   , s: { 
@@ -31,17 +36,20 @@ const exportToExcel = (formatter, params, pages) => {
             R.map(
               R.compose(R.map(x => {
                 const [k, v] = x
-                return ['cr'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0.0%" } }
-                : ['pixels_ratio', 'cq',	'active24', 'resubs'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0%" } }
-                : ['views',	'leads',	'sales',	'pixels',	'paid_sales',	'firstbillings',	'optouts',	'optout_24',	'cost'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0" } }
-                : k == 'ecpa' ? { v: v, t: 'n', s: { numFmt: "0.0" } }
+                return ['cr', 'pixels_cr'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0.0%" } }
+                : ['pixels_ratio', 'billed', 'cq',	'active24', 'releads', 'resubs'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0%" } }
+                : ['views',	'leads',	'sales',	'pixels',	'paid_sales',	'firstbillings',	'optouts',	'optout_24', 'active24', 'pixels_ratio',	'cost', 'revenue', 'total'].some(y => y == k) ? { v: v, t: 'n', s: { numFmt: "0" } }
+                : ['cpa', 'ecpa'].some(y => y == k)  ? { v: v, t: 'n', s: { numFmt: "0.00" } }
                 : v
               })
+              , R.sortBy(([k, v]) => R.indexOf(k, selected_columns))
               , R.reject(x => x[0] == 'section_sales_ratio')
+              , R.filter(x => selected_columns.some(s => s == x[0]))
               , R.toPairs)
           )(sheet.data))
         })
       )
+    , x => { console.log(x); return x }
     , R.applySpec({
           SheetNames: R.map(R.prop('name'))
         , Sheets: R.pipe(

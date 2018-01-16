@@ -66,13 +66,14 @@
     "ioredis": "^3.1.4",
     "ip-subnet-calculator": "^1.1.8",
     "jsonfile": "^3.0.0",
-    "jwt-simple": "^0.5.1",
+    "jsonwebtoken": "^8.1.0",
     "lodash.isequal": "^4.5.0",
     "moment": "^2.18.1",
     "msexcel-builder-extended": "^0.0.7",
     "object-hash": "^1.2.0",
     "offline-plugin": "^4.5.3",
     "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
     "passport-local": "^1.0.0",
     "path": "^0.12.7",
@@ -96,6 +97,7 @@
     "redux": "^3.5.2",
     "redux-thunk": "^2.1.0",
     "reselect": "^3.0.0",
-    "styled-components": "^1.4.2"
+    "styled-components": "^1.4.2",
+    "urijs": "^1.19.0"
   }
 }

@@ -6,7 +6,14 @@ type ParamsOptions = {
     fix_gateway?: string
   , no_timezone?: boolean
   , double_quote?: boolean
+  , fieldMap?: Object
 }
+
+// because publisher_id is named differently in different tables
+const useFieldMap = (options : ParamsOptions, param_value1: string) : string =>
+  !!options && !!options.fieldMap && !!options.fieldMap[param_value1]
+  ? options.fieldMap[param_value1] 
+  : param_value1
 
 const query = (connection_string: string, query_template:string, params: Object) => new Promise((resolve, reject) => {
 
@@ -14,8 +21,10 @@ const query = (connection_string: string, query_template:string, params: Object)
 
   
   const add_date_trunc_params = (param_name : string) => {
-      const param_value = params[param_name]
+      const param_value1 = params[param_name]
       params[`f_${param_name}`] = (table: string, day_column: string, options: ParamsOptions) => {
+
+        const param_value = useFieldMap(options, param_value1)
 
         const date_exp = !!options && options.no_timezone === true
         ? `date_trunc('${param_value}', ${table}.${day_column})`
@@ -28,7 +37,7 @@ const query = (connection_string: string, query_template:string, params: Object)
         : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : param_value == 'hour_of_day' ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
-        : `coalesce(${table}.${param_value}, 'Unknown')`
+        : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`
 
         if (!!options && options.double_quote) {
           result = result.replace(/\'/g, "''")
@@ -65,7 +74,7 @@ const query = (connection_string: string, query_template:string, params: Object)
                 ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.timestamp) ) >= ${v}`
                 : k == 'to_hour'
                 ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.timestamp) ) < ${v}`
-                : !!options && !!options.double_quote ? `${table}.${k}=''${v}''` : `${table}.${k}='${v}'` 
+                : !!options && !!options.double_quote ? `${table}.${useFieldMap(options, k)}=''${v}''` : `${table}.${useFieldMap(options, k)}='${v}'` 
               )
             , R.split(';'))(v)
           )

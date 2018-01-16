@@ -32,7 +32,7 @@ export default (selector) => customSelectorCreator(
       const rowSelector = R.pipe(
           R.filter(r => // r for row
                   r.sales >= rowSorter.minSales
-              &&  r.views >= rowSorter.minViews
+              &&  (r.views || 0) >= rowSorter.minViews
           )
         , R.sortBy(R.prop(rowSorter.field))
         , rowSorter.order > 0 ? id : R.reverse
@@ -42,7 +42,7 @@ export default (selector) => customSelectorCreator(
       const sectionSelector = R.pipe(
           R.filter(s => // s for section
                   s.sales >= sectionSorter.minSales
-              &&  s.views >= sectionSorter.minViews
+              &&  (s.views || 0) >= sectionSorter.minViews
           )
         , R.sortBy(R.prop(sectionSorter.field))
         , sectionSorter.order > 0 ? id : R.reverse
@@ -52,7 +52,7 @@ export default (selector) => customSelectorCreator(
       return fetchState.map(R.pipe(
             R.filter(p => // p for page (tab)
                  p.sales >= tabSorter.minSales
-              && p.views >= tabSorter.minViews
+              && (p.views || 0) >= tabSorter.minViews
             ) 
           , R.sortBy(R.prop(tabSorter.field))
           , tabSorter.order > 0 ? id : R.reverse
