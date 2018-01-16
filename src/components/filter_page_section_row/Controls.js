@@ -135,11 +135,14 @@ export default class Controls extends React.Component {
     this.state = {
       ranges: {
 				'Today': [moment(), moment().add(1, 'days')],
-				'Yesterday': [moment().subtract(1, 'days'), moment().add(1, 'days')],
-				'Last 7 Days': [moment().subtract(6, 'days'), moment().add(1, 'days')],
+        'Yesterday and Today': [moment().subtract(1, 'days'), moment().add(1, 'days')],
+        'Yesterday Only': [moment().subtract(1, 'days'), moment().add(0, 'days')],
+        'Last 7 Days and Today': [moment().subtract(7, 'days'), moment().add(1, 'days')],
+        'Last 7 Days Only': [moment().subtract(7, 'days'), moment().add(0, 'days')],
+        'Last Week': [moment().subtract(7, 'days').startOf('week').add(1, 'days'), moment().startOf('week').add(1, 'days')],
 				'Last 30 Days': [moment().subtract(29, 'days'), moment().add(1, 'days')],
-				'This Month': [moment().startOf('month'), moment().endOf('month')],
-				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+				'This Month': [moment().startOf('month'), moment().endOf('month').add(1, 'days')],
+				'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month').add(1, 'days')]
 			}
       , date_from: add_time(params.date_from)
       , date_to: add_time(params.date_to)
@@ -242,7 +245,7 @@ export default class Controls extends React.Component {
             onEvent={(event, picker) => this.handleChange(event, picker)}>
             <div className='date-range-btn'>
               <i className='fa fa-calendar calendar-icon' aria-hidden='true'/>           
-              {moment(this.state.date_from).format('YYYY/MM/DD')} - {moment(this.state.date_to).format('YYYY/MM/DD')}
+              {moment(this.state.date_from).format('YY-MM-DD')} - {moment(this.state.date_to).format('YY-MM-DD')}
               <i className='fa fa-caret-down caret-icon' aria-hidden='true'/>
             </div>
           </DateRangePicker>
