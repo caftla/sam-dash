@@ -31,7 +31,7 @@ const jwtOptions = {
 const token = user => jwt.sign(
   { username: user }
   , jwtOptions.secretOrKey
-  , { expiresIn: '1w' }
+  , { expiresIn: '7d' }
 )
 
 passport.use(
