@@ -97,13 +97,13 @@ export default Section({
       , data => d3.format('0.0f')(100 * data.pixels_ratio)
     ),
     pcolumn(
-      show_label_row('Bad Pixels%', 'bad_pixels_ratio')
+      show_label_row('Bad Pxls%', 'bad_pixels_ratio')
       , () => onSort('row', 'bad_pixels_ratio', 1)
       , x => d3.format('0.0f')(100 * x.bad_pixels_ratio)
       , data => d3.format('0.0f')(100 * data.bad_pixels_ratio)
     ),
     pcolumn(
-      show_label_row('Missed Good Pixels%', 'missed_good_pixels_ratios')
+      show_label_row('Missed Good Pxls%', 'missed_good_pixels_ratios')
       , () => onSort('row', 'missed_good_pixels_ratios', 1)
       , x => d3.format('0.0f')(100 * x.missed_good_pixels_ratios)
       , data => d3.format('0.0f')(100 * data.missed_good_pixels_ratios)

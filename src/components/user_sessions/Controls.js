@@ -283,7 +283,6 @@ export default class Controls extends React.Component {
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown</FormTitle>
-
         
         <BreakdownItem 
             label="Tab"

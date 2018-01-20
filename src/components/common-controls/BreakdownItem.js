@@ -36,7 +36,7 @@ export default class BreakdownItem extends React.Component  {
             &nbsp; { this.props.label } 
             </span> } 
           value={ this.props.breakDownLevelName } 
-          onChange={ val => this.props.onChange({ 'breakDownLevel': val  || '-' }) } />
+          onChange={val => { this.props.onChange({ 'breakDownLevel': val || '-' }); this.setState({ showExtra: true })} } />
 
       <div ref="extra" style={ { display: this.state.showExtra ? 'block' : 'none' } }>
         <InputSelect options={[this.props.breakDownLevelName, 'views', 'sales', 'cost']} name="Sort By" 

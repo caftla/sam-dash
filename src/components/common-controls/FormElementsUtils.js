@@ -103,6 +103,10 @@ export const ThemedDateRangePicker = ({self}) =>
   <DateRangePicker
     startDate={moment(self.state.date_from)}
     endDate={moment(self.state.date_to)}
+    locale={{
+      "format": "DD-MM-YYYY",
+      "separator": " - ",
+    }}
     ranges={{
       'Today': [moment(), moment().add(1, 'days')],
       'Yesterday and Today': [moment().subtract(1, 'days'), moment().add(1, 'days')],
@@ -125,7 +129,7 @@ export const ThemedDateRangePicker = ({self}) =>
     }>
     <div className='date-range-btn'>
       <i className='fa fa-calendar calendar-icon' aria-hidden='true' />
-      {moment(self.state.date_from).format('YY-MM-DD')} - {moment(self.state.date_to).format('YY-MM-DD')}
+      {moment(self.state.date_from).format('DD-MM-YY')} - {moment(self.state.date_to).format('DD-MM-YY')}
       <i className='fa fa-caret-down caret-icon' aria-hidden='true' />
     </div>
   </DateRangePicker>
