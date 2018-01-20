@@ -34,6 +34,8 @@ const query = (connection_string: string, query_template:string, params: Object)
         )
 
         let result = (!param_value || param_value == '-') ? `'-'`
+        : 'screen_width' == param_value ? `round(${table}.${param_value} / 50) :: Int * 50`
+            : 'screen_size' == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')`
         : ['hour', 'day', 'week', 'month'].some(p => p == param_value) ? date_exp
         : param_value == 'gateway' && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})`
         : param_value == 'hour_of_day' ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
@@ -99,9 +101,9 @@ const query = (connection_string: string, query_template:string, params: Object)
       client.end();
       return reject(err)
     }
-    console.info('---------', 'conn.processID = ', conn.processID, '---------')
-    console.info(query)
-    console.info('---------')
+    console.log('---------', 'conn.processID = ', conn.processID, '---------')
+    console.log(query)
+    console.log('---------')
     client.query(query)
     .then(x =>  { client.end(); resolve(x) })
     .catch(x => { client.end(); reject(x) })

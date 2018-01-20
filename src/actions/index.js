@@ -170,6 +170,17 @@ export const fetch_weekly_reports = (timezone, date_from : string, date_to : str
 export const cleanup_fetch_weekly_reports = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_weekly_reports' })
 
+// user_sessions
+
+export const fetch_user_sessions = (timezone, date_from: string, date_to: string, filter: string, page: string, section: string, row: string, nocache: boolean) => (dispatch: Dispatch) => {
+  dispatch({ type: 'fetch_user_sessions_loading' })
+  get({ url: `${api_root}/api/v1/user_sessions/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache })
+    .then(d => dispatch({ type: 'fetch_user_sessions_success', payload: d }))
+}
+
+export const cleanup_fetch_user_sessions = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_user_sessions' })
+
 
 // cohort
 

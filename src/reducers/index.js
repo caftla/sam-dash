@@ -10,6 +10,7 @@ import traffic_breakdown from './traffic_breakdown'
 import filter_section_row from './filter_section_row'
 import filter_page_section_row from './filter_page_section_row'
 import weekly_reports from './weekly_reports'
+import user_sessions from './user_sessions'
 import arpu from './arpu'
 import transactions from './transactions'
 import arpu_long from './arpu_long'
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
   , filter_section_row
   , filter_page_section_row
   , weekly_reports
+  , user_sessions
   , arpu
   , transactions
   , arpu_long

@@ -4,6 +4,8 @@ import type { QueryParams } from 'my-types'
 import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import {ReactSelectize, SimpleSelect, MultiSelect} from 'react-selectize';
 import 'react-selectize/themes/index.css'
+import DateRangePicker from 'react-bootstrap-daterangepicker'
+import moment from 'moment'
 
 export const Input = ({type, name, value, onChange, style, hasLabel} : {type: string, name: string, value: string, onChange: string => void}) =>
   <FormRow hasLabel={ hasLabel }>
@@ -93,3 +95,37 @@ export const InputMultiSelect = ({name, value, options, onChange, disable, hasLa
   </FormRow>
 }
 
+const add_time = date => date.indexOf('T') > -1
+  ? date
+  : date + 'T00:00:00'
+  
+export const ThemedDateRangePicker = ({self}) =>
+  <DateRangePicker
+    startDate={moment(self.state.date_from)}
+    endDate={moment(self.state.date_to)}
+    ranges={{
+      'Today': [moment(), moment().add(1, 'days')],
+      'Yesterday and Today': [moment().subtract(1, 'days'), moment().add(1, 'days')],
+      'Yesterday Only': [moment().subtract(1, 'days'), moment().add(0, 'days')],
+      'Last 7 Days and Today': [moment().subtract(7, 'days'), moment().add(1, 'days')],
+      'Last 7 Days Only': [moment().subtract(7, 'days'), moment().add(0, 'days')],
+      'Last Week': [moment().subtract(7, 'days').startOf('week').add(1, 'days'), moment().startOf('week').add(1, 'days')],
+      'Last 5 Weeks': [moment().subtract(5 * 7, 'days').startOf('week').add(1, 'days'), moment().startOf('week').add(1, 'days')],
+      'Last 13 Weeks': [moment().subtract(13 * 7, 'days').startOf('week').add(1, 'days'), moment().startOf('week').add(1, 'days')],
+      'Last 5 Weeks and this Week': [moment().subtract(5 * 7, 'days').startOf('week').add(1, 'days'), moment().startOf('week').add(7, 'days').add(1, 'days')],
+      'Last 30 Days': [moment().subtract(29, 'days'), moment().add(1, 'days')],
+      'This Month': [moment().startOf('month'), moment().endOf('month').add(1, 'days')],
+      'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month').add(1, 'days')]
+    }}
+    onEvent={(event, picker) =>
+      self.setState({
+        date_from: add_time(moment(picker.startDate).format('YYYY-MM-DD'))
+        , date_to: add_time(moment(picker.endDate).format('YYYY-MM-DD'))
+      })
+    }>
+    <div className='date-range-btn'>
+      <i className='fa fa-calendar calendar-icon' aria-hidden='true' />
+      {moment(self.state.date_from).format('YY-MM-DD')} - {moment(self.state.date_to).format('YY-MM-DD')}
+      <i className='fa fa-caret-down caret-icon' aria-hidden='true' />
+    </div>
+  </DateRangePicker>

@@ -32,6 +32,7 @@ import Login from './components/Login'
 import Dashboard from './components/Dashboard'
 import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
+import User_Sessions from './components/user_sessions'
 import Transactions from './components/transactions'
 import ARPU_Long from './components/arpu_long'
 import Weekly_Reports from './components/weekly_reports'
@@ -140,6 +141,8 @@ function Wrap(WrappedComponent) {
               <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
 
               <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
+
+              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
               
               <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>          
 
@@ -197,6 +200,9 @@ const main_bottom = <Provider store={store}>
         <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
         <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
+
+        <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
+        <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
 
         <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(ARPU_Long)} />
         <Route path="/arpu_long" exact={true} component={WrapAndAuth(ARPU_Long)} />

@@ -3,13 +3,13 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
+import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
+import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect, InputMultiSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
+import { Input, LabelledInput, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
-
 const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
 
@@ -20,7 +20,9 @@ const DateTime = ({value, onChange, disabled, readonly}) => <input
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
-  get({url: `${api_root}/api/v1/filter_page_section_row/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
+  {
+    return get({ url: `${api_root}/api/v1/user_sessions/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
+  }
 
 const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
@@ -63,11 +65,7 @@ const get_all_props_ = props => (prop: string) => R.pipe(
     , R.sortBy(x => x)
   )(props.countries)
 
-const ifExists_ = (props, country_code) => (field: string, value: any) => (
-  !country_code || country_code == '-' 
-    ? get_all_props_(props)(field) 
-    : R.pipe( R.map(c => get_country_prop_(props, c)(field, [])), R.flatten )(country_code.split(';'))
-  ).some(e => !value ? false : value.split(';').some(v => v == e)) ? value : ''
+const ifExists_ = (props, country_code) => (field: string, value: any) => (!country_code || country_code == '-' ? get_all_props_(props)(field) : get_country_prop_(props, country_code)(field, [])).some(e => e == value) ? value : ''
 
 const get_country_prop_ = (props, country_code) => (prop: string, def: any) => R.pipe(
       R.find(x => x.country_code == country_code)
@@ -78,15 +76,15 @@ const add_time = date => date.indexOf('T') > -1
   ? date
   : date + 'T00:00:00'
 
-// const until_today = date => date.indexOf('day') > -1
-//   ? new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
-//   : add_time(date)
+const until_today = date => date.indexOf('day') > -1
+  ? new Date(new Date().valueOf() + 1 * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+  : add_time(date)
 
-// const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
+const find_relative_date = x_days => new Date(new Date().valueOf() - x_days * 1000 * 3600 * 24).toISOString().split('T')[0] + 'T00:00:00'
 
-// const since = date => date.indexOf('days') > -1
-//   ? find_relative_date(parseInt(date))
-//   : add_time(date)
+const since = date => date.indexOf('days') > -1
+  ? find_relative_date(parseInt(date))
+  : add_time(date)
 
 export default class Controls extends React.Component {
   props: ControlsProps
@@ -110,12 +108,16 @@ export default class Controls extends React.Component {
 
     const ifExists = ifExists_(props, filter_params.country_code)
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
-    const affiliate_name = params_affiliate_ids.length == 0 ? '' :  R.pipe(
-        affiliate_ids => R.pipe(
-            R.filter(x => x.affiliate_ids.some(a => affiliate_ids.some(i => i == a)))
-          , xs => !xs ? '' : xs.map(x => x.affiliate_name).join(';')
+    const affiliate_name = ifExists('affiliate_names', 
+      params_affiliate_ids.length == 0 ? '' : R.pipe(
+          x => x[0]
+        , affiliate_id => R.pipe(
+            R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
+          , x => !x ? '' : x.affiliate_name
         )(props.affiliates)
       )(params_affiliate_ids)
+    )
+
     
     
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
@@ -131,10 +133,12 @@ export default class Controls extends React.Component {
     })
 
     this.state = {
-        date_from: add_time(params.date_from)
-      , date_to: add_time(params.date_to)
+        date_from: since(params.date_from)
+      , date_to: until_today(params.date_to)
       , from_hour: '0'
       , to_hour: '24'
+      , is_relative_date: false
+      , relative_date: 0
       , timezone: params.timezone
       , page: fix_affiliate_name(params.page)
       , section: fix_affiliate_name(params.section)
@@ -142,19 +146,20 @@ export default class Controls extends React.Component {
       , ...e_filter_params
       , publisher_ids: []
       , affiliate_name
-      , nocache: !!params.nocache
+      , nocache: !!params.nocached
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
       , rowSorter: params.rowSorter
       , sectionSorter: params.sectionSorter
       , tabSorter: params.tabSorter
-      , is_relative_date: params.is_relative_date || false
+      , is_relative_date: params.is_relative_date
+      , relative_date_from: params.relative_date_from
     }
+
     this.reload_publisher_ids()
   }
-  
+
   reload_publisher_ids() {
-    if(!!this.state.affiliate_name && this.state.affiliate_name != '-' && this.state.affiliate_name.split(';').length == 1) {
-      // only fetch publishers if one affiliate is selected
+    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
       api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
       .then(R.pipe(
           R.chain(x => x.data)
@@ -170,13 +175,12 @@ export default class Controls extends React.Component {
   }
 
   get_filter_string_by_fields(ofields) {
-
     const fields = ((this.state['from_hour'] == 0 || !this.state['from_hour']) && (this.state['to_hour'] == 24 || !this.state['to_hour']))
-    ? ofields = R.reject(x => x == 'from_hour' || x == 'to_hour')(ofields)
-    : ofields
-
+      ? ofields = R.reject(x => x == 'from_hour' || x == 'to_hour')(ofields)
+      : ofields
+      
     const affiliate_ids = R.pipe(
-        R.filter(x => this.state.affiliate_name.split(';').some(a => a == x.affiliate_name))
+        R.filter(x => x.affiliate_name == this.state.affiliate_name)
       , R.map(x => x.affiliate_ids)
       , R.chain(x => x)
       , R.join(';')
@@ -201,15 +205,17 @@ export default class Controls extends React.Component {
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month', 'hour_of_day']
+    const breakdown_list = [
+      'affiliate_id', 'pubid', 'sub_id', 'sub_id', 
+      'gateway', 'country_code', 'operator_code',
+      'handle_name', 'ad_name', 
+      'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 
+      'get_sub_method',
+      'os_name', 'os_version1', 'os_version', 'browser_name', 'browser_version1', 'browser_version', 'brand_name', 'model_name', 'screen_size', 'screen_width', 'screen_height', 'device_class']
+      .concat(['hour', 'day', 'week', 'month', 'hour_of_day'])
 
-    const get_options = (field) =>  {
-      return !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : R.pipe(
-        R.map(c => get_country_prop_(this.props, c)(field, []))
-      , R.flatten
-      , R.uniq
-      )(this.state.country_code.split(';'))
-    }
+    const get_options = (field) => 
+      !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
     
     const makeLens = p => R.lens(R.prop(p), (a, s) => typeof a != 'undefined' && a != null ? R.merge(s, R.assoc(p)(a, s)) : s)
     const overState = (p, val) => 
@@ -219,10 +225,9 @@ export default class Controls extends React.Component {
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
         <FormRow className='date_picker'>
-          <ThemedDateRangePicker self={ this } />
+          <ThemedDateRangePicker self={this} />
         </FormRow>
-        <InputSelect className='timezone' name="Timezone" 
-          onChange={ timezone => this.setState({ timezone: timezone }) }
+        <InputSelect className='timezone' name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
             R.pipe(
                 R.map(x => (12 - x / 2) )
@@ -231,61 +236,41 @@ export default class Controls extends React.Component {
             )(R.range(0, 48)) 
           } />
         <FormRow className='hour_filter'>
-          <FormLabel>Hour</FormLabel> 
-          <MySimpleSelect className='from_hour' name="From" 
-            onChange={ from_hour => this.setState({ from_hour: from_hour }) }
-            value={ this.state.from_hour } options={ 
+          <FormLabel>Hour</FormLabel>
+          <MySimpleSelect className='from_hour' name="From"
+            onChange={from_hour => this.setState({ from_hour: from_hour })}
+            value={this.state.from_hour} options={
               R.pipe(
-                R.map(x => ({value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`)}))
-              )(R.range(0, 25)) 
+                R.map(x => ({ value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`) }))
+              )(R.range(0, 25))
             } />
-          <MySimpleSelect className='to_hour' name="To" 
-            onChange={ to_hour => this.setState({ to_hour: to_hour }) }
-            value={ this.state.to_hour } options={ 
+          <MySimpleSelect className='to_hour' name="To"
+            onChange={to_hour => this.setState({ to_hour: to_hour })}
+            value={this.state.to_hour} options={
               R.pipe(
-                R.map(x => ({value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`)}))
-              )(R.range(0, 25)) 
+                R.map(x => ({ value: x.toString(), name: (x < 10 ? `0${x}` : `${x}`) }))
+              )(R.range(0, 25))
             } />
         </FormRow>
-        {/*<CheckBoxDiv>
-          <label>Relative Date</label><input 
-            checked={ this.state.is_relative_date } 
-            onChange={ e => this.setState({ is_relative_date: !!e.target.checked }) }
-            id={ this.state.cache_buster_id } type="checkbox" />
-        </CheckBoxDiv>
-          <InputSelect name="Last" disable={ !this.state.is_relative_date } onChange={ relative_date => this.setState({ date_from: relative_date, date_to: 'today' }) }
-          value={ this.state.relative_date_from } options={ 
-            R.pipe(
-                R.map(x => (x + 1) )
-              , R.sortBy(x => x)
-              , R.map(x => ({value: `${x}-days-ago`, name: `${x} days`}))
-            )(R.range(1, 31)) 
-          } />
-        */}
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>
-        <InputMultiSelect name="Country"
-          onChange={ country_code => { 
-            return this.setState({ 
-                country_code: country_code
-              , operator_code: ''
-              , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
-              , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
-            }) } }
+        <InputSelect name="Country" onChange={ country_code => this.setState({ 
+              country_code: country_code
+            , operator_code: ''
+            , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
+            , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
+          }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
-        <InputSelect name="Operator" 
-          onChange={ operator_code => this.setState({ operator_code }) }
+        <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
-        <InputSelect name="Gateway" 
-          onChange={ gateway => this.setState({ gateway }) }
+        <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
           value={ this.state.gateway } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('gateways', []) } />
-        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => 
+        <InputSelect name="Affiliate" onChange={ affiliate_name => 
             this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
           }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
         <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
-          disable={ this.state.affiliate_name.split(';').length > 1 }
           value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } />
         <InputSelect name="Ad Name" onChange={ ad_name => this.setState({ ad_name }) }
           value={ this.state.ad_name } options={ get_options('ad_names') } />
@@ -320,7 +305,7 @@ export default class Controls extends React.Component {
 
         <BreakdownItem 
             label="Row"
-            breakdownList={ breakdown_list }
+          breakdownList={breakdown_list }
             onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('row', breakDownLevel), overState('rowSorter', sorter))) }
             breakDownLevel='row'
             breakDownLevelName={ this.state.row }
