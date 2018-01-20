@@ -8,3 +8,4 @@ homam-local-start.sh
 ahmed-local-start.sh
 temp/
 server/auth/google_config.json
+ecosystem.config.js
