@@ -31,7 +31,7 @@ module.exports = (params) => {
     , lead2: safe_div(x.lead2s, x.views)
     , any_leads_ratio: safe_div(x.any_leads, x.views)
     , bad_pixels_ratio: safe_div(x.pixels_for_no_firstbilling + x.pixels_for_resubs, x.pixels)
-    , missed_good_pixels_ratios: safe_div(x.missed_good_pixels, x.pixels)
+    , missed_good_pixels_ratios: safe_div(x.missed_good_pixels, x.sales)
     // , resubs7_ratio: 1 - safe_div(x.unique_sales, x.non_unique_sales)
   })
   
