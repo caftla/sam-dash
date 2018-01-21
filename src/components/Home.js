@@ -84,6 +84,9 @@ class Home extends React.Component {
     const make_standard_url = params =>
       `/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
 
+    const make_user_sessions_url = params =>
+      `/user_sessions/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
+
     const make_standard_plus_url = params =>
       `/weekly_reports/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
 
@@ -92,8 +95,18 @@ class Home extends React.Component {
 
     const urls= [
       {
-          href: make_standard_url({date_from, date_to, filter: '-', page: '-', section: '-', row: 'day', query: ''})
-        , label: 'Summary of the past 7 days'
+          href: make_user_sessions_url({date_from, date_to, filter: '-', page: '-', section: '-', row: 'day', query: ''})
+        , label: 'Short Daily Summary of Past 7 Days +'
+      }
+      ,
+      {
+          href: make_user_sessions_url({date_from, date_to, filter: '-', page: '-', section: '-', row: 'country_code', query: 'rowSorter=row,1,0,0'})
+        , label: 'Countries Summary of Past 7 Days'
+      }
+      ,
+      {
+          href: make_user_sessions_url({date_from, date_to, filter: '-', page: '-', section: 'country_code', row: 'day', query: 'sectionSorter=section,1,0,0&rowSorter=row,-1,0,0'})
+        , label: 'Daily Summary of Countries in the Past 7 Days +'
       }
       ,
       {
