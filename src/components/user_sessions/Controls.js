@@ -10,21 +10,13 @@ import stylus from './Controls.styl'
 import { Input, LabelledInput, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
-const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
-
-const DateTime = ({value, onChange, disabled, readonly}) => <input 
-  disabled={ disabled } readonly={ readonly }
-  onChange={ event => { onChange(new Date(event.target.value)) } } 
-  value={ value } type='datetime-local' />
 
 const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
   {
     return get({ url: `${api_root}/api/v1/user_sessions/${timezone}/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
   }
-
-const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
 const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}

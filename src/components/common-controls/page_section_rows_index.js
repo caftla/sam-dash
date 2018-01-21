@@ -81,19 +81,20 @@ export default function(component_params) {
 
   const {make_path, Tabs, Controls, require_filter, render, DataComponent} = component_params
 
-  const go = (history, params) => {
-    const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${ field },${ order },${ minViews },${ minSales }`
+  const make_url = params => {
+    const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${field},${order},${minViews},${minSales}`
     const makeQuery = tuples => '?' + R.pipe(R.filter(x => !!x), R.join('&'))(tuples)
 
     const query = makeQuery([
-        (params.nocache ? `nocache=true` : '')
+      (params.nocache ? `nocache=true` : '')
       , (!!params.tabSorter ? sortToQuery('tabSorter', params.tabSorter) : '')
       , sortToQuery('sectionSorter', params.sectionSorter)
       , sortToQuery('rowSorter', params.rowSorter)
     ])
 
-    history.push(make_path(params, query))
+    return make_path(params, query)
   }
+  const go = (history, params) => history.push(make_url(params))
 
   // This is a route
   class Component extends React.Component {
@@ -195,7 +196,7 @@ export default function(component_params) {
         return component_params.render.apply(this, [params, go])
       }
 
-      const TabsComponent = data => component_params.DataComponent
+      const TabsComponent = data => !!component_params.DataComponent
         ? <DataComponent 
             data={data} 
             params={params}
@@ -206,6 +207,8 @@ export default function(component_params) {
             params={params}
             sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
             affiliates={ this.props.affiliates_mapping }
+            controls={ this.props.controls }
+            make_url={ make_url }
             onSort={ (row_or_section, field, order) => {
               //TODO: remove sort_row_filter_page_section_row and sort_row_filter_page_section functions from actions
               const nparams = row_or_section == 'row'

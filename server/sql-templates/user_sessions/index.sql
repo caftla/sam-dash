@@ -15,9 +15,17 @@ select
   , sum(case when us.lead1 > 0 then 1 else 0 end) :: float as lead1s
   , sum(case when us.lead2 > 0 then 1 else 0 end) :: float as lead2s
   , sum(case when us.lead1 > 0 or us.lead2 > 0 then 1 else 0 end) :: float as any_leads
-  , sum(case when us.resubscribe > 0 and us.pixel > 0 then 1 else 0 end) :: float as pixels_for_resubs
-  , sum(case when us.firstbilling <= 0 and us.pixel > 0 then 1 else 0 end) :: float as pixels_for_no_firstbilling
-  , sum(case when us.firstbilling > 0 and us.resubscribe <= 0 and us.pixel <= 0 then 1 else 0 end) :: float as missed_good_pixels
+  , sum(case when us.resubscribe > 0 and (us.pixel > 0 or us.delayed_pixel > 0) then 1 else 0 end) :: float as pixels_for_resubs
+  , sum(case when us.firstbilling <= 0 and (us.pixel > 0 or us.delayed_pixel > 0) then 1 else 0 end) :: float as pixels_for_no_firstbilling
+  , sum(case when 
+            (
+                  coalesce(us.sale, 0) > 0 
+              and coalesce(us.firstbilling, 0) > 0 
+              and coalesce(us.resubscribe, 0) <= 0 
+            )
+              and NOT (us.pixel > 0 or us.delayed_pixel > 0) 
+            then 1 else 0 end
+      ) :: float as missed_good_pixels
   
 from user_sessions us
 left join user_subscriptions as ub on ub.rockman_id = us.rockman_id

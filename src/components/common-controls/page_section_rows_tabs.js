@@ -3,24 +3,24 @@ import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
 
-export default function({Section, cell_formatter, exportToExcel, no_summary}) {
+export default function ({ Section, cell_formatter, exportToExcel, no_summary }) {
 
-  const Page = ({page, sales, data, params, onSort, sort, affiliates, pageData} :
+  const Page = ({page, sales, data, params, onSort, sort, affiliates, pageData, controls, make_url} :
     { page: string, sales: number, data: Array<any>, params: QueryParams, onSort: (string, number) => void, sort: { field: string, order: number }, affiliates: Object }) =>
-    <div>
+    { return <div>
       <h4 className='fpsr-tab-name'>{ page }</h4>
       {
         data.length > 365 ? <div style={ { color: 'red', padding: '1em' } }>There are { data.length } sections in this report. Showing the top 365 only</div> : ''
       }
       
       {
-        no_summary ? '' : <Section is_summary={ true } affiliates={affiliates} data={ {data: [pageData] } } params={params} onSort={onSort} sort={sort} />
+        no_summary ? '' : <Section controls={controls} make_url={make_url} is_summary={ true } affiliates={affiliates} data={ {data: [pageData] } } params={params} onSort={onSort} sort={sort} />
       }
       
       { 
-        R.take(365, data).map((x,i) => <Section key={i} affiliates={affiliates} data={x} params={params} onSort={onSort} sort={sort} />) 
+        R.take(365, data).map((x, i) => <Section controls={controls} make_url={make_url} key={i} affiliates={affiliates} data={x} params={params} onSort={onSort} sort={sort} />) 
       }
-    </div>
+    </div>}
 
   type TabsState = {
     selected_page : number
@@ -32,6 +32,7 @@ export default function({Section, cell_formatter, exportToExcel, no_summary}) {
     , onSort: (string, number) => void
     , sort: { field: string, order: number }
     , affiliates: Object
+    , controls: Object
   }
 
   class Tabs extends React.Component {
@@ -91,6 +92,8 @@ export default function({Section, cell_formatter, exportToExcel, no_summary}) {
               onSort={ this.props.onSort } sort={ this.props.sort } 
               page={ formatter(this.props.params.page)(x.page) }
               pageData={ x }
+              controls={ this.props.controls }
+              make_url={ this.props.make_url }
             />
           </div>
           } ) }

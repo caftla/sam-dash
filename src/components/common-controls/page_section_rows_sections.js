@@ -5,6 +5,7 @@ import R from 'ramda'
 import {TD, TH, TABLE} from '../plottables/table'
 import type { QueryParams } from 'my-types'
 import type { SorterState } from '../reducers/sort.js'
+import moment from 'moment'
 
 const change_sign = (change) => {
   const r = Math.round(Math.abs(change) - 1.5)
@@ -14,7 +15,7 @@ const change_sign = (change) => {
 
 export default function({columns_maker, cell_formatter, try_merge_body_and_footer, footer}) {
 
-  const Section = ({data, params, onSort, sort, affiliates, is_summary} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+  const Section = ({data, params, onSort, sort, affiliates, is_summary, controls, make_url} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
 
     const show_label = (row_or_section) => (name, key = null) => {
       const sort_field = key == null ? name : key
@@ -45,6 +46,67 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
               table.classList.remove(`highlight-${i+1}`)
             )
           } 
+        onClick={() =>  {
+
+          const find_all_affiliate_ids = (function () {
+            const affiliate_ids = R.pipe(
+              R.toPairs
+              , R.map(([id, name]) => ({ id, name }))
+              , R.groupBy(x => x.name)
+              , R.map(R.map(x => x.id))
+              , R.pipe(R.toPairs, R.map(([name, ids]) => ({ name, ids })))
+            )(affiliates)
+
+            return affid => R.pipe(
+              R.filter(a => a.ids.some(i => i == affid))
+              , R.chain(x => x.ids)
+            )(affiliate_ids)
+          })()
+
+          const filter_params = R.pipe(
+            R.split(',')
+            , R.map(R.split('='))
+            , R.fromPairs
+          )
+
+          const to_filter_query = R.pipe(
+            R.toPairs
+            , R.reject(([key, value]) => !value || value == '-')
+            , R.map(R.join('='))
+            , R.join(',')
+            , x => !x ? '-' : x
+            , y => y.replace(/\//g, '%2F')
+          )
+
+          const add_filter = (controls, field, value) => R.merge(controls, {
+            filter:
+              to_filter_query(
+                R.merge(
+                  filter_params(controls.filter)
+                  , R.fromPairs([[field, field != 'affiliate_id' ? value : find_all_affiliate_ids(value).join(';')]])
+                )
+              )
+          })
+
+
+          const pivot_in = (controls, x, level, breakdown) => controls[level] == 'day'
+            ? R.merge(controls, R.merge({
+                date_from: formatter(controls[level])(x[level])
+              , date_to: formatter(controls[level])(moment(x[level]).add(1, 'days').toJSON())
+            }, R.fromPairs([[level, breakdown]])))
+            : R.merge(
+                add_filter(controls, controls[level], x[level])
+              , R.fromPairs([[level, breakdown]])
+            )
+
+          const level = ['section', 'row'][i]
+          if(!!level) {
+            const breakdown = prompt('Breakdown?')
+            console.log(">>> ", x, make_url(pivot_in(controls, x, level, breakdown)))
+          }
+        
+          //console.log('>>> click', controls, x, i, affiliates, make_url(controls)) 
+        }}
         />
       , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } value={ footer(data) } />
       }

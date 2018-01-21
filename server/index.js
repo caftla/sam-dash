@@ -38,7 +38,7 @@ const connection_strings = {
 }
 
 const respond = (connection_string: string, sql, params, res, map = x => x) => {
-  (!!params.cache_buster ? query(connection_string, sql, params) : cache(60*60, query, connection_string, sql, params))
+  return (!!params.cache_buster ? query(connection_string, sql, params) : cache(60*60, query, connection_string, sql, params))
   .then(x => {
     // console.log(JSON.stringify(x.fields, null, 2))
     res.set('Content-Type', 'text/json')
@@ -173,7 +173,7 @@ app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', aut
 })
 
 app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_sessions/index.sql', 'utf8')
     , params
