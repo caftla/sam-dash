@@ -67,19 +67,19 @@ export default Section({
       , data => d3.format('0.1f')(data.releads)
     ),
     pcolumn(
-        show_label_row('Act24%', 'active24')
+        show_label_row('Act24', 'active24')
       , () => onSort('row', 'active24', 1)
       , x => d3.format('0.0f')(100 * x.active24)
       , data => d3.format('0.0f')(100 * data.active24)
     ),
     pcolumn(
-        show_label_row('Act%', 'active')
+        show_label_row('Act', 'active')
       , () => onSort('row', 'active', 1)
       , x => d3.format('0.0f')(100 * x.active)
       , data => d3.format('0.0f')(100 * data.active)
     ),
     pcolumn(
-        show_label_row('Pixels%', 'pixels_ratio')
+        show_label_row('Pixels', 'pixels_ratio')
       , () => onSort('row', 'pixels_ratio', 1)
       , x => d3.format('0.0f')(100 * x.pixels_ratio)
       , data => d3.format('0.0f')(100 * data.pixels_ratio)
@@ -109,7 +109,7 @@ export default Section({
       , data => d3.format(',')(data.total)
     ),
     pcolumn(
-        show_label_row('Billed%', 'billed')
+        show_label_row('Billed', 'billed')
       , () => onSort('row', 'billed', 1)
       , x => d3.format('0.0f')(100 * x.billed)
       , data => d3.format('0.0f')(100 * data.billed)

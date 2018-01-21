@@ -413,3 +413,17 @@ body
 
 .form-row
     margin: 8px 0
+
+@media print
+    #header, #sidebar
+        display: none
+
+    #container.default
+        position: static
+        margin: 0
+
+    body 
+        height: auto
+
+    .main-table caption.clipboard-hover:after
+        display: none

@@ -51,13 +51,13 @@ export default Section({
       , data => d3.format(',')(data.sales)
     ),
     pcolumn(
-        show_label_row('CR S%', 'cr')
+        show_label_row('CR S', 'cr')
       , () => onSort('row', 'cr', 1)
       , x => isNaN(x.cr) ? '' : d3.format('0.2f')(100 * x.cr)
       , data => d3.format('0.2f')(100 * data.cr)
     ),
     pcolumn(
-        show_label_row('CQ%', 'cq')
+        show_label_row('CQ', 'cq')
       , () => onSort('row', 'cq', 1)
       , x => d3.format('0.0f')(100 * x.cq)
       , data => d3.format('0.0f')(100 * data.cq)

@@ -33,25 +33,25 @@ export default Section({
       , data => d3.format(',')(data.sales)
     ),
     pcolumn(
-      show_label_row('ReSub%', 'resubs')
+      show_label_row('ReSub', 'resubs')
       , () => onSort('row', 'resubs', 1)
       , x => d3.format('0.0f')(100 * x.resubs_ratio)
       , data => d3.format('0.0f')(100 * data.resubs_ratio)
     ),
     pcolumn(
-      show_label_row('CQ%', 'cq')
+      show_label_row('CQ', 'cq')
       , () => onSort('row', 'cq', 1)
       , x => d3.format('0.0f')(100 * x.cq)
       , data => d3.format('0.0f')(100 * data.cq)
     ),    
     pcolumn(
-      show_label_row('CQAct24%', 'cqact24')
+      show_label_row('CQAct24', 'cqact24')
       , () => onSort('row', 'cqact24', 1)
       , x => d3.format('0.0f')(100 * x.firstbillings_and_active24)
       , data => d3.format('0.0f')(100 * data.firstbillings_and_active24)
     ),
     pcolumn(
-      show_label_row('Act%', 'act')
+      show_label_row('Act', 'act')
       , () => onSort('row', 'act', 1)
       , x => d3.format('0.0f')(x.active * 100)
       , data => d3.format('0.0f')(data.active * 100)

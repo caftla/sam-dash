@@ -61,13 +61,13 @@ export default Section({
       , data => d3.format(',')(data.unknown)
     ),
     pcolumn(
-        show_label_row('Delivered%', 'delivered_rate')
+        show_label_row('Delivered', 'delivered_rate')
       , () => onSort('row', 'delivered_rate', 1)
       , x => d3.format('0.0f')(100 * x.delivered_rate)
       , data => d3.format('0.0f')(100 * data.delivered_rate)
     ),
     pcolumn(
-        show_label_row('Failed%', 'failed_rate')
+        show_label_row('Failed', 'failed_rate')
       , () => onSort('row', 'failed_rate', 1)
       , x => d3.format('0.0f')(100 * x.failed_rate)
       , data => d3.format('0.0f')(100 * data.failed_rate)

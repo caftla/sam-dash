@@ -1,11 +1,16 @@
 .percent
   &:after
-    content: ' %';
+    content: '%';
     font-size: 70%;
     color: silver;
+    padding-left: 3px
 .percent[data-is-empty=true]
   &:after
     content: '';
+
+th.percent:after
+    font-size: 100%;
+    color: #313131;
 
 .times
   &:after
@@ -27,3 +32,5 @@
     background-color: #f0f0f0 
     font-size: 0.9em 
     padding: 0.5em 0
+    vertical-align: middle // text-bottom;
+
