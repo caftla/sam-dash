@@ -5,7 +5,11 @@ import R from 'ramda'
 import {TD, TH, TABLE} from '../plottables/table'
 import type { QueryParams } from 'my-types'
 import type { SorterState } from '../reducers/sort.js'
+import { Submit } from '../Styled'
 import moment from 'moment'
+import { isAbsolute } from 'path';
+import BreakdownItem from './BreakdownItem'
+
 
 const change_sign = (change) => {
   const r = Math.round(Math.abs(change) - 1.5)
@@ -15,7 +19,7 @@ const change_sign = (change) => {
 
 export default function({columns_maker, cell_formatter, try_merge_body_and_footer, footer}) {
 
-  const Section = ({data, params, onSort, sort, affiliates, is_summary, controls, make_url} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+  const Section = ({data, params, onSort, sort, affiliates, is_summary, controls, make_url, showTooltip} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
 
     const show_label = (row_or_section) => (name, key = null) => {
       const sort_field = key == null ? name : key
@@ -35,7 +39,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       return {
         label: label
       , th: <TH {...more} value={ label == '-' ? '' : label } onClick={ onClick } />
-      , td: (x, i) => <TD {...more} data-is-empty={ value(x) == '' } style={ to_f(more.style, x) } value={ val(x) } 
+        , td: (x, i) => <TD className={ !!showTooltip && i <= 1 ? 'hasTooltip' : '' } {...more} data-is-empty={ value(x) == '' } style={ to_f(more.style, x) } value={ val(x) } 
           onMouseEnter={ () => 
             [...document.getElementsByClassName('fpsr_table')].map(table => 
               table.classList.add(`highlight-${i+1}`)
@@ -46,7 +50,10 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
               table.classList.remove(`highlight-${i+1}`)
             )
           } 
-        onClick={() =>  {
+        onClick={(e) =>  {
+
+          if (!showTooltip)
+            return;
 
           const find_all_affiliate_ids = (function () {
             const affiliate_ids = R.pipe(
@@ -101,11 +108,14 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
 
           const level = ['section', 'row'][i]
           if(!!level) {
-            const breakdown = prompt('Breakdown?')
-            console.log(">>> ", x, make_url(pivot_in(controls, x, level, breakdown)))
-          }
-        
-          //console.log('>>> click', controls, x, i, affiliates, make_url(controls)) 
+            // const breakdown = prompt('Breakdown?')
+            showTooltip(e.target, level, formatter(controls[level])(x[level]), 
+              (breakdown, sorter) =>
+                make_url(pivot_in(controls, x, level, breakdown))
+            )
+            // const breakdown = 'day'
+            // console.log(">>> ", x, make_url(pivot_in(controls, x, level, breakdown)))
+          }        
         }}
         />
       , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } value={ footer(data) } />
@@ -181,5 +191,76 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     </TABLE>
   }
 
-  return Section
+  const makeLens = p => 
+    R.lens(R.prop(p), (a, s) => typeof a != 'undefined' && a != null ? R.merge(s, R.assoc(p)(a, s)) : s)
+  const overState = (p, val) =>
+    R.over(makeLens(p), R.always(val))
+
+  class SectionWrapper extends React.Component {
+    constructor(props) {
+      super(props)
+      this.state = { 
+          showTooltip: false
+        , top: 0
+        , left: 0 
+        , level: null
+        , current_value: null
+        , breakdown: null
+        , sorter: this.props.controls.tabSorter
+        , make_url: () => ''
+      }
+    }
+    componentWillUnmount() {
+      if(!!this.hideHandler)
+        document.body.removeEventListener('mousedown', this.hideHandler)
+    }
+    showTooltip(target, level, current_value, make_url) {
+      const self = this
+      const is_in = e => !e ? false : (e.classList.contains('tooltip') || e.classList.contains('tether-element') || is_in(e.offsetParent))
+      this.hideHandler = (e) => { 
+        if(!is_in(e.target))
+          self.setState({ showTooltip: false }) 
+      }
+      document.body.addEventListener('mousedown', this.hideHandler)
+      this.setState({
+          showTooltip: true
+        , top: target.offsetTop 
+        , left: target.offsetLeft
+        , level, current_value
+        , sorter: level == 'page' ? this.props.controls.tabSorter : this.props.controls[level + 'Sorter']
+        , breakdown: null
+        , make_url
+      })
+    }
+    render() {
+      const tooltip = () => {
+        if (!this.props.breakdown_list)
+          return ''
+        return (<div className='tooltip' style={{
+          display: !!this.state.showTooltip ? 'block' : 'none'
+          , top: this.state.top + 10 + 'px'
+          , left: this.state.left + 80 + 'px'
+        }}>
+          <div>Filtering on {this.state.current_value}</div>
+          <BreakdownItem
+            label={this.state.level}
+            breakdownList={this.props.breakdown_list}
+            onChange={({ breakDownLevel, sorter }) =>
+              this.setState(R.compose(overState('breakdown', breakDownLevel), overState('sorter', sorter)))
+            }
+            breakDownLevel={this.state.level}
+            breakDownLevelName={this.state.breakdown}
+            sorter={this.state.sorter}
+            showExtra={true}
+          />
+          <Submit disabled={!this.state.breakdown || this.state.breakdown == '-'} onClick={_ => window.open(this.state.make_url(this.state.breakdown, this.state.sorter))}>Pivot In</Submit>
+        </div>)
+      }
+      return <div className='section'>
+        { tooltip() }
+        { Section(R.merge({ showTooltip: !this.props.breakdown_list ? null : this.showTooltip.bind(this) }, this.props)) }
+      </div>
+    }
+  }
+  return (params) => (<SectionWrapper {...params} />) // parmas => <SectionWrapper {...params} />
 }

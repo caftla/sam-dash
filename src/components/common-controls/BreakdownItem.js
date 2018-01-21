@@ -22,23 +22,25 @@ export default class BreakdownItem extends React.Component  {
   }
   render() {
 
+    const showExtra = this.props.showExtra || this.state.showExtra
+
     const toBreakDownLevelName = v => v == this.props.breakDownLevel ? this.props.breakDownLevelName : v
     const fromBreakDownLevelName = n => n == this.props.breakDownLevelName ? this.props.breakDownLevel : n
 
     const onSorterChange = hash =>
       this.props.onChange({ sorter: R.over(R.lensProp('field'), fromBreakDownLevelName, R.merge(this.props.sorter, hash)) })
 
-    return <div style={ this.state.showExtra ? { borderBottom: 'solid 1px silver', marginBottom: '1em', paddingBottom: '1em' } : {} }>
+    return <div style={ showExtra ? { borderBottom: 'solid 1px silver', marginBottom: '1em', paddingBottom: '1em' } : {} }>
       
       <InputSelect options={ this.props.breakdownList }
           showLabel={ true }
-          name={ <span onClick={ () => this.setState(s => R.merge(s, {showExtra: !s.showExtra})) }>{ !this.state.showExtra ? '▼' : '▲' }
+          name={ <span onClick={ () => this.setState(s => R.merge(s, {showExtra: !s.showExtra})) }>{ !showExtra ? '▼' : '▲' }
             &nbsp; { this.props.label } 
             </span> } 
           value={ this.props.breakDownLevelName } 
           onChange={val => { this.props.onChange({ 'breakDownLevel': val || '-' }); this.setState({ showExtra: true })} } />
 
-      <div ref="extra" style={ { display: this.state.showExtra ? 'block' : 'none' } }>
+      <div ref="extra" style={ { display: showExtra ? 'block' : 'none' } }>
         <InputSelect options={[this.props.breakDownLevelName, 'views', 'sales', 'cost']} name="Sort By" 
           showLabel={ true }
           onChange={ field => 

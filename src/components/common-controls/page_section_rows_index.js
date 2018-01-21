@@ -79,7 +79,7 @@ const props_to_params = props => {
 
 export default function(component_params) {
 
-  const {make_path, Tabs, Controls, require_filter, render, DataComponent} = component_params
+  const { make_path, Tabs, Controls, breakdown_list, require_filter, render, DataComponent} = component_params
 
   const make_url = params => {
     const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${field},${order},${minViews},${minSales}`
@@ -208,6 +208,7 @@ export default function(component_params) {
             sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
             affiliates={ this.props.affiliates_mapping }
             controls={ this.props.controls }
+            breakdown_list={ breakdown_list }
             make_url={ make_url }
             onSort={ (row_or_section, field, order) => {
               //TODO: remove sort_row_filter_page_section_row and sort_row_filter_page_section functions from actions
@@ -247,6 +248,7 @@ export default function(component_params) {
                 , all_affiliates => _ => {
                   return  <Controls
                     className="main-left show"
+                    breakdown_list={ breakdown_list }
                     params={ params }
                     countries={ all_countries }
                     affiliates={ all_affiliates }

@@ -197,14 +197,7 @@ export default class Controls extends React.Component {
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [
-      'affiliate_id', 'pubid', 'sub_id', 'sub_id', 
-      'gateway', 'country_code', 'operator_code',
-      'handle_name', 'ad_name', 
-      'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 
-      'get_sub_method',
-      'os_name', 'os_version1', 'os_version', 'browser_name', 'browser_version1', 'browser_version', 'brand_name', 'model_name', 'screen_size', 'screen_width', 'screen_height', 'device_class']
-      .concat(['hour', 'day', 'week', 'month', 'hour_of_day'])
+    const breakdown_list = this.props.breakdown_list
 
     const get_options = (field) => 
       !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
@@ -296,7 +289,7 @@ export default class Controls extends React.Component {
 
         <BreakdownItem 
             label="Row"
-          breakdownList={breakdown_list }
+            breakdownList={breakdown_list }
             onChange={ ({breakDownLevel, sorter}) => this.setState(R.compose(overState('row', breakDownLevel), overState('rowSorter', sorter))) }
             breakDownLevel='row'
             breakDownLevelName={ this.state.row }

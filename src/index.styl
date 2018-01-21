@@ -187,6 +187,7 @@ body
   margin:72px auto 200px auto;
   background-color: transparent;
 
+#filters, .tooltip
 
   h2 
     padding: 0;
@@ -259,6 +260,9 @@ body
     &:hover
       background-color: #8cb547;
 
+  button[disabled]
+    background-color: #808080
+
 #container
   width: auto;
   height: auto;
@@ -283,6 +287,9 @@ body
   border-collapse: collapse;
   table-layout: fixed
 
+.section
+  position: relative
+
   tr
     &.highlight
       background-color:#ebffcf;
@@ -295,6 +302,13 @@ body
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+
+  td.hasTooltip:hover
+    text-decoration: underline;
+    text-decoration-color: blue;
+    text-decoration-line: underline;
+    text-decoration-style: wavy;
+    cursor: pointer
 
   &.summary
     border: 2px rgb(228, 216, 224) solid !important
@@ -427,3 +441,14 @@ body
 
     .main-table caption.clipboard-hover:after
         display: none
+
+.tooltip
+  position: absolute;
+  width: 276px;
+  height: 324px;
+  background-color: rgb(241, 241, 241);
+  padding: 20px;
+  border: 2px solid rgb(181, 181, 181);
+  border-radius: 0px 23px 23px;
+  box-shadow: 0px 0px 20px 0px #b5b5b5;
+

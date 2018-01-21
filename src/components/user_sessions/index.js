@@ -22,6 +22,14 @@ const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 const make_path = (params, query) => `/user_sessions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`
 
+const breakdown_list = [
+  'affiliate_id', 'publisher_id', 'sub_id', 'sub_id',
+  'gateway', 'country_code', 'operator_code',
+  'handle_name', 'ad_name',
+  'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2',
+  'get_sub_method',
+  'os_name', 'os_version1', 'os_version', 'browser_name', 'browser_version1', 'browser_version', 'brand_name', 'model_name', 'screen_size', 'screen_width', 'screen_height', 'device_class',
+  'hour', 'day', 'week', 'month', 'hour_of_day']
 
 export default connect(
     state => ({
@@ -40,4 +48,4 @@ export default connect(
       , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
       , set_params 
     }
-) (Index({make_path, Tabs, Controls}))
+) (Index({make_path, Tabs, Controls, breakdown_list}))
