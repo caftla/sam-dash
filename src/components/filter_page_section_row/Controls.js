@@ -201,7 +201,7 @@ export default class Controls extends React.Component {
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'handle_name', 'ad_name', 'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'device_class', 'hour', 'day', 'week', 'month', 'hour_of_day']
+    const breakdown_list = this.props.breakdown_list
 
     const get_options = (field) =>  {
       return !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : R.pipe(

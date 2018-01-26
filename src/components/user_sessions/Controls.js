@@ -49,6 +49,7 @@ type ControlsState = {
   , cache_buster_id: string
   , nocache: boolean
   , publisher_ids: Array<string>
+  , ab_tests: Array<string>
 }
 
 const get_all_props_ = props => (prop: string) => R.pipe(
@@ -122,6 +123,7 @@ export default class Controls extends React.Component {
       , scenario_name: ifExists('scenario_names', filter_params.scenario_name)
       , service_identifier1: ifExists('service_identifier1s', filter_params.service_identifier1)
       , publisher_id: filter_params.publisher_id
+      , ab_test: filter_params.ab_test
     })
 
     this.state = {
@@ -137,6 +139,7 @@ export default class Controls extends React.Component {
       , row: fix_affiliate_name(params.row)
       , ...e_filter_params
       , publisher_ids: []
+      , ab_tests: []
       , affiliate_name
       , nocache: !!params.nocached
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
@@ -148,22 +151,31 @@ export default class Controls extends React.Component {
     }
 
     this.reload_publisher_ids()
+    this.reload_ab_tests()
   }
 
-  reload_publisher_ids() {
-    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
-      api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
+  reload_control(filter_fields, group_by_row, callback) {
+    return api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(filter_fields), '-', '-', group_by_row, false)
       .then(R.pipe(
-          R.chain(x => x.data)
+        R.chain(x => x.data)
         , R.chain(x => x.data)
         , R.sortBy(x => x.sales * -1)
         , R.map(x => x.row)
         , R.take(256)
-        , publisher_ids => this.setState({ publisher_ids })
-      )) 
+        , callback
+      ))
+  }
+
+  reload_publisher_ids() {
+    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
+      this.reload_control(['country_code', 'operator_code'], 'publisher_id', publisher_ids => this.setState({ publisher_ids }))
     } else {
       this.setState({ publisher_ids: [] })
     }
+  }
+
+  reload_ab_tests() {
+    this.reload_control(['country_code'], 'ab_test', ab_tests => this.setState({ ab_tests }))
   }
 
   get_filter_string_by_fields(ofields) {
@@ -189,7 +201,8 @@ export default class Controls extends React.Component {
 
   get_filter_string() {
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "from_hour", "to_hour"].concat(with_publisher_id ? ["publisher_id"] : []))
+    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "ab_test", "from_hour", "to_hour"]
+      .concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
   render() {
@@ -245,7 +258,7 @@ export default class Controls extends React.Component {
             , operator_code: ''
             , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
             , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
-          }) }
+          }, () => this.reload_ab_tests()) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
@@ -265,6 +278,8 @@ export default class Controls extends React.Component {
           value={ this.state.scenario_name }  options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('scenario_names', []) } />
         <InputSelect name="Service Identifier 1" onChange={ service_identifier1 => this.setState({ service_identifier1 }) }
           value={ this.state.service_identifier1 } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('service_identifier1s', []) } />
+        <InputSelect name="AB Test" onChange={ab_test => this.setState({ ab_test })}
+          value={this.state.ab_test} options={this.state.ab_tests || []} />
       </FilterFormSection>
       <FormSection>
         <FormTitle>Breakdown</FormTitle>
