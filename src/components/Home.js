@@ -27,7 +27,7 @@ import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
 
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
-
+import { getCookie, NewFeatures } from './NewFeatures'
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
@@ -80,6 +80,7 @@ class Home extends React.Component {
     const timezone = new Date().getTimezoneOffset() / -60
     const date_from = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))
     const date_to = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
+    const new_feature_check = getCookie('announce')
 
     const make_standard_url = params =>
       `/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
@@ -122,11 +123,21 @@ class Home extends React.Component {
         , label: 'Top countries by total cost in the past 7 days'
       }
     ]
-
+    
     return <div style={{ margin: '80px 80px' }}>
       {urls.map((u, i) => <div style={ {margin: '1em'} } key={i}>
           <a href={u.href}>{u.label}</a>
         </div>) }
+        {!new_feature_check
+          ? <NewFeatures>
+            <h3>Sigma has a new feature!</h3>
+            <p>You can now find user supscription details by MSISDN in the "Subscriptions" report.</p>
+            <Submit onClick={ e => {
+              e.preventDefault()
+              document.getElementsByClassName("newFeature")[0].style.display = "none";
+            }}>Procced</Submit>
+          </NewFeatures>
+          : '' }
     </div>
   }
 }
