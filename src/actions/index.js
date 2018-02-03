@@ -181,6 +181,16 @@ export const fetch_user_sessions = (timezone, date_from: string, date_to: string
 export const cleanup_fetch_user_sessions = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_user_sessions' })
 
+// user_subscriptions
+export const fetch_user_subscriptions = (timezone: string, date_from: string, date_to: string, filter: string, nocache: boolean) => (dispatch: Dispatch) => {
+  dispatch({ type: 'fetch_user_subscriptions_loading' })
+  get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/${filter}/-/-/-` }, nocache)
+    .then(d => dispatch({ type: 'fetch_user_subscriptions_success', payload: d }))
+}
+
+export const cleanup_fetch_user_subscriptions = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_user_subscriptions' })
+
 
 // cohort
 
