@@ -192,6 +192,16 @@ app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter/:page/
   )
 })
 
+app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
+  respond_jewel(
+    fs.readFileSync('./server/sql-templates/user_subscriptions//user_transactions/index.sql', 'utf8')
+    , params
+    , res
+    , require('./sql-templates/user_subscriptions')(params)
+  )
+})
+
 app.get('/api/v1/all_affiliates', (req, res) => {
   respond_jewel(`select * from affiliate_mapping`, {}, res, R.pipe(
       R.groupBy(x => x.affiliate_name)
