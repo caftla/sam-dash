@@ -1,5 +1,6 @@
 // @flow
 
+import R from 'ramda'
 import { post, postMayReturnError, get, toQueryString } from '../helpers'
 
 import type { QueryParams } from 'my-types'
@@ -7,6 +8,8 @@ import type { Dispatch } from './types'
 
 import * as maybe from 'flow-static-land/lib/Maybe'
 import type { Maybe } from 'flow-static-land/lib/Maybe'
+
+import prefix_index from './country_prefixes'
 
 export const get_countries = () => (dispatch: Dispatch) =>  {
   get({url: 'http://0.0.0.0:3081/api/countries'})
@@ -181,16 +184,71 @@ export const fetch_user_sessions = (timezone, date_from: string, date_to: string
 export const cleanup_fetch_user_sessions = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_user_sessions' })
 
-// user_subscriptions
-export const fetch_user_subscriptions = (timezone: string, date_from: string, date_to: string, filter: string, nocache: boolean) => (dispatch: Dispatch) => {
+
+// user subscriptions
+
+const find_prefix = country_code => country_code? R.find(R.propEq('code', country_code))(prefix_index).prefix : console.log('country code not there yet!')
+
+export const fetch_user_subscriptions = (timezone: string, date_from: string, date_to: string, filter: string, nocache: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: 'fetch_user_subscriptions_loading' })
-  get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/${filter}/-/-/-` }, nocache)
-    .then(d => dispatch({ type: 'fetch_user_subscriptions_success', payload: d }))
+  const no_mod = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/${filter}/-/-/-` }, nocache)
+  if (no_mod.length > 0) {
+    dispatch({ type: 'fetch_user_subscriptions_success', payload: no_mod }) 
+  } else {
+    const msisdn = filter.split('n=')[1]
+    const country_code = filter.split('e=')[1].substring(0,2)
+    const prefix = find_prefix(country_code)
+    const prefix_present = msisdn.indexOf(prefix) > -1
+    const starts_with_zero = msisdn.startsWith('0')
+      
+    if (!prefix_present && starts_with_zero) {
+      const remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(1)}/-/-/-` }, nocache)
+      if (remove_zero.length > 0){
+        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero })
+      } else {
+        const remove_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn.substr(1)}/-/-/-` }, nocache)
+        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero_add_prefix })
+      }
+    }
+
+    else if (!prefix_present && !starts_with_zero) {
+      const add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn}/-/-/-` }, nocache)
+      if (add_zero.length > 0){
+        dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero })
+      } else {
+        const add_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + '0' + msisdn}/-/-/-` }, nocache)
+        if (add_zero_add_prefix.length > 0) {
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero_add_prefix })
+        } else {
+          const add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn}/-/-/-` }, nocache)
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: add_prefix })
+        }
+      }
+    }
+
+    else if (prefix_present) {
+      const prefix_length: number = prefix.length
+      const remove_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length)}/-/-/-` }, nocache)
+      if (remove_prefix.length > 0){
+        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix })
+      } else {
+        const remove_prefix_add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn.substr(prefix_length)}/-/-/-` }, nocache)
+        
+        if (remove_prefix_add_zero.length > 0) {
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_add_zero })
+        } else {
+          const remove_prefix_remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length + 1)}/-/-/-` }, nocache)
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_remove_zero })
+        }
+      }
+    } else {
+      dispatch({ type: 'fetch_user_subscriptions_success', payload: no_mod })
+    }
+  }
 }
 
 export const cleanup_fetch_user_subscriptions = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_user_subscriptions' })
-
 
 // cohort
 
