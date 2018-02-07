@@ -159,7 +159,7 @@ class Subscriptions extends React.Component {
             ? <div>No data was found, try adding/removing country code and extending the date range.</div> 
             : <div>
               <ExportToExcel onClick={e => this.export_to_excel(e)} />
-              <TableWithData data={flat_data} />
+              <TableWithData data={flat_data} timezone={params.timezone} date_from={params.date_from} date_to={params.date_to} filter={params.filter} />
             </div>}
         </div>)
     }

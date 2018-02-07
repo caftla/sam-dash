@@ -9,7 +9,9 @@
 #table
 		padding-top:40px
 		border-bottom:1.5pt solid grey
-		width:90%
+		table-layout: fixed
+		width: 100%
+		// width:90%
 
 #table tr
 		padding:8px
@@ -17,13 +19,33 @@
 
 #table th
 		text-align:left
-		white-space:nowrap
+		// white-space:nowrap
 		padding:8px
 		border-bottom:1pt solid #f3f3f3
 		background-color:#f3f3f3
 
 #table td
-		width:80%
+		// width:80%
 		padding:8px
-		white-space:nowrap
 		border-bottom:1pt solid #f3f3f3
+
+// #trans-tables div:nth-child(odd) {
+//   background-color: red;
+// }
+// #trans-tables div:nth-child(even) {
+//   background-color: green;
+// }
+
+#trans-tables .delivered
+	background-color: #dcffd8
+	border: 1pt dotted #000
+
+#trans-tables .failed
+	background-color: #f9d1d7
+	border: 1pt dotted #000000
+
+#trans-tables .pending
+	background-color: #fce4bf
+	border: 1pt dotted #000000
+
+

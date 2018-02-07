@@ -56,6 +56,7 @@ class Controls extends React.Component {
       , country_code: ''
       , ...filter_params
       , noMsisdnProvided: false
+      , countryCodeNotSelected: false
       , nocache: !!params.nocached
       , cache_buster_id: `cb_${Math.round(Math.random() * 100000)}`
     }
@@ -122,7 +123,8 @@ class Controls extends React.Component {
           <p style={ {display: this.state.noMsisdnProvided ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please enter MSISDN to proceed!</p>
         <MySimpleSelect name="Country" onChange={ country_code => this.setState({ 
               country_code: country_code }) }
-          value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
+          value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } required />
+          <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select country to proceed!</p>
       </FilterFormSection>
       
       <FormSectionButtons>
@@ -135,7 +137,10 @@ class Controls extends React.Component {
         <Submit onClick={_ => {
           if (this.state.msisdn == '') {
             this.setState({ noMsisdnProvided: true })
-          } else {
+          } else if (this.state.country_code == '') {
+            this.setState({ countryCodeNotSelected: true })
+          }
+          else {
             this.props.set_params({
               date_from: this.state.date_from
               , date_to: this.state.date_to
@@ -148,6 +153,7 @@ class Controls extends React.Component {
               , nocache: this.state.nocache
             })
             this.setState({ noMsisdnProvided: false })
+            this.setState({ countryCodeNotSelected: false })
           }
         }
         }
