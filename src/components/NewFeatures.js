@@ -27,7 +27,7 @@ export function setCookie(cname, cvalue, exdays) {
 export class NewFeatures extends React.Component {
     render() {
       setCookie('announce', false, 9999)
-      return <div className={'newFeature'} style={{ display: 'block', color: 'white', height: '100%', width: '100%', zIndex: '3', background: 'rgba(0,0,0, 0.8)', position: 'fixed', top: '60px', left: '0', overflowX: 'hidden' }}>
+      return <div className={'newFeature'} style={{ display: 'block', color: '#000', height: '100%', width: '100%', zIndex: '3', background: 'rgba(255,255,255, 0.9)', position: 'fixed', top: '60px', left: '0', overflowX: 'hidden' }}>
         <div style={{ position: 'fixed', top: '20%', left: '20%'}}>
           { this.props.children }
         </div>

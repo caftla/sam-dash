@@ -131,7 +131,7 @@ class Home extends React.Component {
         {!new_feature_check
           ? <NewFeatures>
             <h3>Sigma has a new feature!</h3>
-            <p>You can now find user supscription details by MSISDN in the "Subscriptions" report.</p>
+            <p>You can now find user supscriptions and transactions details by MSISDN in the "Subscriptions" report.</p>
             <Submit onClick={ e => {
               e.preventDefault()
               document.getElementsByClassName("newFeature")[0].style.display = "none";
