@@ -147,9 +147,9 @@ function Wrap(WrappedComponent) {
 
               <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
               
-              <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>Converting IPs</a>          
+              <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>IPs</a>          
 
-              <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU Cohorts</a>
+              <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU</a>
 
               <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
 

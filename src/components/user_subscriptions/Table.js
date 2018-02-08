@@ -54,7 +54,7 @@ class Subscription extends React.Component {
             <td>
             {
               match({
-                Nothing: () => <a onClick={e => this.fetch_transactions(e, record['rockman_id'])}>Click here to view transactions for this service</a>
+                Nothing: () => <a style={{ color: 'blue', cursor: 'pointer' }} onClick={e => this.fetch_transactions(e, record['rockman_id'])}>Click here to view transactions for this service</a>
                 , Loading: () => 'LOADING...'
                 , Error: (error) => console.log(error)
                 , Loaded: (transactions) => {
