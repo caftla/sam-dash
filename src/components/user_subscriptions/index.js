@@ -11,6 +11,8 @@ import type { QueryParams } from 'my-types'
 import { match } from '../../adts'
 import type { FetchState } from '../../adts'
 import { sequence } from '../../helpers'
+import { fromQueryString } from '../../helpers'
+
 import * as maybe from 'flow-static-land/lib/Maybe'
 
 import {
@@ -57,13 +59,13 @@ const props_to_params = props => {
   const {params} = props.match
   const { format : d3Format } = require('d3-format')
   const formatTimezone = d3Format("+.1f")
-  // const query = fromQueryString(props.location.search)
+  const query = fromQueryString(props.location.search)
   const mparams = R.merge(params, R.applySpec({
       date_from: p => p.date_from || defaultDateFrom
     , date_to: p => p.date_to || defaultDateTo
     , timezone: p => p.timezone || deafultTimezone
     , filter: p => p.filter || '-'
-    , nocache: p => p.nocache == 'true' ? true : false
+    , nocache:  () => query.nocache == 'true' ? true : false
   })(params))
   return mparams
 }

@@ -191,7 +191,7 @@ const find_prefix = country_code => country_code? R.find(R.propEq('code', countr
 
 export const fetch_user_subscriptions = (timezone: string, date_from: string, date_to: string, filter: string, nocache: boolean) => async (dispatch: Dispatch) => {
   dispatch({ type: 'fetch_user_subscriptions_loading' })
-  const no_mod = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/${filter}/-/-/-` }, nocache)
+  const no_mod = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/${filter}/-/-/-`, nocache })
   if (no_mod.length > 0) {
     dispatch({ type: 'fetch_user_subscriptions_success', payload: no_mod }) 
   } else {
@@ -200,49 +200,53 @@ export const fetch_user_subscriptions = (timezone: string, date_from: string, da
     const prefix = find_prefix(country_code)
     const prefix_present = msisdn.indexOf(prefix) > -1
     const starts_with_zero = msisdn.startsWith('0')
-      
-    if (!prefix_present && starts_with_zero) {
-      const remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(1)}/-/-/-` }, nocache)
-      if (remove_zero.length > 0){
-        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero })
-      } else {
-        const remove_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn.substr(1)}/-/-/-` }, nocache)
-        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero_add_prefix })
-      }
-    }
-
-    else if (!prefix_present && !starts_with_zero) {
-      const add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn}/-/-/-` }, nocache)
-      if (add_zero.length > 0){
-        dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero })
-      } else {
-        const add_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + '0' + msisdn}/-/-/-` }, nocache)
-        if (add_zero_add_prefix.length > 0) {
-          dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero_add_prefix })
+    
+    switch (true) {
+      case (!prefix_present && starts_with_zero):
+        const remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(1)}/-/-/-`, nocache })
+        if (remove_zero.length > 0){
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero })
         } else {
-          const add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn}/-/-/-` }, nocache)
-          dispatch({ type: 'fetch_user_subscriptions_success', payload: add_prefix })
+          const remove_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn.substr(1)}/-/-/-`, nocache })
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_zero_add_prefix })
         }
-      }
-    }
-
-    else if (prefix_present) {
-      const prefix_length: number = prefix.length
-      const remove_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length)}/-/-/-` }, nocache)
-      if (remove_prefix.length > 0){
-        dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix })
-      } else {
-        const remove_prefix_add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn.substr(prefix_length)}/-/-/-` }, nocache)
+        break
         
-        if (remove_prefix_add_zero.length > 0) {
-          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_add_zero })
+      case (!prefix_present && !starts_with_zero):
+        const add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn}/-/-/-`, nocache })
+        if (add_zero.length > 0) {
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero })
         } else {
-          const remove_prefix_remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length + 1)}/-/-/-` }, nocache)
-          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_remove_zero })
+          const add_zero_add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + '0' + msisdn}/-/-/-`, nocache })
+          if (add_zero_add_prefix.length > 0) {
+            dispatch({ type: 'fetch_user_subscriptions_success', payload: add_zero_add_prefix })
+          } else {
+            const add_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${prefix + msisdn}/-/-/-`, nocache })
+            dispatch({ type: 'fetch_user_subscriptions_success', payload: add_prefix })
+          }
         }
-      }
-    } else {
-      dispatch({ type: 'fetch_user_subscriptions_success', payload: no_mod })
+        break
+      
+      case (prefix_present):
+        const prefix_length: number = prefix.length
+        const remove_prefix = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length)}/-/-/-`, nocache })
+        if (remove_prefix.length > 0){
+          dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix })
+        } else {
+          const remove_prefix_add_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${'0' + msisdn.substr(prefix_length)}/-/-/-`, nocache })
+          
+          if (remove_prefix_add_zero.length > 0) {
+            dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_add_zero })
+          } else {
+            const remove_prefix_remove_zero = await get({ url: `${api_root}/api/v1/user_subscriptions/${timezone}/${date_from}/${date_to}/country_code=${country_code},msisdn=${msisdn.substr(prefix_length + 1)}/-/-/-`, nocache })
+            dispatch({ type: 'fetch_user_subscriptions_success', payload: remove_prefix_remove_zero })
+          }
+        }
+        break
+
+      default:
+        dispatch({ type: 'fetch_user_subscriptions_success', payload: no_mod })
+
     }
   }
 }

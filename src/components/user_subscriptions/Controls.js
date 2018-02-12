@@ -178,7 +178,12 @@ const ConnectedControls = Controls => props =>
   <Controls { ...props } set_params={ params => {
     props.set_params(params)
     props.cleanup_fetch_user_subscriptions()
-    props.history.push(`/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-`)
+    const make_url = params =>
+      params.nocache
+      ? `/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/?nocache=true`
+      : `/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`
+    // props.history.push(`/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`)
+    props.history.push(make_url(params))
 }
 } />
 
