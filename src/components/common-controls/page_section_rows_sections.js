@@ -31,7 +31,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     }
     const show_label_row = show_label('row') 
     const show_label_section = show_label('section') 
-    const formatter = cell_formatter(affiliates, params.timezone)
+    const formatter = cell_formatter(affiliates, params.timezone + 2)
 
     const column = (label, onClick, value, footer, more = {}) => {
       const to_f = (p, x) => typeof p == 'function' ? p(x) : p || {}
@@ -118,7 +118,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
           }        
         }}
         />
-      , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } value={ footer(data) } />
+      , tf: (data) => <TD {...more} style={ R.merge(to_f(more.style, data), { 'font-weight': 'bold' }) } value={ footer(data, is_summary) } />
       }
     }
 
@@ -181,13 +181,12 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
         </tr>
       </tbody>
       {
-        !!footer ? (<tfoot>
+        !!footer && !is_summary ? (<tfoot>
             <tr>
               <td colSpan={ columns.length  }>{footer(data)}</td>
             </tr>
           </tfoot>) : ''
       }
-
     </TABLE>
   }
 

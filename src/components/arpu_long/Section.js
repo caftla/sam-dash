@@ -6,11 +6,13 @@ import {TD, TH, TABLE} from '../plottables/table'
 import cell_formatter from './cell-formatter'
 import './Section.styl'
 import Section from '../common-controls/page_section_rows_sections'
+import Chart from './SectionPlot'
 
 const empty_null = format => x => x == null ? '' : format(x)
 
 export default Section({
   cell_formatter, 
+  footer: (data) => <Chart data={data.data} />, //{ console.log('footer data', data); return 'FOOTER' },
   columns_maker: ({params, data, pcolumn, tcolumn, column, show_label_section, show_label_row, formatter, width, onSort}) => ([
     column(
         show_label_section(params.section, 'section')
