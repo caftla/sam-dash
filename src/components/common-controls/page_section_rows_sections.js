@@ -31,7 +31,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     }
     const show_label_row = show_label('row') 
     const show_label_section = show_label('section') 
-    const formatter = cell_formatter(affiliates, params.timezone + 2)
+    const formatter = cell_formatter(affiliates, params.timezone)
 
     const column = (label, onClick, value, footer, more = {}) => {
       const to_f = (p, x) => typeof p == 'function' ? p(x) : p || {}
