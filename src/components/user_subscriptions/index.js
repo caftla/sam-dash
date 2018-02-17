@@ -19,7 +19,7 @@ import {
     fetch_all_countries , fetch_user_subscriptions, cleanup_fetch_user_subscriptions
 } from '../../actions'
 
-import { ExportToExcel, TableWithData } from './Table'
+import { TableWithData } from './Table'
 import Controls from './Controls'
 
 const theme = {
@@ -53,7 +53,7 @@ type Props = {
 const props_to_params = props => {
   const {timeFormat} = require('d3-time-format')
   const formatDate = timeFormat('%Y-%m-%d')
-  const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 62 * 24 * 3600 * 1000))
+  const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 184 * 24 * 3600 * 1000))
   const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
   const deafultTimezone = '+8'
   const {params} = props.match
@@ -85,9 +85,8 @@ class Subscriptions extends React.Component {
     //   res: fetchState.Nothing()
     // }
 
-    const {params} = props.match
-    const {timezone, date_from, date_to, nocache, filter} = params
-    this.export_to_excel = this.export_to_excel.bind(this)
+    const { params } = props.match
+    const { timezone, date_from, date_to, nocache, filter } = params
   }
 
   componentDidMount() {
@@ -125,25 +124,6 @@ class Subscriptions extends React.Component {
     })(nextProps.data)
   }
 
-  export_to_excel = (e) => {
-    e.preventDefault()
-    const workbook = XLSX.utils.table_to_book(document.getElementById('table'), {cellHTML:true})
-    const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
-  
-    const wbout = XLSX.write(workbook,wopts);
-  
-    const s2ab = (s) => {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
-    }
-  
-    /* the saveAs call downloads a file on the local machine */
-    saveAs(new Blob([s2ab(wbout)],{type:""}), `${this.props.match.params.filter}.xlsx`)
-  }
-
-
   render() {
     const params = props_to_params(this.props)
     const data_component = match({
@@ -160,7 +140,7 @@ class Subscriptions extends React.Component {
           { data.length == 0 
             ? <div>No data was found, try adding/removing country code and extending the date range.</div> 
             : <div>
-              <ExportToExcel onClick={e => this.export_to_excel(e)} />
+              {/* <ExportToExcel onClick={e => this.export_to_excel(e)} /> */}
               <TableWithData data={flat_data} timezone={params.timezone} date_from={params.date_from} date_to={params.date_to} filter={params.filter} />
             </div>}
         </div>)
@@ -204,8 +184,8 @@ export default connect(
 
     })
   , {
-      fetch_all_countries
-      , fetch_user_subscriptions
-      , cleanup_fetch_user_subscriptions
+     fetch_all_countries
+     , fetch_user_subscriptions
+    , cleanup_fetch_user_subscriptions
   }
 )(Subscriptions)
