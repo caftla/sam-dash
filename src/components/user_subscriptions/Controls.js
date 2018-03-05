@@ -181,8 +181,8 @@ const ConnectedControls = Controls => props =>
     props.cleanup_fetch_user_subscriptions()
     const make_url = params =>
       params.nocache
-      ? `/user_subscriptions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/?nocache=true`
-      : `/user_subscriptions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`
+      ? `/user_subscriptions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}?nocache=true`
+      : `/user_subscriptions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}`
     // props.history.push(`/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`)
     props.history.push(make_url(params))
 }
