@@ -196,7 +196,7 @@ app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:sect
   )
 })
 
-app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
   const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions/index.sql', 'utf8')
