@@ -1,4 +1,4 @@
-const query = require('../../sql-api')
+const {query} = require('../../sql-api')
 const fs = require('fs')
 const R = require('ramda')
 
