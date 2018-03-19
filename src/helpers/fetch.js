@@ -16,6 +16,21 @@ export const post = async ({ url, body } : {url: string, body?: mixed}) => {
   return data
 }
 
+export const postForPdf = async ({ url, body } : {url: string, body?: mixed}) => {
+  const res = await fetch(url , {
+    method: 'POST',
+    headers: {
+      authorization: localStorage.getItem('token'),
+      'Content-type': 'application/json',
+      Accept: 'application/pdf'
+    },
+    responseType: 'blob',
+    body: JSON.stringify(body),
+  })
+  const data = await res
+  return data.blob()
+}
+
 export const postMayReturnError = async ({ url, body }: { url: string, body?: mixed }) => {
   const res = await fetch(url, {
     method: 'POST',
