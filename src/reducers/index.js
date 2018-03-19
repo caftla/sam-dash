@@ -18,6 +18,7 @@ import arpu_long from './arpu_long'
 import cohort from './cohort'
 import converting_ips from './converting_ips'
 import monthly_reports from './monthly_reports'
+import co_invoices from './co_invoices'
 import sort from './sort'
 import login from './login'
 
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
   , cohort
   , converting_ips
   , monthly_reports
+  , co_invoices
   , sort
   , login
 })

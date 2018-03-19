@@ -13,7 +13,7 @@ const { format } = require('d3-format')
 
 
 type ControlsProps = {
-  countries: Array<any>
+  affiliates: Array<any>
   , set_params: QueryParams => any
   , filter_params: QueryParams
   , className?: string
@@ -23,7 +23,7 @@ type ControlsState = {
     date_from: string
   , date_to: string
   , timezone: number
-  , country_code: string
+  , affiliate_name: string
   , msisdn: string
 }
 
@@ -53,7 +53,7 @@ class Controls extends React.Component {
       , to_hour: '24'
       , timezone: params.timezone
       , msisdn: ''
-      , country_code: ''
+      , affiliate_name: ''
       , ...filter_params
       , noMsisdnProvided: false
       , countryCodeNotSelected: false
@@ -78,7 +78,7 @@ class Controls extends React.Component {
 	}
 
   get_filter_string() {
-    return this.get_filter_string_by_fields(["country_code", "from_hour", "to_hour", "msisdn"])
+    return this.get_filter_string_by_fields(["affiliate_name", "from_hour", "to_hour", "msisdn"])
   }
 
   render() {
@@ -116,17 +116,11 @@ class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Affiliate Information:</FormTitle>
-        <FormRow>
-          <input name="MSISDN" id="msisdn-input" placeholder="MSISDN" type="text" value={ this.state.msisdn } 
-          onChange={ e => this.setState({ msisdn: e.target.value.replace(/[^0-9]/g, '') })} />
-        </FormRow>
-          <p style={ {display: this.state.noMsisdnProvided ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please enter MSISDN to proceed!</p>
-        <MySimpleSelect name="Country" onChange={ country_code => this.setState({ 
-              country_code: country_code }) }
-          value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } required />
-          <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select country to proceed!</p>
+        <MySimpleSelect name="Affiliate" onChange={ affiliate_name => this.setState({ 
+              affiliate_name: affiliate_name }) }
+          value={ this.state.affiliate_name } options={ this.props.affiliates.map(x => x.affiliate_name) } required />
+          <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select affiliate to proceed!</p>
       </FilterFormSection>
-      
       <FormSectionButtons>
       <div>
         <label htmlFor={ this.state.cache_buster_id }>No cache</label><input 
@@ -135,9 +129,7 @@ class Controls extends React.Component {
           id={ this.state.cache_buster_id } type="checkbox" />
       </div>
         <Submit onClick={_ => {
-          if (this.state.msisdn == '') {
-            this.setState({ noMsisdnProvided: true })
-          } else if (this.state.country_code == '') {
+          if (this.state.affiliate_name == '') {
             this.setState({ countryCodeNotSelected: true })
           }
           else {
@@ -148,7 +140,7 @@ class Controls extends React.Component {
               , to_hour: this.state.to_hour
               , timezone: this.state.timezone
               , msisdn: this.state.msisdn
-              , country_code: this.state.country_code
+              , affiliate_name: this.state.affiliate_name
               , filter: this.get_filter_string(this.state, true)
               , nocache: this.state.nocache
             })
@@ -167,7 +159,7 @@ class Controls extends React.Component {
 
 import {
   set_params
-, cleanup_fetch_user_subscriptions
+, cleanup_fetch_co_invoices
 } from '../../actions'
 import { connect } from 'react-redux'
 import hoc from '../controls-hoc'
@@ -177,8 +169,14 @@ const {ControlWithFilterParams, ControlsInstance } = hoc
 const ConnectedControls = Controls => props =>
   <Controls { ...props } set_params={ params => {
     props.set_params(params)
-    props.cleanup_fetch_user_subscriptions()
-    props.history.push(`/user_subscriptions/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-`)
+    const formatTimezone = format("+.1f")
+    props.cleanup_fetch_co_invoices()
+    const make_url = params =>
+      params.nocache
+      ? `/co_invoices/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}?nocache=true`
+      : `/co_invoices/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}`
+    // props.history.push(`/co_invoices/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`)
+    props.history.push(make_url(params))
 }
 } />
 
@@ -186,5 +184,5 @@ export default connect(
   state => ({
       // traffic_breakdown: state.traffic_breakdown
   })
-, { cleanup_fetch_user_subscriptions, set_params }
+, { cleanup_fetch_co_invoices, set_params }
 )(R.compose(ControlWithFilterParams, ControlsInstance, ConnectedControls)(Controls))

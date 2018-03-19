@@ -295,4 +295,13 @@ export const fetch_monthly_reports = (date_from : string, date_to : string, filt
 export const cleanup_fetch_monthly_reports = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_monthly_reports' })
 
-  
+// co_invoices
+
+export const fetch_co_invoices = (timezone, date_from: string, date_to: string, filter: string, nocache: boolean) => (dispatch: Dispatch) => {
+  dispatch({ type: 'fetch_co_invoices_loading' })
+  get({ url: `${api_root}/api/v1/co_invoices/${timezone}/${date_from}/${date_to}/${filter}`, nocache })
+    .then(d => dispatch({ type: 'fetch_co_invoices_success', payload: d }))
+}
+
+export const cleanup_fetch_co_invoices = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_co_invoices' })

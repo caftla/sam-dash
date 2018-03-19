@@ -149,14 +149,15 @@ function Wrap(WrappedComponent) {
               <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
               
               <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>IPs</a>          
-
+              
               <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU</a>
+
+              <a href="/co_invoices/" className={this.state.route == 'co_invoices' ? 'active' : ''}>Affiliates</a>
 
               <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
 
               <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
 
-              <a href="/co_invoices/" className={this.state.route == 'co_invoices' ? 'active' : ''}>Co-Invoices</a>
 
             </div>
             
@@ -212,7 +213,7 @@ const main_bottom = <Provider store={store}>
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />
 
-        <Route path="/co_invoices/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Coinvoices)} />
+        <Route path="/co_invoices/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(Coinvoices)} />
         <Route path="/co_invoices" exact={true} component={WrapAndAuth(Coinvoices)} />
 
         <Route path="/arpu_long/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(ARPU_Long)} />
