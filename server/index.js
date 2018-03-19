@@ -7,6 +7,7 @@ const query_monthly_reports_operator_code = require('./sql-templates/monthly_rep
 const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
 const cache = require('./cache')
+const generate_invoice = require('./pdf_generator')
 
 const app = express();
 app.use(express.static('dist'))
@@ -202,7 +203,7 @@ app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:
   )
 })
 
-app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter/:page/:section/:row', (req, res) => {
+app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
   const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_jewel(
     fs.readFileSync('./server/sql-templates/co_invoices/index.sql', 'utf8')
@@ -210,6 +211,17 @@ app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter/:page/:sectio
     , res
     , require('./sql-templates/co_invoices')(params)
   )
+})
+
+app.post('/api/v1/co_invoices/generate_pdf', authenticate(), (req, res) => {
+  const { url } = req.body
+  generate_invoice(url)
+    .then((x) => {
+      res.setHeader('Content-disposition', `attachment;`)
+      res.setHeader('Content-type', 'application/pdf')
+      res.send(x).pipe(res)
+    })
+    .catch(err => res.send(err))
 })
 
 app.get('/api/v1/all_affiliates', (req, res) => {

@@ -10,9 +10,16 @@ module.exports = (params) => {
     , is_date_param(params.page) ? x => R.merge(x, {page: new Date(x.page).toISOString()}) : id
   )
 
+  const safe_div = (x, y) => y == 0 && x == 0 ? 0
+    : y == 0 ? Infinity
+    : x / y
+
+  // const add_cpa = x => R.merge(x, {
+  //   cpa: safe_div(x.cost, x.sales)
+  // })
   return R.pipe(
       R.map(format)
-    // R.map( x => console.log(x))
+    // , R.map(add_cpa)
     , R.groupBy(p => p.page)
     , R.map(R.pipe(
           R.groupBy(s => s.section)
