@@ -14,7 +14,7 @@
     , { expiresIn: '1d' }
   )
 
-  const headerStyles = 'font-size: 10px; margin: 20px; color: black; height: 200px;'
+  const headerStyles = 'font-family: Helvetica; font-size: 10px; margin: 20px; color: black; height: 200px;'
   const footerStyles = 'font-size: 10px; margin: 10px auto 10px auto; color: black;'
   const imgStyles = 'height: 50px; width: 193px;'
 

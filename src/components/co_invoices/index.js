@@ -20,7 +20,7 @@ import {
   fetch_all_affiliates , fetch_co_invoices, cleanup_fetch_co_invoices
 } from '../../actions'
 
-import { ExportToExcel, DownloadPDF, AffiliateStatsTable } from './Table'
+import { ExportToExcel, DownloadPDF, BreakdownTable, SummeryTable} from './Table'
 import Controls from './Controls'
 
 const d3 = require('d3-format')
@@ -35,34 +35,68 @@ const flatten_data = data =>
   , R.chain(([_, data]) => data)
   )(data)
 
-const calculate_epc = data =>
+const calculate_cpa = data =>
   R.compose(
     R.flatten
   , R.map(y =>
-    [{  Country: y.country_code
-      , Operator: y.operator_code
-      , Sales: y.sales
-      , CPA: safe_div(y.total, y.sales)
+    [{  country: y.country_code
+      , operator: y.operator_code
+      , sales: y.pixels
+      , cpa: safe_div(y.total, y.pixels)
       // , EPC: safe_div(y.total, y.views)
-      , Resubs: y.resubscribes
-      , Earnings: y.total }]
+      , resubscribes: d3.format('.0%')(safe_div(y.resubscribes, y.sales))
+      , total: y.total }]
     ))(data)
 
-const get_eu_data = data =>
+const get_eu_breakdown = data =>
   R.pipe(
     R.reject(x => !x.sales || x.sales == 0 || x.timezone == 'Asia/Kuala_Lumpur')
-  , calculate_epc
+  , calculate_cpa
   )(data)
 
-const get_apac_data = data => 
+const get_apac_breakdown = data =>
   R.pipe(
     R.reject(x => !x.sales || x.sales == 0 || x.timezone == 'Europe/Amsterdam')
-  , calculate_epc
+  , calculate_cpa
+  )(data)
+
+const get_summery = (data, timezone) =>
+  R.pipe(
+    R.groupBy( x => x.country_code)
+  , R.map(R.reduce(
+      (acc, a) => ({
+        views: acc.views + a.views
+      , pixels: acc.pixels + a.pixels
+      , resubscribes: acc.resubscribes + a.resubscribes
+      , sales: acc.sales + a.sales
+      , total: acc.total + a.total
+      , timezone: a.timezone
+      })
+    , {
+        timezone: 'Europe/Amsterdam'
+      , views: 0
+      , pixels: 0
+      , resubscribes: 0
+      , sales: 0
+      , total: 0
+    }
+  ))
+  , R.toPairs
+  , R.map(([country, x]) => ({ country,
+      pixels: x.pixels
+    , resubscribes: d3.format('.0%')(safe_div(x.resubscribes, x.sales))
+    , epc: safe_div(x.total, x.views)
+    , total: x.total
+    , timezone: x.timezone
+  })
+)
+  , R.reject(x => x.timezone == timezone || !x.pixels || x.pixels == 0)
+  , R.map(x => R.omit(['timezone'], x))
   )(data)
 
 const get_total_cpa = data =>
   R.pipe(
-    R.map(x => R.prop('Earnings', x))
+    R.map(x => R.prop('total', x))
   , R.sum()
   )(data)
 
@@ -185,23 +219,23 @@ class Coinvoices extends React.Component {
   //   }
   // }
 
-  export_to_excel = (e) => {
-    e.preventDefault()
-    const workbook = XLSX.utils.table_to_book(document.querySelectorAll('.invoice'), {cellHTML:true})
-    const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
+  // export_to_excel = (e) => {
+  //   e.preventDefault()
+  //   const workbook = XLSX.utils.table_to_book(document.querySelectorAll('.invoice'), {cellHTML:true})
+  //   const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
   
-    const wbout = XLSX.write(workbook,wopts);
+  //   const wbout = XLSX.write(workbook,wopts);
   
-    const s2ab = (s) => {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
-    }
+  //   const s2ab = (s) => {
+  //     const buf = new ArrayBuffer(s.length);
+  //     const view = new Uint8Array(buf);
+  //     for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+  //     return buf;
+  //   }
   
-    /* the saveAs call downloads a file on the local machine */
-    saveAs(new Blob([s2ab(wbout)],{type:""}), `${this.props.match.params.filter}.xlsx`)
-  }
+  //   /* the saveAs call downloads a file on the local machine */
+  //   saveAs(new Blob([s2ab(wbout)],{type:""}), `${this.props.match.params.filter}.xlsx`)
+  // }
 
   send_html_to_server = (e) => {
     e.preventDefault()
@@ -224,19 +258,24 @@ class Coinvoices extends React.Component {
     , Error: (error) => <div>Error {error}</div>
     , Loaded: (data) => {
       const flat_data = flatten_data(data)
-      const apac_data = get_apac_data(flat_data)
-      const eu_data = get_eu_data(flat_data)
+      const eu_summery = get_summery(flat_data, 'Asia/Kuala_Lumpur')
+      const apac_summery = get_summery(flat_data, 'Europe/Amsterdam')
+      const apac_breakdown = get_apac_breakdown(flat_data)
+      const eu_breakdown = get_eu_breakdown(flat_data)
       return (
         <div>
         { flat_data.length == 0 
           ? <div>No data was found for this affiliate</div> 
           : <div>
             <p className="no-print">Here are the stats for <span style={{fontWeight: 'bolder'}}>{this.props.match.params.filter.replace('affiliate_name=','')}</span></p>
-            <ExportToExcel onClick={this.export_to_excel} />
+            {/* <ExportToExcel onClick={this.export_to_excel} /> */}
             <DownloadPDF onClick={this.send_html_to_server} />
               <div className="table-container">
-                <AffiliateStatsTable data={eu_data} total_cpa={get_total_cpa(eu_data)} billing_address={'Sam Media BV...'} />
-                <AffiliateStatsTable data={apac_data} total_cpa={get_total_cpa(apac_data)} billing_address={'Sam Media Limited...'} />            
+                <SummeryTable data={eu_summery} total_cpa={get_total_cpa(eu_summery)} billing_address={'Sam Media BV...'} />
+                <BreakdownTable data={eu_breakdown} total_cpa={get_total_cpa(eu_breakdown)} billing_address={'Sam Media BV...'} />
+                
+                <SummeryTable data={apac_summery} total_cpa={get_total_cpa(apac_summery)} billing_address={'Sam Media Limited...'} />
+                <BreakdownTable data={apac_breakdown} total_cpa={get_total_cpa(apac_breakdown)} billing_address={'Sam Media Limited...'} />            
               </div>
           </div>}
         </div>)
