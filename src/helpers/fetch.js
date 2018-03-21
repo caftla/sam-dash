@@ -48,7 +48,7 @@ export const postMayReturnError = async ({ url, body }: { url: string, body?: mi
   return JSON.parse(data)
 }
 
-export const get = async ({ url, nocache = false } : { url : string, nocache : boolean }) => {
+export const get = async ({ url, nocache = false, process = r => r.json() } : { url : string, nocache : boolean }) => {
   if(nocache) {
     const cache_buser = `cache_buster=${new Date().valueOf()}`
     url = (url.indexOf('?') > -1
@@ -60,7 +60,7 @@ export const get = async ({ url, nocache = false } : { url : string, nocache : b
       authorization: localStorage.getItem('token'),
     },
   })
-  const data = await res.json()
+  const data = await process(res)
   return data
 }
 
@@ -76,3 +76,5 @@ export const fromQueryString = R.pipe(
     , R.map(x => x.split('='))
     , R.fromPairs
   )
+
+window._get = get

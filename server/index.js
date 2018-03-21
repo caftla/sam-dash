@@ -1,6 +1,6 @@
 // @flow
 const express = require('express');
-const query = require('./sql-api')
+const {query, makeQuery} = require('./sql-api')
 const fs = require('fs')
 const R = require('ramda')
 const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
@@ -65,6 +65,16 @@ const respond_with_connection_name = (connection_name: string, sql, params, res,
 const respond_helix = (sql, params, res, map = x => x) => respond_with_connection_name('helix_connection_string', sql, params, res, map)
 const respond_jewel = (sql, params, res, map = x => x) => respond_with_connection_name('jewel_connection_string', sql, params, res, map)
 
+const respond_query_text = (sql, params, res) => {
+  res.set("Content-Type", "text/plain")
+  res.set("Cache-Control", "public, max-age=7200")
+  res.end(makeQuery(sql, params))
+}
+
+const respond_query_or_result = (resp, sql, params, req, res, transform) =>
+  req.query.queryText == "1"
+    ? respond_query_text(sql, params, res)
+    : resp(sql, params, res, transform)
 
 app.get('/api/query', (req, res) => {
   respond_helix(fs.readFileSync('./server/query.sql', 'utf8'), req.query, res)
@@ -95,9 +105,11 @@ app.get('/api/hello', authenticate(), (req, res) => {
 // example: http://127.0.0.1:3081/api/v1/filter_section_row/2017-04-01/2017-04-07/country_code=ZA,affiliate_name=Gotzha/publisher_id/day
 app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
-      fs.readFileSync('./server/sql-templates/filter_section_row/index.sql', 'utf8')
+  respond_query_or_result(
+      respond_helix
+    , fs.readFileSync('./server/sql-templates/filter_section_row/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/filter_section_row')(params)
   )
@@ -105,9 +117,11 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
 
 app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
-  respond_jewel(
-      fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/filter_page_section_row/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/filter_page_section_row')(params)
   )
@@ -183,7 +197,7 @@ app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:sect
   )
 })
 
-app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
   const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions/index.sql', 'utf8')

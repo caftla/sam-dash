@@ -1,4 +1,4 @@
-const query = require('../../sql-api')
+const {query} = require('../../sql-api')
 const fs = require('fs')
 const R = require('ramda')
 
@@ -18,49 +18,81 @@ const transform = (params) => {
     
     
   const add_ratios = x => R.merge(x, {
-      cr: safe_div(x.sales, x.views)
-    , pixels_cr: safe_div(x.pixels, x.views)
-    , pixels_ratio: safe_div(x.pixels, x.sales)
-    , cq: safe_div(x.firstbillings, x.sales)
-    , cost: x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0))
-    , ecpa: safe_div(x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0)), x.sales)
-    , cpa: safe_div(x.cost || ((x.paid_sales || 0) * (x.home_cpa || 0)), (x.paid_sales || 0))
-    , active24: safe_div(x.sales - x.optout_24, x.sales)
-    , active: safe_div(x.sales - x.optouts, x.sales)
-    , resubrate: safe_div(x.sales - x.uniquesales, x.sales)
-    , releadrate: safe_div(x.leads - x.uniqueleads, x.leads)
-    , uniqueleadsrate: safe_div(x.uniqueleads, x.leads)
-    , uniquesubsrate: safe_div(x.uniquesales, x.sales)
-    , resubs: safe_div(x.sales, x.uniquesales)
-    , releads: safe_div(x.leads, x.uniqueleads)
-    , billed: safe_div(x.delivered, x.total)
-  })
+      cq: safe_div(x.firstbillings, x.sales),
+      active24: safe_div(x.sales - x.optout_24h, x.sales),
+      active: safe_div(x.sales - x.optouts, x.sales),
+      ecpa: safe_div(x.cost, x.sales),
+      cpa: safe_div(x.cost, x.pixels),
+      pixels_ratio: safe_div(x.pixels, x.sales),
+      resubs_ratio: safe_div(x.resubs, x.sales),
+      firstbillings_and_active24: safe_div(
+        x.firstbillings && x.optout_24h,
+        x.sales
+      ),
+      click_or_touch_ratio: safe_div(x.clicks_or_touches, x.views),
+      cr: safe_div(x.sales, x.views),
+      cr_pixels: safe_div(x.pixels, x.views),
+      lead1: safe_div(x.lead1s, x.views),
+      lead2: safe_div(x.lead2s, x.views),
+      any_leads_ratio: safe_div(x.any_leads, x.views),
+      bad_pixels_ratio: safe_div(
+        x.pixels_for_no_firstbilling + x.pixels_for_resubs,
+        x.pixels
+      ),
+      missed_good_pixels_ratios: safe_div(x.missed_good_pixels, x.sales),
+      billed: safe_div(x.delivered, x.total)
+    });
   
  const reduce_data = data => {
    const xdata = add_ratios(data.reduce(
-      (acc, a) =>
-        R.merge(acc, {
-            views: acc.views + (a.views || 0)
-          , leads: acc.leads + (a.leads || 0)
-          , sales: acc.sales + (a.sales || 0)
-          , uniquesales: acc.uniquesales + (a.uniquesales || 0)
-          , uniqueleads: acc.uniqueleads + (a.uniqueleads || 0)
-          , paid_sales: acc.paid_sales + (a.paid_sales || 0)
-          , pixels: acc.pixels + (+a.pixels || 0)
-          , firstbillings: acc.firstbillings + (a.firstbillings || 0)
-          , cost: acc.cost + (a.cost || 0)
-          , optout_24: acc.optout_24 + (a.optout_24 || 0)
-          , optouts: acc.optouts + (a.optouts || 0)
-          , day_optouts: acc.day_optouts + (a.day_optouts || 0)
-          , revenue: acc.revenue + (a.revenue || 0)
-          , delivered: (a.delivered || 0) + acc.delivered
-          , total: (+a.total || 0) + acc.total
-        })
-      , {
-            sales: 0, uniquesales: 0, uniqueleads: 0, paid_sales: 0, views: 0, leads: 0, pixels: 0, firstbillings: 0, cost: 0, optouts: 0, day_optouts: 0, optout_24: 0
-          , revenue: 0, delivered: 0, total: 0
-        }
-    ))
+       (acc, a) =>
+         R.merge(acc, {
+           views: a.views + acc.views,
+           cost: a.cost + acc.cost,
+           sales: a.sales + acc.sales,
+           pixels: a.pixels + acc.pixels,
+           optout_24h: a.optout_24h + acc.optout_24h,
+           optouts: a.optouts + acc.optouts,
+           firstbillings: a.firstbillings + acc.firstbillings,
+           resubs: a.resubs + acc.resubs,
+           // , non_unique_sales: a.non_unique_sales + acc.non_unique_sales
+           // , unique_sales: a.unique_sales + acc.unique_sales
+           clicks_or_touches: a.clicks_or_touches + acc.clicks_or_touches,
+           lead1s: a.lead1s + acc.lead1s,
+           lead2s: a.lead2s + acc.lead2s,
+           any_leads: a.any_leads + acc.any_leads,
+           pixels_for_resubs: a.pixels_for_resubs + acc.pixels_for_resubs,
+           pixels_for_no_firstbilling:
+             a.pixels_for_no_firstbilling + acc.pixels_for_no_firstbilling,
+           missed_good_pixels: a.missed_good_pixels + acc.missed_good_pixels,
+           day_optouts: acc.day_optouts + (a.day_optouts || 0),
+           revenue: acc.revenue + (a.revenue || 0),
+           delivered: (a.delivered || 0) + acc.delivered,
+           total: (+a.total || 0) + acc.total
+         }),
+       {
+            views: 0
+          , cost: 0
+          , sales: 0
+          , pixels: 0
+          , optout_24h: 0
+          , optouts: 0
+          , firstbillings: 0
+          , resubs: 0
+          // , non_unique_sales: 0
+          // , unique_sales: 0
+          , clicks_or_touches: 0
+          , lead1s: 0
+          , lead2s: 0
+          , any_leads: 0
+          , pixels_for_resubs: 0
+          , pixels_for_no_firstbilling: 0
+          , missed_good_pixels: 0
+         , revenue: 0
+         , delivered: 0
+         , total: 0
+       }
+     ));
 
     const home_cpa =  safe_div(R.pipe(R.map(x => x.home_cpa * x.paid_sales), R.sum)(data), R.pipe(R.map(x => x.paid_sales), R.sum)(data))
     return R.merge(xdata, {
@@ -101,13 +133,27 @@ const transform = (params) => {
 }
 
 module.exports = async function (helix_connection_string: string, jewel_connection_string: string, params: Object) {
-  const jewel = () => Promise.all(['views', 'transactions'].map(x =>
-    query(jewel_connection_string, fs.readFileSync(`./server/sql-templates/weekly_reports/${x}.sql`, 'utf8'), params)
-  )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)))
+  const jewel = () => Promise.all(["views", "transactions"].map(x =>
+        query(
+          jewel_connection_string,
+          fs.readFileSync(
+            `./server/sql-templates/weekly_reports/${x}.sql`,
+            "utf8"
+          ),
+          params
+        )
+      )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)));
 
-  const helix = () => Promise.all(['revenue'].map(x =>
-    query(helix_connection_string, fs.readFileSync(`./server/sql-templates/weekly_reports/${x}.sql`, 'utf8'), params)
-  )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)))
+  const helix = () => Promise.all(["revenue"].map(x =>
+        query(
+          jewel_connection_string,
+          fs.readFileSync(
+            `./server/sql-templates/weekly_reports/${x}.sql`,
+            "utf8"
+          ),
+          params
+        )
+      )).then(R.pipe(R.chain(x => x), R.map(x => x.rows)));
 
   const res = await Promise.all([jewel(), helix()])
   .then(R.chain(x => x))
