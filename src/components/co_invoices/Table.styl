@@ -9,43 +9,70 @@
 .print-only
 	display: none !important
 
+.fa-spin-custom {
+    -webkit-animation: spin 1000ms infinite linear
+    animation: spin 1000ms infinite linear
+	}
+
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
+
 @page
 	size: A4
 
 @media print   
-		body 
-			width: 100%
-			height: 100%
-			padding: 0
+	body 
+		width: 100%
+		height: 100%
+		padding: 0
 
-		.no-print, .no-print *
-			display: none !important
+	.no-print, .no-print *
+		display: none !important
 
-		.print-only
-			display: block !important
+	.print-only
+		display: block !important
 
-		.invoice
-			margin: 0 auto 0 auto
-			page-break-after: always
+	.invoice
+		margin: 0 auto 0 auto
+		page-break-after: always
 
-		.print_styles
-			background-color: #fff
-			color: #000
-			font-family: Helvetica
-			font-size: 8pt !important
-			overflow: visible
+	.print_styles
+		background-color: #fff
+		color: #000
+		font-family: Helvetica
+		font-size: 8pt !important
+		overflow: visible
 
-			-webkit-touch-callout:none
-			-webkit-text-size-adjust: none
-			-webkit-font-smoothing: antialiased
+		-webkit-touch-callout:none
+		-webkit-text-size-adjust: none
+		-webkit-font-smoothing: antialiased
 
-		.footer
-			height: 140px
-			position: fixed
-			bottom: 0
+	.footer
+		height: 140px
+		position: fixed
+		bottom: 0
 
-		.header
-			height: 140px		
-			position: fixed
-			top: 0
+	.header
+		height: 140px		
+		position: fixed
+		top: 0
     

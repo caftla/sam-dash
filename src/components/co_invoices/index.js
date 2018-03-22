@@ -159,6 +159,10 @@ class Coinvoices extends React.Component {
   constructor(props : any) {
     super(props)
 
+    this.state = {
+      downloading_pdf: false
+    }
+
     const {params} = props.match
     const {timezone, date_from, date_to, nocache, filter} = params
   }
@@ -240,6 +244,7 @@ class Coinvoices extends React.Component {
   send_html_to_server = (e) => {
     e.preventDefault()
     // const invoice = document.getElementById('invoice').outerHTML.toString()
+    this.setState({ downloading_pdf: true })
     const api_root = process.env.api_root || '' // in production api_root is the same as the client server
 
     postForPdf({url: `${api_root}/api/v1/co_invoices/generate_pdf`,
@@ -247,6 +252,7 @@ class Coinvoices extends React.Component {
     })
     .then((file) => {
       saveAs(file, `${this.props.match.params.filter.replace('affiliate_name=','')}-${this.props.match.params.date_from}-${this.props.match.params.date_to}`)
+      this.setState({ downloading_pdf: false })
     })
   }
 
@@ -269,7 +275,7 @@ class Coinvoices extends React.Component {
           : <div>
             <p className="no-print">Here are the stats for <span style={{fontWeight: 'bolder'}}>{this.props.match.params.filter.replace('affiliate_name=','')}</span></p>
             {/* <ExportToExcel onClick={this.export_to_excel} /> */}
-            <DownloadPDF onClick={this.send_html_to_server} />
+            <DownloadPDF onClick={this.send_html_to_server} downloading_pdf={this.state.downloading_pdf} />
               <div className="table-container">
                 <SummeryTable data={eu_summery} total_cpa={get_total_cpa(eu_summery)} billing_address={'Sam Media BV...'} />
                 <BreakdownTable data={eu_breakdown} total_cpa={get_total_cpa(eu_breakdown)} billing_address={'Sam Media BV...'} />

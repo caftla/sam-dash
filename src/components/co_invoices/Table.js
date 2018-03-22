@@ -15,9 +15,12 @@ export const ExportToExcel = ({ onClick }) => {
     <i className="fa fa-file-excel-o" aria-hidden="true"></i>  Export to Excel</div>
 }
 
-export const DownloadPDF = ({ onClick }) => {
+export const DownloadPDF = ({ onClick, downloading_pdf }) => {
   return <div className="no-print" onClick={onClick} style={{cursor: 'pointer'}}>
-    <i className="fa fa-file-pdf-o" aria-hidden="true"></i>  Download Co-Invoice</div>
+    {downloading_pdf
+      ? <i className="fa fa-circle-o-notch fa-spin-custom"></i>
+      : <i className="fa fa-file-pdf-o" aria-hidden="true"></i> }
+      &ensp;Download Co-Invoice</div>
 }
 
 const TH = ({ colSpan, text }) => <th colSpan={colSpan? colSpan : ''} style={{ textAlign: 'left', padding: '10px'}}>{text}</th>
