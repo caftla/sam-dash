@@ -133,7 +133,7 @@ const props_to_params = props => {
   // const formatDate = timeFormat('%Y-%m-%d')
   const defaultDateFrom = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
   const defaultDateTo   = moment().subtract(1, 'month').endOf('month').add(1, 'days').format('YYYY-MM-DD')
-  const deafultTimezone = '+8'
+  const deafultTimezone = '+0'
   const { params } = props.match
   const { format : d3Format } = require('d3-format')
   // const formatTimezone = d3Format("+.1f")
