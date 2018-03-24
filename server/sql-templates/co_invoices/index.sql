@@ -1,7 +1,7 @@
 select 
     us.country_code
   , us.operator_code
-  -- , ub.home_cpa as cpa
+  , ub.home_cpa as cpa
   , sum(coalesce(case when us.impression > 0 then 1 else 0 end, 0)) :: float as views
   , sum(case when ub.pixel > 0 or ub.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when ub.sale > 0 then 1 else 0 end) :: float as sales
@@ -18,6 +18,6 @@ where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
 
-group by us.country_code, us.operator_code, co.timezone
+group by us.country_code, us.operator_code, co.timezone, cpa
 order by us.country_code asc, total desc
 
