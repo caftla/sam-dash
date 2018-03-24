@@ -5,6 +5,7 @@ const d3 = require('d3-format')
 
 const TH = ({ colSpan, text }) => <th colSpan={colSpan? colSpan : ''} style={{ textAlign: 'left', padding: '10px'}}>{text}</th>
 const TD = ({ colSpan, text, className }) => <td className={className? className : ''} colSpan={colSpan? colSpan : ''} rowSpan={1} style={{ textAlign: 'left', padding: '10px' }}>{text}</td>
+const finance_email = process.env.finance_email
 
 export const SummeryTable = ({ data, total_cpa, region }) =>
   data.length
@@ -137,6 +138,6 @@ export const LetterBody = ({ name, email }) =>
     - Please note that timezone for the stats in this report is UTC+0. <br />
     - Please note that according to Sam Media financial policy a payment is made once 500USD threshold is reached. <br />
     - Please prepare invoices to the two billing addresses indicated above accordingly. <br />
-    - Kindly email the invoice to <span className="bolder-text"> ###finance email### </span>
+    - Kindly email the invoice to <span className="bolder-text"> { finance_email } </span>
     and cc to <span className="bolder-text">{ email }</span>.<br /><br /><br />
   </div>

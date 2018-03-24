@@ -64,10 +64,9 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('production'),
-        api_root: JSON.stringify(process.env.api_root || '')
-      },
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.api_root': JSON.stringify(process.env.api_root || ''),
+      'process.env.finance_email': JSON.stringify(process.env.finance_email || '')
     }),
     new webpack.optimize.UglifyJsPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
