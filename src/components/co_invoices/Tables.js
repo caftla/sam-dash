@@ -1,40 +1,22 @@
 import React from 'react'
 import R from 'ramda'
-import stylus from './Table.styl'
-import type { FetchState } from '../../adts'
-import { match, fetchState } from '../../adts'
-import { debug } from 'util';
-import { setTimeout } from 'timers'
-import { get } from '../../helpers'
-import { Submit } from '../Styled'
 
 const d3 = require('d3-format')
-
-export const ExportToExcel = ({ onClick }) => {
-  return <div className="no-print" onClick={onClick} style={{cursor: 'pointer'}}>
-    <i className="fa fa-file-excel-o" aria-hidden="true"></i>  Export to Excel</div>
-}
-
-export const DownloadPDF = ({ onClick, downloading_pdf }) => {
-  return <div className="no-print" onClick={onClick} style={{cursor: 'pointer'}}>
-    {downloading_pdf
-      ? <i className="fa fa-circle-o-notch fa-spin-custom"></i>
-      : <i className="fa fa-file-pdf-o" aria-hidden="true"></i> }
-      &ensp;Download Co-Invoice</div>
-}
 
 const TH = ({ colSpan, text }) => <th colSpan={colSpan? colSpan : ''} style={{ textAlign: 'left', padding: '10px'}}>{text}</th>
 const TD = ({ colSpan, text, className }) => <td className={className? className : ''} colSpan={colSpan? colSpan : ''} rowSpan={1} style={{ textAlign: 'left', padding: '10px' }}>{text}</td>
 
-
-export const SummeryTable = ({ data, total_cpa, billing_address }) =>
+export const SummeryTable = ({ data, total_cpa, region }) =>
   data.length
   ? <div>
-      <table style={{borderCollapse: 'collapse', margin: '0 auto 0 auto' }}>
+      <table style={{borderCollapse: 'collapse', margin: '20px auto 0 auto', width: '80%', fontSize: '14px'}}>
         <colgroup>
           <col span="6" width="110px" />
         </colgroup>
         <thead>
+          <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+            <TH colSpan={6} text={`${region} Sales Summery`} />
+          </tr>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
             <TH text={'Country'} />
             <TH text={'Sales'} />
@@ -68,21 +50,51 @@ export const SummeryTable = ({ data, total_cpa, billing_address }) =>
           </tr>
         </tfoot>
       </table>
-      <div style={{textAlign: 'center' }}>
-        <h3>Billing Address: { billing_address }</h3>
+      <div className="print-only" style={{ textAlign: 'left', marginLeft: '10%', fontSize: '12px' }}>
+        { region == 'EU'
+            ? <div>
+              <p>For EU sales, kindly invoice the amount of
+                <span className="bolder-text">
+                  &ensp;{d3.format(',')(total_cpa)}&ensp;USD&ensp;
+                </span>
+              to the following address:</p>
+              <address>
+                Sam Media B.V. <br />
+                Van Diemenstraat 140 <br />
+                1013 CN Amsterdam <br />
+              </address>
+            </div>
+            : <div>
+              <p>For non-EU sales, kindly invoice the amount of
+                <span className="bolder-text">
+                &ensp;{d3.format(',')(total_cpa)}&ensp;USD&ensp;
+                </span>
+                to the following address:</p>
+              <address>
+                Sam Media Ltd <br />
+                1010, 10/F, Miramar Tower <br />
+                132 Nathan Road <br />
+                Tsim Sha Tsui, Kowloon <br />
+                Hong Kong <br />
+              </address>
+            </div>
+            }
       </div>
     </div>
     : <div className="no-print" />
 
 
-export const BreakdownTable = ({ data, total_cpa, billing_address }) =>
+export const BreakdownTable = ({ data, total_cpa, region }) =>
   data.length
   ? <div className='invoice'>
-      <table style={{borderCollapse: 'collapse', margin: '0 auto 0 auto' }}>
+      <table style={{borderCollapse: 'collapse', margin: '20px auto 0 auto', width: '80%', fontSize: '14px' }}>
         <colgroup>
           <col span="6" width="110px" />
         </colgroup>
         <thead>
+          <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+            <TH colSpan={6} text={`${region} Sales Breakdown`} />
+          </tr>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
             <TH text={'Country'} />
             <TH text={'Operator'} />
@@ -119,3 +131,12 @@ export const BreakdownTable = ({ data, total_cpa, billing_address }) =>
     </div>
     : <div className="no-print" />
 
+export const LetterBody = ({ name, email }) =>
+  <div className="print-only page-break" style={{ textAlign: 'left', margin: '20px 0 0 10%', fontSize: '12px' }}>
+    Notes: <br />
+    - Please note that timezone for the stats in this report is UTC+0. <br />
+    - Please note that according to Sam Media financial policy a payment is made once 500USD threshold is reached. <br />
+    - Please prepare invoices to the two billing addresses indicated above accordingly. <br />
+    - Kindly email the invoice to <span className="bolder-text"> ###finance email### </span>
+    and cc to <span className="bolder-text">{ email }</span>.<br /><br /><br />
+  </div>

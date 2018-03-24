@@ -228,8 +228,8 @@ app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter', authenticat
 })
 
 app.post('/api/v1/co_invoices/generate_pdf', authenticate(), (req, res) => {
-  const { url } = req.body
-  generate_invoice(url)
+  const body = req.body
+  generate_invoice(body)
     .then((x) => {
       res.setHeader('Content-disposition', `attachment;`)
       res.setHeader('Content-type', 'application/pdf')

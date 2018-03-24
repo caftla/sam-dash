@@ -5,100 +5,24 @@ import { connect } from 'react-redux'
 import { ThemeProvider } from 'styled-components'
 import R from 'ramda'
 import moment from 'moment'
-import stylus from './Table.styl'
+import stylus from './index.styl'
 
 import type { Maybe } from 'flow-static-land/lib/Maybe'
-import type { QueryParams } from 'my-types'
+import type { QueryParams } from '../../my-types'
 
 import { match } from '../../adts'
 import type { FetchState } from '../../adts'
-import { sequence, postForPdf } from '../../helpers'
+import { fromQueryString, sequence } from '../../helpers'
 import * as maybe from 'flow-static-land/lib/Maybe'
-import { fromQueryString } from '../../helpers'
 
 import {
   fetch_all_affiliates , fetch_co_invoices, cleanup_fetch_co_invoices
 } from '../../actions'
 
-import { ExportToExcel, DownloadPDF, BreakdownTable, SummeryTable} from './Table'
+import { BreakdownTable, SummeryTable, LetterBody } from './Tables'
+import { DownloadPDF } from './DownloadPDF'
+import { flatten_data, get_apac_breakdown, get_eu_breakdown, get_summery, get_total_cpa } from './transformations'
 import Controls from './Controls'
-
-const d3 = require('d3-format')
-
-const safe_div = (x, y) => y == 0 && x == 0 ? 0
-    : y == 0 ? Infinity
-    : x / y
-
-const flatten_data = data =>
-  R.pipe(
-    R.chain(([_, data]) => data)
-  , R.chain(([_, data]) => data)
-  )(data)
-
-const calculate_cpa = data =>
-  R.compose(
-    R.flatten
-  , R.map(y =>
-    [{  country: y.country_code
-      , operator: y.operator_code
-      , sales: y.pixels
-      , cpa: safe_div(y.total, y.pixels)
-      // , EPC: safe_div(y.total, y.views)
-      , resubscribes: d3.format('.0%')(safe_div(y.resubscribes, y.sales))
-      , total: y.total }]
-    ))(data)
-
-const get_eu_breakdown = data =>
-  R.pipe(
-    R.reject(x => !x.sales || x.sales == 0 || x.timezone == 'Asia/Kuala_Lumpur')
-  , calculate_cpa
-  )(data)
-
-const get_apac_breakdown = data =>
-  R.pipe(
-    R.reject(x => !x.sales || x.sales == 0 || x.timezone == 'Europe/Amsterdam')
-  , calculate_cpa
-  )(data)
-
-const get_summery = (data, timezone) =>
-  R.pipe(
-    R.groupBy( x => x.country_code)
-  , R.map(R.reduce(
-      (acc, a) => ({
-        views: acc.views + a.views
-      , pixels: acc.pixels + a.pixels
-      , resubscribes: acc.resubscribes + a.resubscribes
-      , sales: acc.sales + a.sales
-      , total: acc.total + a.total
-      , timezone: a.timezone
-      })
-    , {
-        timezone: 'Europe/Amsterdam'
-      , views: 0
-      , pixels: 0
-      , resubscribes: 0
-      , sales: 0
-      , total: 0
-    }
-  ))
-  , R.toPairs
-  , R.map(([country, x]) => ({ country,
-      pixels: x.pixels
-    , resubscribes: d3.format('.0%')(safe_div(x.resubscribes, x.sales))
-    , epc: safe_div(x.total, x.views)
-    , total: x.total
-    , timezone: x.timezone
-  })
-)
-  , R.reject(x => x.timezone == timezone || !x.pixels || x.pixels == 0)
-  , R.map(x => R.omit(['timezone'], x))
-  )(data)
-
-const get_total_cpa = data =>
-  R.pipe(
-    R.map(x => R.prop('total', x))
-  , R.sum()
-  )(data)
 
 const theme = {
     flexDirection: 'row'
@@ -129,14 +53,10 @@ type Props = {
 }
 
 const props_to_params = props => {
-  // const {timeFormat} = require('d3-time-format')
-  // const formatDate = timeFormat('%Y-%m-%d')
   const defaultDateFrom = moment().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
   const defaultDateTo   = moment().subtract(1, 'month').endOf('month').add(1, 'days').format('YYYY-MM-DD')
   const deafultTimezone = '+0'
   const { params } = props.match
-  const { format : d3Format } = require('d3-format')
-  // const formatTimezone = d3Format("+.1f")
   const query = fromQueryString(props.location.search)
   const mparams = R.merge(params, R.applySpec({
       date_from: p => p.date_from || defaultDateFrom
@@ -153,14 +73,17 @@ class Coinvoices extends React.Component {
   props: Props
 
   state: {
-    res: FetchState<Array<any>>
+    downloading_pdf: boolean
+  , name: string
+  , email: string
   }
 
   constructor(props : any) {
     super(props)
 
     this.state = {
-      downloading_pdf: false
+      name: ''
+    , email: ''
     }
 
     const {params} = props.match
@@ -175,7 +98,7 @@ class Coinvoices extends React.Component {
       , R.map(R.split('='))
       , R.fromPairs
     )(params.filter || '-')
-    
+
     if (filter_params.affiliate_name) {     
       match({
         Nothing: () => this.props.fetch_co_invoices(params.timezone, params.date_from, params.date_to, params.filter, params.nocache)
@@ -185,7 +108,7 @@ class Coinvoices extends React.Component {
       })(this.props.data)
     }
   }
-  
+
   componentWillUpdate(nextProps : Props, b) {
     const params = props_to_params(nextProps)
     match({
@@ -201,7 +124,14 @@ class Coinvoices extends React.Component {
       , Loaded: (data) => void 9
     })(nextProps.data)
   }
-  
+
+  setName(name){
+    this.setState({ name })
+  }
+
+  setEmail(email){
+    this.setState({ email })
+  }
   // TODO: merge two cells (for grouping by country)
   // componentDidUpdate(){
   //   window.addEventListener('load', this.merge_cells())
@@ -227,34 +157,19 @@ class Coinvoices extends React.Component {
   //   e.preventDefault()
   //   const workbook = XLSX.utils.table_to_book(document.querySelectorAll('.invoice'), {cellHTML:true})
   //   const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
-  
+
   //   const wbout = XLSX.write(workbook,wopts);
-  
+
   //   const s2ab = (s) => {
   //     const buf = new ArrayBuffer(s.length);
   //     const view = new Uint8Array(buf);
   //     for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
   //     return buf;
   //   }
-  
+
   //   /* the saveAs call downloads a file on the local machine */
   //   saveAs(new Blob([s2ab(wbout)],{type:""}), `${this.props.match.params.filter}.xlsx`)
   // }
-
-  send_html_to_server = (e) => {
-    e.preventDefault()
-    // const invoice = document.getElementById('invoice').outerHTML.toString()
-    this.setState({ downloading_pdf: true })
-    const api_root = process.env.api_root || '' // in production api_root is the same as the client server
-
-    postForPdf({url: `${api_root}/api/v1/co_invoices/generate_pdf`,
-      body: { url: window.location.href }
-    })
-    .then((file) => {
-      saveAs(file, `${this.props.match.params.filter.replace('affiliate_name=','')}-${this.props.match.params.date_from}-${this.props.match.params.date_to}`)
-      this.setState({ downloading_pdf: false })
-    })
-  }
 
   render() {
     const params = props_to_params(this.props)
@@ -273,16 +188,42 @@ class Coinvoices extends React.Component {
         { flat_data.length == 0 
           ? <div>No data was found for this affiliate</div> 
           : <div>
-            <p className="no-print">Here are the stats for <span style={{fontWeight: 'bolder'}}>{this.props.match.params.filter.replace('affiliate_name=','')}</span></p>
             {/* <ExportToExcel onClick={this.export_to_excel} /> */}
-            <DownloadPDF onClick={this.send_html_to_server} downloading_pdf={this.state.downloading_pdf} />
-              <div className="table-container">
-                <SummeryTable data={eu_summery} total_cpa={get_total_cpa(eu_summery)} billing_address={'Sam Media BV...'} />
-                <BreakdownTable data={eu_breakdown} total_cpa={get_total_cpa(eu_breakdown)} billing_address={'Sam Media BV...'} />
-                
-                <SummeryTable data={apac_summery} total_cpa={get_total_cpa(apac_summery)} billing_address={'Sam Media Limited...'} />
-                <BreakdownTable data={apac_breakdown} total_cpa={get_total_cpa(apac_breakdown)} billing_address={'Sam Media Limited...'} />            
-              </div>
+            <DownloadPDF
+              filter={this.props.match.params.filter}
+              date_from={this.props.match.params.date_from}
+              date_to={this.props.match.params.date_to}
+              set_name={name => this.setName(name)}
+              set_email={email => this.setEmail(email)}
+            />
+
+            <div className="table-container">
+              <SummeryTable
+                data={eu_summery}
+                total_cpa={get_total_cpa(eu_summery)}
+                region={'EU'}
+              />
+
+              <SummeryTable
+                data={apac_summery}
+                total_cpa={get_total_cpa(apac_summery)}
+                region={'Non-EU'}
+              />
+
+              <LetterBody name={this.state.name} email={this.state.email} />
+
+              <BreakdownTable
+                data={eu_breakdown}
+                total_cpa={get_total_cpa(eu_breakdown)}
+                region='EU'
+              />
+
+              <BreakdownTable
+                data={apac_breakdown}
+                total_cpa={get_total_cpa(apac_breakdown)}
+                region={'Non-EU'}
+              />
+            </div>
           </div>}
         </div>)
     }

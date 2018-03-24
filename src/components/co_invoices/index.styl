@@ -9,6 +9,33 @@
 .print-only
 	display: none !important
 
+.account-manager input label
+	float: left
+
+.account-manager
+	padding: 5px 2px
+	margin: 5px
+	background-color: #f3f3f3
+
+.pdf-label
+	width: auto
+	margin: 0 20px
+	font-size: 13px !important
+	font-weight: bold
+	white-space: nowrap
+	overflow: visible
+
+input[type="text"].pdf-input
+	width: 200px
+	height: 25px
+	font-size: 13px
+	border: none
+	
+.error-msg
+	font-size: 12px
+	color: red
+	margin-left: 20px
+
 .fa-spin-custom {
     -webkit-animation: spin 1000ms infinite linear
     animation: spin 1000ms infinite linear
@@ -54,6 +81,12 @@
 	.invoice
 		margin: 0 auto 0 auto
 		page-break-after: always
+	
+	.page-break
+		page-break-after: always
+	
+	.bolder-text
+		font-weight: bolder
 
 	.print_styles
 		background-color: #fff
@@ -65,14 +98,6 @@
 		-webkit-touch-callout:none
 		-webkit-text-size-adjust: none
 		-webkit-font-smoothing: antialiased
-
-	.footer
-		height: 140px
-		position: fixed
-		bottom: 0
-
-	.header
-		height: 140px		
-		position: fixed
-		top: 0
-    
+	
+	table
+		font-size: 8pt !important
