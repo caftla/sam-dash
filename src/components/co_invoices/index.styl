@@ -36,11 +36,21 @@ input[type="text"].pdf-input
 	color: red
 	margin-left: 20px
 
+.EU-breakdown
+	border-collapse: collapse
+	margin: 40px auto 0 auto
+	width: 80%
+	font-size: 14px
+
+.Non-EU-breakdown
+	@extend .EU-breakdown
+	margin-top: 20px 
+
+
 .fa-spin-custom {
     -webkit-animation: spin 1000ms infinite linear
     animation: spin 1000ms infinite linear
 	}
-
 @keyframes spin {
     0% {
         -webkit-transform: rotate(0deg);
