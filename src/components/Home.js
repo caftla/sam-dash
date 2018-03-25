@@ -128,16 +128,18 @@ class Home extends React.Component {
       {urls.map((u, i) => <div style={ {margin: '1em'} } key={i}>
           <a href={u.href}>{u.label}</a>
         </div>) }
-        {!new_feature_check
-          ? <NewFeatures>
-            <h3>Sigma has a new feature!</h3>
-            <p>You can now find user supscriptions and transactions details by MSISDN in the "Subscriptions" report.</p>
-            <Submit onClick={ e => {
-              e.preventDefault()
-              document.getElementsByClassName("newFeature")[0].style.display = "none";
-            }}>Procced</Submit>
-          </NewFeatures>
-          : '' }
+        {
+          // !new_feature_check
+          // ? <NewFeatures>
+          //   <h3>Sigma has a new feature!</h3>
+          //   <p>You can now find user supscriptions and transactions details by MSISDN in the "Subscriptions" report.</p>
+          //   <Submit onClick={ e => {
+          //     e.preventDefault()
+          //     document.getElementsByClassName("newFeature")[0].style.display = "none";
+          //   }}>Procced</Submit>
+          // </NewFeatures>
+          // : '' 
+        }
     </div>
   }
 }
