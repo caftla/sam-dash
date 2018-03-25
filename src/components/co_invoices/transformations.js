@@ -18,7 +18,7 @@ const calculate_cpa = data =>
   , R.map(y =>
     [{  country: y.country_code
       , operator: y.operator_code
-      , sales: y.pixels
+      , sales: d3.format(',')(y.pixels)
       , cpa: y.cpa
       // , cpa: safe_div(y.total, y.pixels)
       , resubscribes: d3.format('.0%')(safe_div(y.resubscribes, y.sales))
@@ -60,7 +60,7 @@ export const get_summery = (data, timezone) =>
   ))
   , R.toPairs
   , R.map(([country, x]) => ({ country,
-      pixels: x.pixels
+      pixels: d3.format(',')(x.pixels)
     , resubscribes: d3.format('.0%')(safe_div(x.resubscribes, x.sales))
     , epc: safe_div(x.total, x.views)
     , total: x.total
