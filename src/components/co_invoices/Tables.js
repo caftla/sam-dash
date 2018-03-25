@@ -35,7 +35,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
           {R.keys(record).map(keys =>
             <TD
               text={record[keys] 
-              ? keys == 'epc'? d3.format('0.3f')(record[keys]) 
+              ? keys == 'epc'? record[keys] == Infinity ? '-' : d3.format('0.3f')(record[keys]) 
                 : keys == 'total'? d3.format(',')(record[keys]) : record[keys]
               : record[keys]}
 
@@ -88,7 +88,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
 export const BreakdownTable = ({ data, total_cpa, region }) =>
   data.length
   ? <div className='invoice'>
-      <table style={{borderCollapse: 'collapse', margin: '20px auto 0 auto', width: '80%', fontSize: '14px' }}>
+      <table className={`${region}-breakdown`}>
         <colgroup>
           <col span="6" width="110px" />
         </colgroup>
