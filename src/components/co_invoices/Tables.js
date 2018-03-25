@@ -10,7 +10,7 @@ const finance_email = process.env.finance_email
 export const SummeryTable = ({ data, total_cpa, region }) =>
   data.length
   ? <div>
-      <table style={{borderCollapse: 'collapse', margin: '20px auto 0 auto', width: '80%', fontSize: '14px'}}>
+      <table className='tables'>
         <colgroup>
           <col span="6" width="110px" />
         </colgroup>
@@ -88,7 +88,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
 export const BreakdownTable = ({ data, total_cpa, region }) =>
   data.length
   ? <div className='invoice'>
-      <table className={`${region}-breakdown`}>
+      <table className='tables'>
         <colgroup>
           <col span="6" width="110px" />
         </colgroup>
