@@ -21,7 +21,7 @@ const calculate_cpa = data =>
       , sales: d3.format(',')(y.pixels)
       , cpa: y.cpa
       // , cpa: safe_div(y.total, y.pixels)
-      , resubscribes: d3.format('.0%')(safe_div(y.resubscribes, y.sales))
+      // , resubscribes: d3.format('.0%')(safe_div(y.resubscribes, y.sales))
       , total: y.total }]
     ))(data)
 

@@ -101,7 +101,7 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
             <TH text={'Operator'} />
             <TH text={'Sales'} />
             <TH text={'CPA'} />
-            <TH text={'Repeat Sales'} />
+            {/* <TH text={'Repeat Sales'} /> */}
             <TH text={'Earnings'} />
           </tr>
         </thead>
@@ -124,7 +124,7 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
         </tbody>
         <tfoot>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-            <TH colSpan={5} text={'Total Earnings in USD'} />
+            <TH colSpan={4} text={'Total Earnings in USD'} />
             <TD text={d3.format(',')(total_cpa)} />
           </tr>
         </tfoot>
