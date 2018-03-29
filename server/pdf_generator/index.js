@@ -35,7 +35,7 @@
     const page = await browser.newPage()
 
     await page.goto(`${fullURL}`, { waitUntil: 'networkidle2' })
-    await page.waitForSelector('.invoice')
+    await page.waitForSelector('.table-container', { timeout: 120000 })
     await page.type('#name', name)
     await page.type('#email', email)
 
