@@ -27,13 +27,13 @@ const calculate_cpa = data =>
 
 export const get_eu_breakdown = data =>
   R.pipe(
-    R.reject(x => !x.pixels || x.pixels == 0 || x.timezone == 'Asia/Kuala_Lumpur')
+    R.reject(x => !x.pixels || x.pixels == 0 || x.total == 0 || x.timezone == 'Asia/Kuala_Lumpur')
   , calculate_cpa
   )(data)
 
 export const get_apac_breakdown = data =>
   R.pipe(
-    R.reject(x => !x.pixels || x.pixels == 0 || x.timezone == 'Europe/Amsterdam')
+    R.reject(x => !x.pixels || x.pixels == 0 || x.total == 0 || x.timezone == 'Europe/Amsterdam')
   , calculate_cpa
   )(data)
 
