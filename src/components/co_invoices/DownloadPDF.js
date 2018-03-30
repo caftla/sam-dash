@@ -23,6 +23,7 @@ export class DownloadPDF extends React.Component {
     , email: ''
     , error: false
     , invalidEmail: false
+    , server_error: false
     }
   }
 
@@ -43,13 +44,12 @@ export class DownloadPDF extends React.Component {
 
   send_url_to_server = (e) => {
     if (!this.state.name || !this.state.email) {
-      this.setState({ error: true })
+      this.setState({ error: true, server_error: false })
     } else {
-      this.setState({ error: false })
-      this.setState({ invalidEmail: false })
+      this.setState({ error: false, invalidEmail: false })
       if (this.validateEmail(this.state.email)) {
         e.preventDefault()
-        this.setState({ downloading_pdf: true })
+        this.setState({ downloading_pdf: true, server_error: false })
         const api_root = process.env.api_root || '' // in production api_root is the same as the client server
         const affiliate_name = this.props.filter.replace('affiliate_name=','').split('?')[0]
         const date_from = this.props.date_from
@@ -67,10 +67,14 @@ export class DownloadPDF extends React.Component {
         })
         .then((file) => {
           saveAs(file, `${affiliate_name}-${date_from}-${date_to}`)
-          this.setState({ downloading_pdf: false })
+          this.setState({ downloading_pdf: false, server_error: false })
+        })
+        .catch((err) => {
+          console.error(err)
+          this.setState({ downloading_pdf: false, server_error: true })
         })
       } else {
-        this.setState({ invalidEmail: true })
+        this.setState({ invalidEmail: true, server_error: false })
       }
     }
   }
@@ -124,6 +128,9 @@ export class DownloadPDF extends React.Component {
         : ''}
       {this.state.invalidEmail
         ? <p className="error-msg">Please enter a valid email address!</p>
+        : ''}
+      {this.state.server_error
+        ? <p className="error-msg">There was an error downloading the pdf :(.. Try again?</p>
         : ''}
       <p style={{ marginLeft: '20px', fontSize: '12px' }}>*required </p>
     </div>

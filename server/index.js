@@ -235,7 +235,11 @@ app.post('/api/v1/co_invoices/generate_pdf', authenticate(), (req, res) => {
       res.setHeader('Content-type', 'application/pdf')
       res.send(x).pipe(res)
     })
-    .catch(err => res.send(err))
+    .catch((ex) => {
+      console.error(ex)
+      res.sendStatus(500)
+      // res.json(err)
+    })
 })
 
 app.get('/api/v1/all_affiliates', (req, res) => {

@@ -28,7 +28,11 @@ export const postForPdf = async ({ url, body } : {url: string, body?: mixed}) =>
     body: JSON.stringify(body),
   })
   const data = await res
-  return data.blob()
+  if (data.status == 500) {
+    throw new Error('server error')
+  } else {
+    return data.blob()
+  }
 }
 
 export const postMayReturnError = async ({ url, body }: { url: string, body?: mixed }) => {
@@ -44,8 +48,9 @@ export const postMayReturnError = async ({ url, body }: { url: string, body?: mi
   const data = await res.text()
   if (data == 'Unauthorized') {
     throw 'Unauthorized'
-  } else
-  return JSON.parse(data)
+  } else {
+    return JSON.parse(data)
+  }
 }
 
 export const get = async ({ url, nocache = false, process = r => r.json() } : { url : string, nocache : boolean }) => {
