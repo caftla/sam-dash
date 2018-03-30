@@ -3,7 +3,12 @@ select
   , us.operator_code
   , c.home_cpa as cpa
   , sum(coalesce(case when us.impression > 0 then 1 else 0 end, 0)) :: float as views
-  , sum(case when ub.pixel > 0 or ub.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
+  , sum(coalesce(case when
+      (ub.pixel > 0 or ub.delayed_pixel > 0)
+      and (ub.pixel_timestamp is not null)
+      and (ub.pixel_timestamp >= $[params.from_date_tz]$
+      and ub.pixel_timestamp < $[params.to_date_tz]$)
+      then 1 else 0 end, 0)) :: float as pixels  
   , sum(case when ub.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when ub.resubscribe > 0 then 1 else 0 end) :: float as resubscribes
   , sum(coalesce(c.home_cpa, 0)) :: float as total
@@ -20,4 +25,3 @@ where us.timestamp >=  $[params.from_date_tz]$
 
 group by us.country_code, us.operator_code, co.timezone, cpa
 order by us.country_code asc, total desc
-
