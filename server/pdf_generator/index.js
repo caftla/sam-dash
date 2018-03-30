@@ -6,7 +6,6 @@
   const uri = require('urijs')
 
 // TODO:
-// -test puppeteer for memory leaks
 // move header template from 'https://codesandbox.io/s/7y5w2m7yv1' to project
 //<img src="data:image/png;base64,${base64str}" height="50" width="193"/>
 
@@ -34,23 +33,27 @@
 
     const page = await browser.newPage()
 
-    await page.goto(`${fullURL}`, { waitUntil: 'networkidle2' })
-    await page.waitForSelector('.table-container', { timeout: 120000 })
-    await page.type('#name', name)
-    await page.type('#email', email)
+    try {
+      await page.goto(`${fullURL}`, { waitUntil: 'networkidle2' })
+      await page.waitForSelector('.table-container', { timeout: 120000 })
+      await page.type('#name', name)
+      await page.type('#email', email)
 
-    const pdf = await page.pdf({
-      format: 'A4'
-    , printBackground: true
-    , displayHeaderFooter: true
-    , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;padding:0.5em 0"><img src="data:image/png;base64,${base64str}" height="50" width="193"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name&#9;:&ensp;</span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From&#9;:&#9;</span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To&#9;:&#9;</span>${date_to}</p></div></div><h3 style="margin:0.5em 0">Affiliate Performance Stats</h3></div>`
-    , footerTemplate: `<p style="${footerStyles}"><span class="pageNumber"></span>/<span class="totalPages"></span></p>`
-    , margin: { top: 160, bottom: 50 }
-    })
-
-    await page.close()
-    await browser.close()
-    return pdf
+      const pdf = await page.pdf({
+        format: 'A4'
+      , printBackground: true
+      , displayHeaderFooter: true
+      , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;padding:0.5em 0"><img src="data:image/png;base64,${base64str}" height="50" width="193"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name&#9;:&ensp;</span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From&#9;:&#9;</span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To&#9;:&#9;</span>${date_to}</p></div></div><h3 style="margin:0.5em 0">Affiliate Performance Stats</h3></div>`
+      , footerTemplate: `<p style="${footerStyles}"><span class="pageNumber"></span>/<span class="totalPages"></span></p>`
+      , margin: { top: 160, bottom: 50 }
+      })
+      return pdf
+    } catch (ex) {
+      throw new Error(ex)
+    } finally {
+      await page.close()
+      await browser.close()
+    }
   }
 
   module.exports = (body) => {
