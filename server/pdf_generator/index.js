@@ -32,14 +32,14 @@
     const fullURL = uri(url).query({ token }).removeSearch('nocache')
 
     const page = await browser.newPage()
-
+    let error = null
+    let pdf
     try {
       await page.goto(`${fullURL}`, { waitUntil: 'networkidle2' })
-      await page.waitForSelector('.table-container', { timeout: 120000 })
+      await page.waitForSelector('.table-container', { timeout: 180000 })
       await page.type('#name', name)
       await page.type('#email', email)
-
-      const pdf = await page.pdf({
+      pdf = await page.pdf({
         format: 'A4'
       , printBackground: true
       , displayHeaderFooter: true
@@ -47,12 +47,16 @@
       , footerTemplate: `<p style="${footerStyles}"><span class="pageNumber"></span>/<span class="totalPages"></span></p>`
       , margin: { top: 160, bottom: 50 }
       })
-      return pdf
     } catch (ex) {
-      throw new Error(ex)
+      error = ex
     } finally {
       await page.close()
       await browser.close()
+      if (!!error) {
+        throw new Error(error)
+      } else {
+        return pdf
+      }
     }
   }
 
