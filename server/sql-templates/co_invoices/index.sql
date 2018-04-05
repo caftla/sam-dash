@@ -11,7 +11,11 @@ select
       then 1 else 0 end, 0)) :: float as pixels  
   , sum(case when ub.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when ub.resubscribe > 0 then 1 else 0 end) :: float as resubscribes
-  , sum(coalesce(c.home_cpa, 0)) :: float as total
+  , sum(coalesce(case when 
+      (c.home_cpa is not null) and 
+      (ub.pixel_timestamp >= $[params.from_date_tz]$
+      and ub.pixel_timestamp < $[params.to_date_tz]$) 
+      then c.home_cpa else 0 end, 0)) :: float as total
   , co.timezone
 
 from user_sessions us
