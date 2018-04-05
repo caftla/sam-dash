@@ -12,9 +12,7 @@
   const token = jwt.sign(
     { username: 'info@sam-media.com' }
     , process.env.secret
-    , { expiresIn: '1d' }
   )
-
   const footerStyles = 'font-size: 10px; margin: 10px auto 10px auto; color: black;'
 
   const base64_encode = (file) => {
