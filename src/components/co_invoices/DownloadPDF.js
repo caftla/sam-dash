@@ -1,5 +1,21 @@
 import React from 'react'
 import { postForPdf } from '../../helpers'
+import R from 'ramda'
+
+const remember_me = (name: string, email: string) =>
+  R.pipe(
+      R.concat
+    , btoa
+    , x => localStorage.setItem('whoami', x)
+  )(`${name}=`, email)
+
+const my_data = localStorage.getItem('whoami')
+
+const who_am_i = R.pipe(
+      atob
+    , R.split('=')
+    , R.map(x => x.trim())
+  )(!!my_data ? my_data : '')
 
 export class DownloadPDF extends React.Component {
 
@@ -19,12 +35,17 @@ export class DownloadPDF extends React.Component {
 
     this.state = {
       downloading_pdf: false
-    , name: ''
-    , email: ''
+    , name: who_am_i[0] || ''
+    , email: who_am_i[1] || ''
     , error: false
     , invalidEmail: false
     , server_error: false
     }
+  }
+
+  componentDidMount() {
+    this.props.set_name(who_am_i[0] || '')
+    this.props.set_email(who_am_i[1] || '')
   }
 
   nameChange(name) {
@@ -54,20 +75,21 @@ export class DownloadPDF extends React.Component {
         const affiliate_name = this.props.filter.replace('affiliate_name=','').split('?')[0]
         const date_from = this.props.date_from
         const date_to = this.props.date_to
-
+        const { name, email } = this.state
         postForPdf({url: `${api_root}/api/v1/co_invoices/generate_pdf`,
           body: {
             url: window.location.href
           , affiliate_name
           , date_from
           , date_to
-          , name: this.state.name
-          , email: this.state.email
+          , name
+          , email
           }
         })
         .then((file) => {
           saveAs(file, `${affiliate_name}-${date_from}-${date_to}`)
           this.setState({ downloading_pdf: false, server_error: false })
+          remember_me(name, email)
         })
         .catch((err) => {
           console.error(err)
@@ -91,7 +113,8 @@ export class DownloadPDF extends React.Component {
         </label>
 
         <input
-          onChange={event => this.nameChange(event.target.value) }
+          onChange={event => this.nameChange(event.target.value)}
+          value={this.state.name}
           className="pdf-input"
           id="name"
           type="text"
@@ -106,6 +129,7 @@ export class DownloadPDF extends React.Component {
 
         <input
           onChange={event => this.emailChange(event.target.value)}
+          value={this.state.email}
           className="pdf-input"
           id="email"
           type="text"
