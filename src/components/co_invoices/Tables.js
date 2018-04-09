@@ -35,7 +35,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
           {R.keys(record).map(keys =>
             <TD
               text={record[keys] 
-              ? keys == 'epc'? record[keys] == Infinity ? '-' : d3.format('0.3f')(record[keys]) 
+              ? keys == 'epc'? record[keys] == Infinity ? '-' : d3.format('0.4f')(record[keys]) 
                 : keys == 'total'? d3.format(',')(record[keys]) : record[keys]
               : record[keys]}
 
