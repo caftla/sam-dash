@@ -72,7 +72,7 @@ const respond_query_text = (sql, params, res) => {
 }
 
 const respond_query_or_result = (resp, sql, params, req, res, transform) =>
-  req.query.queryText == "1"
+  !!req.query && req.query.queryText == "1"
     ? respond_query_text(sql, params, res)
     : resp(sql, params, res, transform)
 
@@ -84,7 +84,7 @@ app.get('/api/countries', (req, res) => {
   respond_helix(`select distinct(code) as country from ss_locations order by code`, {}, res, xs => xs.map(x => x.country))
 })
 
-const filter_to_pipe_syntax = x => x == '-' ? '' : R.pipe(
+const filter_to_pipe_syntax = x => (!x || x == '-') ? '' : R.pipe(
     R.split(',')
   , R.map(R.pipe(R.split('='), R.map(x => x.trim())))
   , R.reject(x => x.length != 2)
@@ -138,10 +138,12 @@ app.get('/api/v1/filter_page_section_row/flat/:timezone/:from_date/:to_date/:fil
 })
 
 app.get('/api/v1/all_countries/:from_date/:to_date', (req, res) => {
-  const params = R.merge(req.params, { })
-  respond_jewel(
-      fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+    respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/all_countries/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/all_countries')(params)
   )
@@ -168,37 +170,43 @@ app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenti
 })
 
 app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_jewel(
-      fs.readFileSync('./server/sql-templates/transactions/index.sql', 'utf8')
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/transactions/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/transactions')(params)
   )
 })
 
 app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_jewel(
-      fs.readFileSync('./server/sql-templates/arpu_long/index.sql', 'utf8')
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+    respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/arpu_long/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/arpu_long')(params)
   )
 })
 
 app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_jewel(
-    fs.readFileSync('./server/sql-templates/user_sessions/index.sql', 'utf8')
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+    respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/user_sessions/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/user_sessions')(params)
   )
 })
 
 app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
-  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions/index.sql', 'utf8')
     , params
@@ -208,7 +216,7 @@ app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', auth
 })
 
 app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions//user_transactions/index.sql', 'utf8')
     , params
@@ -218,7 +226,7 @@ app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:
 })
 
 app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
-  const params = R.merge(R.merge(req.query, req.params), { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/co_invoices/index.sql', 'utf8')
     , params
@@ -252,10 +260,12 @@ app.get('/api/v1/all_affiliates', (req, res) => {
 })
 
 app.get('/api/v1/converting_ips/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_jewel(
-      fs.readFileSync('./server/sql-templates/converting_ips/index.sql', 'utf8')
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/converting_ips/index.sql', 'utf8')
     , params
+    , req
     , res
     , require('./sql-templates/converting_ips')(params))
 })
