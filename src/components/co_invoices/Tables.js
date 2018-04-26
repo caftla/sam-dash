@@ -44,40 +44,43 @@ export const SummaryTable = ({ data, total_cpa, additional_costs, total_addition
           </tr>
           )}
         </tbody>
-
-          <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-            <TH colSpan={4} text={'Subtotal'} />
-            <TD text={'$' + d3.format(',.2f')(total_cpa)} />
-          </tr>
-
-          <tr>
-            <td colSpan={3}>Compensations/Penalties</td>
-            <td colSpan={2}>
-              <table>
-                <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-                  <TH text={'Country'} />
-                  <TH text={'CPA'} />
-                  <TH text={'Sales'} />
-                </tr>
-                {!!additional_costs ? additional_costs.map((additional_cost, index) =>
-                    <tr>
-                      <TD text={(additional_cost.country)} />            
-                      <TD text={(additional_cost.additional_pixels_cpa)} />
-                      <TD text={(additional_cost.additional_pixels)} />
+        
+        {!additional_costs.length == 0 ?
+        <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+          <TH colSpan={4} text={'Subtotal'} />
+          <TD text={'$' + d3.format(',.2f')(total_cpa)} />
+        </tr>
+        : ''}
+        {!additional_costs.length == 0 ?
+              <tr>
+                <td colSpan={3}>Compensations/Penalties</td>
+                <td colSpan={2}>
+                  <table>
+                    <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+                      <TH text={'Country'} />
+                      <TH text={'CPA'} />
+                      <TH text={'Sales'} />
                     </tr>
-                  ) : ''}
-                  <tr>
-                    <TH colSpan={2} text={'Total'} />
-                    <TD text={'$' + d3.format(',.2f')(total_additional_cpa)} />
-                  </tr>
-                </table>
-            </td>
-          </tr>
-
+                    {additional_costs.map((additional_cost, index) =>
+                        <tr>
+                          <TD text={(additional_cost.country)} />            
+                          <TD text={(additional_cost.additional_pixels_cpa)} />
+                          <TD text={(additional_cost.additional_pixels)} />
+                        </tr>
+                      )}
+                      <tr>
+                        <TH colSpan={2} text={'Total'} />
+                        <TD text={'$' + d3.format(',.2f')(total_additional_cpa)} />
+                      </tr>
+                    </table>
+                </td>
+              </tr>
+          : ''}
+      
         <tfoot>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
             <TH colSpan={4} text={'Grand Total'} />
-            <TD text={'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))} />
+            <TD text={'$' + d3.format(',.2f')(parseFloat(total_cpa) + parseFloat(total_additional_cpa))} />
           </tr>
         </tfoot>
       </table>
@@ -86,7 +89,7 @@ export const SummaryTable = ({ data, total_cpa, additional_costs, total_addition
             ? <div>
               <p>For Sam Media B.V. sales, kindly invoice the amount of
                 <span className="bolder-text">
-                  &ensp;{'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))}&ensp;
+                  &ensp;{'$' + d3.format(',.2f')(parseFloat(total_cpa) + parseFloat(total_additional_cpa))}&ensp;
                 </span>
               to the following address:</p>
               <address>
@@ -98,7 +101,7 @@ export const SummaryTable = ({ data, total_cpa, additional_costs, total_addition
             : <div>
               <p>For Sam Media LTD sales, kindly invoice the amount of
                 <span className="bolder-text">
-                &ensp;{'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))}&ensp;
+                &ensp;{'$' + d3.format(',.2f')(parseFloat(total_cpa) + parseFloat(total_additional_cpa))}&ensp;
                 </span>
                 to the following address:</p>
               <address>
@@ -153,7 +156,7 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
         </tbody>
         <tfoot>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-            <TH colSpan={4} text={'Total Earnings in USD'} />
+            <TH colSpan={4} text={'Total'} />
             <TD text={'$' + d3.format(',.2f')(total_cpa)} />
           </tr>
         </tfoot>
