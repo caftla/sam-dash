@@ -85,7 +85,7 @@ export const SummaryTable = ({ data, total_cpa, additional_costs, total_addition
         </tfoot>
       </table>
       <div className="print-only" style={{ textAlign: 'left', marginLeft: '10%', fontSize: '12px' }}>
-        { region == 'EU'
+        { region == 'Sam Media BV'
             ? <div>
               <p>For Sam Media B.V. sales, kindly invoice the amount of
                 <span className="bolder-text">
