@@ -7,7 +7,7 @@ const TH = ({ colSpan, text }) => <th colSpan={colSpan? colSpan : ''} style={{ t
 const TD = ({ colSpan, text, className }) => <td className={className? className : ''} colSpan={colSpan? colSpan : ''} rowSpan={1} style={{ textAlign: 'left', padding: '10px' }}>{text}</td>
 const finance_email = process.env.finance_email
 
-export const SummeryTable = ({ data, total_cpa, region }) =>
+export const SummaryTable = ({ data, total_cpa, additional_costs, total_additional_cpa, region }) =>
   data.length
   ? <div>
       <table className='tables'>
@@ -16,7 +16,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
         </colgroup>
         <thead>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-            <TH colSpan={6} text={`${region} Sales Summery`} />
+            <TH colSpan={6} text={`${region} Sales Summary`} />
           </tr>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
             <TH text={'Country'} />
@@ -36,7 +36,7 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
             <TD
               text={record[keys] 
               ? keys == 'epc'? record[keys] == Infinity ? '-' : d3.format('0.4f')(record[keys]) 
-                : keys == 'total'? d3.format(',')(record[keys]) : record[keys]
+                : keys == 'total'? '$' + d3.format(',.2f')(record[keys]) : record[keys]
               : record[keys]}
 
               className={keys}/>
@@ -44,19 +44,49 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
           </tr>
           )}
         </tbody>
+
+          <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+            <TH colSpan={4} text={'Subtotal'} />
+            <TD text={'$' + d3.format(',.2f')(total_cpa)} />
+          </tr>
+
+          <tr>
+            <td colSpan={3}>Compensations/Penalties</td>
+            <td colSpan={2}>
+              <table>
+                <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
+                  <TH text={'Country'} />
+                  <TH text={'CPA'} />
+                  <TH text={'Sales'} />
+                </tr>
+                {!!additional_costs ? additional_costs.map((additional_cost, index) =>
+                    <tr>
+                      <TD text={(additional_cost.country)} />            
+                      <TD text={(additional_cost.additional_pixels_cpa)} />
+                      <TD text={(additional_cost.additional_pixels)} />
+                    </tr>
+                  ) : ''}
+                  <tr>
+                    <TH colSpan={2} text={'Total'} />
+                    <TD text={'$' + d3.format(',.2f')(total_additional_cpa)} />
+                  </tr>
+                </table>
+            </td>
+          </tr>
+
         <tfoot>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-            <TH colSpan={4} text={'Total Earnings in USD'} />
-            <TD text={d3.format(',')(total_cpa)} />
+            <TH colSpan={4} text={'Grand Total'} />
+            <TD text={'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))} />
           </tr>
         </tfoot>
       </table>
       <div className="print-only" style={{ textAlign: 'left', marginLeft: '10%', fontSize: '12px' }}>
         { region == 'EU'
             ? <div>
-              <p>For EU sales, kindly invoice the amount of
+              <p>For Sam Media B.V. sales, kindly invoice the amount of
                 <span className="bolder-text">
-                  &ensp;{d3.format(',')(total_cpa)}&ensp;USD&ensp;
+                  &ensp;{'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))}&ensp;
                 </span>
               to the following address:</p>
               <address>
@@ -66,9 +96,9 @@ export const SummeryTable = ({ data, total_cpa, region }) =>
               </address>
             </div>
             : <div>
-              <p>For non-EU sales, kindly invoice the amount of
+              <p>For Sam Media LTD sales, kindly invoice the amount of
                 <span className="bolder-text">
-                &ensp;{d3.format(',')(total_cpa)}&ensp;USD&ensp;
+                &ensp;{'$' + d3.format(',.2f')(parseInt(total_cpa) + parseInt(total_additional_cpa))}&ensp;
                 </span>
                 to the following address:</p>
               <address>
@@ -101,7 +131,6 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
             <TH text={'Operator'} />
             <TH text={'Sales'} />
             <TH text={'CPA'} />
-            {/* <TH text={'Repeat Sales'} /> */}
             <TH text={'Earnings'} />
           </tr>
         </thead>
@@ -114,7 +143,7 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
           {R.keys(record).map(keys =>
             <TD
               text={record[keys] 
-              ? keys == 'cpa'? d3.format('0.2f')(record[keys]) : keys == 'total'? d3.format(',')(record[keys]) : record[keys]
+              ? keys == 'cpa'? d3.format('0.2f')(record[keys]) : keys == 'total'? '$' + d3.format(',.2f')(record[keys]) : record[keys]
               : record[keys] }
 
               className={keys}/>
@@ -125,7 +154,7 @@ export const BreakdownTable = ({ data, total_cpa, region }) =>
         <tfoot>
           <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
             <TH colSpan={4} text={'Total Earnings in USD'} />
-            <TD text={d3.format(',')(total_cpa)} />
+            <TD text={'$' + d3.format(',.2f')(total_cpa)} />
           </tr>
         </tfoot>
       </table>
@@ -136,7 +165,7 @@ export const LetterBody = ({ name, email }) =>
   <div className="print-only page-break" style={{ textAlign: 'left', margin: '20px 0 0 10%', fontSize: '12px' }}>
     Notes: <br />
     - Please note that timezone for the stats in this report is UTC+0. <br />
-    - Please note that according to Sam Media financial policy a payment is made once 500USD threshold is reached. <br />
+    - Please note that according to Sam Media financial policy a payment is made once $500 threshold is reached. <br />
     - Please prepare invoices to the two billing addresses indicated above accordingly. <br />
     - Kindly email the invoice to <span className="bolder-text"> { finance_email } </span>
     and cc <span className="bolder-text">{ email }</span>.<br /><br /><br />

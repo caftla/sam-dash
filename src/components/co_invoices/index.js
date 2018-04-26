@@ -19,9 +19,9 @@ import {
   fetch_all_affiliates , fetch_co_invoices, cleanup_fetch_co_invoices
 } from '../../actions'
 
-import { BreakdownTable, SummeryTable, LetterBody } from './Tables'
+import { BreakdownTable, SummaryTable, LetterBody } from './Tables'
 import { DownloadPDF } from './DownloadPDF'
-import { flatten_data, get_apac_breakdown, get_eu_breakdown, get_summery, get_total_cpa } from './transformations'
+import { flatten_data, get_apac_breakdown, get_eu_breakdown, get_summary, get_total_cpa, get_additional_costs, get_total_additional_cpa } from './transformations'
 import Controls from './Controls'
 
 const theme = {
@@ -179,8 +179,10 @@ class Coinvoices extends React.Component {
     , Error: (error) => <div>Error {error}</div>
     , Loaded: (data) => {
       const flat_data = flatten_data(data)
-      const eu_summery = get_summery(flat_data, 'Asia/Kuala_Lumpur')
-      const apac_summery = get_summery(flat_data, 'Europe/Amsterdam')
+      const eu_summary = get_summary(flat_data, 'Asia/Kuala_Lumpur')
+      const apac_summary = get_summary(flat_data, 'Europe/Amsterdam')
+      const apac_additional = get_additional_costs(flat_data, 'Europe/Amsterdam')
+      const eu_additional = get_additional_costs(flat_data, 'Asia/Kuala_Lumpur')
       const apac_breakdown = get_apac_breakdown(flat_data)
       const eu_breakdown = get_eu_breakdown(flat_data)
       return (
@@ -188,7 +190,7 @@ class Coinvoices extends React.Component {
         { flat_data.length == 0 
           ? <div>No data was found for this affiliate</div> 
           : <div>
-            {/* <ExportToExcel onClick={this.export_to_excel} /> */}
+
             <DownloadPDF
               filter={this.props.match.params.filter}
               date_from={this.props.match.params.date_from}
@@ -198,16 +200,20 @@ class Coinvoices extends React.Component {
             />
 
             <div className="table-container">
-              <SummeryTable
-                data={eu_summery}
-                total_cpa={get_total_cpa(eu_summery)}
-                region={'EU'}
+              <SummaryTable
+                data={eu_summary}
+                total_cpa={get_total_cpa(eu_summary)}
+                additional_costs={eu_additional}
+                total_additional_cpa={get_total_additional_cpa(eu_additional)}
+                region={'Sam Media BV'}
               />
 
-              <SummeryTable
-                data={apac_summery}
-                total_cpa={get_total_cpa(apac_summery)}
-                region={'Non-EU'}
+              <SummaryTable
+                data={apac_summary}
+                total_cpa={get_total_cpa(apac_summary)}
+                additional_costs={apac_additional}
+                total_additional_cpa={get_total_additional_cpa(apac_additional)}
+                region={'Sam Media LTD'}
               />
 
               <LetterBody name={this.state.name} email={this.state.email} />
@@ -215,13 +221,13 @@ class Coinvoices extends React.Component {
               <BreakdownTable
                 data={eu_breakdown}
                 total_cpa={get_total_cpa(eu_breakdown)}
-                region='EU'
+                region='Sam Media BV'
               />
 
               <BreakdownTable
                 data={apac_breakdown}
                 total_cpa={get_total_cpa(apac_breakdown)}
-                region={'Non-EU'}
+                region={'Sam Media LTD'}
               />
             </div>
           </div>}

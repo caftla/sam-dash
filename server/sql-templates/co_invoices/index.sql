@@ -35,14 +35,30 @@ with Pixels as (
 			order by 1,2 desc
 )
 
+, Additional_costs as (
+	select
+		ac.country_code
+	, ac.pixel :: float as additional_pixels
+	, ac.cpa :: float as additional_pixels_cpa
+
+	from additional_costs ac
+
+	 where ac.start_timestamp >= $[params.from_date_tz]$
+      and ac.end_timestamp < $[params.to_date_tz]$
+			and $[params.f_filter('ac', {fieldMap: {'publisher_id': 'pubid'}})]$
+)
+
 
 select 
 	p.*
 , v.*
+, a.additional_pixels
+, a.additional_pixels_cpa
 , co.timezone
 
 from Pixels p
 		left join Views v on v.country_code = p.country_code and v.operator_code = p.operator_code
+		left join Additional_costs a on a.country_code = p.country_code
 		left join countries co on v.country_code = co.country_code
 
 		order by 1,2

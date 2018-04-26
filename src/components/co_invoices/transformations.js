@@ -37,7 +37,7 @@ export const get_apac_breakdown = data =>
   , calculate_cpa
   )(data)
 
-export const get_summery = (data, timezone) =>
+export const get_summary = (data, timezone) =>
   R.pipe(
     R.groupBy( x => x.country_code)
   , R.map(R.reduce(
@@ -53,6 +53,8 @@ export const get_summery = (data, timezone) =>
         timezone: 'Europe/Amsterdam'
       , views: 0
       , pixels: 0
+      , additional_pixels: 0
+      , additional_pixels_cpa: 0
       , resubscribes: 0
       , sales: 0
       , total: 0
@@ -71,8 +73,42 @@ export const get_summery = (data, timezone) =>
   , R.map(x => R.omit(['timezone'], x))
   )(data)
 
+export const get_additional_costs = (data, timezone) =>
+  R.pipe(
+    R.groupBy( x => x.country_code)
+  , R.map(R.reduce(
+      (acc, a) => ({
+        additional_pixels: a.additional_pixels
+      , additional_pixels_cpa: a.additional_pixels_cpa
+      , timezone: a.timezone
+      })
+    , {
+
+      additional_pixels: 0
+      , additional_pixels_cpa: 0
+      , timezone: 'Europe/Amsterdam'
+    }
+  ))
+  , R.toPairs
+  , R.map(([country, x]) => ({ country,
+      additional_pixels: x.additional_pixels
+    , additional_pixels_cpa: x.additional_pixels_cpa
+    , timezone: x.timezone
+  })
+)
+  , R.reject(x => x.timezone == timezone || !x.additional_pixels || x.additional_pixels == 0)
+  , R.map(x => R.omit(['timezone'], x))
+  )(data)
+
 export const get_total_cpa = data =>
   R.pipe(
     R.map(x => R.prop('total', x))
   , R.sum()
+  )(data)
+
+export const get_total_additional_cpa = data =>
+  R.pipe(
+    R.map(x => [R.prop('additional_pixels_cpa', x), R.prop('additional_pixels', x)])
+    , R.map(([x, y]) => x * y)
+    , R.sum()
   )(data)
