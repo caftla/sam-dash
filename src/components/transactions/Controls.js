@@ -5,18 +5,11 @@ import R from 'ramda'
 import type { QueryParams } from 'my-types'
 import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
-import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
+import { InputSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
-const {timeFormat} = require('d3-time-format')
 const { format } = require('d3-format')
 
-const DateTime = ({value, onChange}) => <input 
-  onChange={ event => { onChange(new Date(event.target.value)) } } 
-  value={ value.split('T')[0] } type='date' />
-
-const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
 const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
@@ -159,28 +152,9 @@ export default class Controls extends React.Component {
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
-        <LabelledInput name="From">
-          <DateTime value={ this.state.date_from } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
-        <LabelledInput name="To">
-          <DateTime value={ this.state.date_to } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
+        <FormRow className='date_picker'>
+          <ThemedDateRangePicker self={this} />
+        </FormRow>
         <InputSelect name="Timezone" onChange={ timezone => {
           console.log('setting_timezone', timezone)
           this.setState({ timezone: timezone }) 
