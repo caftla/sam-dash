@@ -130,6 +130,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       : p == 'country_code' ? 80
       : p == 'day' ? 120
       : p == 'hour' ? 220
+      : p == 'landing_page' ? 220
       : 170
 
     const columns = R.pipe(
@@ -142,7 +143,12 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     const tableId = `table-${Math.round(Math.random() * 100000)}`
     return <TABLE width={1400} data-id={ tableId } className={`section fpsr_table${ is_summary ? ' summary' : '' }`} style={ { minWidth: '1200px', marginTop: '1em' } }>
       { columns.map((c, i) => (<colgroup key={i}>
-          <col span="1" style={ { width: c.label == '-' ? '1%' : c.label == 'Transactions' || c.label == 'Views' ? '7%' : (i < 2 ? '7%' : '5%') } } />
+          <col span="1" style={ { width: 
+              c.label == '-' ? '1%' 
+              : c.label == 'country' ? '5%' 
+              : c.label == 'Transactions' || c.label == 'Views' ? '7%' 
+              : c.label == 'landing_page' ? '12%' 
+              : (i < 2 ? '7%' : '5%') } } />
         </colgroup>))
       } 
       <caption align="bottom"  className='clipboard-hover' onClick={ () => {

@@ -11,5 +11,6 @@
     "**/elm-stuff": true,
     "**/dist": true
   },
-  "prettier.disableLanguages": ["javascript", "jsx"]
+  "prettier.disableLanguages": ["javascript", "jsx"],
+  "prettier.ignorePath": ".*",
 }

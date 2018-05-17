@@ -61,6 +61,8 @@ const makeQuery = (query_template: string, params: Object) => {
 
   params.f_normalize_gateway = (country_code, gateway) => `(case when position('_' in ${gateway}) > -1 then ${gateway} else (${country_code} || '_' || ${gateway}) end)`;
 
+  const addHttp = url =>
+    url.indexOf('http') == 0 ? url : `http://${url}`
   params.f_filter = (table: string, options: ParamsOptions) => (x => (!x ? "true" : R.compose(R.join(" and "), R.map(
               ([k, v]) =>
                 R.compose(
@@ -78,9 +80,11 @@ const makeQuery = (query_template: string, params: Object) => {
                               parseFloat(
                                 params.timezone
                               )}', ${table}.timestamp) ) < ${v}`
-                          : !!options && !!options.double_quote
-                            ? `${table}.${useFieldMap(options, k)}=''${v}''`
-                            : `${table}.${useFieldMap(options, k)}='${v}'`
+                        : k == 'landing_page'
+                          ? `(${table}.landing_page_url LIKE '${addHttp(v)}%') OR (${table}.landing_page_url LIKE '${addHttp(v)}%')`
+                        : !!options && !!options.double_quote
+                          ? `${table}.${useFieldMap(options, k)}=''${v}''`
+                          : `${table}.${useFieldMap(options, k)}='${v}'`
                   ),
                   R.split(";")
                 )(v)
