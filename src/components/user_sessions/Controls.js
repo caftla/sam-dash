@@ -79,6 +79,12 @@ const since = date => date.indexOf('days') > -1
   ? find_relative_date(parseInt(date))
   : add_time(date)
 
+const filterToObj = R.pipe(
+    R.split(',')
+  , R.map(R.split('='))
+  , R.fromPairs
+)
+
 export default class Controls extends React.Component {
   props: ControlsProps
   state: ControlsState
@@ -93,11 +99,7 @@ export default class Controls extends React.Component {
 
   setProps(props) {
     const { params } = props
-    const filter_params = R.pipe(
-        R.split(',')
-      , R.map(R.split('='))
-      , R.fromPairs
-    )(params.filter || '-')
+    const filter_params = filterToObj(params.filter || '-')
 
     const ifExists = ifExists_(props, filter_params.country_code)
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
@@ -180,9 +182,15 @@ export default class Controls extends React.Component {
 
   get_filter_string_by_fields(ofields) {
     const fields = ((this.state['from_hour'] == 0 || !this.state['from_hour']) && (this.state['to_hour'] == 24 || !this.state['to_hour']))
-      ? ofields = R.reject(x => x == 'from_hour' || x == 'to_hour')(ofields)
+      ? R.reject(x => x == 'from_hour' || x == 'to_hour')(ofields)
       : ofields
       
+    // filter params without control
+    const extra_filter_params = R.pipe(
+      R.toPairs
+      , R.filter(([k, v]) => fields.indexOf(k) < 0)
+    )(filterToObj(this.props.params.filter))
+
     const affiliate_ids = R.pipe(
         R.filter(x => x.affiliate_name == this.state.affiliate_name)
       , R.map(x => x.affiliate_ids)
@@ -191,6 +199,7 @@ export default class Controls extends React.Component {
     )(this.props.affiliates)
     return R.pipe(
         R.map(k => [k, this.state[k]])
+      , R.concat(extra_filter_params)
       , R.reject(([key, value]) => !value || value == '-')
       , R.map(R.join('='))
       , R.join(',')
@@ -200,9 +209,12 @@ export default class Controls extends React.Component {
 	}
 
   get_filter_string() {
+    
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "ab_test", "from_hour", "to_hour"]
-      .concat(with_publisher_id ? ["publisher_id"] : []))
+    const controlled_fields = ["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "ab_test", "from_hour", "to_hour"]
+      .concat(with_publisher_id ? ["publisher_id"] : [])
+
+    return this.get_filter_string_by_fields(controlled_fields)
   }
 
   render() {
