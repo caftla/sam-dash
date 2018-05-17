@@ -25,7 +25,20 @@ const makeQuery = (query_template: string, params: Object) => {
 
       const date_exp = !!options && options.no_timezone === true ? `date_trunc('${param_value}', ${table}.${day_column})` : !!options && options.no_timezone === 0 ? `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '0'` : `date_trunc('${param_value}', CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column})) :: timestamp AT TIME ZONE '${-1 * parseFloat(params.timezone)}'`;
 
-      let result = !param_value || param_value == "-" ? `'-'` : ["screen_width", "screen_height"].some(i => i == param_value) ? `round(${table}.${param_value} / 50) :: Int * 50` : "screen_size" == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')` : ["hour", "day", "week", "month"].some(p => p == param_value) ? date_exp : param_value == "gateway" && (!!options && !!options.fix_gateway) ? `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})` : param_value == "hour_of_day" ? `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))` : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`;
+      let result = !param_value || 
+          param_value == "-" ? 
+            `'-'` 
+        : ["screen_width", "screen_height"].some(i => i == param_value) ? 
+            `round(${table}.${param_value} / 50) :: Int * 50` : "screen_size" == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')` 
+        : ["hour", "day", "week", "month"].some(p => p == param_value) ? 
+            date_exp 
+        : param_value == "gateway" && (!!options && !!options.fix_gateway) ? 
+            `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})` 
+        : param_value == "landing_page" ?
+            `substring(${table}.landing_page_url, 0, charindex('?', ${table}.landing_page_url))`
+        : param_value == "hour_of_day" ? 
+          `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
+        : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`;
 
       if (!!options && options.double_quote) {
         result = result.replace(/\'/g, "''");

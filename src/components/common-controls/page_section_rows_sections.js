@@ -232,6 +232,8 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       })
     }
     render() {
+      const isLandingPage = this.props.params[this.state.level] == "landing_page"
+      
       const tooltip = () => {
         if (!this.props.breakdown_list)
           return ''
@@ -240,7 +242,11 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
           , top: this.state.top + 10 + 'px'
           , left: this.state.left + 80 + 'px'
         }}>
-          <div>Filtering on {this.state.current_value}</div>
+          <div>Filtering on {
+             isLandingPage 
+              ? <a href={ `http://${this.state.current_value}?offer=1` } target="_blank">{this.state.current_value}</a>
+              : this.state.current_value
+            }</div>
           <BreakdownItem
             label={this.state.level}
             breakdownList={this.props.breakdown_list}
