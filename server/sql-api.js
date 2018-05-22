@@ -29,7 +29,9 @@ const makeQuery = (query_template: string, params: Object) => {
           param_value == "-" ? 
             `'-'` 
         : ["screen_width", "screen_height"].some(i => i == param_value) ? 
-            `round(${table}.${param_value} / 50) :: Int * 50` : "screen_size" == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')` 
+            `round(${table}.${param_value} / 50) :: Int * 50` : "screen_size" == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')`
+        : ["viewport_width", "viewport_height"].some(i => i == param_value) ?
+          `round(${table}.${param_value} / 50) :: Int * 50` : "viewport_size" == param_value ? `coalesce(cast(round(us.viewport_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.viewport_height/ 50) :: Int * 50 as varchar), 'Unknown')` 
         : ["hour", "day", "week", "month"].some(p => p == param_value) ? 
             date_exp 
         : param_value == "gateway" && (!!options && !!options.fix_gateway) ? 
