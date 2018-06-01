@@ -28,6 +28,7 @@ const breakdown_list = [
   'handle_name', 'ad_name', 'landing_page',
   'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2',
   'get_sub_method',
+  'webview_app',
   'ab_test', 'ab_test_identify_key',
   'os_name', 'os_version1', 'os_version', 'browser_name', 'browser_version1', 'browser_version', 'browser_language', 'browser_languages', 'brand_name', 'model_name', 'screen_size', 'viewport_size', 'device_class',
   'hour', 'day', 'week', 'month', 'hour_of_day']
