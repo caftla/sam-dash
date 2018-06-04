@@ -60,7 +60,7 @@ class Chart extends React.Component {
         return
 
       const myData = toMyData(this.data)
-
+      console.log(myData)
       if (!myData)
         return
       
@@ -226,7 +226,12 @@ export default class StatefulPlot extends React.Component {
 
   render(){
     return this.state.showPlot 
-      ? <Chart data={this.props.data} />
+      ? <div>
+        <div onClick={() => this.setState({ showPlot: false })}>
+          <i className="fa fa-window-close" aria-hidden="true" style={{ cursor: 'pointer' }} />
+        </div>
+        <Chart data={this.props.data} />
+      </div>
       : <button style={{float: 'left'}} onClick={() => this.setState({ showPlot: true })}>Plot</button>
   }
 }
