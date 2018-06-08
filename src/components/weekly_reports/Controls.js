@@ -7,7 +7,7 @@ import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormCont
 import styled from 'styled-components'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
+import { ThemedDateRangePicker, InputSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
@@ -212,30 +212,9 @@ export default class Controls extends React.Component {
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
-        <LabelledInput name="From">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_from } 
-						onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } }
-						disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
-            />
-        </LabelledInput>
-        <LabelledInput name="To">
-					<DateTime value={ this.state.is_relative_date === true ? 'Relative date selected' : this.state.date_to } 
-						onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } }
-            disabled={ `${this.state.is_relative_date === true ? 'disabled' : ''}` }
-            />
-        </LabelledInput>
+        <FormRow className='date_picker'>
+          <ThemedDateRangePicker self={this} />
+        </FormRow>
         <InputSelect className='timezone' name="Timezone" onChange={ timezone => this.setState({ timezone: timezone }) }
           value={ this.state.timezone } options={ 
             R.pipe(

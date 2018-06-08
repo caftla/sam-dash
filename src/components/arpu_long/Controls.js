@@ -3,15 +3,14 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
+import { Submit, FormTitle, FormRow, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
 import styled from 'styled-components'
-import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
+import { ThemedDateRangePicker, InputSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
-const {timeFormat} = require('d3-time-format')
-const { format } = require('d3-format')
+
+const { timeFormat } = require('d3-time-format')
 
 const DateTime = ({value, onChange}) => <input 
   onChange={ event => { onChange(new Date(event.target.value)) } } 
@@ -21,7 +20,6 @@ const api_root = process.env.api_root || '' // in production api_root is the sam
 const api_get = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
   get({url: `${api_root}/api/v1/arpu_long/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})
 
-const format_date = timeFormat('%Y-%m-%dT%H:%M:%S')
 
 const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
@@ -178,7 +176,7 @@ export default class Controls extends React.Component {
   }
 
   render() {
-    const {countries, affiliates} = this.props
+    const { countries, affiliates } = this.props
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
@@ -194,28 +192,9 @@ export default class Controls extends React.Component {
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
-        <LabelledInput name="From">
-          <DateTime value={ this.state.date_from } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
-        <LabelledInput name="To">
-          <DateTime value={ this.state.date_to } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
+        <FormRow className='date_picker'>
+          <ThemedDateRangePicker self={this} />
+        </FormRow>
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>

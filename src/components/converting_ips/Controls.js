@@ -7,7 +7,7 @@ import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormCont
 import styled from 'styled-components'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
+import { ThemedDateRangePicker, LabelledInput, InputSelect } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const {timeFormat} = require('d3-time-format')
@@ -194,28 +194,9 @@ export default class Controls extends React.Component {
     return <FormContainer className={ this.props.className }>      
       <FormSection className="date-filter">
         <FormTitle>Date Range</FormTitle>
-        <LabelledInput name="From">
-          <DateTime value={ this.state.date_from } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_from': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
-        <LabelledInput name="To">
-          <DateTime value={ this.state.date_to } onChange={ val => {
-              if(!!val.toJSON) {
-                this.setState({ 'date_to': format_date(val) })
-              } else {
-                // wrong date
-              }
-            } } inputProps={ {
-              className: 'date_input'
-            } } />
-        </LabelledInput>
+        <FormRow className='date_picker'>
+          <ThemedDateRangePicker self={this} />
+        </FormRow>
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>
