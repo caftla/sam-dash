@@ -8,7 +8,7 @@ import { render } from 'react-dom'
 
 import createHistory from 'history/createBrowserHistory'
 import { Route, Switch } from 'react-router'
-import { Redirect } from 'react-router'
+import { Redirect, Link } from 'react-router'
 import { match } from './adts'
 
 import URI from 'urijs'
@@ -76,7 +76,10 @@ function Wrap(WrappedComponent) {
   return class PP extends React.Component {
     constructor(props : Props) {
       super(props)
-      this.state = {route: props.location.pathname.substring(1).split('/')[0]}
+      this.state = {
+        route: props.location.pathname.substring(1).split('/')[0],
+        login_state: this.props.login_state
+      }
 
       this.unlisten = this.props.history.listen((location, action) => {
         this.setState({
@@ -84,18 +87,25 @@ function Wrap(WrappedComponent) {
         })
       });
     }
+
+    handleToggle() {
+      [...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show')),
+      [...document.getElementsByClassName('main-right')].map(e => e.classList.toggle('expand'))
+    }
+
+    copyUrl() {
+    var getURL = document.location.href	
+      alert(getURL)
+    }
+
+    go(route) {
+      this.props.history.push(route)
+    }
     
-	handleToggle(){
-	
-			[...document.getElementsByClassName('main-left')].map(e => e.classList.toggle('show')),
-			[...document.getElementsByClassName('main-right')].map(e => e.classList.toggle('expand'))
-	
-	}
-	
-	copyUrl(){
-		var getURL = document.location.href	
-			alert(getURL)
-	}
+    logout() {
+      window.localStorage.removeItem('token')
+      window.location = ''
+    }
 
     componentWillUnMount() {
       if(!!this.unlisten) {
@@ -108,61 +118,64 @@ function Wrap(WrappedComponent) {
 
         <div id="header">
             
-            <ul id="main-area">
+          <ul id="main-area">
+          
+            <li id="filter-menu" class="active" onClick={ () => {
+              var filterMenu = document.getElementById("filter-menu"),
+                sidebar = document.getElementById("sidebar"),
+                container = document.getElementById("container"),
+                tabsMenu = document.getElementById("tabs-menu"),
+                tabsArea = document.getElementById("tabs-area");
+                
+                filterMenu.classList.toggle("active");
+                sidebar.classList.toggle("visible");
+                container.classList.toggle("default");
+                
+            }}><span></span></li>
             
-              <li id="filter-menu" class="active" onClick={ () => {
-                var filterMenu = document.getElementById("filter-menu"),
-                  sidebar = document.getElementById("sidebar"),
-                  container = document.getElementById("container"),
-                  tabsMenu = document.getElementById("tabs-menu"),
-                  tabsArea = document.getElementById("tabs-area");
-                  
-                  filterMenu.classList.toggle("active");
-                  sidebar.classList.toggle("visible");
-                  container.classList.toggle("default");
-                  
-              }}><span></span></li>
-              
-              <li id="sam-media-logo"><a href="/"></a></li>	
-              
-              <li id="tabs-menu" onClick={ () => {
-                var filterMenu = document.getElementById("filter-menu"),
-                  sidebar = document.getElementById("sidebar"),
-                  container = document.getElementById("container"),
-                  tabsMenu = document.getElementById("tabs-menu"),
-                  tabsArea = document.getElementById("tabs-area");
+            <li id="sam-media-logo"><a href="/"></a></li>	
+            
+            <li id="tabs-menu" onClick={ () => {
+              var filterMenu = document.getElementById("filter-menu"),
+                sidebar = document.getElementById("sidebar"),
+                container = document.getElementById("container"),
+                tabsMenu = document.getElementById("tabs-menu"),
+                tabsArea = document.getElementById("tabs-area");
 
-                tabsMenu.classList.toggle("active");	
-                tabsArea.classList.toggle("show"); 
-              } }><span></span></li>
+              tabsMenu.classList.toggle("active");	
+              tabsArea.classList.toggle("show"); 
+            } }><span></span></li>
+          
+          </ul>
             
-            </ul>
-            
+          {this.state.login_state ? 
             <div id="tabs-area">
-            
-              <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
+                <a onClick={() => this.go('/filter_page_section_row')} className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
 
-              <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
+                <a onClick={() => this.go('/weekly_reports')} className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
 
-              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
+                <a onClick={() => this.go('/user_sessions')} className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
 
-              <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
-              
-              <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>IPs</a>          
-              
-              <a href="/arpu_long/" className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU</a>
+                <a onClick={() => this.go('/user_subscriptions')} className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
+                
+                <a onClick={() => this.go('/converting_ips')} className={ this.state.route == 'converting_ips' ? 'active' : ''  }>IPs</a>          
+                
+                <a onClick={() => this.go('/arpu_long')} className={ this.state.route == 'arpu_long' ? 'active' : ''  }>ARPU</a>
 
-              <a href="/co_invoices/" className={this.state.route == 'co_invoices' ? 'active' : ''}>Affiliates</a>
+                <a onClick={() => this.go('/co_invoices')} className={this.state.route == 'co_invoices' ? 'active' : ''}>Affiliates</a>
 
-              <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
+                <a onClick={() => this.go('/transactions')} className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
 
-              <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
+                <a onClick={() => this.go('/monthly_reports')} className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
 
+                <div className={'btn'} onClick={() => this.logout()}>Log Out <i className="fa fa-sign-out" aria-hidden="true"></i></div> 
+                
+              </div>
 
-            </div>
-            
-            <div id="bar"></div>
-                    
+              : '' }
+       
+			<div id="bar"></div>
+	        
         </div>	
 
         <WrappedComponent {...this.props} />
