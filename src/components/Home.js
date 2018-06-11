@@ -53,19 +53,19 @@ class Home extends React.Component {
     super(props)
   }
 
-  componentWillUpdate(nextProps, b) {
+  // componentWillUpdate(nextProps, b) {
 
-    const {params} = nextProps
-    const current_params = this.props.params
+  //   const {params} = nextProps
+  //   const current_params = this.props.params
 
-    if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
-      nextProps.fetch_all_countries(params.date_from, params.date_to)
-    }
+  //   if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
+  //     nextProps.fetch_all_countries(params.date_from, params.date_to)
+  //   }
 
-    this.props.fetch_all_affiliates()
-    this.props.fetch_all_countries(params.date_from, params.date_to)
+  //   this.props.fetch_all_affiliates()
+  //   this.props.fetch_all_countries(params.date_from, params.date_to)
 
-  }
+  // }
 
   componentDidMount() {
     const { params } = this.props

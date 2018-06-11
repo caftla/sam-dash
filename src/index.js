@@ -103,10 +103,18 @@ function Wrap(WrappedComponent) {
     }
     
     logout() {
+      const url = window.location.href
       window.localStorage.removeItem('token')
-      window.location = ''
+      window.location = `https://www.google.com/accounts/Logout?continue=https://appengine.google.com/_ah/logout?continue=${url}`;
     }
+    
+    componentDidMount() {
+      const route = this.state.route
 
+      if( route !== 'login'){
+        this.props.check_loggedin()
+      }
+    }
     componentWillUnMount() {
       if(!!this.unlisten) {
         this.unlisten();
@@ -125,11 +133,11 @@ function Wrap(WrappedComponent) {
                 sidebar = document.getElementById("sidebar"),
                 container = document.getElementById("container"),
                 tabsMenu = document.getElementById("tabs-menu"),
-                tabsArea = document.getElementById("tabs-area");
+                tabsArea = document.getElementById("tabs-area")
                 
-                filterMenu.classList.toggle("active");
-                sidebar.classList.toggle("visible");
-                container.classList.toggle("default");
+                filterMenu.classList.toggle("active")
+                sidebar.classList.toggle("visible")
+                container.classList.toggle("default")
                 
             }}><span></span></li>
             
@@ -140,10 +148,10 @@ function Wrap(WrappedComponent) {
                 sidebar = document.getElementById("sidebar"),
                 container = document.getElementById("container"),
                 tabsMenu = document.getElementById("tabs-menu"),
-                tabsArea = document.getElementById("tabs-area");
+                tabsArea = document.getElementById("tabs-area")
 
-              tabsMenu.classList.toggle("active");	
-              tabsArea.classList.toggle("show"); 
+              tabsMenu.classList.toggle("active")	
+              tabsArea.classList.toggle("show")
             } }><span></span></li>
           
           </ul>
@@ -172,9 +180,8 @@ function Wrap(WrappedComponent) {
                 
               </div>
 
-              : '' }
-       
-			<div id="bar"></div>
+            : '' }
+          <div id="bar"></div>
 	        
         </div>	
 
