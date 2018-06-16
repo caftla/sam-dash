@@ -1,6 +1,10 @@
 module Query.Types where
+import Data.Either
+
+import Data.Argonaut ((:=), (~>))
 import Data.Argonaut.Core as J
 import Data.Array as A
+import Data.Bifunctor (bimap)
 import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Int (toNumber)
@@ -20,7 +24,6 @@ import Effect.Unsafe (unsafePerformEffect)
 import Foreign (F, Foreign, readBoolean, readNullOrUndefined, readNumber, readString, unsafeFromForeign)
 import Foreign.Index ((!))
 import Foreign.Object as Obj
-import Data.Either
 import Prelude (class Ord, class Ring, class Semiring, class Show, append, bind, map, negate, not, pure, show, zero, ($), (*), (<$>), (<<<), (<>), (==), (>), (>=), (>>=))
 
 
@@ -37,10 +40,17 @@ class ToJSON a where
   toJson :: a -> J.Json
 
 strMapToJson :: ∀ a. ToJSON a ⇒ Map String a → J.Json
-strMapToJson = J.fromObject <<< Obj.fromFoldable <<< map (\ (Tuple k v) -> Tuple k (toJson v)) <<< toAscArray -- if SM.isEmpty m then (J.fromNull J.jNull) else 
+strMapToJson = J.fromObject <<< Obj.fromFoldable <<< map (\ (Tuple k v) -> Tuple k (toJson v)) <<< toAscArray
+
+listToJson :: forall v. ToJSON v => List (Tuple String v) -> J.Json
+listToJson = J.fromArray <<< A.fromFoldable <<< map (\(Tuple key value) -> 
+    ("key" := key) ~> 
+    ("value" := toJson value) ~> 
+    J.jsonEmptyObject
+  )
 
 breakdownToJson :: Breakdown -> J.Json
-breakdownToJson = strMapToJson
+breakdownToJson = listToJson
 
 continueEither :: forall a b c. (a -> c) -> (b -> c) -> Either a b -> c
 continueEither  = either
@@ -113,7 +123,7 @@ instance toJsonBreakdownDetails :: ToJSON BreakdownDetails where
 emptyBreakdownDetails :: BreakdownDetails
 emptyBreakdownDetails = BreakdownDetails { sort: Nothing, valuesFilter: Nothing }
 
-type Breakdown = StrMap BreakdownDetails
+type Breakdown = List (Tuple String BreakdownDetails)
 
 instance toQueryPathStringBreakdown :: ToQueryPathString (Map String BreakdownDetails) where
   toQueryPathString = strMapToQueryPathString breakdownToStr
@@ -237,7 +247,7 @@ readQueryOptions value = do
 
 breakdownToSqlSelect :: forall d. String -> QueryParams d -> QueryOptions -> String
 breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) = 
-  "  " <> (intercalate newLine $ map (\(Tuple k _) -> (if q.casted then (alias' <<< dimension) else defaultCast) k) $ toAscArray $ p.breakdown)
+  "  " <> (intercalate newLine $ map (\(Tuple k _) -> (if q.casted then (alias' <<< dimension) else defaultCast) k) $ p.breakdown)
   where
     alias' = alias options
 
@@ -262,7 +272,7 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
     newLine = "\n" <> indent <> ", "
 
 breakdownToSqlCommaSep :: Maybe QueryOptions -> Breakdown -> String
-breakdownToSqlCommaSep moptions = intercalate ", " <<< map (\(Tuple k _) -> alias' (dimension k)) <<< toAscArray
+breakdownToSqlCommaSep moptions = intercalate ", " <<< map (\(Tuple k _) -> alias' (dimension k))
   where
     alias' = case moptions of
       Just options -> alias options
@@ -273,7 +283,7 @@ alias (QueryOptions q) col = q.tableAlias <> "." <> col
 
 joinDimensionsToSqlJoin :: forall d. String -> QueryParams d -> QueryOptions -> QueryOptions -> String
 joinDimensionsToSqlJoin indent params@(QueryParams p) qLeft qRight = 
-  "    " <> (intercalate newLine $ map (\(Tuple k _) -> (alias qLeft <<< dimension) k  <> " = " <> (alias qRight <<< dimension) k) $ toAscArray $ p.breakdown)
+  "    " <> (intercalate newLine $ map (\(Tuple k _) -> (alias qLeft <<< dimension) k  <> " = " <> (alias qRight <<< dimension) k) $ p.breakdown)
   where
     newLine = "\n" <> indent <> "AND "
 

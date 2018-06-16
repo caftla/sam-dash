@@ -215,6 +215,7 @@ const main_bottom = <Provider store={store}>
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
         <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
+        <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(User_Sessions)} />
         <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />

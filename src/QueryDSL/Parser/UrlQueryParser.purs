@@ -1,5 +1,5 @@
 module Query.Parser.UrlQueryParser where
-import Query.Parser.Utils (emptyStrMap, list, propTuple, queryParser, strMap, tuple)
+import Query.Parser.Utils (emptyPropTuple, list, listFlex, propTuple, queryParser, strMap, tuple)
 import Prelude (class Category, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>))
 import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), ValuesFilter, emptyBreakdownDetails)
 import Control.Alternative ((<|>))
@@ -12,6 +12,7 @@ import Data.Tuple (Tuple(..), uncurry)
 import Text.Parsing.Parser (ParseError, ParserT, runParser)
 import Text.Parsing.Parser.Combinators (notFollowedBy, try)
 import Text.Parsing.Parser.String (eof, string)
+import Data.List 
 import Data.Map as M
 
 -- -- Parses '"a: 2, b: hello"'
@@ -37,7 +38,7 @@ breakdownSortAndValuesP = map toDetails $ map (bimap Just Just) (try $ tuple sor
 
 -- Parses "country_code:(sales:A),operator_code,date:(views:A,[sales:10,views:100])"
 breakdownP :: ParserT String Identity Breakdown
-breakdownP = emptyStrMap emptyBreakdownDetails breakdownSortAndValuesP <* eof
+breakdownP = listFlex (emptyPropTuple queryParser.identifier (try breakdownSortAndValuesP <|> pure emptyBreakdownDetails) emptyBreakdownDetails) <* eof
 
 ---
 
@@ -79,7 +80,7 @@ filtersP :: ParserT String Identity Filters
 filtersP = (string "-" *> pure M.empty) <|> strMap filterLangP
 
 
-runBreakdownParser :: String → Either ParseError (StrMap BreakdownDetails)
+runBreakdownParser :: String → Either ParseError (List (Tuple String BreakdownDetails))
 runBreakdownParser s = runParser s breakdownP
 
 runFilterParser :: String → Either ParseError (StrMap FilterLang)

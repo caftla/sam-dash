@@ -12,7 +12,7 @@ import Data.Maybe (Maybe, maybe)
 import Data.Number (fromString)
 import Data.String as Str
 import Data.Tuple (Tuple(..))
-import Prelude (class Monad, map, pure, ($), (*>), (<$>), (<*), (<*>), (<<<), (=<<))
+import Prelude (class Monad, bind, map, pure, ($), (*>), (<$>), (<*), (<*>), (<<<), (=<<))
 import Text.Parsing.Parser (ParserT, fail)
 import Text.Parsing.Parser.Combinators (between, try)
 import Text.Parsing.Parser.Language (emptyDef)
@@ -42,6 +42,13 @@ tuple a b = queryParser.parens $ Tuple <$> (a <* lax queryParser.comma) <*> b
 -- Parses '3_hello-24: 3736'
 propTuple :: forall a b m s. Monad m => StringLike s => ParserT s m a -> ParserT s m b -> ParserT s m (Tuple a b)
 propTuple a b = Tuple <$> (a <* lax (string ":")) <*> b
+
+emptyPropTuple :: forall a b m s. Monad m => StringLike s => ParserT s m a -> ParserT s m b -> b -> ParserT s m (Tuple a b)
+emptyPropTuple a b mb = do
+  a' <- a
+  b' <- try (lax (string ":") *> b) <|> pure mb
+  pure $ Tuple a' b'
+  -- Tuple <$> (a <* lax (string ":")) <*> b
 
 list :: forall a. ParserT String Identity a -> ParserT String Identity (List a)
 list p = queryParser.brackets ps <|> queryParser.parens ps where
