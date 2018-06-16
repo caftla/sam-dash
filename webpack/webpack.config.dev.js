@@ -27,7 +27,16 @@ module.exports = {
   resolve: {
     alias: {
       moment: 'moment/moment.js',
-    }
+    },
+    modules: [
+      'node_modules',
+      'bower_components'
+    ],
+
+    extensions: [
+      '.purs',
+      '.js'
+    ]
   },
   devtool: 'inline-source-map',
   devServer: {
@@ -49,6 +58,18 @@ module.exports = {
   },
   module: {
     rules: [
+      {
+        test: /\.purs$/,
+        exclude: /node_modules/,
+        loader: 'purs-loader',
+        options: {
+          src: [
+            'bower_components/purescript-*/src/**/*.purs',
+            'src/**/*.purs'
+          ],
+          pscIde: true
+        }
+      },
       {
         test: /\.(js|jsx)$/,
         include: [resolve(__dirname, '../src'), resolve(__dirname)],

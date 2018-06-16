@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "Get started with ES2015, React and Redux. Including Webpack, ESLint, react-router, fetch ...",
   "scripts": {
-    "postinstall": "ehco \"npm run build\"",
+    "postinstall": "echo \"npm run build\"",
     "start": "./node_modules/.bin/babel-node -- server/index.js",
     "server": "nodemon --exec ./node_modules/.bin/babel-node -- server/index.js",
     "dev": "npm run server & webpack-dev-server --open --config webpack/webpack.config.dev.js",
@@ -48,6 +48,9 @@
     "mini-css-extract-plugin": "^0.4.0",
     "nodemon": "^1.11.0",
     "postcss-loader": "^2.1.5",
+    "pscid": "^2.5.3",
+    "purescript": "^0.12.0",
+    "purs-loader": "^3.2.0",
     "react-hot-loader": "^4.3.3",
     "react-test-renderer": "^15.4.1",
     "style-loader": "^0.21.0",

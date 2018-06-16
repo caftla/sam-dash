@@ -10,6 +10,13 @@ import createHistory from 'history/createBrowserHistory'
 import { Route, Switch } from 'react-router'
 import { Redirect } from 'react-router'
 import { match } from './adts'
+const PH = require('./Hello.purs')
+const P = require('./QueryDSL/Parser/UrlQueryParser.purs')
+const PT = require('./QueryDSL/Types.purs')
+
+window.P = P
+window.PT = PT
+console.log(PH.sayHello)
 
 import URI from 'urijs'
 
