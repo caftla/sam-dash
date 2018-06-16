@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const OfflinePlugin = require('offline-plugin')
 
 module.exports = {
+  mode: 'production',
   entry: {
     main: resolve(__dirname, '../src'),
     vendor: [
@@ -67,10 +68,6 @@ module.exports = {
       'process.env.NODE_ENV': JSON.stringify('production'),
       'process.env.api_root': JSON.stringify(process.env.api_root || ''),
       'process.env.finance_email': JSON.stringify(process.env.finance_email || '')
-    }),
-    new webpack.optimize.UglifyJsPlugin(),
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'manifest'],
     }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
