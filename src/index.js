@@ -40,6 +40,7 @@ import Dashboard from './components/Dashboard'
 import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import User_Sessions from './components/user_sessions'
+import Sessions from './components/sessions'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
 import Transactions from './components/transactions'
@@ -49,7 +50,7 @@ import Cohort from './components/cohort'
 import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
-import DailyReportsArchive from './components/daily_reports_archive'
+// import DailyReportsArchive from './components/daily_reports_archive'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
@@ -215,8 +216,9 @@ const main_bottom = <Provider store={store}>
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
         <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
-        <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(User_Sessions)} />
         <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
+
+        <Route path="/sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Sessions)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />
@@ -239,8 +241,11 @@ const main_bottom = <Provider store={store}>
         
         <Route path="/monthly_reports/" exact={true} component={WrapAndAuth(MonthlyReports)} />
         <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
-        <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
-        <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        {
+          //TODO: re-implement DailyReportsArchive without elm
+        }
+        {/* <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} /> */}
+        {/* <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} /> */}
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
         </Route>

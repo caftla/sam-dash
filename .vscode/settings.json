@@ -13,4 +13,6 @@
   },
   "prettier.disableLanguages": ["javascript", "jsx"],
   "prettier.ignorePath": ".*",
+  "editor.tabSize": 2,
+  "editor.formatOnPaste": false,
 }
