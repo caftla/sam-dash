@@ -8,8 +8,9 @@ const trace = (x, y) => { console.log(x); return y; }
 const trace_ = x => trace(x, x)
 
 const transform = R.pipe(
-    R.chain(x => x)
-  , R.groupBy(x => `${x.country_code}-${x.operator_code}-${x.year_code}-${x.month_code}`)
+    // R.chain(x => x)
+  // , R.filter(x => !!x)
+    R.groupBy(x => `${x.country_code}-${x.operator_code}-${x.year_code}-${x.month_code}`)
   , R.map(R.reduce(R.merge, {}))
   , R.values
   , R.groupBy(x => `${x.country_code}-${x.operator_code}`)
@@ -37,17 +38,19 @@ const transform = R.pipe(
 )
 
 module.exports = async function (helix_connection_string: string, jewel_connection_string: string, params: Object) {
-  const jewel = () => Promise.all(['broadcast', 'optouts'].map(x =>
+  const jewel = () => Promise.all(['broadcast', 'optouts', 'rps', 'drt'].map(x =>
     query(jewel_connection_string, fs.readFileSync(`./server/sql-templates/monthly_reports/${x}.sql`, 'utf8'), params)
   ))
 
-  const helix = () => Promise.all(['rps', 'drt'].map(x =>
-    query(helix_connection_string, fs.readFileSync(`./server/sql-templates/monthly_reports/${x}.sql`, 'utf8'), params)
-    .then(r => x == 'rps' ? R.find(y => y.rows.length > 0)(r) : r)
-  ))
+  // const helix = () => Promise.all(['rps', 'drt'].map(x =>
+  //   query(helix_connection_string, fs.readFileSync(`./server/sql-templates/monthly_reports/${x}.sql`, 'utf8'), params)
+  //   .then(r => x == 'rps' ? R.find(y => y.rows.length > 0)(r) : r)
+  // ))
 
-  const res = await Promise.all([jewel(), helix()])
-  .then(R.pipe(R.chain(x => x), R.map(x => x.rows)))
+  const res = await jewel() // await Promise.all([jewel(), helix()])
+  .then(R.pipe(R.map(x => x.rows)))
+  .then(R.chain(x => x))
+
 
   return transform(res)
 }

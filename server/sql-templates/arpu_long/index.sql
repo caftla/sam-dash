@@ -3,7 +3,7 @@ select
   , $[params.f_section('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as section
   , $[params.f_row('us', 'sale_timestamp', {no_timezone: true, fieldMap: {'publisher_id': 'pubid'}})]$ as row
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
-  , sum(case when us.pixel > 0 then 1 else 0 end) :: float as pixels
+  , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when us.delayed_pixel > 0 then 1 else 0 end) :: float as delayed_pixels
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
   , sum(us.home_cpa) :: float as cost
