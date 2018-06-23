@@ -7,9 +7,6 @@ import { connect } from 'react-redux'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
 
-import Elm from 'react-elm-components'
-// $FlowFixMe
-import { Chat } from '../share/index.elm'
 
 
 type Props = {
@@ -23,6 +20,10 @@ class DailyReportsArchive extends React.Component {
 
   constructor(props : any) {
     super(props)
+    this.state = {
+      html: "<div>Loading</div>"
+    }
+    this.download()
   }
 
   componentWillUpdate(nextProps : Props, b) {
@@ -33,9 +34,26 @@ class DailyReportsArchive extends React.Component {
   componentDidMount() {
     const {params} = this.props.match
   }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    this.download()
+  }
+
+  download() {
+    const {params} = this.props.match
+    const flags = { dateFrom: params.date_from, directory: this.props.match.path.indexOf('/hourly_reports_archive') == 0 ? 'hourly-archive' : 'archive' };
+    fetch("https://caftla.github.io/daily-monitor/" + (flags.directory) + "/" + (flags.dateFrom) + ".html")
+    .then(x => x.text())
+    .then(html => {
+      this.refs.html.innerHTML = html;
+    })
+    .catch(error => {
+      this.refs.html.innerHTML = "Error " + error.toString();
+    })
+  }
+
 
   render() {
-    const {params} = this.props.match
+    
     const self = this
 
     let sendEmojiToChat = function() {};
@@ -52,10 +70,10 @@ class DailyReportsArchive extends React.Component {
       sendEmojiToChat(':)')
     };
 
-    const flags = { dateFrom: params.date_from, directory: this.props.match.path.indexOf('/hourly_reports_archive') == 0 ? 'hourly-archive' : 'archive' };
+    
 
     return <div className='main-bottom' style={{ margin: '6em 1em 1em 1em' }}>
-        <Elm src={Chat} flags={ flags } ports={setupPorts} />
+        <div ref="html">Loading ...</div>
         <div className='daily-reports-archive-content' ref="content" />
       </div>
   }

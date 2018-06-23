@@ -50,7 +50,7 @@ import Cohort from './components/cohort'
 import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
-// import DailyReportsArchive from './components/daily_reports_archive'
+import DailyReportsArchive from './components/daily_reports_archive'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
@@ -147,12 +147,10 @@ function Wrap(WrappedComponent) {
             </ul>
             
             <div id="tabs-area">
-            
-              <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
+          
+              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
 
               <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
-
-              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
 
               <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
               
@@ -208,10 +206,12 @@ const main_bottom = <Provider store={store}>
         <Route exact path="/" component={WrapAndAuth(Home)} />
         <Route exact path="/login" component={Wrap(Login)} />
         <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
-        {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
+        
+        { /* deprecated  */ }
+        <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
         <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
         <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
-        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
+
         <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
@@ -241,11 +241,8 @@ const main_bottom = <Provider store={store}>
         
         <Route path="/monthly_reports/" exact={true} component={WrapAndAuth(MonthlyReports)} />
         <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
-        {
-          //TODO: re-implement DailyReportsArchive without elm
-        }
-        {/* <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} /> */}
-        {/* <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} /> */}
+        <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
+        <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
         </Route>
