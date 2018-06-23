@@ -13,7 +13,7 @@
   "author": "Homam",
   "license": "MIT",
   "engines": {
-    "node": "7.2.1",
+    "node": "8.10.0",
     "npm": "3.10.10"
   },
   "devDependencies": {
