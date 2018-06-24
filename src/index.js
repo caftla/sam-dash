@@ -208,9 +208,8 @@ const main_bottom = <Provider store={store}>
         <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
         
         { /* deprecated  */ }
-        <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
-        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
+        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
+        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(User_Sessions)} />
 
         <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
