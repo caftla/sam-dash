@@ -4,10 +4,10 @@ const R = require('ramda')
 
 
 const transform = params => R.pipe(
-    R.groupBy(x => `${x.country_code}-${x.section}-${x.year_code}-${x.month_code}`)
+    R.groupBy(x => `${x.section}-${x.year_code}-${x.month_code}`)
   , R.map(R.reduce(R.merge, {}))
   , R.values
-  , R.groupBy(x => `${x.country_code}-${x.section}`)
+  , R.groupBy(x => `${x.section}`)
   , R.toPairs
   , R.map(([section, data]) => ({section, data}))
   , xs => {
