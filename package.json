@@ -3,11 +3,12 @@
   "version": "1.1.0",
   "description": "Get started with ES2015, React and Redux. Including Webpack, ESLint, react-router, fetch ...",
   "scripts": {
+    "preinstall": "yarn install -g purescript pulp bower",
     "postinstall": "echo \"npm run build\"",
     "start": "./node_modules/.bin/babel-node -- server/index.js",
     "server": "nodemon --exec ./node_modules/.bin/babel-node -- server/index.js",
     "dev": "npm run server & webpack-dev-server --open --config webpack/webpack.config.dev.js",
-    "build": "rm -rf dist && webpack --config webpack/webpack.config.prod.js  && cp -a assets/* dist/",
+    "build": "rm -rf output && pulp build && rm -rf dist && webpack --config webpack/webpack.config.prod.js  && cp -a assets/* dist/",
     "prod": "cd dist && python -m SimpleHTTPServer 8080"
   },
   "author": "Homam",

@@ -32,6 +32,18 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.purs$/,
+        exclude: /node_modules/,
+        loader: 'purs-loader',
+        options: {
+          src: [
+            'bower_components/purescript-*/src/**/*.purs',
+            'src/**/*.purs'
+          ],
+          pscIde: true
+        }
+      },
+      {
         test: /\.(js|jsx)$/,
         include: [resolve(__dirname, '../src')],
         loader: 'babel-loader',
@@ -71,7 +83,7 @@ module.exports = {
     }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      title: 'SAM Dashboard',
+      title: 'Sigma',
       template: 'webpack/template.html'
     }),
     // new OfflinePlugin({
