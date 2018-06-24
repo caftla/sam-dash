@@ -12,3 +12,4 @@ ecosystem.config.js
 output/
 bower_components/
 .psci_modules
+.psc-ide-port
