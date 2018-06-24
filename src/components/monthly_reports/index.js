@@ -181,7 +181,7 @@ class MonthlyReport extends React.Component {
       , Error: (error) => <div>Error</div>
       , Loaded: (data) => {
           const page_data = R.pipe(
-              R.map(x => R.merge(x, {page: x.operator_code}))
+              R.map(x => R.merge(x, {page: x.section}))
             , R.sortBy(x => R.pipe(R.map(x => !!x.sales ? x.sales : 0), R.sum, x => x * - 1)(x.data))
           )(data)
           return <Tabs pages={page_data} params={params}

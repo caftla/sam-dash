@@ -3,8 +3,6 @@ const express = require('express');
 const {query, makeQuery} = require('./sql-api')
 const fs = require('fs')
 const R = require('ramda')
-const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
-const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
 const cache = require('./cache')
 const generate_invoice = require('./pdf_generator')
@@ -159,15 +157,16 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
   )
 })
 
-app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
-      fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
-    , params
-    , res
-    , require('./sql-templates/arpu')(params)
-  )
-})
+// deprecated
+// app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+//   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+//   respond_helix(
+//       fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
+//     , params
+//     , res
+//     , require('./sql-templates/arpu')(params)
+//   )
+// })
 
 app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
@@ -275,35 +274,23 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', authenticate(),
   respond_jewel(
       fs.readFileSync('./server/sql-templates/traffic_breakdown/index.sql', 'utf8')
     , params
+    , req
     , res
   )
 })
 
-app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:breakdown', authenticate(), (req, res) => {
+app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
 
-  const helix_connection_string = connection_strings.helix_connection_string
-  const jewel_connection_string = connection_strings.jewel_connection_string
-  if(helix_connection_string == null) {
-    res.status(500)
-    res.end(`Error:\nhelix_connection_string env variable is not provided.`)
-  } else if(jewel_connection_string == null) {
-    res.status(500)
-    res.end(`Error:\njewel_connection_string env variable is not provided.`)
-  } else {
-    const q = req.params.breakdown == 'operator_code' ? query_monthly_reports_operator_code : query_monthly_reports_gateway
-    q(helix_connection_string, jewel_connection_string, params)
-    .then(data => {
-      res.set('Content-Type', 'text/json')
-      res.set('Cache-Control', 'public, max-age=7200')
-      res.json(data)
-    })
-    .catch(ex => {
-      console.error(ex)
-      res.status(500)
-      res.end(ex.toString())
-    })
-  }
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/monthly_reports/index.sql', 'utf8')
+    , params
+    , req
+    , res
+    , require('./sql-templates/monthly_reports')(params)
+  )
+
 })
 
 app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
@@ -330,6 +317,21 @@ app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row'
       res.end(ex.toString())
     })
   }
+})
+
+app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
+  const params = R.merge(req.query, R.merge(req.params, { 
+      filter: filter_to_pipe_syntax(req.params.filter) 
+    , timezone: req.query.timezone || '0'
+  }))
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/monthly_reports/chart.sql', 'utf8')
+    , params
+    , req
+    , res
+    , x => x
+  )
 })
 
 app.use('/*', express.static('dist'))
