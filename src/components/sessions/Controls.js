@@ -197,15 +197,17 @@ export default class Controls extends React.Component {
       , R.chain(x => x)
       , R.join(';')
     )(this.props.affiliates)
+
     return R.pipe(
         R.map(k => [k, this.state[k]])
-      , R.concat(extra_filter_params)
+      , R.concat(!affiliate_ids ? [] : [['affiliate_id', affiliate_ids]])
+      , R.unionWith(R.eqBy(R.prop('0')), R.__, extra_filter_params)
       , R.reject(([key, value]) => !value || value == '-')
       , R.map(R.join('='))
       , R.join(',')
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
-    )(fields) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+    )(fields)
 	}
 
   get_filter_string() {
