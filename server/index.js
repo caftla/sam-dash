@@ -337,5 +337,6 @@ app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), 
 app.use('/*', express.static('dist'))
 
 const port = process.env.PORT || 3081
-app.listen(port)
+const server = app.listen(port)
+server.setTimeout(10 * 60 * 1000)
 console.log(`app started at port ${port}`)
