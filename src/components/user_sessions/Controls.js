@@ -186,9 +186,10 @@ export default class Controls extends React.Component {
       : ofields
       
     // filter params without control
+    const fields_with_affiliate_id = fields.concat(['affiliate_id'])
     const extra_filter_params = R.pipe(
       R.toPairs
-      , R.filter(([k, v]) => fields.indexOf(k) < 0)
+      , R.filter(([k, v]) => fields_with_affiliate_id.indexOf(k) < 0)
     )(filterToObj(this.props.params.filter))
 
     const affiliate_ids = R.pipe(

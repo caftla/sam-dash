@@ -35,7 +35,7 @@ const makeQuery = (query_template: string, params: Object) => {
         : ["hour", "day", "week", "month"].some(p => p == param_value) ? 
             date_exp 
         : param_value == "landing_page" ?
-            `substring(${table}.landing_page_url, 0, charindex('?', ${table}.landing_page_url))`
+            `('http:' || substring(${table}.landing_page_url, (case when ${table}.landing_page_url like 'https%' then 7 else 6 end), charindex('?', ${table}.landing_page_url) - (case when ${table}.landing_page_url like 'https%' then 7 else 6 end)))`
         : param_value == "gateway" ?
           `
             (case 
