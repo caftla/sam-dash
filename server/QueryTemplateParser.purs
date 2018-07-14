@@ -19,7 +19,7 @@ import Effect.Console (log)
 import Prelude (class Functor, class Monad, class Show, Unit, bind, const, map, pure, show, ($), ($>), (*>), (<$>), (<*), (<*>), (<<<), (<>), (=<<), (==), (>>=), (||))
 import Query.Parser.UrlQueryParser (breakdownP, filtersP)
 import Query.Parser.Utils (betweenLax, lax, propTuple, queryParser)
-import Query.Types (class ToSqlDateStr, LMapType(..), QueryOptions(..), QueryParams(..), breakdownToSqlCommaSep, breakdownToSqlSelect, filtersToSqlConds, filtersToSqlWhere, joinDimensionsToSqlJoin, toSqlDateStr)
+import Query.Types (class ToSqlDateStr, LMapType(..), QueryOptions(..), QueryParams(..), breakdownToSqlCommaSep, breakdownToSqlSelect, filtersToSqlConds, filtersToSqlWhere, joinDimensionsToSqlJoin, toSqlDateStr, QueryEngine (..))
 import Text.Parsing.Parser (ParseError, ParserT, fail, runParser)
 import Text.Parsing.Parser.Combinators (between, lookAhead, manyTill, try)
 import Text.Parsing.Parser.String (class StringLike, anyChar, eof, string, whiteSpace)
@@ -90,7 +90,8 @@ queryOptionsFromLang lang = do
   timeColName <- opt' "String" (LString "timestamp") langString "timeColName" 
   fieldMap <- opt' "Map String" (LMap (empty :: Map String LMapType)) langMap "fieldMap"
   casted <- opt' "Boolean" (LBool false) langBool "casted"
-  pure $ QueryOptions { noTimezone, tableAlias, timeColName, fieldMap, casted }
+  engine <-  (\e -> if e == "Redshift" then Redshift else PostgreSql) <$> opt' "String" (LString "engine") langString "engine"
+  pure $ QueryOptions { noTimezone, tableAlias, timeColName, fieldMap, casted, engine }
   
   where
     lookup' c = maybe (fail $ c <> " field is mandatory") pure (lookup c lang)

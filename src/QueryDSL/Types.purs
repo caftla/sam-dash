@@ -24,7 +24,7 @@ import Effect.Unsafe (unsafePerformEffect)
 import Foreign (F, Foreign, readBoolean, readNullOrUndefined, readNumber, readString, unsafeFromForeign)
 import Foreign.Index ((!))
 import Foreign.Object as Obj
-import Prelude (class Ord, class Ring, class Semiring, class Show, append, bind, map, negate, not, pure, show, zero, ($), (*), (<$>), (<<<), (<>), (==), (>), (>=), (>>=))
+import Prelude (class Ord, class Ring, class Semiring, class Show, append, bind, map, negate, not, pure, show, zero, ($), (*), (<$>), (<<<), (<>), (==), (>), (>=), (>>=), ($>))
 
 
 type StrMap a = Map String a
@@ -51,6 +51,9 @@ listToJson = J.fromArray <<< A.fromFoldable <<< map (\(Tuple key value) ->
 
 breakdownToJson :: Breakdown -> J.Json
 breakdownToJson = listToJson
+
+-- filtersToJson :: Filters -> J.Json
+-- filtersToJson = J.fromArray <<< map ?filterLangToJson <<< A.fromFoldable
 
 continueEither :: forall a b c. (a -> c) -> (b -> c) -> Either a b -> c
 continueEither  = either
@@ -125,7 +128,13 @@ emptyBreakdownDetails = BreakdownDetails { sort: Nothing, valuesFilter: Nothing 
 
 type Breakdown = List (Tuple String BreakdownDetails)
 
-instance toQueryPathStringBreakdown :: ToQueryPathString (Map String BreakdownDetails) where
+breakdownToQueryStringPath :: Breakdown -> String
+breakdownToQueryStringPath = toQueryPathString
+
+instance toQueryPathStringBreakdown :: ToQueryPathString (List (Tuple String BreakdownDetails)) where
+  toQueryPathString = toQueryPathString <<< SM.fromFoldable
+
+instance toQueryPathStringBreakdown1 :: ToQueryPathString (Map String BreakdownDetails) where
   toQueryPathString = strMapToQueryPathString breakdownToStr
     where
       breakdownToStr :: BreakdownDetails -> String
@@ -168,6 +177,9 @@ instance showFilterLang :: Show FilterLang where
 
 
 type Filters = StrMap FilterLang
+
+filtersToQueryStringPath :: Filters -> String
+filtersToQueryStringPath = toQueryPathString
 
 instance toQueryPathStringFilters :: ToQueryPathString (Map String FilterLang) where
   toQueryPathString = strMapToQueryPathString langToStr
@@ -223,13 +235,19 @@ instance showLMapType :: Show LMapType where
   show (Simple s) = s
   show (Expr s) = show s
 
+data QueryEngine = PostgreSql | Redshift
+derive instance genericQueryEngine :: Generic QueryEngine _
+instance showQueryEngine :: Show QueryEngine where
+  show = genericShow
+
 
 newtype QueryOptions = QueryOptions {
   noTimezone :: Boolean,
   tableAlias :: String,
   timeColName :: String,
   fieldMap :: StrMap LMapType,
-  casted :: Boolean
+  casted :: Boolean,
+  engine :: QueryEngine
 }
 derive instance genericQueryOptions :: Generic QueryOptions _
 instance showQueryOptions :: Show QueryOptions where
@@ -242,7 +260,8 @@ readQueryOptions value = do
   timeColName <- value ! "timeColName" >>= readString
   fieldMap <- unsafeFromForeign <$> (value ! "fieldMap" )
   casted <- fromMaybe false <$> (value ! "casted" ?>>= readBoolean)
-  pure $ QueryOptions { noTimezone, tableAlias, timeColName, fieldMap, casted }
+  engine <- (\e -> if e == "Redshift" then Redshift else PostgreSql) <$> (value ! "engine" >>= readString)
+  pure $ QueryOptions { noTimezone, tableAlias, timeColName, fieldMap, casted, engine }
 
 
 breakdownToSqlSelect :: forall d. String -> QueryParams d -> QueryOptions -> String
@@ -265,7 +284,10 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
 
 
       as col expr = expr <> " as " <> dimension col
-      timeDim dim = "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
+      --TODO: definition of timeDim must depend on configuration (context: redshift vs standard postgresql)
+      timeDim dim = case q.engine of 
+        Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
+        PostgreSql -> "date_trunc('" <> dim <> "', timezone('" <> tz <> "', " <> alias' q.timeColName <> ")) "
       tz = show $ toNumber(-1) * p.timezone
       -- timezone conversion example:  date_trunc('day', CONVERT_TIMEZONE('UTC', '-8', e.timestamp)) :: timestamp AT TIME ZONE '-8' 
 

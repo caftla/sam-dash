@@ -44,7 +44,10 @@ const Index = (_) => {
       super(props)
       this.state = {
         filterU : new UVal(props.filter),
-        breakdownU: new UVal(props.breakdown)
+        breakdownU: new UVal(props.breakdown),
+        date_fromU: new UVal(props.date_from),
+        date_toU: new UVal(props.date_to),
+        timezoneU: new UVal(props.timezone)
       }
     }
     static getDerivedStateFromProps(props, state) {
@@ -55,38 +58,99 @@ const Index = (_) => {
       }
     }
     render() {
-      return <div id="filters">
-        <div>
-          <textarea 
-            onChange={ev => this.setState({filterU: new UVal(ev.target.value, false)}) }
-          >{this.state.filterU.value}</textarea>
+      const { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } = require('../Styled')
+      const { InputSelect, MySimpleSelect, ThemedDateRangePicker0 } = require('../common-controls/FormElementsUtils')
+      const { format } = require('d3-format')
+
+      return <div id="sidebar" className="visible">
+        <div id="filters"> 
+          <FormContainer className={ this.props.className }>      
+            <FormSection className="date-filter">
+              <FormTitle>Date Range</FormTitle>
+              <FormRow className='date_picker'>
+                <ThemedDateRangePicker0 
+                  date_from={this.state.date_fromU.value} 
+                  date_to={this.state.date_toU.value} 
+                  onChange={({date_from, date_to}) => this.setState({ 
+                    date_fromU: new UVal(date_from, false),
+                    date_toU: new UVal(date_to, false) 
+                  }) } />
+              </FormRow>
+              <InputSelect className='timezone' name="Timezone" onChange={ timezone => this.setState({ timezoneU: new UVal(timezone, false) }) }
+                value={ this.state.timezoneU.value } options={ 
+                  R.pipe(
+                      R.map(x => (12 - x / 2) )
+                    , R.sortBy(x => x)
+                    , R.map(x => ({value: x, name: `UTC${format("+.1f")(x)}`}))
+                  )(R.range(0, 48)) 
+                } />
+            </FormSection>
+          </FormContainer>
+          <FormSection>
+            <FormTitle>Filters</FormTitle>
+            <textarea 
+              onChange={ev => this.setState({filterU: new UVal(ev.target.value, false)}) }
+            >{this.state.filterU.value}</textarea>
+          </FormSection>
+          <FormSection>
+            <FormTitle>Breakdown</FormTitle>
+            <textarea
+              onChange={ev => this.setState({ breakdownU: new UVal(ev.target.value, false) })}
+            >{this.state.breakdownU.value}</textarea>
+          </FormSection>
+          <FormSection>
+            <Submit
+            onClick={() => {
+              const breakdownStr = PT.continueEither(x => x)(PT.breakdownToQueryStringPath)(P.runBreakdownParser(this.state.breakdownU.value))
+              const filter = PT.continueEither(x => x)(PT.filtersToQueryStringPath)(P.runFilterParser(this.state.filterU.value))
+
+              this.props.history.push(`/sessions/${formatTimezone(this.state.timezoneU.value)}/${this.state.date_fromU.value}/${this.state.date_toU.value}/${filter}/${breakdownStr}`)
+
+              this.props.onChange({url: `/api/v1/sessions/${this.state.timezoneU.value}/${this.state.date_fromU.value}/${this.state.date_toU.value}/${filter}/${breakdownStr}`})
+            }}
+          >GO!</Submit>
+          </FormSection>
         </div>
-        <div>
-          <textarea
-            onChange={ev => this.setState({ breakdownU: new UVal(ev.target.value, false) })}
-          >{this.state.breakdownU.value}</textarea>
-        </div>
-        <button
-          onClick={() => {
-            console.log(PT.continueEither(x => x)(PT.breakdownToJson)(P.runBreakdownParser(this.state.breakdownU.value)))
-          }}
-        >GO!</button>
       </div>
+
     }
   }
+
+  const { get } = require('../../helpers/fetch')
 
   class ViewComponent extends React.Component {
     constructor(props) {
       super(props)
+      this.state = {
+        result: null,
+        error: null,
+        pending: false
+      }
     }
     render() {
       console.log('this.props.match', this.props.match)
       return <div className="main-bottom">
         <div id="sidebar" className="visible">
-          <ControlComponent { ...this.props.match.params } />
+          <ControlComponent 
+            history={ this.props.history } 
+            { ...this.props.match.params } 
+            onChange={({url}) => {
+              this.setState({result: null, error: null, pending: true})
+              get({url})
+                .then(result => this.setState({result, error: null, pending: false}))
+                .catch(error => this.setState({error, pending: false}))
+            }} />
         </div>
         <div id="container" className="default">
-          <pre style={{ marginTop: '100px' }}>${JSON.stringify(this.props, null, 2)}</pre>
+          <pre style={{ marginTop: '100px' }}>{
+            this.state.pending
+              ? 'Wait ...'
+            : !!this.state.error
+              ? this.state.error.toString()
+            : !!this.state.result
+              ? JSON.stringify(this.state.result, null, 2)
+            : 'Pess GO!'
+          }</pre>
         </div>
       </div>
     }

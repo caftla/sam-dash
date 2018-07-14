@@ -6,6 +6,14 @@ const R = require('ramda')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
 const cache = require('./cache')
 const generate_invoice = require('./pdf_generator')
+//
+const md5 = require('md5')
+const QuseryServer = require('../output/Server.QueryServer')
+const QueryTemplateParser = require('../output/Server.QueryTemplateParser')
+const { fromAff } = QuseryServer
+const tolaQueryServer = QuseryServer.connect(process.env.tola_connection_string)()
+const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
+
 
 const app = express();
 app.use(express.static('dist'))
@@ -333,6 +341,57 @@ app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), 
     , x => x
   )
 })
+
+// sessions
+
+app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+    const template = fs.readFileSync('./server/sql-templates/sessions.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseFloat(params.timezone) || 0)(params.from_date)(params.to_date)(template)
+    )()
+    
+    console.log(sql)
+    
+    return fromAff(jewelQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error}))
+
+})
+
+//
+
+// tola
+
+app.get('/api/v1/tola/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+
+    const template = fs.readFileSync('./server/sql-templates/tola.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(0)(params.from_date)(params.to_date)(template)
+    )()
+    
+    console.log(sql)
+    
+    return await fromAff(tolaQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error: error.toString()}))
+
+})
+
+// end of tola
 
 app.use('/*', express.static('dist'))
 

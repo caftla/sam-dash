@@ -27,12 +27,18 @@ newtype AppState = AppState {
 
 main ::  Effect AppState 
 main = do
-  connectionInfo <- lookupEnv "jewel_connection_string" >>= \ m -> case m of
-    Just a -> pure $ PG.connectionInfoFromString a
+  connStr <- lookupEnv "jewel_connection_string" >>= \ m -> case m of
+    Just a -> pure a
     Nothing -> throw "Expected jewel_connection_string ENV variable."
 
-  Console.log "connected"
+  connect connStr
+
+connect :: String → Effect AppState
+connect connStr = do
+  Console.log "connecting ..."
   
+  let connectionInfo = PG.connectionInfoFromString connStr
+
   cache <- new M.empty
   pool <- PG.mkPool connectionInfo
 
