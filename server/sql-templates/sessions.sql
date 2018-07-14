@@ -2,6 +2,7 @@
 {$ select({
   tableAlias: 'us',
   timeColName: 'timestamp',
+  engine: 'Redshift',
   fieldMap: {
       'publisher_id': 'pubid',
       'landing_page': E"substring(us.landing_page_url, 0, charindex('?', us.landing_page_url))"
@@ -37,6 +38,7 @@ left join cpa c on c.cpa_id = ub.cpa_id
 {$ where({
   tableAlias: 'us',
   timeColName: 'timestamp',
+  engine: 'Redshift',
   fieldMap: {
       'publisher_id': 'publid', 
       'landing_page': 'landing_page_url'
