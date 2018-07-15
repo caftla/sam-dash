@@ -1,8 +1,5 @@
 select  
-  --   $[params.f_page('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
-  -- , $[params.f_section('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
-  -- , $[params.f_row('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as row
-us.service_identifier1 as short_code
+ us.service_identifier1 as short_code
 , us.service_identifier2 as keyword
 , us.service_identifier3 as activate_keyword
 , us.timestamp as impression_date
@@ -41,29 +38,10 @@ us.service_identifier1 as short_code
 , us.pixel_fire_response as pixel_response
 , us.rockman_id
 
--- , tr.tariff
--- , tr.timestamp
--- , tr.dnstatus
--- , tr.retry_number
-
--- , pm.event_type                   
--- , pm.element_id
--- , pm.creation_datetime
--- , pm.insert_timestamp 
--- , pm.optout_reason
-
-from user_subscriptions us
--- left join pacman as pm on pm.rockman_id = us.rockman_id
--- left join transactions as tr on tr.rockman_id = us.rockman_id
+from user_sessions us
 
 where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
 
-  -- and tr.timestamp >=  $[params.from_date_tz]$
-  -- and tr.timestamp <  $[params.to_date_tz]$
-
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
--- group by page, section, row
--- order by page, section, row
-
-
+  and sale > 0
