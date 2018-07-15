@@ -32,6 +32,7 @@ module.exports = (params) => {
     , any_leads_ratio: safe_div(x.any_leads, x.views)
     , bad_pixels_ratio: safe_div(x.pixels_for_no_firstbilling + x.pixels_for_resubs, x.pixels)
     , missed_good_pixels_ratios: safe_div(x.missed_good_pixels, x.sales)
+    , cr_premium: safe_div(x.premium_sales, x.premium_sessions)
     // , resubs7_ratio: 1 - safe_div(x.unique_sales, x.non_unique_sales)
   })
   
@@ -47,8 +48,8 @@ module.exports = (params) => {
           , optouts: a.optouts + acc.optouts
           , firstbillings: a.firstbillings + acc.firstbillings
           , resubs: a.resubs + acc.resubs
-          // , non_unique_sales: a.non_unique_sales + acc.non_unique_sales
-          // , unique_sales: a.unique_sales + acc.unique_sales
+          , premium_sessions: a.premium_sessions + acc.premium_sessions
+          , premium_sales: a.premium_sales + acc.premium_sales
           , clicks_or_touches: a.clicks_or_touches + acc.clicks_or_touches
           , lead1s: a.lead1s + acc.lead1s
           , lead2s: a.lead2s + acc.lead2s
@@ -67,8 +68,8 @@ module.exports = (params) => {
           , optouts: 0
           , firstbillings: 0
           , resubs: 0
-          // , non_unique_sales: 0
-          // , unique_sales: 0
+          , premium_sessions: 0
+          , premium_sales: 0
           , clicks_or_touches: 0
           , lead1s: 0
           , lead2s: 0

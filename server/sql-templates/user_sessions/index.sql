@@ -9,6 +9,8 @@ select
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
   , sum(coalesce(c.home_cpa, 0)) :: float as cost
   , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
+  , sum((us.viewport_width > 0 AND us.has_focus and us.is_visible) :: integer) :: float as premium_sessions
+  , sum((us.viewport_width > 0 AND us.has_focus and us.is_visible and us.sale > 0) :: integer) :: float as premium_sales
   , sum(case when us.optout > 0 and date_diff('hours', us.sale_timestamp, us.optout_timestamp) < 24 then 1 else 0 end) :: float as optout_24h
   , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
   , sum(case when us.mouseclick > 0 or us.touch > 0 then 1 else 0 end) :: float as clicks_or_touches
