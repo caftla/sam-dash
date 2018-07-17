@@ -23,7 +23,7 @@ const formatTimezone = d3Format("+.1f")
 const make_path = (params, query) => `/user_sessions/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}${query}`
 
 const breakdown_list = [
-  'affiliate_id', 'publisher_id', 'sub_id', 'sub_id',
+  'affiliate_id', 'publisher_id', 'sub_id',
   'gateway', 'country_code', 'operator_code',
   'handle_name', 'ad_name', 'landing_page',
   'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2',

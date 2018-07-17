@@ -10,7 +10,7 @@ import Data.Generic.Rep.Show (genericShow)
 import Data.Int (toNumber)
 import Data.JSDate (JSDate)
 import Data.JSDate as JSD
-import Data.List (List, filter, intercalate, (:))
+import Data.List (List(..), filter, intercalate, (:))
 import Data.List as L
 import Data.Map (Map)
 import Data.Map as SM
@@ -18,7 +18,7 @@ import Data.Maybe (Maybe(Nothing, Just), fromMaybe, maybe)
 import Data.Monoid (mempty)
 import Data.Ord (abs)
 import Data.String as S
-import Data.Traversable (traverse)
+import Data.Traversable (foldrDefault, sequence, traverse)
 import Data.Tuple (Tuple(..))
 import Effect.Unsafe (unsafePerformEffect)
 import Foreign (F, Foreign, readBoolean, readNullOrUndefined, readNumber, readString, unsafeFromForeign)
@@ -31,35 +31,6 @@ type StrMap a = Map String a
 
 id :: forall x. x -> x
 id x = x
-
-toAscArray :: forall k v. SM.Map k v -> Array (Tuple k v)
-toAscArray = SM.toUnfoldable
-
--- TODO: move ToJSON to its own module
-class ToJSON a where
-  toJson :: a -> J.Json
-
-strMapToJson :: ∀ a. ToJSON a ⇒ Map String a → J.Json
-strMapToJson = J.fromObject <<< Obj.fromFoldable <<< map (\ (Tuple k v) -> Tuple k (toJson v)) <<< toAscArray
-
-listToJson :: forall v. ToJSON v => List (Tuple String v) -> J.Json
-listToJson = J.fromArray <<< A.fromFoldable <<< map (\(Tuple key value) -> 
-    ("key" := key) ~> 
-    ("value" := toJson value) ~> 
-    J.jsonEmptyObject
-  )
-
-breakdownToJson :: Breakdown -> J.Json
-breakdownToJson = listToJson
-
--- filtersToJson :: Filters -> J.Json
--- filtersToJson = J.fromArray <<< map ?filterLangToJson <<< A.fromFoldable
-
-continueEither :: forall a b c. (a -> c) -> (b -> c) -> Either a b -> c
-continueEither  = either
-
-instance toJsonInt :: ToJSON Int where 
-  toJson = J.fromNumber <<< toNumber
 
 --
 
@@ -369,3 +340,60 @@ tryParse :: forall a. F Foreign -> (Foreign -> F a) -> F (Maybe a)
 tryParse v r = v >>= readNullOrUndefined >>= traverse r
 infixl 4 tryParse as ?>>=
 
+----
+-- Helpers for JavaScript
+-- TODO: move this section to its own module
+
+toAscArray :: forall k v. SM.Map k v -> Array (Tuple k v)
+toAscArray = SM.toUnfoldable
+
+class ToJSON a where
+  toJson :: a -> J.Json
+
+strMapToJson :: ∀ a. ToJSON a ⇒ Map String a → J.Json
+strMapToJson = J.fromObject <<< Obj.fromFoldable <<< map (\ (Tuple k v) -> Tuple k (toJson v)) <<< toAscArray
+
+listToJson :: forall v. ToJSON v => List (Tuple String v) -> J.Json
+listToJson = J.fromArray <<< A.fromFoldable <<< map (\(Tuple key value) -> 
+    ("key" := key) ~> 
+    ("value" := toJson value) ~> 
+    J.jsonEmptyObject
+  )
+
+breakdownToJson :: Breakdown -> J.Json
+breakdownToJson = listToJson
+
+-- filtersToJson :: Filters -> J.Json
+-- filtersToJson = J.fromArray <<< map ?filterLangToJson <<< A.fromFoldable
+
+instance toJsonInt :: ToJSON Int where 
+  toJson = J.fromNumber <<< toNumber
+
+continueEither :: forall a b c. (a -> c) -> (b -> c) -> Either a b -> c
+continueEither  = either
+
+bimapEither :: forall a b c d. (a -> c) -> (b -> d) -> Either a b -> Either c d
+bimapEither  = bimap
+
+
+partitionEithers :: forall a b. List (Either a b) -> Tuple (List a) (List b)
+partitionEithers = foldrDefault (either left right) (Tuple mempty mempty)
+ where
+  left  a (Tuple l r) = Tuple (a:l) r
+  right a (Tuple l r) = Tuple l (a:r)
+
+-- |Turn a list of eithers into an either of lists
+concatEithers :: forall a b. List (Either a b) -> Either (List a) (List b)
+concatEithers xs =
+    case partitionEithers xs of 
+      Tuple Nil rs -> Right rs
+      Tuple ls _ -> Left ls
+
+arrayToList :: forall a. Array a -> List a
+arrayToList = L.fromFoldable
+
+listToArray :: forall a. List a -> Array a
+listToArray = A.fromFoldable
+
+sequenceEithers :: forall a b. Array (Either a b) -> Either a (Array b)
+sequenceEithers = sequence
