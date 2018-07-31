@@ -38,10 +38,9 @@ select
 , us.pixel_fire_response as pixel_response
 , us.rockman_id
 
-from user_sessions us
+from user_subscriptions us
 
 where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
 
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
-  and sale > 0
