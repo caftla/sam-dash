@@ -3,7 +3,7 @@ with Pixels as (
 		  ub.country_code
 		, ub.operator_code
     , sum(ub.pixel + ub.delayed_pixel) :: float as pixels
-		, sum(coalesce(ub.home_cpa, 0)) :: float as total
+		, sum(coalesce(c.home_cpa, 0)) :: float as total
     , c.home_cpa as cpa
 
 		from user_subscriptions ub
