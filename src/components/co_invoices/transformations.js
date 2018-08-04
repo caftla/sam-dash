@@ -75,27 +75,30 @@ export const get_summary = (data, timezone) =>
 
 export const get_additional_costs = (data, timezone) =>
   R.pipe(
-    R.groupBy( x => x.country_code)
+    R.groupBy(x => x.additional_pixels_cpa)
   , R.map(R.reduce(
       (acc, a) => ({
         additional_pixels: a.additional_pixels
       , additional_pixels_cpa: a.additional_pixels_cpa
       , timezone: a.timezone
+      , operator_code: a.operator_code
       })
     , {
 
       additional_pixels: 0
       , additional_pixels_cpa: 0
       , timezone: 'Europe/Amsterdam'
+      , operator_code: 'operator code not found, please check addtional cost settings'
     }
   ))
   , R.toPairs
-  , R.map(([country, x]) => ({ country,
+  , R.map(([_, x]) => ({
       additional_pixels: x.additional_pixels
     , additional_pixels_cpa: x.additional_pixels_cpa
     , timezone: x.timezone
+    , operator_code: x.operator_code
   })
-)
+  )
   , R.reject(x => x.timezone == timezone || !x.additional_pixels || x.additional_pixels == 0)
   , R.map(x => R.omit(['timezone'], x))
   )(data)

@@ -55,21 +55,29 @@ export const SummaryTable = ({ data, total_cpa, additional_costs, total_addition
               <tr>
                 <td colSpan={3}>Compensations/Penalties</td>
                 <td colSpan={2}>
-                  <table>
+                  <table id="additional-cost-table">
+                    <colgroup>
+                      <col width="100px" />
+                      <col width="100px" />
+                      <col width="100px" />
+                      <col width="100px" />
+                    </colgroup>
                     <tr style={{backgroundColor: '#f3f3f3', border: '1px solid #f3f3f3'}}>
-                      <TH text={'Country'} />
+                      <TH text={'Operator'} />
                       <TH text={'CPA'} />
                       <TH text={'Sales'} />
+                      <TH text={'Earnings'} />
                     </tr>
                     {additional_costs.map((additional_cost, index) =>
                         <tr>
-                          <TD text={(additional_cost.country)} />            
+                          <TD text={(additional_cost.operator_code)}/>            
                           <TD text={(additional_cost.additional_pixels_cpa)} />
                           <TD text={(additional_cost.additional_pixels)} />
+                          <TD text={'$' + d3.format(',.2f')(additional_cost.additional_pixels_cpa * additional_cost.additional_pixels)} />
                         </tr>
                       )}
                       <tr>
-                        <TH colSpan={2} text={'Total'} />
+                        <TH colSpan={3} text={'Total'} />
                         <TD text={'$' + d3.format(',.2f')(total_additional_cpa)} />
                       </tr>
                     </table>
