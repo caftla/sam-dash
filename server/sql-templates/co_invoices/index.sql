@@ -1,9 +1,9 @@
 with Pixels as (
     select 
-		  ub.country_code
+			ub.country_code
 		, ub.operator_code
-    , sum(ub.pixel + ub.delayed_pixel) :: float as pixels
-		, sum(coalesce(c.home_cpa, 0)) :: float as total
+		, sum(case when ub.pixel > 0 or ub.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
+    , sum(coalesce(c.home_cpa, 0)) :: float as total
     , c.home_cpa as cpa
 
 		from user_subscriptions ub
