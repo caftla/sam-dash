@@ -186,9 +186,10 @@ export default class Controls extends React.Component {
       : ofields
       
     // filter params without control
+    const fields_with_affiliate_id = fields.concat(['affiliate_id'])
     const extra_filter_params = R.pipe(
       R.toPairs
-      , R.filter(([k, v]) => fields.indexOf(k) < 0)
+      , R.filter(([k, v]) => fields_with_affiliate_id.indexOf(k) < 0)
     )(filterToObj(this.props.params.filter))
 
     const affiliate_ids = R.pipe(
@@ -197,15 +198,17 @@ export default class Controls extends React.Component {
       , R.chain(x => x)
       , R.join(';')
     )(this.props.affiliates)
+    
     return R.pipe(
         R.map(k => [k, this.state[k]])
-      , R.concat(extra_filter_params)
+      , R.concat(!affiliate_ids ? [] : [['affiliate_id', affiliate_ids]])
+      , R.unionWith(R.eqBy(R.prop('0')), R.__, extra_filter_params)
       , R.reject(([key, value]) => !value || value == '-')
       , R.map(R.join('='))
       , R.join(',')
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
-    )(fields) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
+    )(fields)
 	}
 
   get_filter_string() {

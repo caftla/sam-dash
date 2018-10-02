@@ -50,6 +50,9 @@ const props_to_params = props => {
   const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))
   const defaultDateTo   = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
   const {params} = props.match
+
+  console.log('params', params)
+
   const { format : d3Format } = require('d3-format')
   const formatTimezone = d3Format("+.1f")
   const query = fromQueryString(props.location.search)

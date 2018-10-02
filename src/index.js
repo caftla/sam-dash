@@ -10,6 +10,13 @@ import createHistory from 'history/createBrowserHistory'
 import { Route, Switch } from 'react-router'
 import { Redirect } from 'react-router'
 import { match } from './adts'
+const PH = require('./Hello.purs')
+const P = require('./QueryDSL/Parser/UrlQueryParser.purs')
+const PT = require('./QueryDSL/Types.purs')
+
+window.P = P
+window.PT = PT
+console.log(PH.sayHello)
 
 import URI from 'urijs'
 
@@ -33,6 +40,7 @@ import Dashboard from './components/Dashboard'
 import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import User_Sessions from './components/user_sessions'
+import Sessions from './components/sessions'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
 import Transactions from './components/transactions'
@@ -139,12 +147,10 @@ function Wrap(WrappedComponent) {
             </ul>
             
             <div id="tabs-area">
-            
-              <a href="/filter_page_section_row/" className={ this.state.route == 'filter_page_section_row' ? 'active' : ''  }>Standard</a>
+          
+              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
 
               <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
-
-              <a href="/user_sessions/" className={this.state.route == 'user_sessions' ? 'active' : ''}>Sessions</a>
 
               <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
               
@@ -200,15 +206,18 @@ const main_bottom = <Provider store={store}>
         <Route exact path="/" component={WrapAndAuth(Home)} />
         <Route exact path="/login" component={Wrap(Login)} />
         <Route exact path="/dashboard" component={WrapAndAuth(Dashboard)} />
-        {/* <Route path="/filter_section_row/:date_from/:date_to/:filter/:section/:row" component={Filter_Section_Row} /> */}
-        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Filter_Page_Section_Row)} />
-        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(Filter_Page_Section_Row)} />
-        <Route exact path="/filter_page_section_row/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Redirect_Filter_Page_Section_Row)} />
+        
+        { /* deprecated  */ }
+        <Route path="/filter_page_section_row/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
+        <Route path="/filter_page_section_row" exact={true} component={WrapAndAuth(User_Sessions)} />
+
         <Route path="/transactions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(Transactions)} />
         <Route path="/transactions" exact={true} component={WrapAndAuth(Transactions)} />
 
         <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
         <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
+
+        <Route path="/sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Sessions)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />

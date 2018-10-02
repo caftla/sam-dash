@@ -82,9 +82,6 @@ class Home extends React.Component {
     const date_to = formatDate(new Date(new Date().valueOf() + 1 * 24 * 3600 * 1000))
     const new_feature_check = getCookie('announce')
 
-    const make_standard_url = params =>
-      `/filter_page_section_row/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
-
     const make_user_sessions_url = params =>
       `/user_sessions/${formatTimezone(timezone)}/${params.date_from}/${params.date_to}/${params.filter}/${params.page}/${params.section}/${params.row}?${params.query}`
 
@@ -111,7 +108,7 @@ class Home extends React.Component {
       }
       ,
       {
-          href: make_standard_url({ date_from, date_to, filter: '-', page: 'country_code', section: 'affiliate_id', row: 'day'
+          href: make_user_sessions_url({ date_from, date_to, filter: '-', page: 'country_code', section: 'affiliate_id', row: 'day'
             , query: make_query(make_sorter('sales', -1, 0, 200), make_sorter('sales', -1, 0, 50), make_sorter('row', -1, 0, 0)) })          
         , label: 'Top affiliates in every country in the past 7 days'
       }

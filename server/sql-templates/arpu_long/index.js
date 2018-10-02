@@ -20,8 +20,8 @@ module.exports = (params) => {
     , active24: safe_div(x.sales - x.optout_24h, x.sales)
     , active: safe_div(x.sales - x.optouts, x.sales)
     , ecpa: safe_div(x.cost, x.sales)
-    , cpa: safe_div(x.cost, x.pixels + x.delayed_pixels)
-    , pixels_ratio: safe_div(x.pixels + x.delayed_pixels, x.sales)
+    , cpa: safe_div(x.cost, x.pixels)
+    , pixels_ratio: safe_div(x.pixels, x.sales)
     , resubs_ratio: safe_div(x.resubs, x.sales)
     , firstbillings_and_active24: safe_div(x.firstbillings && x.optout_24h, x.sales)
 
@@ -49,7 +49,6 @@ module.exports = (params) => {
               cost: a.cost + acc.cost
             , sales: a.sales + acc.sales
             , pixels: a.pixels + acc.pixels
-            , delayed_pixels: a.delayed_pixels + acc.delayed_pixels
             , optout_24h: a.optout_24h + acc.optout_24h
             , optouts: a.optouts + acc.optouts
             , firstbillings: a.firstbillings + acc.firstbillings
@@ -89,7 +88,6 @@ module.exports = (params) => {
             cost: 0
           , sales: 0
           , pixels: 0
-          , delayed_pixels: 0
           , optout_24h: 0
           , optouts: 0
           , firstbillings: 0

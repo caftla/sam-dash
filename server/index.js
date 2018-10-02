@@ -3,11 +3,17 @@ const express = require('express');
 const {query, makeQuery} = require('./sql-api')
 const fs = require('fs')
 const R = require('ramda')
-const query_monthly_reports_operator_code = require('./sql-templates/monthly_reports')
-const query_monthly_reports_gateway = require('./sql-templates/monthly_reports_gateways')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
-const cache = require('./cache')
+const { cache_get, cache_set } = require('./cache')
 const generate_invoice = require('./pdf_generator')
+//
+const md5 = require('md5')
+const QuseryServer = require('../output/Server.QueryServer')
+const QueryTemplateParser = require('../output/Server.QueryTemplateParser')
+const { fromAff } = QuseryServer
+const tolaQueryServer = QuseryServer.connect(process.env.tola_connection_string)()
+const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
+
 
 const app = express();
 app.use(express.static('dist'))
@@ -38,10 +44,14 @@ const connection_strings = {
   , jewel_connection_string: process.env['jewel_connection_string']
 }
 
+const filter_params = params => R.pick(['from_date', 'to_date', 'timezone', 'filter', 'page', 'section', 'row'], params)
+
 const respond = (connection_string: string, sql, params, res, map = x => x) => {
-  return (!!params.cache_buster ? query(connection_string, sql, params) : cache(60*60, query, connection_string, sql, params))
+  return (!!params.cache_buster ? query(connection_string, sql, params) : cache_get(60 * 60, query, connection_string, sql, params))
   .then(x => {
     // console.log(JSON.stringify(x.fields, null, 2))
+    const filtered_params = filter_params(params)
+    cache_set(60 * 60, x, connection_string, sql, filtered_params)
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
     res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))
@@ -159,15 +169,16 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
   )
 })
 
-app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-  respond_helix(
-      fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
-    , params
-    , res
-    , require('./sql-templates/arpu')(params)
-  )
-})
+// deprecated
+// app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+//   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+//   respond_helix(
+//       fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
+//     , params
+//     , res
+//     , require('./sql-templates/arpu')(params)
+//   )
+// })
 
 app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
@@ -275,35 +286,23 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', authenticate(),
   respond_jewel(
       fs.readFileSync('./server/sql-templates/traffic_breakdown/index.sql', 'utf8')
     , params
+    , req
     , res
   )
 })
 
-app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:breakdown', authenticate(), (req, res) => {
+app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
 
-  const helix_connection_string = connection_strings.helix_connection_string
-  const jewel_connection_string = connection_strings.jewel_connection_string
-  if(helix_connection_string == null) {
-    res.status(500)
-    res.end(`Error:\nhelix_connection_string env variable is not provided.`)
-  } else if(jewel_connection_string == null) {
-    res.status(500)
-    res.end(`Error:\njewel_connection_string env variable is not provided.`)
-  } else {
-    const q = req.params.breakdown == 'operator_code' ? query_monthly_reports_operator_code : query_monthly_reports_gateway
-    q(helix_connection_string, jewel_connection_string, params)
-    .then(data => {
-      res.set('Content-Type', 'text/json')
-      res.set('Cache-Control', 'public, max-age=7200')
-      res.json(data)
-    })
-    .catch(ex => {
-      console.error(ex)
-      res.status(500)
-      res.end(ex.toString())
-    })
-  }
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/monthly_reports/index.sql', 'utf8')
+    , params
+    , req
+    , res
+    , require('./sql-templates/monthly_reports')(params)
+  )
+
 })
 
 app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
@@ -332,8 +331,75 @@ app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row'
   }
 })
 
+app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
+  const params = R.merge(req.query, R.merge(req.params, { 
+      filter: filter_to_pipe_syntax(req.params.filter) 
+    , timezone: req.query.timezone || '0'
+  }))
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/monthly_reports/chart.sql', 'utf8')
+    , params
+    , req
+    , res
+    , x => x
+  )
+})
+
+// sessions
+
+app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+    const template = fs.readFileSync('./server/sql-templates/sessions.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseFloat(params.timezone) || 0)(params.from_date)(params.to_date)(template)
+    )()
+    
+    console.log(sql)
+    
+    return fromAff(jewelQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error}))
+
+})
+
+//
+
+// tola
+
+app.get('/api/v1/tola/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+
+    const template = fs.readFileSync('./server/sql-templates/tola.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(0)(params.from_date)(params.to_date)(template)
+    )()
+    
+    console.log(sql)
+    
+    return await fromAff(tolaQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error: error.toString()}))
+
+})
+
+// end of tola
+
 app.use('/*', express.static('dist'))
 
 const port = process.env.PORT || 3081
-app.listen(port)
+const server = app.listen(port)
+server.setTimeout(10 * 60 * 1000)
 console.log(`app started at port ${port}`)

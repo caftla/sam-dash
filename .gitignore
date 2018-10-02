@@ -9,3 +9,7 @@ ahmed-local-start.sh
 temp/
 server/auth/google_config.json
 ecosystem.config.js
+output/
+bower_components/
+.psci_modules
+.psc-ide-port

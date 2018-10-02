@@ -29,15 +29,27 @@ const makeQuery = (query_template: string, params: Object) => {
           param_value == "-" ? 
             `'-'` 
         : ["screen_width", "screen_height"].some(i => i == param_value) ? 
-            `round(${table}.${param_value} / 50) :: Int * 50` : "screen_size" == param_value ? `coalesce(cast(round(us.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')`
+          `round(${table}.${param_value} / 50) :: Int * 50` 
+        : "screen_size" == param_value ? 
+          `coalesce(cast(round(${table}.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(${table}.screen_height/ 50) :: Int * 50 as varchar), 'Unknown')`
         : ["viewport_width", "viewport_height"].some(i => i == param_value) ?
-          `round(${table}.${param_value} / 50) :: Int * 50` : "viewport_size" == param_value ? `coalesce(cast(round(us.viewport_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(us.viewport_height/ 50) :: Int * 50 as varchar), 'Unknown')` 
+          `round(${table}.${param_value} / 50) :: Int * 50` 
+        : "viewport_size" == param_value ? 
+          `coalesce(cast(round(${table}.viewport_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(${table}.viewport_height/ 50) :: Int * 50 as varchar), 'Unknown')` 
         : ["hour", "day", "week", "month"].some(p => p == param_value) ? 
             date_exp 
-        : param_value == "gateway" && (!!options && !!options.fix_gateway) ? 
-            `pg_temp.fix_gateway(${table}.${options.fix_gateway}, ${table}.${day_column})` 
         : param_value == "landing_page" ?
-            `substring(${table}.landing_page_url, 0, charindex('?', ${table}.landing_page_url))`
+            `('http:' || substring(${table}.landing_page_url, (case when ${table}.landing_page_url like 'https%' then 7 else 6 end), charindex('?', ${table}.landing_page_url) - (case when ${table}.landing_page_url like 'https%' then 7 else 6 end)))`
+        : param_value == "gateway" ?
+          `
+            (case 
+              when ${table}.country_code = 'IQ' and (${table}.${param_value} = 'UU' or ${table}.${param_value} = 'DOUBLEU') then 'IQ_DOUBLEU'
+              when ${table}.country_code = 'MY' and (${table}.${param_value} = 'MK' or ${table}.${param_value} = 'MY_MK') then 'MY_MACROKIOSK'
+              when ${table}.country_code = 'TH' and (${table}.${param_value} = 'MK' or ${table}.${param_value} = 'TH_MK') then 'TH_MACROKIOSK'
+              when position('_' in ${table}.${param_value}) < 1 then (${table}.country_code || '_' || (case when LEN(${table}.${param_value}) = 0 then 'Unknwon' else coalesce(${table}.${param_value}, 'Unknown') end))
+              else (case when LEN(${table}.${param_value}) = 0 then 'Unknwon' else coalesce(${table}.${param_value}, 'Unknown') end) 
+            end)
+          `
         : param_value == "hour_of_day" ? 
           `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
         : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`;
@@ -82,6 +94,10 @@ const makeQuery = (query_template: string, params: Object) => {
                               parseFloat(
                                 params.timezone
                               )}', ${table}.timestamp) ) < ${v}`
+                        : k == 'screen_size' ?
+                          `coalesce(cast(round(${table}.screen_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(${table}.screen_height/ 50) :: Int * 50 as varchar), 'Unknown') = '${v}'`
+                        : k == 'viewport_size' ?
+                          `coalesce(cast(round(${table}.viewport_width/ 50) :: Int * 50 as varchar) || 'X' || cast(round(${table}.viewport_height/ 50) :: Int * 50 as varchar), 'Unknown') = '${v}'`
                         : k == 'landing_page'
                           ? `(${table}.landing_page_url LIKE '${addHttp(v)}%') OR (${table}.landing_page_url LIKE '${addHttp(v)}%')`
                         : !!options && !!options.double_quote

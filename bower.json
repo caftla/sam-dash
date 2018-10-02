@@ -1,0 +1,47 @@
+{
+  "name": "purescript-webpack-hmr",
+  "description": "PureScript + Vanilla HMR",
+  "main": "index.js",
+  "authors": [
+    "Jens Krause - jkrause.io"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "PureScript",
+    "Webpack"
+  ],
+  "moduleType": [],
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "purescript-psci-support": "^4.0.0",
+    "purescript-debug": "^4.0.0",
+    "purescript-parsing": "git://github.com/purescript-contrib/purescript-parsing#v5.0.1",
+    "purescript-numbers": "^6.0.0",
+    "purescript-argonaut-core": "^4.0.0",
+    "purescript-ordered-collections": "^1.0.0",
+    "purescript-foreign-generic": "^7.0.0",
+    "purescript-js-date": "^6.0.0",
+    "purescript-foreign": "^5.0.0",
+    "purescript-argonaut": "^4.0.0",
+    "purescript-aff": "^5.0.0",
+    "purescript-refs": "^4.1.0",
+    "purescript-js-timers": "^4.0.0",
+    "purescript-now": "^4.0.0",
+    "purescript-node-postgres": "^5.0.0",
+    "purescript-node-process": "^6.0.0",
+    "purescript-simple-json": "^4.0.0",
+    "purescript-aff-promise": "^2.0.0"
+  },
+  "devDependencies": {},
+  "resolutions": {
+    "purescript-prelude": "^4.0.0"
+  }
+}
