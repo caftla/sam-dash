@@ -61,7 +61,7 @@ module.exports = {
       {
         test: /\.styl$/,
         use: ['css-hot-loader'].concat(ExtractTextPlugin.extract({
-          fallbackLoader: 'style-loader',
+          fallback: 'style-loader',
           loader: ['css-loader', {
               loader: 'stylus-loader',
           }]

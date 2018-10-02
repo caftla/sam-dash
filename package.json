@@ -3,7 +3,7 @@
   "version": "1.1.0",
   "description": "Get started with ES2015, React and Redux. Including Webpack, ESLint, react-router, fetch ...",
   "scripts": {
-    "postinstall": "npm run build",
+    "postinstall": "echo \"npm run build\"",
     "start": "./node_modules/.bin/babel-node -- server/index.js",
     "server": "nodemon --exec ./node_modules/.bin/babel-node -- server/index.js",
     "dev": "npm run server & webpack-dev-server --open --config webpack/webpack.config.dev.js",
