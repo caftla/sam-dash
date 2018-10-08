@@ -118,7 +118,7 @@ class Controls extends React.Component {
         <FormTitle>User Information:</FormTitle>
         <FormRow>
           <input name="MSISDN" id="msisdn-input" placeholder="MSISDN" type="text" value={ this.state.msisdn } 
-          onChange={ e => this.setState({ msisdn: e.target.value.replace(/[^0-9]/g, '') })} />
+          onChange={ e => this.setState({ msisdn: e.target.value }) } />
         </FormRow>
           <p style={ {display: this.state.noMsisdnProvided ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please enter MSISDN to proceed!</p>
         <MySimpleSelect name="Country" onChange={ country_code => this.setState({ 

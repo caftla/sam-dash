@@ -44,3 +44,5 @@ where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
 
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
+
+  order by us.timestamp desc
