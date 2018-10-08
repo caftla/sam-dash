@@ -50,6 +50,9 @@ const makeQuery = (query_template: string, params: Object) => {
               else (case when LEN(${table}.${param_value}) = 0 then 'Unknwon' else coalesce(${table}.${param_value}, 'Unknown') end) 
             end)
           `
+        : param_value == "operator*gateway" ?
+          `coalesce(${table}.operator_code, 'Unknown') || ' * ' || coalesce(${table}.gateway, 'Unknown')`
+
         : param_value == "hour_of_day" ? 
           `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
         : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`;
