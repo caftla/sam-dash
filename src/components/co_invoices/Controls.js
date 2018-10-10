@@ -6,7 +6,7 @@ import type { QueryParams } from 'my-types'
 import { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection } from '../Styled'
 import styled from 'styled-components'
 import stylus from './Controls.styl'
-import { InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
+import { InputMultiSelect, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
 
 
 const { format } = require('d3-format')
@@ -116,7 +116,7 @@ class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Affiliate Information:</FormTitle>
-        <MySimpleSelect name="Affiliate" onChange={ affiliate_name => this.setState({ 
+        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => this.setState({ 
               affiliate_name: affiliate_name }) }
           value={ this.state.affiliate_name } options={ this.props.affiliates.map(x => x.affiliate_name) } required />
           <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select affiliate to proceed!</p>

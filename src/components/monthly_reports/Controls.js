@@ -98,7 +98,7 @@ export default class Controls extends React.Component {
       <FormSection>
         <FormTitle></FormTitle>
         <InputSelect name="Breakdown" onChange={ breakdown => this.setState({ breakdown }) }
-          value={ this.state.breakdown } options={ ['operator_code', 'gateway'] } no_default={ true } />
+          value={ this.state.breakdown } options={ ['operator_code', 'gateway', 'operator*gateway'] } no_default={ true } />
       </FormSection>
       </FilterFormSection>
       <Submit onClick={ _ => {

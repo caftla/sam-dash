@@ -8,7 +8,7 @@ import Tabs from '../common-controls/page_section_rows_tabs'
 // exporting to excel
 const exportToExcel = (formatter, params, pages) => {
 
-  const selected_columns = ['page', 'row', 'views', 'leads', 'sales', 'pixels', 'cr', 'pixels_cr', 'pixels_ratio', 'releads',  'resubs', 'active24', 'cq', 'ecpa', 'cpa',  'cost', 'revenue', 'total', 'billed']
+  const selected_columns = ['page', 'section', 'row', 'views', 'leads', 'sales', 'pixels', 'cr', 'pixels_cr', 'pixels_ratio', 'releads',  'resubs', 'active24', 'cq', 'ecpa', 'cpa',  'cost', 'revenue', 'total', 'billed']
 
   const data = R.pipe(
       R.map(x => R.merge(x, {

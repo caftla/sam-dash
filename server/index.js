@@ -4,7 +4,7 @@ const {query, makeQuery} = require('./sql-api')
 const fs = require('fs')
 const R = require('ramda')
 const query_weekly_reports = require('./sql-templates/weekly_reports')
-const cache = require('./cache')
+const { cache_get, cache_set } = require('./cache')
 const generate_invoice = require('./pdf_generator')
 //
 const md5 = require('md5')
@@ -44,10 +44,14 @@ const connection_strings = {
   , jewel_connection_string: process.env['jewel_connection_string']
 }
 
+const filter_params = params => R.pick(['from_date', 'to_date', 'timezone', 'filter', 'page', 'section', 'row'], params)
+
 const respond = (connection_string: string, sql, params, res, map = x => x) => {
-  return (!!params.cache_buster ? query(connection_string, sql, params) : cache(60*60, query, connection_string, sql, params))
+  return (!!params.cache_buster ? query(connection_string, sql, params) : cache_get(60 * 60, query, connection_string, sql, params))
   .then(x => {
     // console.log(JSON.stringify(x.fields, null, 2))
+    const filtered_params = filter_params(params)
+    cache_set(60 * 60, x, connection_string, sql, filtered_params)
     res.set('Content-Type', 'text/json')
     res.set('Cache-Control', 'public, max-age=7200')
     res.end(JSON.stringify(map(x.length > 0 ? R.prop('rows')(R.find(y => y.rows.length > 0)(x)) : x.rows)))

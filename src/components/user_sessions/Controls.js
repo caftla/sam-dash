@@ -3,11 +3,11 @@
 import React from 'react'
 import R from 'ramda'
 import type { QueryParams } from 'my-types'
-import { Submit, DateField, NumberField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
+import { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FormSectionButtons, FilterFormSection, Select } from '../Styled'
 import styled from 'styled-components'
 import css from '../../../node_modules/react-datetime/css/react-datetime.css'
 import stylus from './Controls.styl'
-import { Input, LabelledInput, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
+import { InputMultiSelect, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
 import BreakdownItem from '../common-controls/BreakdownItem'
 import { get } from '../../helpers'
 const { format } = require('d3-format')
@@ -103,17 +103,13 @@ export default class Controls extends React.Component {
 
     const ifExists = ifExists_(props, filter_params.country_code)
     const params_affiliate_ids = !filter_params.affiliate_id ? [] : R.split(';')(filter_params.affiliate_id)
-    const affiliate_name = ifExists('affiliate_names', 
-      params_affiliate_ids.length == 0 ? '' : R.pipe(
-          x => x[0]
-        , affiliate_id => R.pipe(
-            R.find(x => x.affiliate_ids.some(a => a == affiliate_id))
-          , x => !x ? '' : x.affiliate_name
-        )(props.affiliates)
-      )(params_affiliate_ids)
-    )
 
-    
+    const affiliate_name = params_affiliate_ids.length == 0 ? '' :  R.pipe(
+      affiliate_ids => R.pipe(
+          R.filter(x => x.affiliate_ids.some(a => affiliate_ids.some(i => i == a)))
+        , xs => !xs ? '' : xs.map(x => x.affiliate_name).join(';')
+      )(props.affiliates)
+    )(params_affiliate_ids)
     
     const fix_affiliate_name = breakdown => breakdown == 'affiliate_name' ? 'affiliate_id' : breakdown
 
@@ -193,7 +189,7 @@ export default class Controls extends React.Component {
     )(filterToObj(this.props.params.filter))
 
     const affiliate_ids = R.pipe(
-        R.filter(x => x.affiliate_name == this.state.affiliate_name)
+        R.filter(x => this.state.affiliate_name.split(';').some(a => a == x.affiliate_name))
       , R.map(x => x.affiliate_ids)
       , R.chain(x => x)
       , R.join(';')
@@ -201,14 +197,14 @@ export default class Controls extends React.Component {
     
     return R.pipe(
         R.map(k => [k, this.state[k]])
-      , R.concat(!affiliate_ids ? [] : [['affiliate_id', affiliate_ids]])
+      // , R.concat(!affiliate_ids ? [] : [['affiliate_id', affiliate_ids]])
       , R.unionWith(R.eqBy(R.prop('0')), R.__, extra_filter_params)
       , R.reject(([key, value]) => !value || value == '-')
       , R.map(R.join('='))
       , R.join(',')
       , x => !x ? '-' : x
       , y => y.replace(/\//g, '%2F')
-    )(fields)
+    )(fields) + (!affiliate_ids ? '' : `,affiliate_id=${affiliate_ids}`)
 	}
 
   get_filter_string() {
@@ -227,8 +223,13 @@ export default class Controls extends React.Component {
 
     const breakdown_list = this.props.breakdown_list
 
-    const get_options = (field) => 
-      !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])
+    const get_options = (field) =>  {
+      return !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : R.pipe(
+        R.map(c => get_country_prop_(this.props, c)(field, []))
+      , R.flatten
+      , R.uniq
+      )(this.state.country_code.split(';'))
+    }
     
     const makeLens = p => R.lens(R.prop(p), (a, s) => typeof a != 'undefined' && a != null ? R.merge(s, R.assoc(p)(a, s)) : s)
     const overState = (p, val) => 
@@ -268,23 +269,26 @@ export default class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Filter</FormTitle>
-        <InputSelect name="Country" onChange={ country_code => this.setState({ 
-              country_code: country_code
-            , operator_code: ''
-            , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
-            , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
-          }, () => this.reload_ab_tests()) }
+        <InputMultiSelect name="Country"
+          onChange={ country_code => { 
+            return this.setState({ 
+                country_code: country_code
+              , operator_code: ''
+              , affiliate_name: ifExists_(this.props, country_code)('affiliate_names', this.state.affiliate_name)
+              , handle_name: ifExists_(this.props, country_code)('handle_names', this.state.handle_name)
+            }) } }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
         <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('operator_codes', []) } />
         <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
           value={ this.state.gateway } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('gateways', []) } />
-        <InputSelect name="Affiliate" onChange={ affiliate_name => 
-            this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
+        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => 
+          this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
           }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
         <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
-          value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } />
+          value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } 
+          disable={ this.state.affiliate_name.split(';').length > 1 } />
         <InputSelect name="Ad Name" onChange={ ad_name => this.setState({ ad_name }) }
           value={ this.state.ad_name } options={ get_options('ad_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
