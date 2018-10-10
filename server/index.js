@@ -292,7 +292,10 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', authenticate(),
 })
 
 app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
-  const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
+  const params = R.merge(req.params, { 
+      filter: filter_to_pipe_syntax(req.params.filter)
+    , page: req.params.section == 'gateway' ? 'operator_code' : 'gateway' 
+  })
 
   respond_query_or_result(
       respond_jewel
@@ -304,6 +307,24 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenti
   )
 
 })
+
+
+app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
+  const params = R.merge(req.query, R.merge(req.params, { 
+      filter: filter_to_pipe_syntax(req.params.filter) 
+    , page: req.params.section == 'gateway' ? 'operator_code' : 'gateway' 
+    , timezone: req.query.timezone || '0'
+  }))
+  respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/monthly_reports/chart.sql', 'utf8')
+    , params
+    , req
+    , res
+    , x => x
+  )
+})
+
 
 app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter), timezone: '2' })
@@ -329,21 +350,6 @@ app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row'
       res.end(ex.toString())
     })
   }
-})
-
-app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
-  const params = R.merge(req.query, R.merge(req.params, { 
-      filter: filter_to_pipe_syntax(req.params.filter) 
-    , timezone: req.query.timezone || '0'
-  }))
-  respond_query_or_result(
-      respond_jewel
-    , fs.readFileSync('./server/sql-templates/monthly_reports/chart.sql', 'utf8')
-    , params
-    , req
-    , res
-    , x => x
-  )
 })
 
 // sessions
