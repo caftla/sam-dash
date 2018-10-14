@@ -33,6 +33,8 @@ module.exports = (params) => {
     , bad_pixels_ratio: safe_div(x.pixels_for_no_firstbilling + x.pixels_for_resubs, x.pixels)
     , missed_good_pixels_ratios: safe_div(x.missed_good_pixels, x.sales)
     , cr_premium: safe_div(x.premium_sales, x.premium_sessions)
+    , premium_sessions_ratio: safe_div(x.premium_sessions, x.views)
+    , premium_sales_ratio: safe_div(x.premium_sales, x.sales)
     // , resubs7_ratio: 1 - safe_div(x.unique_sales, x.non_unique_sales)
   })
   

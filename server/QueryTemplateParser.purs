@@ -254,7 +254,7 @@ main =
     Left e -> log $ show e
     Right sql -> log sql
 
--- /sessions/2018-03-01/2018-04-01/country_code:[ar,za,th,my,mx,om,qa],affiliate_id:POM,publisher_id:[]/country_code:(sales:A),operator_code,day:(views:A,[sales:10,views:100])
+-- /sessions/+2.0/2018-10-01/2018-10-15/country_code:(QA,OM),affiliate_id:POM/operator_code,day:(views:A,views:100,sales:10),country_code:(sales:A)
 doTemplate :: forall d. ToSqlDateStr d => String -> String -> Number -> d -> d -> String -> Either ParseError String
 doTemplate filtersStr breakdownStr timezone dateFrom dateTo template = do
   breakdown <- runParser breakdownStr breakdownP
