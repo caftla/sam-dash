@@ -8,7 +8,7 @@ export const Body = styled.div`
   margin: 0;
   padding: 0;
   color: #636363;
-  font-family: Osaka, CONSOLAS, monospace, sans-serif;
+  font-family: 'Roboto Mono', monospace;;
   margin: 0;
   padding: 0;
 `

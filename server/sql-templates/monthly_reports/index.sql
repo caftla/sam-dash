@@ -87,6 +87,7 @@ A as (
   
   select T.*
       , (revenue_week_1  :: float / NULLIF(sales_week_1 , 0):: float) as arpu_week_1 
+      , (revenue_week_2  :: float / NULLIF(sales_week_2 , 0):: float) as arpu_week_2 
       , (revenue_month_1 :: float / NULLIF(sales_month_1, 0) :: float) as arpu_month_1 
       , (revenue_month_2 :: float / NULLIF(sales_month_2, 0) :: float) as arpu_month_2 
       , (revenue_month_3 :: float / NULLIF(sales_month_3, 0) :: float) as arpu_month_3 
@@ -193,6 +194,7 @@ A as (
       RO.revenue
     , RO.optouts
     , A.arpu_week_1
+    , A.arpu_week_2
     , A.arpu_month_1
     , A.arpu_month_2
     , A.arpu_month_3
@@ -220,6 +222,7 @@ A as (
       ROA.revenue
     , ROA.optouts
     , ROA.arpu_week_1
+    , ROA.arpu_week_2
     , ROA.arpu_month_1
     , ROA.arpu_month_2
     , ROA.arpu_month_3
