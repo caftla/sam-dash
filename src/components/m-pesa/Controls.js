@@ -61,7 +61,7 @@ export default class ControlComponent extends React.Component {
       date_toU: new UVal(props.date_to).merge(state.date_toU)
     }
   }
-  go() {
+  go(noCache) {
     let errors = {}
 
     const breakdownStrE = PT.bimapEither(err => {
@@ -83,7 +83,8 @@ export default class ControlComponent extends React.Component {
                         date_from: this.state.date_fromU.value,
                         date_to: this.state.date_toU.value,
                         filter: filter,
-                        breakdown: breakdown
+                        breakdown: breakdown,
+                        noCache: noCache
                       }))
                      (PT.sequenceEithers([breakdownStrE, filterStrE]))
   }
@@ -148,8 +149,11 @@ export default class ControlComponent extends React.Component {
         </FormSection>
         <FormSection>
           <Submit
-          onClick={() => this.go()}
+          onClick={() => this.go(false)}
         >GO!</Submit>
+        <Submit style={{width: '130px'}}
+          onClick={() => this.go(true)}
+        >GO (No Cache)</Submit>
         </FormSection>
       </div>
     </div>

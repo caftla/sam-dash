@@ -160,7 +160,7 @@ export default ({ data, affiliates_mapping }) => {
         columns: dimensionKeys.map(k => dimensions[k]({affiliates_mapping})) //[dimensions.d_day, dimensions.d_affiliate_id]
       },
       {
-        Header: "Info",
+        Header: "Metrics",
         columns: [
           {
             Header: "Views",
@@ -187,8 +187,8 @@ export default ({ data, affiliates_mapping }) => {
           ),
           mkIntervalMetric(
             "Seconds till callback",
-            "avg_mode_first_flow_advance_event_time_for_sales",
-            "mode_first_flow_advance_event_time",
+            "avg_mode_avg_callback_time_for_sales",
+            "mode_avg_callback_time",
             "leads"
           )
         ]

@@ -43,9 +43,9 @@ class ViewComponent extends React.Component {
           history={ this.props.history } 
           { ...this.props.match.params } 
           fetchState={ this.state.fetchState }
-          onChange={({timezone, date_from, date_to, breakdown, filter}) => {
+          onChange={({timezone, date_from, date_to, breakdown, filter, noCache}) => {
             this.props.history.push(`/m-pesa/${formatTimezone(timezone)}/${date_from}/${date_to}/${filter.length == 0 ? '-' : filter}/${breakdown}`)
-            const url = `/api/v1/m-pesa/${timezone}/${date_from}/${date_to}/${filter.length == 0 ? '-' : filter}/${breakdown}`
+            const url = `/api/v1/m-pesa/${timezone}/${date_from}/${date_to}/${filter.length == 0 ? '-' : filter}/${breakdown}${noCache ? `?cache_buster=${new Date().valueOf()}` : ''}`
 
             this.setState({fetchState: fetchState.Loading()})
             get({url})

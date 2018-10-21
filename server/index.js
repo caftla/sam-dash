@@ -392,7 +392,7 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
         QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(0)(params.from_date)(params.to_date)(template)
     )();
 
-    if(!last_REFRESH_tola_leads || new Date().valueOf() - last_REFRESH_tola_leads > (1000 * 60 * 20)) {
+    if(!!req.query.cache_buster || !last_REFRESH_tola_leads || new Date().valueOf() - last_REFRESH_tola_leads > (1000 * 60 * 20)) {
       console.log(`REFRESH MATERIALIZED VIEW tola_leads;`)
       await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(`REFRESH MATERIALIZED VIEW tola_leads;`))()
       last_REFRESH_tola_leads = new Date().valueOf()
