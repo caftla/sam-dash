@@ -85,20 +85,20 @@ export default class Controls extends React.Component {
         <FormTitle>Filter:</FormTitle>
         <InputSelect name="Country" onChange={ country_code => this.setState({ country_code: country_code, operator_code: '' }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } />
-        <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
+        {/* <InputSelect name="Operator" onChange={ operator_code => this.setState({ operator_code }) }
           value={ this.state.operator_code } options={ !this.state.country_code ? [] : get_country_prop('operator_codes') } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name }) }
           value={ this.state.affiliate_name } options={ !this.state.country_code ? get_all_props('affiliate_names') : get_country_prop('affiliate_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ !this.state.country_code ? get_all_props('handle_names') : get_country_prop('handle_names') } />
         <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
-          value={ this.state.gateway } options={ !this.state.country_code ? get_all_props('gateways') : get_country_prop('gateways') } />
+          value={ this.state.gateway } options={ !this.state.country_code ? get_all_props('gateways') : get_country_prop('gateways') } /> */}
         <InputSelect name="Platform" onChange={ platform => this.setState({ platform }) }
           value={ this.state.platform } options={ !this.state.country_code ? get_all_props('platforms') : get_country_prop('platforms') } />
       <FormSection>
         <FormTitle></FormTitle>
         <InputSelect name="Breakdown" onChange={ breakdown => this.setState({ breakdown }) }
-          value={ this.state.breakdown } options={ ['operator_code', 'gateway', 'operator*gateway'] } no_default={ true } />
+          value={ this.state.breakdown } options={ ['operator_code', 'gateway'] } no_default={ true } />
       </FormSection>
       </FilterFormSection>
       <Submit onClick={ _ => {

@@ -75,103 +75,109 @@ class MonthlyReport extends React.Component {
       , cache: "force-cache"}, {cache: "force-cache"}
     ).then(data => {
         
-        const safe_div = (a, b) => 
-            a == 0 && b == 0 ? null
-          : b == 0 ? 'DIV BY ZERO'
-          : a / b
+      const safe_div = (a, b) => 
+          a == 0 && b == 0 ? null
+        : b == 0 ? 'DIV BY ZERO'
+        : a / b
         
-        return  R.pipe(
-              R.groupBy(x => x.section)
-            , R.map(R.map(d => ({
-                d_month: d.d_month
-              , section: d.section
-              , revenue: d.revenue
-              , cost: d.cost
-              , sales: d.sales
-              , resubscribes: d.resubscribes
-              , firstbillings: d.firstbillings
-              , optouts: d.optouts
-              , net_growth: d.sales - d.optouts
-              , tb_revenue: d.tb_revenue
+      const toSection = data => R.pipe(
+            R.groupBy(x => x.section)
+          , R.map(R.map(d => ({
+              d_month: d.d_month
+            , section: d.section
+            , revenue: d.revenue
+            , cost: d.cost
+            , sales: d.sales
+            , resubscribes: d.resubscribes
+            , firstbillings: d.firstbillings
+            , optouts: d.optouts
+            , net_growth: d.sales - d.optouts
+            , tb_revenue: d.tb_revenue
+          
+            , eCPA: safe_div(d.cost, d.sales)
+            , arpu_now: safe_div(d.tb_revenue, d.sales)
+            , arpu_week_1:   safe_div(d.revenue_week_1,   d.sales_week_1)
+            , arpu_week_2:   safe_div(d.revenue_week_2,   d.sales_week_2)
+            , arpu_month_1:  safe_div(d.revenue_month_1,  d.sales_month_1)
+            , arpu_month_2:  safe_div(d.revenue_month_2,  d.sales_month_2)
+            , arpu_month_3:  safe_div(d.revenue_month_3,  d.sales_month_3)
+            , arpu_month_4:  safe_div(d.revenue_month_4,  d.sales_month_4)
+            , arpu_month_5:  safe_div(d.revenue_month_5,  d.sales_month_5)
+            , arpu_month_6:  safe_div(d.revenue_month_6,  d.sales_month_6)
+            , arpu_month_7:  safe_div(d.revenue_month_7,  d.sales_month_7)
+            , arpu_month_8:  safe_div(d.revenue_month_8,  d.sales_month_8)
+            , arpu_month_9:  safe_div(d.revenue_month_9,  d.sales_month_9)
+            , arpu_month_10: safe_div(d.revenue_month_10, d.sales_month_10)
+            , arpu_month_11: safe_div(d.revenue_month_11, d.sales_month_11)
+            , arpu_month_12: safe_div(d.revenue_month_12, d.sales_month_12)
             
-              , eCPA: safe_div(d.cost, d.sales)
-              , arpu_now: safe_div(d.tb_revenue, d.sales)
-              , arpu_week_1:   safe_div(d.revenue_week_1,   d.sales_week_1)
-              , arpu_week_2:   safe_div(d.revenue_week_2,   d.sales_week_2)
-              , arpu_month_1:  safe_div(d.revenue_month_1,  d.sales_month_1)
-              , arpu_month_2:  safe_div(d.revenue_month_2,  d.sales_month_2)
-              , arpu_month_3:  safe_div(d.revenue_month_3,  d.sales_month_3)
-              , arpu_month_4:  safe_div(d.revenue_month_4,  d.sales_month_4)
-              , arpu_month_5:  safe_div(d.revenue_month_5,  d.sales_month_5)
-              , arpu_month_6:  safe_div(d.revenue_month_6,  d.sales_month_6)
-              , arpu_month_7:  safe_div(d.revenue_month_7,  d.sales_month_7)
-              , arpu_month_8:  safe_div(d.revenue_month_8,  d.sales_month_8)
-              , arpu_month_9:  safe_div(d.revenue_month_9,  d.sales_month_9)
-              , arpu_month_10: safe_div(d.revenue_month_10, d.sales_month_10)
-              , arpu_month_11: safe_div(d.revenue_month_11, d.sales_month_11)
-              , arpu_month_12: safe_div(d.revenue_month_12, d.sales_month_12)
-              
-              , revenue_week_1: d.revenue_week_1
-              , revenue_week_2: d.revenue_week_2
-              , revenue_month_1: d.revenue_month_1
-              , revenue_month_2: d.revenue_month_2
-              , revenue_month_3: d.revenue_month_3
-              , revenue_month_4: d.revenue_month_4
-              , revenue_month_5: d.revenue_month_5
-              , revenue_month_6: d.revenue_month_6
-              , revenue_month_7: d.revenue_month_7
-              , revenue_month_8: d.revenue_month_8
-              , revenue_month_9: d.revenue_month_9
-              , revenue_month_10: d.revenue_month_10
-              , revenue_month_11: d.revenue_month_11
-              , revenue_month_12: d.revenue_month_12
-              , sales_week_1: d.sales_week_1
-              , sales_week_2: d.sales_week_2
-              , sales_month_1: d.sales_month_1
-              , sales_month_2: d.sales_month_2
-              , sales_month_3: d.sales_month_3
-              , sales_month_4: d.sales_month_4
-              , sales_month_5: d.sales_month_5
-              , sales_month_6: d.sales_month_6
-              , sales_month_7: d.sales_month_7
-              , sales_month_8: d.sales_month_8
-              , sales_month_9: d.sales_month_9
-              , sales_month_10: d.sales_month_10
-              , sales_month_11: d.sales_month_11
-              , sales_month_12: d.sales_month_12
-              })))
-            , R.toPairs
-            , R.map(([section, data]) => ({
-                section
-              , sales: R.sum(data.map(d => d.sales || 0))
-              , revenue: R.sum(data.map(d => d.revenue || 0))
-              , cost: R.sum(data.map(d => d.cost || 0))
-              , data: R.map(d => R.merge({
-                  arpus: [
-                      ['week' ,  1]
-                    , ['week' ,  2]
-                    , ['month',  1]
-                    , ['month',  2]
-                    , ['month',  3]
-                    , ['month',  4]
-                    , ['month',  5]
-                    , ['month',  6]
-                    , ['month',  7]
-                    , ['month',  8]
-                    , ['month',  9]
-                    , ['month', 10]
-                    , ['month', 11]
-                    , ['month', 12]
-                  ].map(([part, n]) => ({
-                        date: moment(d.d_month).add(n, part).toJSON()
-                      , arpu: d[`arpu_${part}_${n}`]
-                      , base: d[`sales_${part}_${n}`]
-                      , days: moment(d.d_month).add(n, part).diff(moment(d.d_month), 'day')
-                      , breakeven: d[`arpu_${part}_${n}`] >= d.eCPA 
-                  })).filter(a => a.arpu != null)
-                }, d))(data)
-            }))
-        )(data)
+            , revenue_week_1: d.revenue_week_1
+            , revenue_week_2: d.revenue_week_2
+            , revenue_month_1: d.revenue_month_1
+            , revenue_month_2: d.revenue_month_2
+            , revenue_month_3: d.revenue_month_3
+            , revenue_month_4: d.revenue_month_4
+            , revenue_month_5: d.revenue_month_5
+            , revenue_month_6: d.revenue_month_6
+            , revenue_month_7: d.revenue_month_7
+            , revenue_month_8: d.revenue_month_8
+            , revenue_month_9: d.revenue_month_9
+            , revenue_month_10: d.revenue_month_10
+            , revenue_month_11: d.revenue_month_11
+            , revenue_month_12: d.revenue_month_12
+            , sales_week_1: d.sales_week_1
+            , sales_week_2: d.sales_week_2
+            , sales_month_1: d.sales_month_1
+            , sales_month_2: d.sales_month_2
+            , sales_month_3: d.sales_month_3
+            , sales_month_4: d.sales_month_4
+            , sales_month_5: d.sales_month_5
+            , sales_month_6: d.sales_month_6
+            , sales_month_7: d.sales_month_7
+            , sales_month_8: d.sales_month_8
+            , sales_month_9: d.sales_month_9
+            , sales_month_10: d.sales_month_10
+            , sales_month_11: d.sales_month_11
+            , sales_month_12: d.sales_month_12
+            })))
+          , R.toPairs
+          , R.map(([section, data]) => ({
+              section: section
+            , sales: R.sum(data.map(d => d.sales || 0))
+            , revenue: R.sum(data.map(d => d.revenue || 0))
+            , cost: R.sum(data.map(d => d.cost || 0))
+            , data: R.map(d => R.merge({
+                arpus: [
+                    ['week' ,  1]
+                  , ['week' ,  2]
+                  , ['month',  1]
+                  , ['month',  2]
+                  , ['month',  3]
+                  , ['month',  4]
+                  , ['month',  5]
+                  , ['month',  6]
+                  , ['month',  7]
+                  , ['month',  8]
+                  , ['month',  9]
+                  , ['month', 10]
+                  , ['month', 11]
+                  , ['month', 12]
+                ].map(([part, n]) => ({
+                      date: moment(d.d_month).add(n, part).toJSON()
+                    , arpu: d[`arpu_${part}_${n}`]
+                    , base: d[`sales_${part}_${n}`]
+                    , days: moment(d.d_month).add(n, part).diff(moment(d.d_month), 'day')
+                    , breakeven: d[`arpu_${part}_${n}`] >= d.eCPA 
+                })).filter(a => a.arpu != null)
+              }, d))(data)
+          }))
+      )(data)
+      
+      return R.pipe(
+          R.groupBy(x => x.page)
+        , R.toPairs
+        , R.chain(([page, pdata]) => toSection(pdata).map(s => R.merge({page}, s)))
+      )(data)
     })
     .then(chart_data => this.setState({chart_data}))
   }
@@ -219,9 +225,14 @@ class MonthlyReport extends React.Component {
       , Loading: () => <div>Loading...</div>
       , Error: (error) => <div>Error</div>
       , Loaded: (data) => {
+          // const page_data = R.pipe(
+          //     R.map(x => R.merge(x, {page: x.section}))
+          //   , R.sortBy(x => R.pipe(R.map(x => !!x.sales ? x.sales : 0), R.sum, x => x * - 1)(x.data))
+          // )(data)
+
           const page_data = R.pipe(
-              R.map(x => R.merge(x, {page: x.section}))
-            , R.sortBy(x => R.pipe(R.map(x => !!x.sales ? x.sales : 0), R.sum, x => x * - 1)(x.data))
+              R.map(p => R.merge(p, {data: R.sortBy(s => s.sales * -1)(p.data)}))
+            , R.sortBy(p => p.sales * -1)
           )(data)
           
           return <Tabs pages={page_data} params={params}
@@ -229,9 +240,19 @@ class MonthlyReport extends React.Component {
                 onSort={ (field, order) => this.props.sort_row_filter_page_section_row(field, order) }
                 page={ 
                   (args) => {
-                    const chart_data = !this.state.chart_data ? null : this.state.chart_data.find(c => c.section == args.page)
-                    const page_args = {...args, chart_data: chart_data }
-                    return <div><Page { ...page_args } /></div>
+                    return <div>
+                      {
+                        args.data.map((section, i) => {
+                          const chart_data = !this.state.chart_data ? null : this.state.chart_data.find(c => c.page == section.page && c.section == section.section)
+                          const page_args = {...section, chart_data: chart_data}
+                          return <div key={i.toString()} style={{margin: '0 0 4em 0', borderBottom: 'solid 1px gray'}}>
+                            <h3 style={{clear: 'both'}}>{section.section}</h3>
+                            <Page { ...page_args } />
+                          </div>
+                        }
+                        )
+                      }
+                    </div>
                   }
                 }
                 />

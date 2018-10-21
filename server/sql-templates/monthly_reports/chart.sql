@@ -1,6 +1,7 @@
 WITH C as (
   SELECT 
       date_trunc('month', r.timestamp) :: timestamp AT TIME ZONE 0 as d_month
+    , $[params.f_page('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
     , $[params.f_section('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
     , sum(r.home_cpa :: float) as cost
     , count(*) as sales
@@ -42,13 +43,14 @@ WITH C as (
         r."timestamp" >= $[params.from_date_tz]$ 
     and r."timestamp" < $[params.to_date_tz]$ 
     and $[params.f_filter('r', {fieldMap: {'publisher_id': 'pubid'}})]$
-  group by section, d_month
-  order by section, d_month
+  group by page, section, d_month
+  order by page, section, d_month
 ),
 
 R as (
   SELECT 
       date_trunc('month', r.timestamp) :: timestamp AT TIME ZONE 0 as d_month
+    , $[params.f_page('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
     , $[params.f_section('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
     , sum(r.revenue :: float) as revenue
   FROM revenue r
@@ -56,13 +58,14 @@ R as (
         r."timestamp" >= $[params.from_date_tz]$ 
     and r."timestamp" < $[params.to_date_tz]$ 
     and $[params.f_filter('r', {fieldMap: {'publisher_id': 'pubid'}})]$
-  group by section, d_month
-  order by section, d_month
+  group by page, section, d_month
+  order by page, section, d_month
 ), 
 
 O as (
 SELECT 
       date_trunc('month', r.optout_timestamp) :: timestamp AT TIME ZONE 0 as d_month
+    , $[params.f_page('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
     , $[params.f_section('r', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
     , sum(case when r.optout then 1 else 0 end) as optouts
   FROM user_subscriptions r
@@ -70,14 +73,15 @@ SELECT
         r."optout_timestamp" >= $[params.from_date_tz]$ 
     and r."optout_timestamp" < $[params.to_date_tz]$ -- and r.section = 'IQ'
     and $[params.f_filter('r', {fieldMap: {'publisher_id': 'pubid'}})]$
-  group by section, d_month
-  order by section, d_month
+  group by page, section, d_month
+  order by page, section, d_month
 
 ),
 
 T as (
   select 
-      coalesce(R.section, C.section, O.section) as section
+      coalesce(R.page, C.page, O.page) as page
+    , coalesce(R.section, C.section, O.section) as section
     , coalesce(R.d_month, C.d_month, O.d_month) as d_month
     , R.revenue
     , C.cost
@@ -115,13 +119,14 @@ T as (
     , C.sales_month_11
     , C.sales_month_12
   from C 
-  Full outer join R on C.d_month = R.d_month and C.section = R.section 
-  Full outer join O on O.d_month = R.d_month and O.section = R.section 
+  Full outer join R on C.d_month = R.d_month and C.section = R.section and C.page = R.page
+  Full outer join O on O.d_month = R.d_month and O.section = R.section and O.page = R.page
   where (R.revenue > 0 or C.cost > 0)
 )
 
 select
     T.d_month
+  , T.page
   , T.section
   , coalesce(T.revenue, 0) as revenue
   , coalesce(T.cost, 0) as cost
@@ -161,4 +166,4 @@ select
   , coalesce(T.sales_month_11, 0) as sales_month_11
   , coalesce(T.sales_month_12, 0) as  sales_month_12
 from T
-order by section, d_month
+order by page, section, d_month

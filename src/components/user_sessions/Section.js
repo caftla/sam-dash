@@ -90,17 +90,17 @@ export default Section({
       , x => d3.format('0.0f')(100 * x.active)
       , data => d3.format('0.0f')(100 * data.active)
     ),
-    column(
-      show_label_row('P Sessions', 'premium_sessions')
-      , () => onSort('row', 'premium_sessions', 1)
-      , x => d3.format(',.0f')(x.premium_sessions)
-      , data => d3.format(',.0f')(data.premium_sessions)
+    pcolumn(
+      show_label_row('P Sessions', 'premium_sessions_ratio')
+      , () => onSort('row', 'premium_sessions_ratio', 1)
+      , x => d3.format(',.0f')(100 * x.premium_sessions_ratio)
+      , data => d3.format(',.0f')(100 * data.premium_sessions_ratio)
     ),
-    column(
-      show_label_row('P Sales', 'premium_sales')
-      , () => onSort('row', 'premium_sales', 1)
-      , x => d3.format(',.0f')(x.premium_sales)
-      , data => d3.format(',.0f')(data.premium_sales)
+    pcolumn(
+      show_label_row('P Sales', 'premium_sales_ratio')
+      , () => onSort('row', 'premium_sales_ratio', 1)
+      , x => d3.format(',.0f')(100 * x.premium_sales_ratio)
+      , data => d3.format(',.0f')(100 * data.premium_sales_ratio)
     ),
     pcolumn(
       show_label_row('P CR', 'cr_premium')

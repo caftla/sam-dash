@@ -138,7 +138,7 @@ class Chart extends React.Component {
           gridcolor: "transparent",
           zerolinecolor: "transparent"
         },
-        height: 400
+        height: 360
       };
 
       // return
@@ -177,7 +177,7 @@ class Chart extends React.Component {
   }
 
   render() {
-    return <div style={ { width: '1200px', height: '400px' } } ref='el' />
+    return <div style={ { width: '1200px', height: '360px' } } ref='el' />
   }
 
 }

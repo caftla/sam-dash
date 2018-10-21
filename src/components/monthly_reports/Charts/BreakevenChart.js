@@ -44,7 +44,7 @@ export default class Chart extends React.Component {
         x: chartData.map((d, i) => d.row),
         y: chartData.map(d => d.breakeven),
         type: "scatter",
-        mode: 'lines',
+        // mode: 'lines',
         line: {
           color: "green",
           width: 3
@@ -111,7 +111,7 @@ export default class Chart extends React.Component {
           zerolinecolor: "transparent",
           tickformat: '%'
         },
-        height: 250
+        height: 230
       };
 
       // return
@@ -150,7 +150,7 @@ export default class Chart extends React.Component {
   }
 
   render() {
-    return <div style={{ width: '1200px', height: '250px' }} ref='el' />
+    return <div style={{ width: '1200px', height: '230px' }} ref='el' />
   }
 
 }

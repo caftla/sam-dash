@@ -1,6 +1,6 @@
 With R as (
   select
-      d.country_code
+      $[params.f_page('d', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
     , $[params.f_section('d', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
     , extract('year' from date_trunc('month', d.timestamp)) as year_code
     , extract('month' from date_trunc('month', d.timestamp)) as month_code
@@ -9,13 +9,13 @@ With R as (
   where d.timestamp >= '$from_date$'
     and d.timestamp < '$to_date$'
     and $[params.f_filter('d', {fieldMap: {'publisher_id': 'pubid'}})]$
-  group by country_code, section, year_code, month_code
-  order by country_code, section, year_code, month_code
+  group by page, section, year_code, month_code
+  order by page, section, year_code, month_code
 )
 , O as (
 
   select
-      d.country_code
+      $[params.f_page('d', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
     , $[params.f_section('d', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
     , extract('year' from date_trunc('month', d.optout_timestamp)) as year_code
     , extract('month' from date_trunc('month', d.optout_timestamp)) as month_code
@@ -24,15 +24,15 @@ With R as (
   where d.optout_timestamp >= '$from_date$'
     and d.optout_timestamp < '$to_date$'
     and $[params.f_filter('d', {fieldMap: {'publisher_id': 'pubid'}})]$
-  group by country_code, section, year_code, month_code
-  order by country_code, section, year_code, month_code
+  group by page, section, year_code, month_code
+  order by page, section, year_code, month_code
 
 ),
 
 A as (
   with T AS (
     select
-        us.country_code
+        $[params.f_page('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
       , $[params.f_section('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
       , extract('year' from date_trunc('month', us.sale_timestamp)) as year_code
       , extract('month' from date_trunc('month', us.sale_timestamp)) as month_code
@@ -81,12 +81,13 @@ A as (
     where us.sale_timestamp >= '$from_date$'
       and us.sale_timestamp < '$to_date$'
       and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
-    group by country_code, section, year_code, month_code
-    order by country_code, section, year_code, month_code
+    group by page, section, year_code, month_code
+    order by page, section, year_code, month_code
   )
   
   select T.*
       , (revenue_week_1  :: float / NULLIF(sales_week_1 , 0):: float) as arpu_week_1 
+      , (revenue_week_2  :: float / NULLIF(sales_week_2 , 0):: float) as arpu_week_2 
       , (revenue_month_1 :: float / NULLIF(sales_month_1, 0) :: float) as arpu_month_1 
       , (revenue_month_2 :: float / NULLIF(sales_month_2, 0) :: float) as arpu_month_2 
       , (revenue_month_3 :: float / NULLIF(sales_month_3, 0) :: float) as arpu_month_3 
@@ -94,7 +95,7 @@ A as (
 
 
   order by 
-      country_code
+      page
     , section
     , year_code
     , month_code
@@ -104,7 +105,7 @@ A as (
 , B as (
 
   SELECT
-      country_code
+      page
     , section
     , extract('year' from start_of_month) as year_code
     , extract('month' from start_of_month) as month_code
@@ -116,7 +117,7 @@ A as (
     , SUM(msg_refunded) AS msg_refunded
   FROM (
     SELECT
-        t.country_code AS country_code
+        $[params.f_page('t', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
       , $[params.f_section('t', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
       , date_trunc('month', t.timestamp) as start_of_month
       , COUNT(*) msg_sent
@@ -133,14 +134,14 @@ A as (
       AND t.rockman_id IS NOT NULL
       and $[params.f_filter('t', {fieldMap: {'publisher_id': 'pubid'}})]$
     GROUP BY
-      t.country_code,
+      page,
       section,
       start_of_month
 
     UNION ALL
 
     SELECT
-        t.country_code AS country_code
+        $[params.f_page('t', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as page
       , $[params.f_section('t', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as section
       , date_trunc('month', t.timestamp) as start_of_month
       , COUNT(*) msg_sent
@@ -156,18 +157,18 @@ A as (
       and t.timestamp < '$to_date$'
       and $[params.f_filter('t', {fieldMap: {'publisher_id': 'pubid'}})]$
     GROUP BY
-      t.country_code,
+      page,
       section,
       start_of_month
   )
   GROUP BY
-    country_code,
+    page,
     section,
     year_code,
     month_code
 
   order by 
-      country_code
+      page
     , section
     , year_code
     , month_code
@@ -178,12 +179,12 @@ A as (
   select
         R.revenue
       , O.optouts
-      , COALESCE(R.country_code, O.country_code) as country_code
+      , COALESCE(R.page, O.page) as page
       , COALESCE(R.section, O.section) as section
       , COALESCE(R.year_code, O.year_code) as year_code
       , COALESCE(R.month_code, O.month_code) as month_code
   from R full join O
-    on R.country_code  = O.country_code
+    on R.page  = O.page
    and R.section = O.section
    and R.year_code     = O.year_code
    and R.month_code    = O.month_code
@@ -193,6 +194,7 @@ A as (
       RO.revenue
     , RO.optouts
     , A.arpu_week_1
+    , A.arpu_week_2
     , A.arpu_month_1
     , A.arpu_month_2
     , A.arpu_month_3
@@ -202,13 +204,13 @@ A as (
     , A.cost
     , A.optout_24h
     , A.resubs
-    , COALESCE(RO.country_code, A.country_code) as country_code
+    , COALESCE(RO.page, A.page) as page
     , COALESCE(RO.section, A.section) as section
     , COALESCE(RO.year_code, A.year_code) as year_code
     , COALESCE(RO.month_code, A.month_code) as month_code
     
   from RO full join A 
-    on RO.country_code  = A.country_code
+    on RO.page  = A.page
   and RO.section = A.section
   and RO.year_code     = A.year_code
   and RO.month_code    = A.month_code
@@ -220,6 +222,7 @@ A as (
       ROA.revenue
     , ROA.optouts
     , ROA.arpu_week_1
+    , ROA.arpu_week_2
     , ROA.arpu_month_1
     , ROA.arpu_month_2
     , ROA.arpu_month_3
@@ -235,18 +238,18 @@ A as (
     , B.msg_pending
     , B.msg_undefined
     , B.msg_refunded
-    , COALESCE(ROA.country_code, B.country_code) as country_code
+    , COALESCE(ROA.page, B.page) as page
     , COALESCE(ROA.section, B.section) as section
     , COALESCE(ROA.year_code, B.year_code) as year_code
     , COALESCE(ROA.month_code, B.month_code) as month_code
     
   from ROA full join B
-    on ROA.country_code = B.country_code
+    on ROA.page = B.page
   and ROA.section = B.section
   and ROA.year_code     = B.year_code
   and ROA.month_code    = B.month_code
 
-  order by  COALESCE(ROA.country_code, B.country_code)
+  order by  COALESCE(ROA.page, B.page)
           , COALESCE(ROA.section, B.section)
           , COALESCE(ROA.year_code, B.year_code)
           , COALESCE(ROA.month_code, B.month_code)

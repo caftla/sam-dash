@@ -27,6 +27,8 @@ const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
 `
 
+const breakdown_list = R.uniq([ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'gateway', 'operator*gateway', 'handle_name', 'ad_name', 'scenario_name', 'get_sub_method', 'product_type', 'service_identifier1', 'service_identifier2', 'tariff', 'os_name', 'os_version', 'os_version1', 'brand_name', 'model_name', 'browser_name', 'browser_version', 'browser_version1', 'browser_language', 'browser_languages', 'webview_app', 'device_class', 'hour', 'day', 'week', 'month'])
+
 type ControlsProps = {
     params: QueryParams
   , countries: Array<any>
@@ -181,8 +183,6 @@ export default class Controls extends React.Component {
     const {countries, affiliates} = this.props
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
-
-    const breakdown_list = [ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'gateway', 'operator*gateway', 'handle_name', 'ad_name', 'scenario_name', 'get_sub_method', 'product_type', 'service_identifier1', 'service_identifier2', 'tariff', 'os_name', 'os_version', 'os_version1', 'brand_name', 'model_name', 'browser_name', 'browser_version', 'browser_version1', 'browser_language', 'browser_languages', 'webview_app', 'device_class', 'hour', 'day', 'week', 'month']
 
     const get_options = (field) => 
       !this.state.country_code || this.state.country_code == '-' ? get_all_props(field) : get_country_prop(field, [])

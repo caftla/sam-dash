@@ -15,6 +15,3 @@ export const TABLE = ({children, ...props}) =>
   <table {...props} className={"main-table " + props.className || '' } style={ { width: '100%', backgroundColor: 'white', padding: '20px', fontSize: '14px', color: '#1e1e1e', ...(props.style || {}) } } cellSpacing="0" cellPadding="0">
     { children }
   </table>
-
-  /* <table style={ { width: `${props.width}px`, backgroundColor: 'white', marginBottom: '2em', color: 'black', fontFamily: 'Osaka, CONSOLAS, monospace', ...(props.style || {}) } } cellSpacing="0" cellPadding="0">
-    { props.children }*/
