@@ -41,6 +41,7 @@ import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import User_Sessions from './components/user_sessions'
 import Sessions from './components/sessions'
+import MPesa from './components/m-pesa'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
 import Transactions from './components/transactions'
@@ -164,6 +165,8 @@ function Wrap(WrappedComponent) {
 
               <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
 
+              <a href="/m-pesa/" className={ this.state.route == 'm-pesa' ? 'active' : ''  }>M-Pesa</a>
+
 
             </div>
             
@@ -218,6 +221,8 @@ const main_bottom = <Provider store={store}>
         <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
 
         <Route path="/sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Sessions)} />
+        <Route path="/m-pesa/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MPesa)} />
+        <Route path="/m-pesa" component={WrapAndAuth(MPesa)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />

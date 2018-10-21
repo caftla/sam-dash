@@ -11,7 +11,7 @@ const md5 = require('md5')
 const QuseryServer = require('../output/Server.QueryServer')
 const QueryTemplateParser = require('../output/Server.QueryTemplateParser')
 const { fromAff } = QuseryServer
-const tolaQueryServer = QuseryServer.connect(process.env.tola_connection_string)()
+const tolaQueryServer = QuseryServer.connect(process.env.osui_connection_string)()
 const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
 
 
@@ -373,7 +373,9 @@ app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (re
 
 // tola
 
-app.get('/api/v1/tola/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+var last_REFRESH_tola_leads = null;
+
+app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
   const params = req.params
 
   const go = async () => {
@@ -382,7 +384,13 @@ app.get('/api/v1/tola/:timezone/:from_date/:to_date/:filter/:breakdown', (req, r
 
     const sql = await fromAff(
         QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(0)(params.from_date)(params.to_date)(template)
-    )()
+    )();
+
+    if(!last_REFRESH_tola_leads || new Date().valueOf() - last_REFRESH_tola_leads > (1000 * 60 * 20)) {
+      console.log(`REFRESH MATERIALIZED VIEW tola_leads;`)
+      await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(`REFRESH MATERIALIZED VIEW tola_leads;`))()
+      last_REFRESH_tola_leads = new Date().valueOf()
+    }
     
     console.log(sql)
     
