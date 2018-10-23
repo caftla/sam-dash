@@ -1,19 +1,20 @@
 module Query.Parser.UrlQueryParser where
-import Query.Parser.Utils (emptyPropTuple, list, listFlex, propTuple, queryParser, strMap, tuple)
-import Prelude (class Category, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>))
-import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), ValuesFilter, emptyBreakdownDetails)
+import Data.List
+
 import Control.Alternative ((<|>))
 import Data.Bifunctor (bimap)
 import Data.Either (Either)
 import Data.Identity (Identity)
 import Data.Int (toNumber)
+import Data.Map as M
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Tuple (Tuple(..), uncurry)
+import Prelude (class Category, bind, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>))
+import Query.Parser.Utils (emptyPropTuple, list, listFlex, propTuple, queryParser, strMap, tuple)
+import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), SqlCol(..), ValuesFilter, emptyBreakdownDetails)
 import Text.Parsing.Parser (ParseError, ParserT, runParser)
 import Text.Parsing.Parser.Combinators (notFollowedBy, try)
 import Text.Parsing.Parser.String (eof, string)
-import Data.List 
-import Data.Map as M
 
 -- -- Parses '"a: 2, b: hello"'
 -- filtersP :: ParserT String Identity (SM.StrMap String)
@@ -38,8 +39,18 @@ breakdownSortAndValuesP = map toDetails $ map (bimap Just Just) (try $ tuple sor
 
 -- Parses "country_code:(sales:A),operator_code,date:(views:A,[sales:10,views:100])"
 breakdownP :: ParserT String Identity Breakdown
-breakdownP = listFlex (emptyPropTuple queryParser.identifier (try breakdownSortAndValuesP <|> pure emptyBreakdownDetails) emptyBreakdownDetails) <* eof
+breakdownP = -- listFlex (emptyPropTuple sqlColP (pure emptyBreakdownDetails) emptyBreakdownDetails) <* eof
+  listFlex (emptyPropTuple sqlColP (try breakdownSortAndValuesP <|> pure emptyBreakdownDetails) emptyBreakdownDetails) <* eof
 
+
+sqlColP :: ParserT String Identity SqlCol
+sqlColP = try parseJSONCol <|> parseNormalCol where
+  parseJSONCol = do
+    col <- queryParser.identifier
+    _   <- queryParser.dot
+    fld <- queryParser.identifier
+    pure $ SqlColJSON {colName: col, jsonField: fld}
+  parseNormalCol = SqlColNormal <$> queryParser.identifier
 ---
 
 filterValP :: Boolean -> ParserT String Identity FilterVal
@@ -80,7 +91,7 @@ filtersP :: ParserT String Identity Filters
 filtersP = (string "-" *> pure M.empty) <|> strMap filterLangP
 
 
-runBreakdownParser :: String → Either ParseError (List (Tuple String BreakdownDetails))
+runBreakdownParser :: String → Either ParseError (List (Tuple SqlCol BreakdownDetails))
 runBreakdownParser s = runParser s breakdownP
 
 runFilterParser :: String → Either ParseError (StrMap FilterLang)

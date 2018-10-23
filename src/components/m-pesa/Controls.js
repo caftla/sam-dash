@@ -63,7 +63,7 @@ export default class ControlComponent extends React.Component {
   }
   go(noCache) {
     let errors = {}
-
+    
     const breakdownStrE = PT.bimapEither(err => {
                               errors = {...errors, breakdown: err}
                             })

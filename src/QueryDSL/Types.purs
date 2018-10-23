@@ -1,11 +1,14 @@
 module Query.Types where
 import Data.Either
+import Data.Eq
 
 import Data.Argonaut ((:=), (~>))
 import Data.Argonaut.Core as J
 import Data.Array as A
 import Data.Bifunctor (bimap)
 import Data.Generic.Rep (class Generic)
+import Data.Generic.Rep.Eq (genericEq)
+import Data.Generic.Rep.Ord (class GenericOrd, genericCompare)
 import Data.Generic.Rep.Show (genericShow)
 import Data.Int (toNumber)
 import Data.JSDate (JSDate)
@@ -16,7 +19,7 @@ import Data.Map (Map)
 import Data.Map as SM
 import Data.Maybe (Maybe(Nothing, Just), fromMaybe, maybe)
 import Data.Monoid (mempty)
-import Data.Ord (abs)
+import Data.Ord (Ordering(..), abs, compare)
 import Data.String as S
 import Data.Traversable (foldrDefault, sequence, traverse)
 import Data.Tuple (Tuple(..))
@@ -26,8 +29,8 @@ import Foreign.Index ((!))
 import Foreign.Object as Obj
 import Prelude (class Ord, class Ring, class Semiring, class Show, append, bind, map, negate, not, pure, show, zero, ($), (*), (<$>), (<<<), (<>), (==), (>), (>=), (>>=), ($>))
 
-
 type StrMap a = Map String a
+type SqlColMap a = Map SqlCol a
 
 id :: forall x. x -> x
 id x = x
@@ -37,6 +40,22 @@ id x = x
 class ToQueryPathString a where
   toQueryPathString :: a -> String
    
+--
+
+data SqlCol = SqlColNormal String | SqlColJSON {colName :: String, jsonField :: String}
+derive instance genericSqlCol :: Generic SqlCol _
+instance showSqlCol :: Show SqlCol where
+  show = genericShow
+instance eqSqlCol :: Eq SqlCol where
+  eq = genericEq
+instance ordSqlCol :: Ord SqlCol where
+  compare (SqlColNormal a) (SqlColNormal b) = compare a b
+  compare (SqlColNormal a) (SqlColJSON b) = compare a (b.colName <> b.jsonField)
+  compare (SqlColJSON a) (SqlColJSON b) = compare (a.colName <> a.jsonField) (b.colName <> b.jsonField)
+  compare a b = compare b a
+
+
+
 strMapToQueryPathString :: forall a. (a -> String) -> StrMap a -> String 
 strMapToQueryPathString f = 
   A.intercalate "," 
@@ -45,6 +64,19 @@ strMapToQueryPathString f =
   <<< SM.foldSubmap Nothing Nothing (\key val -> L.singleton (key `appif` f val))
   where
   appif a b = if S.length b > 0 then a <> ":" <> b else a
+
+sqlColMapToQueryPathString :: forall a. (a -> String) -> SqlColMap a -> String 
+sqlColMapToQueryPathString f = 
+  A.intercalate "," 
+  <<< A.reverse
+  <<< A.fromFoldable 
+  <<< SM.foldSubmap Nothing Nothing (\key val -> L.singleton (key `appif` f val))
+  where
+  appif a b = 
+    if S.length b > 0 then  a' <> ":" <> b else a' where
+    a' = case a of
+      SqlColNormal c -> c
+      SqlColJSON c -> c.colName <> "." <> c.jsonField
 
 prependToAll :: forall a. a -> List a -> List a
 prependToAll sep (x : xs) = sep : x : prependToAll sep xs
@@ -97,16 +129,16 @@ instance toJsonBreakdownDetails :: ToJSON BreakdownDetails where
 emptyBreakdownDetails :: BreakdownDetails
 emptyBreakdownDetails = BreakdownDetails { sort: Nothing, valuesFilter: Nothing }
 
-type Breakdown = List (Tuple String BreakdownDetails)
+type Breakdown = List (Tuple SqlCol BreakdownDetails)
 
 breakdownToQueryStringPath :: Breakdown -> String
 breakdownToQueryStringPath = toQueryPathString
 
-instance toQueryPathStringBreakdown :: ToQueryPathString (List (Tuple String BreakdownDetails)) where
+instance toQueryPathStringBreakdown :: ToQueryPathString (List (Tuple SqlCol BreakdownDetails)) where
   toQueryPathString = toQueryPathString <<< SM.fromFoldable
 
-instance toQueryPathStringBreakdown1 :: ToQueryPathString (Map String BreakdownDetails) where
-  toQueryPathString = strMapToQueryPathString breakdownToStr
+instance toQueryPathStringBreakdown1 :: ToQueryPathString (Map SqlCol BreakdownDetails) where
+  toQueryPathString = sqlColMapToQueryPathString breakdownToStr
     where
       breakdownToStr :: BreakdownDetails -> String
       breakdownToStr (BreakdownDetails det) = 
@@ -237,9 +269,13 @@ readQueryOptions value = do
 
 breakdownToSqlSelect :: forall d. String -> QueryParams d -> QueryOptions -> String
 breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) = 
-  "  " <> (intercalate newLine $ map (\(Tuple k _) -> (if q.casted then (alias' <<< dimension) else defaultCast) k) $ p.breakdown)
+  "  " <> (intercalate newLine $ map (\(Tuple k _) -> (if q.casted then (alias' <<< dimension) else toSqlFieldIdentifier) k) $ p.breakdown)
   where
     alias' = alias options
+
+    toSqlFieldIdentifier :: SqlCol -> String
+    toSqlFieldIdentifier (SqlColNormal c) = defaultCast c
+    toSqlFieldIdentifier col@(SqlColJSON c) = c.colName <> "->>" <> "'" <> c.jsonField <> "'" <> " as " <> dimension col
 
     defaultCast :: String -> String
     defaultCast c = as c $ go c where
@@ -254,7 +290,9 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
           Expr col' -> col'
 
 
-      as col expr = expr <> " as " <> dimension col
+      as col expr = expr <> " as " <> dimension' col
+
+      dimension' c = "d_" <> c
       --TODO: definition of timeDim must depend on configuration (context: redshift vs standard postgresql)
       timeDim dim = case q.engine of 
         Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
@@ -280,8 +318,10 @@ joinDimensionsToSqlJoin indent params@(QueryParams p) qLeft qRight =
   where
     newLine = "\n" <> indent <> "AND "
 
-dimension :: String -> String
-dimension col = "d_" <> col
+dimension :: SqlCol -> String
+dimension col = "d_" <> go col where
+  go (SqlColNormal c) = c
+  go (SqlColJSON c) = c.colName <> "_" <> c.jsonField
 
 
 filtersToSqlWhere :: forall d. ToSqlDateStr d => String -> QueryParams d -> QueryOptions -> String
@@ -353,12 +393,15 @@ class ToJSON a where
 strMapToJson :: ∀ a. ToJSON a ⇒ Map String a → J.Json
 strMapToJson = J.fromObject <<< Obj.fromFoldable <<< map (\ (Tuple k v) -> Tuple k (toJson v)) <<< toAscArray
 
-listToJson :: forall v. ToJSON v => List (Tuple String v) -> J.Json
+listToJson :: forall v. ToJSON v => List (Tuple SqlCol v) -> J.Json
 listToJson = J.fromArray <<< A.fromFoldable <<< map (\(Tuple key value) -> 
-    ("key" := key) ~> 
+    ("key" := sqlColToPath key) ~> 
     ("value" := toJson value) ~> 
     J.jsonEmptyObject
   )
+  where
+  sqlColToPath (SqlColNormal a) = a
+  sqlColToPath (SqlColJSON a) = a.colName <> "." <> a.jsonField
 
 breakdownToJson :: Breakdown -> J.Json
 breakdownToJson = listToJson

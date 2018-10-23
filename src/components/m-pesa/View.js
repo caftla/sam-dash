@@ -4,6 +4,31 @@ import "react-table/react-table.css";
 import "./View.css"
 const d3 = require('d3-format')
 
+const mkArbitraryDimension = (field, {name} = {}) => () => ({
+  Header: name || R.pipe(
+    R.split('_')
+  , R.drop(1)
+  , R.join('_')
+  )(field),
+  id: field,
+  accessor: d => d[field],
+  filterable: !true,
+  aggregate: values => R.uniq(values),
+  width: 120,
+  Aggregated: (d, rows) => {
+    return (
+      <span onClick={() => console.log(d, rows)}>
+        {`Σ (${
+          R.pipe(
+            R.flatten,
+            R.uniq
+          )(d.value).length
+          }) `}
+      </span>
+    );
+  }
+})
+
 const dimensions = {
   d_day: () => ({
     Header: "Day",
@@ -57,6 +82,26 @@ const dimensions = {
     PivotValue: ({ value }) => affiliates_mapping[value],
     Cell: ({ value }) => affiliates_mapping[value],
     width: 140,
+    Aggregated: (d, rows) => {
+      return (
+        <span onClick={() => console.log(d, rows)}>
+          {`Σ (${
+            R.pipe(
+              R.flatten,
+              R.uniq
+            )(d.value).length
+            }) `}
+        </span>
+      );
+    }
+  }),
+  d_page: () => ({
+    Header: "Page",
+    id: "d_page",
+    accessor: d => d.d_page,
+    filterable: !true,
+    aggregate: values => R.uniq(values),
+    width: 120,
     Aggregated: (d, rows) => {
       return (
         <span onClick={() => console.log(d, rows)}>
@@ -157,7 +202,7 @@ export default ({ data, affiliates_mapping }) => {
     columns={[
       {
         Header: "Dimensions",
-        columns: dimensionKeys.map(k => dimensions[k]({affiliates_mapping})) //[dimensions.d_day, dimensions.d_affiliate_id]
+        columns: dimensionKeys.map(k => (dimensions[k] || mkArbitraryDimension(k))({affiliates_mapping})) //[dimensions.d_day, dimensions.d_affiliate_id]
       },
       {
         Header: "Metrics",

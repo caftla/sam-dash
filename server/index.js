@@ -389,7 +389,7 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
     const template = fs.readFileSync('./server/sql-templates/tola.sql', 'utf8')
 
     const sql = await fromAff(
-        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(0)(params.from_date)(params.to_date)(template)
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseInt(params.timezone))(params.from_date)(params.to_date)(template)
     )();
 
     if(!!req.query.cache_buster || !last_REFRESH_tola_leads || new Date().valueOf() - last_REFRESH_tola_leads > (1000 * 60 * 20)) {
