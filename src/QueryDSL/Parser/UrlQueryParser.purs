@@ -10,8 +10,8 @@ import Data.Map as M
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Tuple (Tuple(..), uncurry)
 import Prelude (class Category, bind, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>))
-import Query.Parser.Utils (emptyPropTuple, list, listFlex, propTuple, queryParser, strMap, tuple)
-import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), SqlCol(..), ValuesFilter, emptyBreakdownDetails)
+import Query.Parser.Utils (emptyPropTuple, kvMap, list, listFlex, propTuple, queryParser, strMap, tuple)
+import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), SqlCol(..), ValuesFilter, SqlColMap, emptyBreakdownDetails)
 import Text.Parsing.Parser (ParseError, ParserT, runParser)
 import Text.Parsing.Parser.Combinators (notFollowedBy, try)
 import Text.Parsing.Parser.String (eof, string)
@@ -88,13 +88,13 @@ filterLangP =
   <|> FilterEq <$> (filterValP true)
 
 filtersP :: ParserT String Identity Filters
-filtersP = (string "-" *> pure M.empty) <|> strMap filterLangP
+filtersP = (string "-" *> pure M.empty) <|> kvMap sqlColP filterLangP
 
 
 runBreakdownParser :: String → Either ParseError (List (Tuple SqlCol BreakdownDetails))
 runBreakdownParser s = runParser s breakdownP
 
-runFilterParser :: String → Either ParseError (StrMap FilterLang)
+runFilterParser :: String → Either ParseError (SqlColMap FilterLang)
 runFilterParser s = runParser s filtersP
 
 

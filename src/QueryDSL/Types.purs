@@ -179,13 +179,13 @@ instance showFilterLang :: Show FilterLang where
   show = genericShow
 
 
-type Filters = StrMap FilterLang
+type Filters = Map SqlCol FilterLang
 
 filtersToQueryStringPath :: Filters -> String
 filtersToQueryStringPath = toQueryPathString
 
-instance toQueryPathStringFilters :: ToQueryPathString (Map String FilterLang) where
-  toQueryPathString = strMapToQueryPathString langToStr
+instance toQueryPathStringFilters :: ToQueryPathString (Map SqlCol FilterLang) where
+  toQueryPathString = sqlColMapToQueryPathString langToStr
     where
     langToStr (FilterEq l) = toStr l
     langToStr (FilterIn l) = "(" <> A.intercalate "," (A.fromFoldable $ map toStr l) <> ")"
@@ -292,7 +292,7 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
 
       as col expr = expr <> " as " <> dimension' col
 
-      dimension' c = "d_" <> c
+      dimension' c = "\"d_" <> c <> "\""
       --TODO: definition of timeDim must depend on configuration (context: redshift vs standard postgresql)
       timeDim dim = case q.engine of 
         Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
@@ -319,7 +319,7 @@ joinDimensionsToSqlJoin indent params@(QueryParams p) qLeft qRight =
     newLine = "\n" <> indent <> "AND "
 
 dimension :: SqlCol -> String
-dimension col = "d_" <> go col where
+dimension col = "\"d_" <> go col <> "\"" where
   go (SqlColNormal c) = c
   go (SqlColJSON c) = c.colName <> "_" <> c.jsonField
 
@@ -345,16 +345,17 @@ filtersToSqlConds indent params options = intercalate (newLine <> "AND ") $ filt
 filtersToSqls :: forall d. ToSqlDateStr d => QueryParams d -> QueryOptions -> List String
 filtersToSqls params@(QueryParams p) options@(QueryOptions q) = L.fromFoldable rest
   where
-    alias' col = 
+    alias' (SqlColJSON c) = c.colName <> "->>" <> "'" <> c.jsonField <> "'"
+    alias' (SqlColNormal col) = 
         case fromMaybe (Simple col) (SM.lookup col q.fieldMap) of
           Simple col' -> alias options col'
           Expr col' -> col'
-    rest = map (\x -> "(" <> x <> ")") $ map (\(Tuple k v) -> filterLangToStr (alias' k) v) $ toAscArray $ p.filters
+    rest = map (\x -> "(" <> x <> ")") $ map (\(Tuple k v) -> filterLangToStr' (alias' k) v) $ toAscArray $ p.filters
 
-    filterLangToStr :: String -> FilterLang -> String
-    filterLangToStr col (FilterIn vals) = intercalate " OR " $ map ((\v -> col <> v) <<< filterValToStr) vals 
-    filterLangToStr col (FilterEq val) =  col  <> filterValToStr val
-    filterLangToStr col (FilterRange a b) = col <> " >= "  <> filterValToRangeStr a <> " AND " <> col <> " < " <> filterValToRangeStr b
+    filterLangToStr' :: String -> FilterLang -> String
+    filterLangToStr' col (FilterIn vals) = intercalate " OR " $ map ((\v -> col <> v) <<< filterValToStr) vals 
+    filterLangToStr' col (FilterEq val) =  col  <> filterValToStr val
+    filterLangToStr' col (FilterRange a b) = col <> " >= "  <> filterValToRangeStr a <> " AND " <> col <> " < " <> filterValToRangeStr b
 
     filterValToStr :: FilterVal -> String
     filterValToStr (FilterValStr s) = " = " <> inSq s

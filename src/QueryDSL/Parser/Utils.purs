@@ -12,7 +12,7 @@ import Data.Maybe (Maybe, maybe)
 import Data.Number (fromString)
 import Data.String as Str
 import Data.Tuple (Tuple(..))
-import Prelude (class Monad, bind, map, pure, ($), (*>), (<$>), (<*), (<*>), (<<<), (=<<))
+import Prelude (class Monad, class Ord, bind, map, pure, ($), (*>), (<$>), (<*), (<*>), (<<<), (=<<))
 import Text.Parsing.Parser (ParserT, fail)
 import Text.Parsing.Parser.Combinators (between, try)
 import Text.Parsing.Parser.Language (emptyDef)
@@ -60,6 +60,9 @@ listFlex p = queryParser.brackets ps <|> queryParser.parens ps <|> ps where
    
 strMap :: forall a. ParserT String Identity a -> ParserT String Identity (StrMap a)
 strMap = map SM.fromFoldable <<< listFlex <<< propTuple queryParser.identifier
+
+kvMap :: forall v k. Ord k => ParserT String Identity k -> ParserT String Identity v -> ParserT String Identity (SM.Map k v)
+kvMap k v = map SM.fromFoldable $ listFlex $ propTuple k v
 
 emptyStrMap :: forall a. a -> ParserT String Identity a -> ParserT String Identity (StrMap a)
 emptyStrMap def p = map SM.fromFoldable $ listFlex $ (try $ propTuple queryParser.identifier p) <|> (map toTuple queryParser.identifier)
