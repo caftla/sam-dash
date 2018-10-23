@@ -78,6 +78,18 @@ sqlColMapToQueryPathString f =
       SqlColNormal c -> c
       SqlColJSON c -> c.colName <> "." <> c.jsonField
 
+sqlColListToQueryPathString :: forall a. (a -> String) -> List (Tuple SqlCol a) -> String 
+sqlColListToQueryPathString f = 
+  A.intercalate "," 
+  <<< A.fromFoldable 
+  <<< map (\(Tuple key val) -> key `appif` f val)
+  where
+  appif a b = 
+    if S.length b > 0 then  a' <> ":" <> b else a' where
+    a' = case a of
+      SqlColNormal c -> c
+      SqlColJSON c -> c.colName <> "." <> c.jsonField
+
 prependToAll :: forall a. a -> List a -> List a
 prependToAll sep (x : xs) = sep : x : prependToAll sep xs
 prependToAll _   _     = mempty
@@ -135,10 +147,7 @@ breakdownToQueryStringPath :: Breakdown -> String
 breakdownToQueryStringPath = toQueryPathString
 
 instance toQueryPathStringBreakdown :: ToQueryPathString (List (Tuple SqlCol BreakdownDetails)) where
-  toQueryPathString = toQueryPathString <<< SM.fromFoldable
-
-instance toQueryPathStringBreakdown1 :: ToQueryPathString (Map SqlCol BreakdownDetails) where
-  toQueryPathString = sqlColMapToQueryPathString breakdownToStr
+  toQueryPathString = sqlColListToQueryPathString breakdownToStr
     where
       breakdownToStr :: BreakdownDetails -> String
       breakdownToStr (BreakdownDetails det) = 

@@ -63,7 +63,7 @@ export default class ControlComponent extends React.Component {
   }
   go(noCache) {
     let errors = {}
-    
+
     const breakdownStrE = PT.bimapEither(err => {
                               errors = {...errors, breakdown: err}
                             })
@@ -78,14 +78,16 @@ export default class ControlComponent extends React.Component {
     this.setState({errors})
     
     PT.continueEither(x => { /* there is an error */ })
-                     (([breakdown, filter]) => this.props.onChange({
+                     (([breakdown, filter]) => {
+                      console.log('breakdown', breakdown)
+                       this.props.onChange({
                         timezone: this.state.timezoneU.value,
                         date_from: this.state.date_fromU.value,
                         date_to: this.state.date_toU.value,
                         filter: filter,
                         breakdown: breakdown,
                         noCache: noCache
-                      }))
+                      })})
                      (PT.sequenceEithers([breakdownStrE, filterStrE]))
   }
   render() {
