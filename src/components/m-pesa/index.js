@@ -49,6 +49,12 @@ class ViewComponent extends React.Component {
 
             this.setState({fetchState: fetchState.Loading()})
             get({url})
+              .then(result => {
+                if(!!result.error) {
+                  throw result.error
+                }
+                return result
+              })
               .then(result => this.setState({fetchState: fetchState.Loaded(
                 R.map(x => ({
                   ...x,
