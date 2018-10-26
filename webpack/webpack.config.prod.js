@@ -44,21 +44,20 @@ module.exports = {
         }
       },
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(ts|tsx|js|jsx)$/,
         include: [resolve(__dirname, '../src')],
         loader: 'babel-loader',
         options: {
-          presets: ["es2017", "es2015", "react", "stage-0"],
         },
       },
-      {
-        test: /\.elm$/,
-        exclude: [/elm-stuff/, /node_modules/],
-        use: {
-          loader: 'elm-webpack-loader',
-          options: {}
-        }
-      },
+      // {
+      //   test: /\.elm$/,
+      //   exclude: [/elm-stuff/, /node_modules/],
+      //   use: {
+      //     loader: 'elm-webpack-loader',
+      //     options: {}
+      //   }
+      // },
       {
         test: /\.styl$/,
         use: [

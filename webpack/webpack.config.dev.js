@@ -6,6 +6,8 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const devMode = true
 
+// include: [path.resolve(__dirname, '../src')]
+
 module.exports = {
   mode: 'development',
   entry: [
@@ -33,10 +35,7 @@ module.exports = {
       'bower_components'
     ],
 
-    extensions: [
-      '.purs',
-      '.js'
-    ]
+    extensions: ['.tsx', '.ts', '.js', '.purs']
   },
   devtool: 'inline-source-map',
   devServer: {
@@ -71,18 +70,18 @@ module.exports = {
         }
       },
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(ts|tsx|js|jsx)$/,
         include: [resolve(__dirname, '../src'), resolve(__dirname)],
         use: 'babel-loader',
       },
-      {
-        test: /\.elm$/,
-        exclude: [/elm-stuff/, /node_modules/],
-        use: {
-          loader: 'elm-webpack-loader',
-          options: {}
-        }
-      },
+      // {
+      //   test: /\.elm$/,
+      //   exclude: [/elm-stuff/, /node_modules/],
+      //   use: {
+      //     loader: 'elm-webpack-loader',
+      //     options: {}
+      //   }
+      // },
       {
         test: /\.styl$/,
         use: [
