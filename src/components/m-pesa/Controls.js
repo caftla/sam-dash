@@ -302,7 +302,7 @@ class FiltersList extends React.PureComponent {
   // };
   render() {
     return (
-      <List
+      <List className="filters-list"
         mkDefaultItem={() => ({
           filterKey: null,
           value: ""

@@ -74,13 +74,13 @@ button
       width: 100%;
       height: calc(100% - 6px);
 
-    .react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values
-      flex-wrap: nowrap;
-      overflow: hidden;
+    &.filters-list
+      .react-selectize-reset-button-container 
+        display: none !important;
 
-
-    .react-selectize-reset-button-container 
-      display: none !important;
+      .react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values
+        flex-wrap: nowrap;
+        overflow: hidden;
 
     .add {
       text-align: center;
