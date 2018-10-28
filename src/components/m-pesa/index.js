@@ -29,7 +29,12 @@ class ViewComponent extends React.Component {
       fetchState: fetchState.Nothing()
     }
 
+    const {params} = props.match
+
     this.props.fetch_all_affiliates()
+    if(!!params.date_from && !!params.date_to) {
+      this.props.fetch_all_countries(params.date_from, params.date_to)
+    }
 
     // listen((location, action) => {
     //   console.log(action, location.pathname, location.state)
@@ -42,6 +47,8 @@ class ViewComponent extends React.Component {
         <Controls
           history={ this.props.history } 
           { ...this.props.match.params } 
+          all_countries={this.props.all_countries}
+          all_affiliates={this.props.all_affiliates}
           fetchState={ this.state.fetchState }
           onChange={({timezone, date_from, date_to, breakdown, filter, noCache}) => {
             this.props.history.push(`/m-pesa/${formatTimezone(timezone)}/${date_from}/${date_to}/${filter.length == 0 ? '-' : filter}/${breakdown}`)

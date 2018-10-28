@@ -379,7 +379,65 @@ app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (re
 
 // tola
 
-var last_REFRESH_tola_leads = null;
+const ensureTolaReportsAreUpToDate = (() => {
+
+  // refresh tola reports every 10 minute
+
+  var started = false;
+  var runningQuery = null;
+  var isRunning = false
+  var hasRanAtLeastOnce = false
+
+  const trace = x => {
+    console.log(x)
+    return x
+  }
+
+  const mkRunningQuery = async () => {
+    isRunning = true;
+    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW tola_leads;`)))()
+    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY tola_report_materialized;`)))()
+    hasRanAtLeastOnce = true;
+    isRunning = false;
+    return true;
+  }
+
+  return (cache_buster) => {
+
+    if(!!cache_buster) {
+      if(isRunning) {
+        return runningQuery
+      } else {
+        runningQuery = mkRunningQuery()
+         return runningQuery
+      }
+    }
+    
+    if(hasRanAtLeastOnce) 
+      return () => true
+    
+    if(!!runningQuery){
+      return runningQuery;
+    }
+
+    try {
+      runningQuery = mkRunningQuery()
+    } catch(ex) {
+      console.error(ex)
+    }
+
+    setInterval(async () =>{
+      try {
+        runningQuery = mkRunningQuery()
+      } catch(ex) {
+        console.error(ex)
+      }
+    }, 1000 * 60 * 10);
+
+    return runningQuery
+
+  }
+})()
 
 app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
   const params = req.params
@@ -392,11 +450,7 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
         QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseInt(params.timezone))(params.from_date)(params.to_date)(template)
     )();
 
-    if(!!req.query.cache_buster || !last_REFRESH_tola_leads || new Date().valueOf() - last_REFRESH_tola_leads > (1000 * 60 * 20)) {
-      console.log(`REFRESH MATERIALIZED VIEW tola_leads;`)
-      await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(`REFRESH MATERIALIZED VIEW tola_leads;`))()
-      last_REFRESH_tola_leads = new Date().valueOf()
-    }
+    await ensureTolaReportsAreUpToDate(req.query.cache_buster)
     
     console.log(sql)
     

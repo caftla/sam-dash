@@ -147,7 +147,9 @@ export default class Controls extends React.Component {
       , is_relative_date: params.is_relative_date
       , relative_date_from: params.relative_date_from
     }
+  }
 
+  componentDidMount() {
     this.reload_publisher_ids()
     this.reload_ab_tests()
   }

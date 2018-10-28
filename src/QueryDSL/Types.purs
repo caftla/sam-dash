@@ -178,6 +178,21 @@ derive instance genericFilterVal :: Generic FilterVal _
 instance showFilterVal :: Show FilterVal where
   show = genericShow
 
+instance toQueryPathStringFilterVal :: ToQueryPathString FilterVal where
+  toQueryPathString = toStr where
+
+    toStr (FilterValStr s) = s
+    toStr (FilterValLike lk s) = 
+      case lk of 
+        LikeAfter -> s <> "*"
+        LikeBefore -> "*" <> s
+        LikeBoth -> "*" <> s <> "*"
+    toStr (FilterValUnquotedInt s) = toSignedNum s
+    toStr (FilterValUnquotedNumber s) = toSignedNum s
+
+    toSignedNum :: ∀ r. Ord r ⇒ Semiring r ⇒ Show r ⇒ Ring r ⇒ r → String
+    toSignedNum i = (if i >= zero then "+" else "-") <> show (abs i)
+
 data FilterLang = 
     FilterIn (List FilterVal) 
   | FilterEq FilterVal
@@ -193,25 +208,14 @@ type Filters = Map SqlCol FilterLang
 filtersToQueryStringPath :: Filters -> String
 filtersToQueryStringPath = toQueryPathString
 
+instance toQueryPathStringFilterLang :: ToQueryPathString FilterLang where
+  toQueryPathString = langToStr where
+    langToStr (FilterEq l) = toQueryPathString l
+    langToStr (FilterIn l) = "(" <> A.intercalate "," (A.fromFoldable $ map toQueryPathString l) <> ")"
+    langToStr (FilterRange l r) = "R(" <> toQueryPathString l <> "," <> toQueryPathString r <> ")"
+
 instance toQueryPathStringFilters :: ToQueryPathString (Map SqlCol FilterLang) where
-  toQueryPathString = sqlColMapToQueryPathString langToStr
-    where
-    langToStr (FilterEq l) = toStr l
-    langToStr (FilterIn l) = "(" <> A.intercalate "," (A.fromFoldable $ map toStr l) <> ")"
-    langToStr (FilterRange l r) = "R(" <> toStr l <> "," <> toStr r <> ")"
-
-    toStr (FilterValStr s) = s
-    toStr (FilterValLike lk s) = 
-      case lk of 
-        LikeAfter -> s <> "*"
-        LikeBefore -> "*" <> s
-        LikeBoth -> "*" <> s <> "*"
-    toStr (FilterValUnquotedInt s) = toSignedNum s
-    toStr (FilterValUnquotedNumber s) = toSignedNum s
-
-    toSignedNum :: ∀ r. Ord r ⇒ Semiring r ⇒ Show r ⇒ Ring r ⇒ r → String
-    toSignedNum i = (if i >= zero then "+" else "-") <> show (abs i)
-
+  toQueryPathString = sqlColMapToQueryPathString toQueryPathString
 
 newtype QueryParams d = QueryParams {
   timezone :: Number,
@@ -305,7 +309,7 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
       --TODO: definition of timeDim must depend on configuration (context: redshift vs standard postgresql)
       timeDim dim = case q.engine of 
         Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
-        PostgreSql -> "date_trunc('" <> dim <> "', timezone('" <> tz <> "', " <> alias' q.timeColName <> ")) "
+        PostgreSql -> "date_trunc('" <> dim <> "', timezone('" <> tz <> "', " <> alias' q.timeColName <> ") - ('" <> tz <> " hour' :: interval))"
       tz = show $ toNumber(-1) * p.timezone
       -- timezone conversion example:  date_trunc('day', CONVERT_TIMEZONE('UTC', '-8', e.timestamp)) :: timestamp AT TIME ZONE '-8' 
 

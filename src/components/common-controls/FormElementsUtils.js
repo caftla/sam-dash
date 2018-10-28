@@ -95,6 +95,8 @@ export const InputMultiSelect = ({name, value, options, onChange, disable, hasLa
   </FormRow>
 }
 
+export {MultiSelect, SimpleSelect}
+
 const add_time = date => date.indexOf('T') > -1
   ? date
   : date + 'T00:00:00'

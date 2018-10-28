@@ -9,10 +9,10 @@ import Data.Int (toNumber)
 import Data.Map as M
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Tuple (Tuple(..), uncurry)
-import Prelude (class Category, bind, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>))
+import Prelude (class Category, bind, const, identity, map, negate, pure, ($), ($>), (*), (*>), (<$>), (<*), (<*>), (<>), (<<<), (=<<))
 import Query.Parser.Utils (emptyPropTuple, kvMap, list, listFlex, propTuple, queryParser, strMap, tuple)
-import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), SqlCol(..), ValuesFilter, SqlColMap, emptyBreakdownDetails)
-import Text.Parsing.Parser (ParseError, ParserT, runParser)
+import Query.Types (Breakdown, BreakdownDetails(..), FilterLang(..), FilterVal(..), Filters, LikePosition(..), Sort(..), SortOrder(..), SqlCol(..), SqlColMap, ValuesFilter, emptyBreakdownDetails, toQueryPathString)
+import Text.Parsing.Parser (ParseError, ParserT, runParser, fail)
 import Text.Parsing.Parser.Combinators (notFollowedBy, try)
 import Text.Parsing.Parser.String (eof, string)
 
@@ -91,6 +91,8 @@ filtersP :: ParserT String Identity Filters
 filtersP = (string "-" *> pure M.empty) <|> kvMap sqlColP filterLangP
 
 
+--- These functions are used in JS UI:
+
 runBreakdownParser :: String → Either ParseError (List (Tuple SqlCol BreakdownDetails))
 runBreakdownParser s = runParser s breakdownP
 
@@ -98,7 +100,29 @@ runFilterParser :: String → Either ParseError (SqlColMap FilterLang)
 runFilterParser s = runParser s filtersP
 
 
+runFilterLangParser :: String -> Either ParseError FilterLang
+runFilterLangParser s = runParser s filterLangP
 
+runFilterLangParserForCountries :: String -> Either ParseError (Array String)
+runFilterLangParserForCountries s = runParser s (go =<< filterLangP) where
+  go (FilterEq (FilterValStr s)) = pure [s]
+  go (FilterIn qvs) = pure $ toUnfoldable $ map toQueryPathString qvs
+  go _ = fail "Unable to understand"
+
+
+runBreakdownParserToColNames :: String → Either ParseError (Array String)
+runBreakdownParserToColNames s = go <$> runParser s breakdownP where
+  go :: List (Tuple SqlCol BreakdownDetails) -> Array String
+  go = toUnfoldable <<< map (\(Tuple c _) -> toColName c )
+
+runFilterParserToColNamesAndExpr :: String -> Either ParseError (Array {name :: String, expr :: String})
+runFilterParserToColNamesAndExpr s = go <$> runFilterParser s where
+  go :: SqlColMap FilterLang -> Array {name :: String, expr :: String}
+  go =  toUnfoldable <<< map (\(Tuple k v) -> {name: toColName k, expr: toQueryPathString v}) <<< M.toUnfoldable
+
+toColName :: SqlCol → String
+toColName (SqlColJSON c) = c.colName <> "." <> c.jsonField
+toColName (SqlColNormal c) = c
 {-
 filterStr :: String
 filterStr = "country_code:[ar,za,th,my,mx,om,qa],affiliate_id:POM*,publisher_id:[*1292*,122*],screen_width:(+200,+500),offer:+144,has_os:+1"

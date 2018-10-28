@@ -18,7 +18,7 @@
 , percentile_disc(0.5) within group (order by extract(epoch from I.first_flow_advance_event_time - I.date_created)) as mode_first_flow_advance_event_time
 , percentile_disc(0.5) within group (order by case when I.sales > 0 then extract(epoch from I.first_flow_advance_event_time - I.date_created) else null end) as mode_first_flow_advance_event_time_for_sales
 , percentile_disc(0.5) within group (order by extract(epoch from I.avg_callback_time)) as mode_avg_callback_time
-from tola_example_report I
+from tola_report_materialized I -- tola_example_report I
 {$ where({
   tableAlias: 'I',
   timeColName: 'date_created',

@@ -80,11 +80,11 @@ class Home extends React.Component {
     super(props)
 
     match({
-      Nothing: () => this.props.check_loggedin()
+      Nothing: () => props.check_loggedin()
       , Loading: () => void 8
       , Error: (error) => void 8
       , Loaded: (data) => void 8
-    })(this.props.login_state)
+    })(props.login_state)
   }
 
   componentWillUpdate(nextProps, b) {

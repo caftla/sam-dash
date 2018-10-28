@@ -111,12 +111,12 @@ export default function(component_params) {
     constructor(props : Props) {
       super(props)
 
-      this.unlisten = this.props.history.listen((location, action) => {
+      this.unlisten = props.history.listen((location, action) => {
         this.props.cleanup_fetch_data()
         this.route_changed = true
       });
 
-      this.props.set_params(props_to_params(props))
+      props.set_params(props_to_params(props))
     }
 
     componentWillUnMount() {
