@@ -91,6 +91,12 @@ export default Section({
       , data => d3.format('0.0f')(100 * data.active)
     ),
     pcolumn(
+      show_label_row('Blocks', 'blocks_ratio')
+      , () => onSort('row', 'blocks_ratio', 1)
+      , x => d3.format(',.0f')(100 * x.blocks_ratio)
+      , data => d3.format(',.0f')(100 * data.blocks_ratio)
+    ),
+    pcolumn(
       show_label_row('P Sessions', 'premium_sessions_ratio')
       , () => onSort('row', 'premium_sessions_ratio', 1)
       , x => d3.format(',.0f')(100 * x.premium_sessions_ratio)
@@ -102,12 +108,12 @@ export default Section({
       , x => d3.format(',.0f')(100 * x.premium_sales_ratio)
       , data => d3.format(',.0f')(100 * data.premium_sales_ratio)
     ),
-    pcolumn(
-      show_label_row('P CR', 'cr_premium')
-      , () => onSort('row', 'cr_premium', 1)
-      , x => d3.format('0.2f')(100 * x.cr_premium)
-      , data => d3.format('0.2f')(100 * data.cr_premium)
-    ),
+    // pcolumn(
+    //   show_label_row('P CR', 'cr_premium')
+    //   , () => onSort('row', 'cr_premium', 1)
+    //   , x => d3.format('0.2f')(100 * x.cr_premium)
+    //   , data => d3.format('0.2f')(100 * data.cr_premium)
+    // ),
     pcolumn(
         show_label_row('Pixels', 'pixels_ratio')
       , () => onSort('row', 'pixels_ratio', 1)

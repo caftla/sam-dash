@@ -28,7 +28,7 @@ select
               and NOT (us.pixel > 0 or us.delayed_pixel > 0) 
             then 1 else 0 end
       ) :: float as missed_good_pixels
-  
+  , sum(case when us.get_sub_method ilike '%block%' then 1 else 0 end) :: integer as blocks
 from user_sessions us
 left join user_subscriptions as ub on ub.rockman_id = us.rockman_id
 left join cpa c on c.cpa_id = ub.cpa_id

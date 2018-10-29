@@ -308,13 +308,15 @@ table.section
     top: 0px
 
   th, td 
-    padding: 8px;
+    padding: 2px 3px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    word-break: break-all
+    word-break: break-all;
+    vertical-align: top;
+    // border-right: solid 1px #f0f0f0b5
 
   th
-    white-space: nowrap;
+    white-space: pre-wrap;
     text-overflow: ellipsis;
     overflow: hidden;
 
@@ -324,6 +326,9 @@ table.section
     text-decoration-line: underline;
     text-decoration-style: wavy;
     cursor: pointer
+
+  td
+    vertical-align: middle
 
   &.summary
     border: 2px rgb(228, 216, 224) solid !important
