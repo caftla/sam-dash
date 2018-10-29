@@ -23,7 +23,7 @@ class DailyReportsArchive extends React.Component {
     this.state = {
       html: "<div>Loading</div>"
     }
-    this.download()
+    this.download(props)
   }
 
   componentWillUpdate(nextProps : Props, b) {
@@ -35,12 +35,12 @@ class DailyReportsArchive extends React.Component {
     const {params} = this.props.match
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
-    this.download()
+    this.download(this.props)
   }
 
-  download() {
-    const {params} = this.props.match
-    const flags = { dateFrom: params.date_from, directory: this.props.match.path.indexOf('/hourly_reports_archive') == 0 ? 'hourly-archive' : 'archive' };
+  download(props) {
+    const {params} = props.match
+    const flags = { dateFrom: params.date_from, directory: props.match.path.indexOf('/hourly_reports_archive') == 0 ? 'hourly-archive' : 'archive' };
     fetch("https://caftla.github.io/daily-monitor/" + (flags.directory) + "/" + (flags.dateFrom) + ".html")
     .then(x => x.text())
     .then(html => {
