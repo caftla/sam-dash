@@ -463,6 +463,92 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
 
 })
 
+// dmb
+
+const ensureDMBReportsAreUpToDate = (() => {
+
+  // refresh tola reports every 10 minute
+
+  var started = false;
+  var runningQuery = null;
+  var isRunning = false
+  var hasRanAtLeastOnce = false
+
+  const trace = x => {
+    console.log(x)
+    return x
+  }
+
+  const mkRunningQuery = async () => {
+    isRunning = true;
+    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY rockman_sales;`)))()
+    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY dmb_sales_iq_gb;`)))()
+    hasRanAtLeastOnce = true;
+    isRunning = false;
+    return true;
+  }
+
+  return (cache_buster) => {
+
+    if(!!cache_buster) {
+      if(isRunning) {
+        return runningQuery
+      } else {
+        runningQuery = mkRunningQuery()
+         return runningQuery
+      }
+    }
+    
+    if(hasRanAtLeastOnce) 
+      return () => true
+    
+    if(!!runningQuery){
+      return runningQuery;
+    }
+
+    try {
+      runningQuery = mkRunningQuery()
+    } catch(ex) {
+      console.error(ex)
+    }
+
+    setInterval(async () =>{
+      try {
+        runningQuery = mkRunningQuery()
+      } catch(ex) {
+        console.error(ex)
+      }
+    }, 1000 * 60 * 10);
+
+    return runningQuery
+
+  }
+})()
+
+app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+
+    const template = fs.readFileSync('./server/sql-templates/dmb-iq-gb.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseInt(params.timezone))(params.from_date)(params.to_date)(template)
+    )();
+
+    await ensureDMBReportsAreUpToDate(req.query.cache_buster)
+    
+    console.log(sql)
+    
+    return await fromAff(tolaQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error: error.toString()}))
+
+})
+
 // end of tola
 
 app.use('/*', express.static('dist'))

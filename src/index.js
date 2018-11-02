@@ -42,6 +42,7 @@ import Filter_Page_Section_Row from './components/filter_page_section_row'
 import User_Sessions from './components/user_sessions'
 import Sessions from './components/sessions'
 import MPesa from './components/m-pesa'
+import Dmb from './components/dmb'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
 import Transactions from './components/transactions'
@@ -167,6 +168,8 @@ function Wrap(WrappedComponent) {
 
               <a href="/m-pesa/" className={ this.state.route == 'm-pesa' ? 'active' : ''  }>M-Pesa</a>
 
+              <a href="/dmb/" className={ this.state.route == 'dmb' ? 'active' : ''  }>DMB</a>
+
 
             </div>
             
@@ -223,6 +226,9 @@ const main_bottom = <Provider store={store}>
         <Route path="/sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Sessions)} />
         <Route path="/m-pesa/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MPesa)} />
         <Route path="/m-pesa" component={WrapAndAuth(MPesa)} />
+
+        <Route path="/dmb/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Dmb)} />
+        <Route path="/dmb" component={WrapAndAuth(Dmb)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />

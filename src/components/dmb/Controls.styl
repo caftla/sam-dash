@@ -1,0 +1,154 @@
+label
+  width:115px
+  color:#868a98
+  font-size:12px
+  user-select: none
+  display:inline-block
+  
+h1
+  color:#a8adc1
+  font-size:16px 
+  
+.rdt
+  display:inline-block
+  
+input[type="text"],
+input[type="date"],
+input[type="number"],
+input[type="checkbox"]
+	width:130px
+	border:none
+	margin-top:5px
+	padding:5px 10px
+	border-radius:3px
+	outline-color:#8cc63e
+
+select
+    width: 150px
+    height: 23px
+    border: none
+    margin-top: 5px
+    outline-color:#8cc63e
+	
+button
+  float:right
+  width:100px
+  border:none
+  color:#ffffff
+  cursor:pointer
+  padding:6px 10px
+  border-radius:3px
+  margin-right:5px
+  margin-top:10px
+  background-color:#6da424
+  
+  &:hover
+  	background-color:#8cc63e	
+
+#sidebar.v2
+  input
+    font-size: 1em;
+    padding: 0 0.5em;
+
+  .react-selectize-control
+    width: 100% !important
+
+  .date-range-btn
+    width: calc(100% - 29px)
+
+  #filters
+    width: 281px;
+
+  .field-section
+    margin-bottom: 1ex;
+
+  .timezone
+      width: 250px
+
+  .list
+    margin-bottom: 0em;
+
+    .react-selectize.root-node
+      width: auto !important;
+    .react-selectize-control
+      width: 100%;
+      height: calc(100% - 6px);
+
+    &.filters-list
+      .react-selectize-reset-button-container 
+        display: none !important;
+
+      .react-selectize.root-node .react-selectize-control .react-selectize-search-field-and-selected-values
+        flex-wrap: nowrap;
+        overflow: hidden;
+
+    .add {
+      text-align: center;
+      border: solid 1px #e2e2e2;
+      border-radius: 3px;
+      width: 21px;
+      margin-left: auto;
+      padding: 0;
+      background-color: silver;
+      color: white;
+    }
+
+  .filter-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .filter-item > .left {
+    flex-grow: 1;
+    flex-basis: 50%;
+    flex-shrink: 0;
+    max-width: 50%;
+  }
+
+  .filter-item > .right {
+    margin-left: 1%;
+    width: 41%;
+    border-radius: 4px;
+    border: 1px;
+    font-size: 12px;
+  }
+
+  .list-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .list-item > * {
+    flex-grow: 1;
+  }
+
+  .list-item .minus {
+    width: 21px;
+    height: 38px;
+    margin-left: 1%;
+    border: solid 1px #c0c0c0;
+    border-radius: 3px;
+    align-content: center;
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    text-align: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .list .list-item {
+    margin-bottom: 1ex;
+  }
+
+  .list .list-item .breakdown-item 
+    max-width: 249px;
+
+    .react-selectize-control
+      width: 97%;
+    
+  .list.breakdown-list
+    .minus
+      height: 32px

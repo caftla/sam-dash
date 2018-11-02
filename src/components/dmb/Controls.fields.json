@@ -1,0 +1,16 @@
+[
+  "rockman_id",
+  "country",
+  "date_created",
+  "campaign_id",
+  "page",
+  "affiliate_id",
+  "campaign_name",
+  "pre_flow_advance_events",
+  "flow_advance_events",
+  "first_flow_advance_event_time",
+  "sales",
+  "impressions",
+  "query",
+  "headers"
+]
