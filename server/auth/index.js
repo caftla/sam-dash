@@ -107,9 +107,9 @@ module.exports = (app) => {
     if ('undefined' !== typeof clientReferer) {
       const loginRedir = URI(clientReferer).query(true)['login_redir']
 
-      loginRedir !== 'undefined'
+      'undefined' !== typeof loginRedir
         ? res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value) }))
-        : res.redirect(URI(clientReferer).query({ token: token(user.emails[0].value) }))
+        : res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
     } else {
       res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
     }
