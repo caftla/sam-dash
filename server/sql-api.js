@@ -46,8 +46,8 @@ const makeQuery = (query_template: string, params: Object) => {
               when ${table}.country_code = 'IQ' and (${table}.${param_value} = 'UU' or ${table}.${param_value} = 'DOUBLEU') then 'IQ_DOUBLEU'
               when ${table}.country_code = 'MY' and (${table}.${param_value} = 'MK' or ${table}.${param_value} = 'MY_MK') then 'MY_MACROKIOSK'
               when ${table}.country_code = 'TH' and (${table}.${param_value} = 'MK' or ${table}.${param_value} = 'TH_MK') then 'TH_MACROKIOSK'
-              when position('_' in ${table}.${param_value}) < 1 then (${table}.country_code || '_' || (case when LEN(${table}.${param_value}) = 0 then 'Unknwon' else coalesce(${table}.${param_value}, 'Unknown') end))
-              else (case when LEN(${table}.${param_value}) = 0 then 'Unknwon' else coalesce(${table}.${param_value}, 'Unknown') end) 
+              when position('_' in ${table}.${param_value}) < 1 then (${table}.country_code || '_' || (case when LEN(${table}.${param_value}) = 0 then 'Unknown' else coalesce(${table}.${param_value}, 'Unknown') end))
+              else (case when LEN(${table}.${param_value}) = 0 then 'Unknown' else coalesce(${table}.${param_value}, 'Unknown') end) 
             end)
           `
         : param_value == "operator*gateway" ?
