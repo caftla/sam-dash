@@ -386,7 +386,7 @@ const ensureTolaReportsAreUpToDate = (() => {
   var started = false;
   var runningQuery = null;
   var isRunning = false
-  var hasRanAtLeastOnce = false
+  var hasRanAtLeastOnce = !false
 
   const trace = x => {
     console.log(x)
@@ -432,7 +432,7 @@ const ensureTolaReportsAreUpToDate = (() => {
       } catch(ex) {
         console.error(ex)
       }
-    }, 1000 * 60 * 10);
+    }, 1000 * 60 * 20);
 
     return runningQuery
 
