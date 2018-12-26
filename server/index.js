@@ -383,60 +383,23 @@ const ensureTolaReportsAreUpToDate = (() => {
 
   // refresh tola reports every 10 minute
 
-  var started = false;
-  var runningQuery = null;
-  var isRunning = false
-  var hasRanAtLeastOnce = !false
-
-  const trace = x => {
-    console.log(x)
-    return x
-  }
+  const query = 'select refresh_tola_reports()'
 
   const mkRunningQuery = async () => {
-    isRunning = true;
-    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW tola_leads;`)))()
-    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY tola_report_materialized;`)))()
-    hasRanAtLeastOnce = true;
-    isRunning = false;
-    return true;
+    console.log(query)
+    const result = await fromAff(tolaQueryServer.querySync(false)(md5(query))(query))()
+    return result;
   }
 
-  return (cache_buster) => {
-
-    if(!!cache_buster) {
-      if(isRunning) {
-        return runningQuery
-      } else {
-        runningQuery = mkRunningQuery()
-         return runningQuery
-      }
-    }
-    
-    if(hasRanAtLeastOnce) 
-      return () => true
-    
-    if(!!runningQuery){
-      return runningQuery;
-    }
-
+  setInterval(async () =>{
     try {
-      runningQuery = mkRunningQuery()
+      await mkRunningQuery()
     } catch(ex) {
       console.error(ex)
     }
+  }, 1000 * 60 * 20);
 
-    setInterval(async () =>{
-      try {
-        runningQuery = mkRunningQuery()
-      } catch(ex) {
-        console.error(ex)
-      }
-    }, 1000 * 60 * 20);
-
-    return runningQuery
-
-  }
+  return (cache_buster) => !!cache_buster ? mkRunningQuery() : null
 })()
 
 app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
@@ -467,62 +430,25 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
 
 const ensureDMBReportsAreUpToDate = (() => {
 
-  // refresh tola reports every 10 minute
+  // refresh the report every 10 minute
 
-  var started = false;
-  var runningQuery = null;
-  var isRunning = false
-  var hasRanAtLeastOnce = false
-
-  const trace = x => {
-    console.log(x)
-    return x
-  }
+  const query = 'select refresh_user_sessions();'
 
   const mkRunningQuery = async () => {
-    isRunning = true;
-    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY rockman_sales;`)))()
-    await fromAff(tolaQueryServer.querySync(true)(md5(new Date().valueOf()))(trace(`REFRESH MATERIALIZED VIEW CONCURRENTLY dmb_sales_iq_gb;`)))()
-    hasRanAtLeastOnce = true;
-    isRunning = false;
-    return true;
+    console.log(query)
+    const result = await fromAff(tolaQueryServer.querySync(false)(md5(query))(query))()
+    return result;
   }
 
-  return (cache_buster) => {
-
-    if(!!cache_buster) {
-      if(isRunning) {
-        return runningQuery
-      } else {
-        runningQuery = mkRunningQuery()
-         return runningQuery
-      }
-    }
-    
-    if(hasRanAtLeastOnce) 
-      return () => true
-    
-    if(!!runningQuery){
-      return runningQuery;
-    }
-
+  setInterval(async () =>{
     try {
-      runningQuery = mkRunningQuery()
+      await mkRunningQuery()
     } catch(ex) {
       console.error(ex)
     }
+  }, 1000 * 60 * 20);
 
-    setInterval(async () =>{
-      try {
-        runningQuery = mkRunningQuery()
-      } catch(ex) {
-        console.error(ex)
-      }
-    }, 1000 * 60 * 10);
-
-    return runningQuery
-
-  }
+  return (cache_buster) => !!cache_buster ? mkRunningQuery() : null
 })()
 
 app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
