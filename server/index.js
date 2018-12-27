@@ -381,6 +381,8 @@ app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (re
 
 const ensureTolaReportsAreUpToDate = (() => {
 
+  return async () => true;
+
   // refresh tola reports every 10 minute
 
   const query = 'select refresh_tola_reports()'
@@ -429,6 +431,8 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
 // dmb
 
 const ensureDMBReportsAreUpToDate = (() => {
+
+  return async () => true;
 
   // refresh the report every 10 minute
 
