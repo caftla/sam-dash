@@ -6,7 +6,7 @@ select
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
-  , sum(coalesce(c.home_cpa, 0)) :: float as cost
+  , sum(coalesce(ub.home_cpa, 0)) :: float as cost
   , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
   , sum(case when us.optout > 0 and date_diff('hours', us.sale_timestamp, us.optout_timestamp) < 24 then 1 else 0 end) :: float as optout_24h
   , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
@@ -28,9 +28,10 @@ select
   
 from user_sessions us
 left join user_subscriptions as ub on ub.rockman_id = us.rockman_id
-left join cpa c on c.cpa_id = ub.cpa_id
 where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
+  and ub.timestamp >=  $[params.from_date_tz]$
+  and ub.timestamp <  $[params.to_date_tz]$
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
 group by page, section, row
 order by page, section, row

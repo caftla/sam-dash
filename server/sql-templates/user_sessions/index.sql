@@ -7,7 +7,7 @@ select
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
-  , sum(coalesce(c.home_cpa, 0)) :: float as cost
+  , sum(coalesce(ub.home_cpa, 0)) :: float as cost
   , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
   , sum((us.viewport_width > 0 AND us.has_focus and us.is_visible) :: integer) :: float as premium_sessions
   , sum((us.viewport_width > 0 AND us.has_focus and us.is_visible and us.sale > 0) :: integer) :: float as premium_sales
@@ -31,9 +31,10 @@ select
   , sum(case when us.get_sub_method ilike '%block%' then 1 else 0 end) :: integer as blocks
 from user_sessions us
 left join user_subscriptions as ub on ub.rockman_id = us.rockman_id
-left join cpa c on c.cpa_id = ub.cpa_id
 where us.timestamp >=  $[params.from_date_tz]$
   and us.timestamp <  $[params.to_date_tz]$
+  and ub.timestamp >=  $[params.from_date_tz]$
+  and ub.timestamp <  $[params.to_date_tz]$
   and $[params.f_filter('us', {fieldMap: {'publisher_id': 'pubid'}})]$
 group by page, section, row
 order by page, section, row
