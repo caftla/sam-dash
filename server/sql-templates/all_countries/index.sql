@@ -10,7 +10,7 @@ with T as (
     , c.scenario_name
     , c.service_identifier1
   
-  from events c
+  from user_sessions c
   where c.timestamp >= '$from_date$'
     and c.timestamp <= '$to_date$'
   group by
