@@ -239,6 +239,20 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     }
     render() {
       const isLandingPage = this.props.params[this.state.level] == "landing_page"
+      const ouisys_LandingPage = !isLandingPage ? null : (() => {
+        try {
+          const match = /\*(\w\w)\:([\w\d\-\_]+)/gm.exec(this.state.current_value)
+          if(!!match) {
+            const [_, country, page] = match
+            return `http://c1.ouisys.com/preview/?country=${country}&page=${page}`
+          } else {
+            return null
+          }
+        } catch(ex) {
+          console.warn(ex)
+          return null
+        }
+      })()
       
       const tooltip = () => {
         if (!this.props.breakdown_list)
@@ -250,7 +264,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
         }}>
           <div>Filtering on {
              isLandingPage 
-              ? <a href={ `http://${this.state.current_value}?offer=1` } target="_blank">{this.state.current_value}</a>
+              ? <a href={ !!ouisys_LandingPage ? ouisys_LandingPage : `http://${this.state.current_value}?offer=1` } target="_blank">{ this.state.current_value}</a>
               : this.state.current_value
             }</div>
           <BreakdownItem
