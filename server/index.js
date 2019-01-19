@@ -13,6 +13,8 @@ const QueryTemplateParser = require('../output/Server.QueryTemplateParser')
 const { fromAff } = QuseryServer
 const tolaQueryServer = QuseryServer.connect(process.env.osui_connection_string)()
 const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
+import {CronJob} from 'cron'
+
 
 
 const app = express();
@@ -428,32 +430,38 @@ app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async
 
 })
 
-// dmb
+const refresh_user_sessions_temp = async () => {
 
-const ensureDMBReportsAreUpToDate = (() => {
+  const sql = `select refresh_user_sessions_temp()`
 
-  return async () => true;
+  console.log(sql)
+  
+  return await fromAff(tolaQueryServer.querySync(false)(md5(sql))(sql))()
+}
 
-  // refresh the report every 10 minute
+const refresh_user_sessions = async () => {
 
-  const query = 'select refresh_user_sessions();'
+  const sql = `select refresh_user_sessions()`
 
-  const mkRunningQuery = async () => {
-    console.log(query)
-    const result = await fromAff(tolaQueryServer.querySync(false)(md5(query))(query))()
-    return result;
-  }
+  console.log(sql)
+  
+  return await fromAff(tolaQueryServer.querySync(false)(md5(sql))(sql))()
+}
 
-  setInterval(async () =>{
-    try {
-      await mkRunningQuery()
-    } catch(ex) {
-      console.error(ex)
-    }
-  }, 1000 * 60 * 20);
+new CronJob('12,45 * * * *', function() {
+  console.log('refresh_user_sessions_temp started')
+  refresh_user_sessions_temp()
+    .then(() => console.log('refresh_user_sessions_temp ended'))
+    .catch(ex => console.error(ex))
+}, null, true);
 
-  return (cache_buster) => !!cache_buster ? mkRunningQuery() : null
-})()
+new CronJob('29 1,18 * * *', function() {
+  console.log('refresh_user_sessions started')
+  refresh_user_sessions()
+    .then(() => console.log('refresh_user_sessions ended'))
+    .catch(ex => console.error(ex))
+}, null, true);
+
 
 app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
   const params = req.params
@@ -466,8 +474,6 @@ app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', async (r
         QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseInt(params.timezone))(params.from_date)(params.to_date)(template)
     )();
 
-    await ensureDMBReportsAreUpToDate(req.query.cache_buster)
-    
     console.log(sql)
     
     return await fromAff(tolaQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
