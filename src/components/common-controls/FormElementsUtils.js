@@ -105,6 +105,7 @@ export const ThemedDateRangePicker0 = ({date_from, date_to, onChange }) =>
   <DateRangePicker
     startDate={moment(date_from)}
     endDate={moment(date_to)}
+    showDropdowns={true}
     locale={{
       "format": "DD-MM-YYYY",
       "separator": " - ",
