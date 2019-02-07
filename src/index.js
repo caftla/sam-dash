@@ -191,16 +191,7 @@ function Wrap(WrappedComponent) {
 
               <img  src={img_decoded} height={35} width={35} />
                             
-              </div> : ''}
-                 
-
-
-              }
-            
-            
-            }
-
-              
+              </div> : ''}                 
 
             </div>
 
