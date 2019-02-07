@@ -16,7 +16,7 @@ validate.sign = (username, exp, secret) => {
 }
 
 validate.checkProfilePayload = (profile, done) => {
-  if (profile._json.domain == 'sam-media.com') {
+  if (profile._json.hd == 'sam-media.com') {
     return done(null, profile)
   }
   return done('no user found', null)
