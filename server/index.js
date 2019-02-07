@@ -40,6 +40,8 @@ app.post('/api/v1/run_query', (req, res) => {
 
 // login
 const authenticate = require('./auth')(app)
+const logUserAction = require('./usage_stats')
+
 
 const connection_strings = {
     helix_connection_string: process.env['helix_connection_string']
@@ -115,7 +117,7 @@ app.get('/api/hello', authenticate(), (req, res) => {
 )
 
 // example: http://127.0.0.1:3081/api/v1/filter_section_row/2017-04-01/2017-04-07/country_code=ZA,affiliate_name=Gotzha/publisher_id/day
-app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
   respond_query_or_result(
       respond_helix
@@ -127,7 +129,7 @@ app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', 
   )
 })
 
-app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/filter_page_section_row/:timezone/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_query_or_result(
       respond_jewel
@@ -182,7 +184,7 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
 //   )
 // })
 
-app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_query_or_result(
       respond_jewel
@@ -194,7 +196,7 @@ app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:secti
   )
 })
 
-app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
     respond_query_or_result(
       respond_jewel
@@ -206,7 +208,7 @@ app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', aut
   )
 })
 
-app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
     respond_query_or_result(
       respond_jewel
@@ -218,7 +220,7 @@ app.get('/api/v1/user_sessions/:timezone/:from_date/:to_date/:filter/:page/:sect
   )
 })
 
-app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
+app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions/index.sql', 'utf8')
@@ -228,7 +230,7 @@ app.get('/api/v1/user_subscriptions/:timezone/:from_date/:to_date/:filter', auth
   )
 })
 
-app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/user_subscriptions//user_transactions/index.sql', 'utf8')
@@ -238,7 +240,7 @@ app.get('/api/v1/user_transactions/:timezone/:from_date/:to_date/:filter/:page/:
   )
 })
 
-app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter', authenticate(), (req, res) => {
+app.get('/api/v1/co_invoices/:timezone/:from_date/:to_date/:filter', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_jewel(
     fs.readFileSync('./server/sql-templates/co_invoices/index.sql', 'utf8')
@@ -272,7 +274,7 @@ app.get('/api/v1/all_affiliates', (req, res) => {
   ))
 })
 
-app.get('/api/v1/converting_ips/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/converting_ips/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_query_or_result(
       respond_jewel
@@ -293,7 +295,7 @@ app.get('/api/v1/traffic_breakdown/:from_date/:to_date/:filter', authenticate(),
   )
 })
 
-app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
+app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.params, { 
       filter: filter_to_pipe_syntax(req.params.filter)
     , page: req.params.section == 'gateway' ? 'operator_code' : 'gateway' 
@@ -311,7 +313,7 @@ app.get('/api/v1/monthly_reports/:from_date/:to_date/:filter/:section', authenti
 })
 
 
-app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), (req, res) => {
+app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { 
       filter: filter_to_pipe_syntax(req.params.filter) 
     , page: req.params.section == 'gateway' ? 'operator_code' : 'gateway' 
@@ -328,7 +330,7 @@ app.get('/api/v1/monthly/:from_date/:to_date/:filter/:section', authenticate(), 
 })
 
 
-app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
+app.get('/api/v1/weekly_reports/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter), timezone: '2' })
 
   const helix_connection_string = connection_strings.helix_connection_string
@@ -381,7 +383,7 @@ app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (re
 
 // revenue
 
-app.get('/api/v1/revenue/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+app.get('/api/v1/revenue/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], (req, res) => {
   const params = req.params
 
   const go = async () => {
@@ -431,7 +433,7 @@ const ensureTolaReportsAreUpToDate = (() => {
   return (cache_buster) => !!cache_buster ? mkRunningQuery() : null
 })()
 
-app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
+app.get('/api/v1/m-pesa/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], async (req, res) => {
   const params = req.params
 
   const go = async () => {
@@ -488,7 +490,7 @@ new CronJob('29 1,18 * * *', function() {
 }, null, true);
 
 
-app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', async (req, res) => {
+app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], async (req, res) => {
   const params = req.params
 
   const go = async () => {
