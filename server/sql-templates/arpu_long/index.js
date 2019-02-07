@@ -19,6 +19,8 @@ module.exports = (params) => {
       cq: safe_div(x.firstbillings, x.sales)
     , active24: safe_div(x.sales - x.optout_24h, x.sales)
     , active: safe_div(x.sales - x.optouts, x.sales)
+    , paid_active: safe_div(x.paid_active, x.sales)
+    , cq_active72: safe_div(x.cq_active72, x.sales)
     , ecpa: safe_div(x.cost, x.sales)
     , cpa: safe_div(x.cost, x.pixels)
     , pixels_ratio: safe_div(x.pixels, x.sales)
@@ -27,6 +29,7 @@ module.exports = (params) => {
 
     , arpu_week_1  : safe_div(x.revenue_week_1  , x.sales_week_1  )
     , arpu_week_2  : safe_div(x.revenue_week_2  , x.sales_week_2  )
+    , arpu_week_3  : safe_div(x.revenue_week_3  , x.sales_week_3  )
     , arpu_month_1 : safe_div(x.revenue_month_1 , x.sales_month_1 )
     , arpu_month_2 : safe_div(x.revenue_month_2 , x.sales_month_2 )
     , arpu_month_3 : safe_div(x.revenue_month_3 , x.sales_month_3 )
@@ -51,11 +54,14 @@ module.exports = (params) => {
             , pixels: a.pixels + acc.pixels
             , optout_24h: a.optout_24h + acc.optout_24h
             , optouts: a.optouts + acc.optouts
+            , paid_active: a.paid_active + acc.paid_active
+            , cq_active72: a.cq_active72 + acc.cq_active72
             , firstbillings: a.firstbillings + acc.firstbillings
             , resubs: a.resubs + acc.resubs
 
             , revenue_week_1: a.revenue_week_1 + acc.revenue_week_1
             , revenue_week_2: a.revenue_week_2 + acc.revenue_week_2
+            , revenue_week_3: a.revenue_week_3 + acc.revenue_week_3
             , revenue_month_1: a.revenue_month_1 + acc.revenue_month_1
             , revenue_month_2: a.revenue_month_2 + acc.revenue_month_2
             , revenue_month_3: a.revenue_month_3 + acc.revenue_month_3
@@ -71,6 +77,7 @@ module.exports = (params) => {
 
             , sales_week_1: a.sales_week_1 + acc.sales_week_1
             , sales_week_2: a.sales_week_2 + acc.sales_week_2
+            , sales_week_3: a.sales_week_3 + acc.sales_week_3
             , sales_month_1: a.sales_month_1 + acc.sales_month_1
             , sales_month_2: a.sales_month_2 + acc.sales_month_2
             , sales_month_3: a.sales_month_3 + acc.sales_month_3
@@ -90,11 +97,14 @@ module.exports = (params) => {
           , pixels: 0
           , optout_24h: 0
           , optouts: 0
+          , paid_active: 0
+          , cq_active72: 0
           , firstbillings: 0
           , resubs: 0
 
           , revenue_week_1: 0
           , revenue_week_2: 0
+          , revenue_week_3: 0
           , revenue_month_1: 0
           , revenue_month_2: 0
           , revenue_month_3: 0
@@ -110,6 +120,7 @@ module.exports = (params) => {
 
           , sales_week_1: 0
           , sales_week_2: 0
+          , sales_week_3: 0
           , sales_month_1: 0
           , sales_month_2: 0
           , sales_month_3: 0

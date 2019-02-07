@@ -6,6 +6,7 @@ import { debug, debuglog } from 'util';
 const aKeys = [
   "week_1",
   "week_2",
+  "week_3",
   "month_1",
   "month_2",
   "month_3",

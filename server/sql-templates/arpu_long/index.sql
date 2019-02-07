@@ -9,10 +9,19 @@ select
   , sum(case when us.optout > 0 then 1 else 0 end) :: float as optouts
   , sum(case when us.optout > 0 and date_diff('hours', us.sale_timestamp, us.optout_timestamp) < 24 then 1 else 0 end) :: float as optout_24h
   , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
-
-  
+  , sum (
+      case when 
+            (us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue + us.tb_9th_month_revenue + us.tb_10th_month_revenue + us.tb_11th_month_revenue + us.tb_12th_month_revenue) > 0
+        and (us.optout = 0 or us.optout is null)
+        then 1 else 0 end
+  ) as paid_active
+  , sum(case when 
+      us.firstbilling > 0 and ((us.optout = 0 or us.optout is null) or date_diff('hours', us.sale_timestamp, us.optout_timestamp) > 72)
+      then 1 else 0 end
+  ) as cq_active72
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then 1 else null end) :: float as sales_week_1
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then 1 else null end) :: float as sales_week_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 21  then 1 else null end) :: float as sales_week_3
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then 1 else null end) :: float as sales_month_1
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then 1 else null end) :: float as sales_month_2
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then 1 else null end) :: float as sales_month_3
@@ -28,6 +37,7 @@ select
 
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then us.tb_first_week_revenue else 0 end) :: float as revenue_week_1
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then us.tb_first_week_revenue + us.tb_second_week_revenue else 0 end) :: float as revenue_week_2
+  , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 21  then us.tb_first_week_revenue + us.tb_second_week_revenue + us.tb_third_week_revenue else 0 end) :: float as revenue_week_3
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then us.tb_first_month_revenue else 0 end) :: float as revenue_month_1
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then us.tb_first_month_revenue + us.tb_second_month_revenue else 0 end) :: float as revenue_month_2
   , sum(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then us.tb_three_month_revenue else 0 end) :: float as revenue_month_3
@@ -55,6 +65,8 @@ select
   
   , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 7   then us.tb_first_week_revenue                               else null end) as arpu_stddev_7
   , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 14  then us.tb_first_week_revenue + us.tb_second_week_revenue   else null end) as arpu_stddev_14
+  , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 21  then us.tb_first_week_revenue + us.tb_second_week_revenue
+                                                                                                                                 + us.tb_third_week_revenue    else null end) as arpu_stddev_21
   , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 30  then us.tb_first_month_revenue                              else null end) as arpu_stddev_30
   , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 61  then us.tb_first_month_revenue + us.tb_second_month_revenue else null end) as arpu_stddev_61
   , stddev_pop(case when us.sale > 0 and date_diff('days', us.sale_timestamp, current_date) >= 92  then us.tb_three_month_revenue                              else null end) as arpu_stddev_92

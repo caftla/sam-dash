@@ -47,16 +47,22 @@ export default Section({
       , data => d3.format('0.0f')(100 * data.cq)
     ),    
     pcolumn(
-      show_label_row('CQAct24', 'cqact24')
-      , () => onSort('row', 'cqact24', 1)
-      , x => d3.format('0.0f')(100 * x.firstbillings_and_active24)
-      , data => d3.format('0.0f')(100 * data.firstbillings_and_active24)
+      show_label_row('CQAct72', 'cq_active72')
+      , () => onSort('row', 'cq_active72', 1)
+      , x => d3.format('0.0f')(100 * x.cq_active72)
+      , data => d3.format('0.0f')(100 * data.cq_active72)
     ),
     pcolumn(
       show_label_row('Act', 'act')
       , () => onSort('row', 'act', 1)
       , x => d3.format('0.0f')(x.active * 100)
       , data => d3.format('0.0f')(data.active * 100)
+    ),
+    pcolumn(
+      show_label_row('PaidAct', 'paid_active')
+      , () => onSort('row', 'paid_active', 1)
+      , x => d3.format('0.0f')(x.paid_active * 100)
+      , data => d3.format('0.0f')(data.paid_active * 100)
     ),
     column(
         show_label_row('eCPA', 'ecpa')
@@ -82,6 +88,12 @@ export default Section({
       , x => d3.format('0.2f')(x.arpu_week_2)
       , data => d3.format('0.2f')(data.arpu_week_2)
     ),
+    column(
+      show_label_row('Week3', 'arpu_week_3')
+    , () => onSort('row', 'arpu_week_3', 1)
+    , x => d3.format('0.2f')(x.arpu_week_3)
+    , data => d3.format('0.2f')(data.arpu_week_3)
+  ),
   ].concat(R.range(1,12).map(m => column(
     show_label_row(`Month${m}`, `arpu_month_${m}`)
     , () => onSort('row', `arpu_month_${m}`, 1)
