@@ -373,7 +373,32 @@ app.get('/api/v1/sessions/:timezone/:from_date/:to_date/:filter/:breakdown', (re
 
   go()
   .then(result => res.send(result))
-  .catch(error => res.send({error}))
+  .catch(error => res.send({error: error.toString()}))
+
+})
+
+//
+
+// revenue
+
+app.get('/api/v1/revenue/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+    const template = fs.readFileSync('./server/sql-templates/revenue.sql', 'utf8')
+
+    const sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseFloat(params.timezone) || 0)(params.from_date)(params.to_date)(template)
+    )()
+    
+    console.log(sql)
+    
+    return fromAff(jewelQueryServer.querySync(!!req.query.cache_buster)(md5(sql))(sql))()
+  }
+
+  go()
+  .then(result => res.send(result))
+  .catch(error => res.send({error: error.toString()}))
 
 })
 
