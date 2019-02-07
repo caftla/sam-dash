@@ -1,0 +1,113 @@
+.rt-tbody > .rt-tr-group > .rt-tr:nth-child(1) {
+  font-weight: bold;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  overflow-wrap: break-word;
+  white-space: normal;
+  flex: 1 0 auto;
+  align-self: center;
+}
+
+.rt-td .rt-thead {
+  text-align: left;
+}
+
+.ReactTable .rt-thead .rt-th.-cursor-pointer,
+.ReactTable .rt-thead {
+  display: inline-grid;
+}
+
+
+.ReactTable .rt-td.rt-expandable.rt-pivot span {
+  white-space: normal;
+}
+
+.effect {
+  text-align: center;
+  display: inline-block;
+  position: relative;
+  text-decoration: none;
+  color: #9ac355;
+  text-transform: capitalize;
+  background-color: white;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 20px;
+  margin: 5px 10px;
+  width: 180px;
+  text-decoration: underline;  
+  text-align: left;
+  overflow: hidden;
+  transition: all 0.2s linear 0s;
+}
+
+.effect:before {
+  font-family: FontAwesome;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  right: -30px;
+  width: 30px;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: all 0.2s linear 0s;
+}
+
+
+.effect.effect-1.effect-2:before {
+  content: "\f1c3";
+}
+
+.effect.effect-1.effect-3:before {
+  content: "\f0c5";
+}
+
+.effect:hover {
+  text-indent: -10px;
+}
+.effect.effect-2:hover:before, .effect.effect-3:hover:before {
+  right: 0;
+  text-indent: 0px;
+}
+
+#notification:before {
+  content: "Link was copied to clipboard";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  background-color: black;
+}
+
+.visible-notification {
+  visibility: visible;
+  opacity: 1;
+  /* transition: opacity 2s linear; */
+  -webkit-animation: fadeinout 4s linear forwards;
+  animation: fadeinout 4s linear forwards;
+}
+
+@-webkit-keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes fadeinout {
+  0%,100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
+
+
+
+
+

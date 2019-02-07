@@ -41,6 +41,8 @@ import Filter_Section_Row from './components/filter_section_row'
 import Filter_Page_Section_Row from './components/filter_page_section_row'
 import User_Sessions from './components/user_sessions'
 import Sessions from './components/sessions'
+import Revenue from './components/revenue'
+
 import MPesa from './components/m-pesa'
 import Dmb from './components/dmb'
 import User_Subscriptions from './components/user_subscriptions'
@@ -71,7 +73,8 @@ const Redirect_Filter_Page_Section_Row = ({ match, history }) => {
 const tokenFromURL = fromQueryString(window.location.search.substring(1))
 if (typeof tokenFromURL.token !== 'undefined') {
   localStorage.setItem('token', tokenFromURL.token)
-  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch('token'))
+  localStorage.setItem('img', tokenFromURL.img)
+  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch('token', 'img'))
 }
 
 const token = localStorage.getItem('token')
@@ -105,7 +108,13 @@ function Wrap(WrappedComponent) {
 	copyUrl(){
 		var getURL = document.location.href	
 			alert(getURL)
-	}
+  }
+  
+  // logout() {
+  //   localStorage.removeItem('token');
+  //   window.location = "https://mail.google.com/mail/u/0/?logout&hl=en";
+
+  // }
 
     componentWillUnMount() {
       if(!!this.unlisten) {
@@ -114,6 +123,8 @@ function Wrap(WrappedComponent) {
     }
     render() {
       console.log('%%%% ', this.state.route)
+      const user_img = localStorage.getItem('img', tokenFromURL.img)
+      const img_decoded = decodeURIComponent(user_img)
       return <div id="main">
 
         <div id="header">
@@ -154,6 +165,8 @@ function Wrap(WrappedComponent) {
 
               <a href="/weekly_reports/" className={ this.state.route == 'weekly_reports' ? 'active' : ''  }>Standard +</a>
 
+              <a href="/revenue/" className={ this.state.route == 'revenue' ? 'active' : ''  }>Revenue</a>
+
               <a href="/user_subscriptions/" className={this.state.route == 'user_subscriptions' ? 'active' : ''}>Subscriptions</a>
               
               <a href="/converting_ips/" className={ this.state.route == 'converting_ips' ? 'active' : ''  }>IPs</a>          
@@ -171,9 +184,30 @@ function Wrap(WrappedComponent) {
               <a href="/dmb/" className={ this.state.route == 'dmb' ? 'active' : ''  }>DMB</a>
 
 
+
+              { this.state.route != 'login' 
+              
+                ? <div style={{position: 'absolute', right: '10px', top: '0px', display: "inline-block" }}>
+
+              <img  src={img_decoded} height={35} width={35} />
+                            
+              </div> : ''}
+                 
+
+
+              }
+            
+            
+            }
+
+              
+
             </div>
+
+          
             
             <div id="bar"></div>
+
                     
         </div>	
 
@@ -223,7 +257,14 @@ const main_bottom = <Provider store={store}>
         <Route path="/user_sessions/:timezone/:date_from/:date_to/:filter/:page/:section/:row" component={WrapAndAuth(User_Sessions)} />
         <Route path="/user_sessions" exact={true} component={WrapAndAuth(User_Sessions)} />
 
+        { /* TODO
         <Route path="/sessions/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Sessions)} />
+        <Route path="/sessions/" component={WrapAndAuth(Sessions)} />
+        */}
+
+        <Route path="/revenue/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Revenue)} />
+        <Route path="/revenue/" component={WrapAndAuth(Revenue)} />
+
         <Route path="/m-pesa/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MPesa)} />
         <Route path="/m-pesa" component={WrapAndAuth(MPesa)} />
 
