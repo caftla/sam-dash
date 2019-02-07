@@ -350,7 +350,7 @@ button
 	padding-left: 10px
 
 .range_inputs
-	display: none
+      display: block
 	
 @media (min-width: 564px) 
     .daterangepicker 
@@ -414,3 +414,9 @@ button
         
     .daterangepicker .calendar.left 
         clear: none !important
+
+@media (max-device-width: 320px) 
+  .range_inputs
+      display: none
+
+  

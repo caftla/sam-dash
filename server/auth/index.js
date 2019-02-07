@@ -103,15 +103,19 @@ module.exports = (app) => {
     // Authenticated successfully, now find where to go next
     const user = req.user
     const clientReferer = req.headers.referer
+    const image_url = Buffer.from((user.photos[0].value).toString('base64'))
 
     if ('undefined' !== typeof clientReferer) {
       const loginRedir = URI(clientReferer).query(true)['login_redir']
 
-      'undefined' !== typeof loginRedir
-        ? res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value) }))
-        : res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
+      if ('undefined' !== typeof loginRedir) {
+        res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value), img: image_url }))
+      } else {
+        res.redirect(URI('/').query({ token: token(user.emails[0].value), img: image_url }));
+      }
+
     } else {
-      res.redirect(URI('/').query({ token: token(user.emails[0].value) }))
+      res.redirect(URI('/').query({ token: token(user.emails[0].value), img: image_url }));
     }
   })
 

@@ -1,0 +1,13 @@
+[
+  "rockman_id",
+  "country_code",
+  "gateway",
+  "operator_code",
+  "service_identifier1",
+  "service_identifier2",
+  "tariff",
+  "platform",
+  "month",
+  "week",
+  "day"
+]
