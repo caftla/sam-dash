@@ -15,12 +15,14 @@ export const export_json_to_excel = (e, data, props) => {
   e.preventDefault();
   document.getElementById('exportButton').innerText = 'File Downloading..'
 
+  const { breakdown, date_from, date_to } = props;
+
   /* make the worksheet */
   var ws = XLSX.utils.json_to_sheet(data);
 
   /* add to workbook */
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "People");
+  XLSX.utils.book_append_sheet(wb, ws, "Revenue");
 
   /* write workbook (use type 'binary') */
   var wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
@@ -32,8 +34,6 @@ export const export_json_to_excel = (e, data, props) => {
   for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
   return buf;
   }
-
-  const { breakdown, date_from, date_to } = props;
 
   saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 
     `Revenue-${breakdown}-${date_from}-${date_to}.csv`);
