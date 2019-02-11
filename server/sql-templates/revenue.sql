@@ -42,5 +42,5 @@ revenue as (
   {$ orderBy() $}
 )
 select * from sales as s
-left join revenue as r on {$ joinDimensions({tableAlias: 's'}, {tableAlias: 'r'}) $}
+full join revenue as r on {$ joinDimensions({tableAlias: 's'}, {tableAlias: 'r'}) $}
 {$ orderBy({tableAlias: 'r'}) $}
