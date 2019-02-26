@@ -1,7 +1,7 @@
-# Omni-Channel Dashboard Web App
+# Sigma 
 
 To start the web app run:
 
 ```
-secret=duck npm run start
+secret="secret" yarn run dev 
 ```
