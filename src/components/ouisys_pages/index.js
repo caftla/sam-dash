@@ -62,7 +62,7 @@ class ViewComponent extends Component {
             <Loader/>
           }
           {
-            (this.props.show_link_modal ===  true && this.props.created_campaign.hasOwnProperty("affiliate_id")) &&
+            (this.props.show_link_modal ===  true && this.props.created_campaign.hasOwnProperty("xcid")) &&
             <Modal toggleShowLink={this.props.toggle_show_link} created_campaign={this.props.created_campaign}/>
           }
         </div>

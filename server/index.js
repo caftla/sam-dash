@@ -14,7 +14,7 @@ const { fromAff } = QuseryServer
 const tolaQueryServer = QuseryServer.connect(process.env.osui_connection_string)()
 const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
 import {CronJob} from 'cron'
-import { getUploadedPages, getPageReleases, publishPage, createCampaign } from './ouisys_pages/db';
+import { getUploadedPages, getPageReleases, publishPage, findOrCreateCampaign } from './ouisys_pages/db';
 import publishToS3 from './ouisys_pages/s3-publish-page'; 
 
 
@@ -581,7 +581,7 @@ app.post('/api/v1/create_campaign', async(req, res)=>{
 
   const { page, country, affid, comments, scenario } = req.body;
 
-  const finalResult = await createCampaign(page, country, affid, comments, scenario);
+  const finalResult = await findOrCreateCampaign(page, country, affid, comments, scenario);
 
   if(finalResult !== null){ 
     res.status(200).send({

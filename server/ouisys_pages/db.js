@@ -27,10 +27,15 @@ export async function getUserCampaigns (id){
 
 export async function getUploadedPages (){
   const result = await run(
-    `SELECT *
-				FROM page_uploads u
-				WHERE  NOT EXISTS (SELECT * FROM page_releases t WHERE t.page_upload_id = u.id)
-        ORDER BY date_created DESC
+		`with Latests as (
+				select p.page, p.country, p.scenario, max(id) as latest_id from page_uploads as p
+				group by p.page, p.country, p.scenario
+			)
+			select p.* from Latests as l
+			inner join page_uploads as p
+			on p.id = l.latest_id
+			WHERE  NOT EXISTS (SELECT * FROM page_releases t WHERE t.page_upload_id = p.id)
+			ORDER BY p.date_created DESC;
     `, []
   )
 
@@ -44,7 +49,6 @@ export async function getPageReleases (){
 				LEFT JOIN (SELECT id, page, country, scenario FROM page_uploads) u
 				ON r.page_upload_id = u.id
 				ORDER BY r.date_created DESC
-				LIMIT 100
     `, []
   )
 
@@ -92,6 +96,30 @@ export async function createCampaign(page, country, affid, comments, scenario) {
 	}
 }
 
+export async function findCampaigns (page, country, affid, scenario){
+  const result = await run(
+		`
+		with src as (select id from sources where affiliate_id = $3)
+		SELECT *
+				FROM campaigns c
+				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.source_id = (select id from src)
+    `, [page, country, affid, scenario]
+  )
+
+  return (result.rows.length > 0) ? result.rows : [];
+}
+
+export async function findOrCreateCampaign (page, country, affid, comments, scenario){
+	const result = await findCampaigns(page, country, affid, scenario);
+
+	if(result.length > 0){
+		return result[0];
+	}else{
+		return createCampaign(page, country, affid, comments, scenario);
+	}
+
+	
+}
 export async function publishPage(html_url, page_upload_id, username) {
 
 	//console.table([page, country, affid, comments, scenario]);

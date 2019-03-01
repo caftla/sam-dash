@@ -322,6 +322,10 @@ export const fetch_uploaded_pages = () => (dispatch : Dispatch) => {
     dispatch(toggle_loader(false));
   }
   )
+  .catch((err)=>{
+    dispatch(toggle_show_link(false));
+    alert(err.message);
+  })
 }
 
 // released_pages
@@ -335,6 +339,10 @@ export const fetch_released_pages = () => (dispatch : Dispatch) => {
     dispatch(toggle_loader(false));
   }
   )
+  .catch((err)=>{
+    dispatch(toggle_show_link(false));
+    alert(err.message);
+  })
 }
 
 // publish_page
@@ -349,6 +357,10 @@ export const publish_page = (payload) => (dispatch : Dispatch) => {
     }
   )
   .then(()=>dispatch(create_campaign(payload)))
+  .catch((err)=>{
+    dispatch(toggle_show_link(false));
+    alert(err.message);
+  })
 }
 
 
@@ -365,7 +377,10 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   .then(()=>dispatch(fetch_uploaded_pages()))
   .then(()=>dispatch(fetch_released_pages()))
   .then(()=>dispatch(toggle_show_link(true)))
-  .catch((err)=>console.log(err))
+  .catch((err)=>{
+    dispatch(toggle_show_link(false));
+    alert(err.message);
+  })
 }
 
 // show_campaign modal

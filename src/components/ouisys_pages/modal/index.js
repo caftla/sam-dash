@@ -19,7 +19,7 @@ class Modal extends Component {
       <div className="modal-wrapper">
   
         <div className="well">
-          <h5>Page published successfully:</h5>
+          <h4>Page published successfully!</h4>
           <p><b>Country: </b> {country}</p>
           <p><b>Page: </b> {page}</p>
           <p><b>Scenario: </b> {scenario}</p>
