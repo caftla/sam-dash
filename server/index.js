@@ -14,7 +14,8 @@ const { fromAff } = QuseryServer
 const tolaQueryServer = QuseryServer.connect(process.env.osui_connection_string)()
 const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
 import {CronJob} from 'cron'
-
+import { getUploadedPages, getPageReleases, publishPage, findOrCreateCampaign } from './ouisys_pages/db';
+import publishToS3 from './ouisys_pages/s3-publish-page'; 
 
 
 const app = express();
@@ -513,6 +514,88 @@ app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', [ authen
 })
 
 // end of tola
+
+
+//ouisys_pages
+
+
+app.get('/api/v1/get_uploaded_pages', async(req, res)=>{
+  const finalResult = await getUploadedPages();
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+app.get('/api/v1/get_page_releases', async(req, res)=>{
+  const finalResult = await getPageReleases();
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+
+});
+app.post('/api/v1/publish_page', async(req, res)=>{
+  const data = req.body || null;
+  const { html_url, page_upload_id, username, page, country, scenario } = data;
+  //console.log("DATA", data);
+  //find hash
+  const fromStagingToS3 = await publishToS3(page, country, scenario);
+  publishPage(html_url, page_upload_id, username).then((finalResult)=>{
+    if(finalResult !== null){
+      res.status(200).send({
+        code:200,
+        data:finalResult
+      })
+    }else{
+      res.status(401).send({
+        code:401,
+        message:"Not authorised to view this page"
+      })
+    }
+  })
+  .catch((err)=>{
+    res.status(400).send({
+      code:400,
+      data:err
+    })
+  })
+});
+
+app.post('/api/v1/create_campaign', async(req, res)=>{
+
+  const { page, country, affid, comments, scenario } = req.body;
+
+  const finalResult = await findOrCreateCampaign(page, country, affid, comments, scenario);
+
+  if(finalResult !== null){ 
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+//end of ouisys pages
 
 app.use('/*', express.static('dist'))
 

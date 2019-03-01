@@ -21,6 +21,12 @@ import monthly_reports from './monthly_reports'
 import co_invoices from './co_invoices'
 import sort from './sort'
 import login from './login'
+import uploaded_pages from './uploaded_pages'
+import released_pages from './released_pages'
+import published_page from './published_page'
+import created_campaign from './created_campaign'
+import show_link_modal from './show_link_modal'
+import is_loading from './is_loading'
 
 const rootReducer = combineReducers({
     dashboard
@@ -47,6 +53,12 @@ const rootReducer = combineReducers({
   , co_invoices
   , sort
   , login
+  , uploaded_pages
+  , released_pages
+  , published_page
+  , created_campaign
+  , show_link_modal
+  , is_loading
 })
 
 export default rootReducer
