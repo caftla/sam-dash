@@ -309,3 +309,73 @@ export const fetch_co_invoices = (timezone, date_from: string, date_to: string, 
 
 export const cleanup_fetch_co_invoices = () => (dispatch: Dispatch) =>
   dispatch({ type: 'cleanup_fetch_co_invoices' })
+
+
+// uploaded_pages
+
+export const fetch_uploaded_pages = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'fetch_uploaded_pages' })
+  get({url: `${api_root}/api/v1/get_uploaded_pages`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'fetch_uploaded_pages_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+}
+
+// released_pages
+
+export const fetch_released_pages = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'fetch_released_pages' })
+  get({url: `${api_root}/api/v1/get_page_releases`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'fetch_released_pages_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+}
+
+// publish_page
+
+export const publish_page = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'publish_page' })
+  post({url: `${api_root}/api/v1/publish_page`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'publish_page_success', payload: d })
+    dispatch(toggle_loader(false));
+    }
+  )
+  .then(()=>dispatch(create_campaign(payload)))
+}
+
+
+// create_campaign
+
+export const create_campaign = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'create_campaign' })
+  post({url: `${api_root}/api/v1/create_campaign`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'create_campaign_success', payload: d })
+    dispatch(toggle_loader(false));
+  })
+  .then(()=>dispatch(fetch_uploaded_pages()))
+  .then(()=>dispatch(fetch_released_pages()))
+  .then(()=>dispatch(toggle_show_link(true)))
+  .catch((err)=>console.log(err))
+}
+
+// show_campaign modal
+
+export const toggle_show_link = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_show_link', payload })
+}
+
+// toggle_loader
+
+export const toggle_loader = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_loader', payload })
+}
