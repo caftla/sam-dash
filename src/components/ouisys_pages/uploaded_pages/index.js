@@ -81,7 +81,7 @@ class UploadedPages extends Component {
         <div>
           {
             (uploadedPages.length > 0) &&
-            <DataTable  className="dataTable"   a11yTitle="My campaigns" size="large" columns={columns} data={uploadedPages} />
+            <DataTable  className="dataTable"   a11yTitle="My campaigns" columns={columns} data={uploadedPages} />
           }
         </div>
 

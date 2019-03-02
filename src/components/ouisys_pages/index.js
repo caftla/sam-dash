@@ -1,7 +1,9 @@
 import React, {Component } from 'react'
 import { connect } from 'react-redux'
 import { grommet } from "grommet/themes";
-import { Grommet, Tabs, Tab, Box } from "grommet";
+import { Grommet, Tabs, Tab, Box, ThemeContext} from "grommet";
+import { deepMerge } from "grommet/utils";
+import { css } from "styled-components";
 
 
 import Loader from "./Loader";
@@ -12,60 +14,82 @@ import { fetch_uploaded_pages, fetch_released_pages, publish_page, create_campai
 
 import "./ouisys_pages.styl";
 
+const customTheme = deepMerge({
+  global: { colors: { sam: '#6da424' } },
+  tab: {
+    active: {
+      color: 'sam'
+    }
+  }
+}, grommet)
+
 class ViewComponent extends Component {
-  componentWillMount(){
+  componentWillMount() {
     this.props.fetch_uploaded_pages();
     this.props.fetch_released_pages();
   }
 
 
   render() {
-    
-    return (
-      <Grommet theme={grommet} full>
 
-        <div className="top-spacer">
-          <Tabs flex="grow" justify="center">
-            <Tab title="Unpublished">
-              <Box
-                fill
-                overflow="auto"
-                pad="xlarge"
-                align="center"
-              >
-                {
-                  (Array.isArray(this.props.uploaded_pages) && this.props.uploaded_pages.length > 0 ) &&
-                  <UploadedPages uploadedPages={this.props.uploaded_pages} publishPage={this.props.publish_page}/>
-                }
-              </Box>
-            </Tab>
-            <Tab title="Published">
+    return (
+      <Grommet theme={customTheme}>
+        <ThemeContext.Extend
+          value={{}}
+        >
+          <div className="top-spacer">
+            <Tabs flex="grow" justify="center" >
+              <Tab title="Unpublished">
                 <Box
                   fill
+                  pad={{
+                    left: 'small', right: 'small'
+                  }}
+                  margin={{
+                    top: 'medium'
+                  }}
                   overflow="auto"
-                  pad="xlarge"
                   align="center"
                 >
                   {
-                    (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0 ) &&
-                    <PublishedPages publishedPages={this.props.released_pages}/>
+                    (Array.isArray(this.props.uploaded_pages) && this.props.uploaded_pages.length > 0) &&
+                    <UploadedPages uploadedPages={this.props.uploaded_pages} publishPage={this.props.publish_page} />
                   }
                 </Box>
-            </Tab>
-          </Tabs>
-          <div className="top-spacer publish-wrapper">
+              </Tab>
+              <Tab title="Published">
+                <Box
+                  fill
+                  pad={{
+                    left: 'small', right: 'small'
+                  }}
+                  margin={{
+                    top: 'medium'
+                  }}
+                  overflow="auto"
+                  align="center"
+                >
+                  {
+                    (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
+                    <PublishedPages publishedPages={this.props.released_pages} />
+                  }
+                </Box>
+              </Tab>
+            </Tabs>
+            <div className="top-spacer publish-wrapper">
 
-          </div>
+            </div>
 
-          {
+            {
               this.props.is_loading &&
-            <Loader/>
-          }
-          {
-            (this.props.show_link_modal ===  true && this.props.created_campaign.hasOwnProperty("xcid")) &&
-            <Modal toggleShowLink={this.props.toggle_show_link} created_campaign={this.props.created_campaign}/>
-          }
-        </div>
+              <Loader />
+            }
+            {
+              (this.props.show_link_modal === true && this.props.created_campaign.hasOwnProperty("xcid")) &&
+              <Modal toggleShowLink={this.props.toggle_show_link} created_campaign={this.props.created_campaign} />
+            }
+          </div>
+        </ThemeContext.Extend>
       </Grommet>
     );
   }
