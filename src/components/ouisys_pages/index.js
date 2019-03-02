@@ -6,10 +6,10 @@ import { deepMerge } from "grommet/utils";
 import { css } from "styled-components";
 
 
-import Loader from "./Loader";
+import Loader from "./loader";
 import UploadedPages from "./uploaded_pages";
 import PublishedPages from "./published_pages";
-import Modal from "./Modal";
+import Modal from "./modal";
 import { fetch_uploaded_pages, fetch_released_pages, publish_page, create_campaign, toggle_show_link} from '../../actions'
 
 import "./ouisys_pages.styl";
