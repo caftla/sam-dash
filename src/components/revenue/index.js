@@ -63,8 +63,8 @@ class ViewComponent extends React.Component {
             , Error: (error) => <div>Error: {error.toString()}</div>
             , Loaded: (data) => 
                 <div>
-                    <div id="exportButton" onClick={ (e) => export_json_to_excel(e, data, this.props.match.params) } class="effect effect-1 effect-2">Export</div>
-                    <div id="copyButton" onClick={ (e) => copyToClipboard(window.location.href) } class="effect effect-1 effect-3">Copy Link</div>
+                    <div id="exportButton" onClick={ (e) => export_json_to_excel(e, data, this.props.match.params) } className="effect effect-1 effect-2">Export</div>
+                    <div id="copyButton" onClick={ (e) => copyToClipboard(window.location.href) } className="effect effect-1 effect-3">Copy Link</div>
                     <View data={data} affiliates_mapping={this.props.affiliates_mapping} /> 
                 </div>
           })(this.state.fetchState)

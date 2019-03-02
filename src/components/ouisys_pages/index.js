@@ -34,9 +34,6 @@ class ViewComponent extends Component {
 
     return (
       <Grommet theme={customTheme}>
-        <ThemeContext.Extend
-          value={{}}
-        >
           <div className="top-spacer">
             <Tabs flex="grow" justify="center" >
               <Tab title="Unpublished">
@@ -89,7 +86,6 @@ class ViewComponent extends Component {
               <Modal toggleShowLink={this.props.toggle_show_link} created_campaign={this.props.created_campaign} />
             }
           </div>
-        </ThemeContext.Extend>
       </Grommet>
     );
   }

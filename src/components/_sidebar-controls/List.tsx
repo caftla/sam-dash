@@ -37,7 +37,7 @@ export default class List<T> extends React.PureComponent<{
               )
             }
           >
-            <i class="fa fa-plus-circle" aria-hidden="true"></i>
+            <i className="fa fa-plus-circle" aria-hidden="true"></i>
           </div>
       </div>
     );
@@ -48,7 +48,7 @@ const ListItem = ({ children, onClick, className }) => (
   <div className={`list-item ${className || ""}`}>
     {children}
     <div onClick={onClick} className="minus">
-      <i class="fa fa-minus-circle" aria-hidden="true"></i>
+      <i className="fa fa-minus-circle" aria-hidden="true"></i>
     </div>
   </div>
 );
