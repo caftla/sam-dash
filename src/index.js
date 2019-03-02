@@ -132,7 +132,7 @@ function Wrap(WrappedComponent) {
             
             <ul id="main-area">
             
-              <li id="filter-menu" class="active" onClick={ () => {
+              <li id="filter-menu" className="active" onClick={ () => {
                 var filterMenu = document.getElementById("filter-menu"),
                   sidebar = document.getElementById("sidebar"),
                   container = document.getElementById("container"),

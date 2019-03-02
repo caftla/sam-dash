@@ -55,7 +55,7 @@ class PublishedPages extends Component {
         <div>
           {
             (publishedPages.length > 0) &&
-            <DataTable className="dataTable"  a11yTitle="My campaigns" size="large" columns={columns} data={publishedPages} />
+            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
           }
         </div>
 

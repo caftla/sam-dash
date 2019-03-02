@@ -476,19 +476,22 @@ const refresh_user_sessions = async () => {
   return await fromAff(tolaQueryServer.querySync(false)(md5(sql))(sql))()
 }
 
-new CronJob('12,45 * * * *', function() {
-  console.log('refresh_user_sessions_temp started')
-  refresh_user_sessions_temp()
-    .then(() => console.log('refresh_user_sessions_temp ended'))
-    .catch(ex => console.error(ex))
-}, null, true);
+if(process.env.NODE_ENV != "development") {
+  new CronJob('12,45 * * * *', function() {
+    console.log('refresh_user_sessions_temp started')
+    refresh_user_sessions_temp()
+      .then(() => console.log('refresh_user_sessions_temp ended'))
+      .catch(ex => console.error(ex))
+  }, null, true);
 
-new CronJob('29 1,18 * * *', function() {
-  console.log('refresh_user_sessions started')
-  refresh_user_sessions()
-    .then(() => console.log('refresh_user_sessions ended'))
-    .catch(ex => console.error(ex))
-}, null, true);
+
+  new CronJob('29 1,18 * * *', function() {
+    console.log('refresh_user_sessions started')
+    refresh_user_sessions()
+      .then(() => console.log('refresh_user_sessions ended'))
+      .catch(ex => console.error(ex))
+  }, null, true);
+}
 
 
 app.get('/api/v1/dmb/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], async (req, res) => {
