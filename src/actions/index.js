@@ -323,8 +323,8 @@ export const fetch_uploaded_pages = () => (dispatch : Dispatch) => {
   }
   )
   .catch((err)=>{
-    dispatch(toggle_show_link(false));
-    alert(err.message);
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
   })
 }
 
@@ -340,8 +340,8 @@ export const fetch_released_pages = () => (dispatch : Dispatch) => {
   }
   )
   .catch((err)=>{
-    dispatch(toggle_show_link(false));
-    alert(err.message);
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
   })
 }
 
@@ -350,16 +350,19 @@ export const fetch_released_pages = () => (dispatch : Dispatch) => {
 export const publish_page = (payload) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'publish_page' })
-  post({url: `${api_root}/api/v1/publish_page`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  post({url: `${api_root}/api/v1/publish_page`, body:{...payload}}, {})
   .then(d => {
-    dispatch({ type: 'publish_page_success', payload: d })
-    dispatch(toggle_loader(false));
+    if(d.code == 500 ) {
+      throw Error(JSON.stringify(d, null, 2))
+    } else {
+      dispatch({ type: 'publish_page_success', payload: d })
+      dispatch(toggle_loader(false));
     }
-  )
+  })
   .then(()=>dispatch(create_campaign(payload)))
   .catch((err)=>{
-    dispatch(toggle_show_link(false));
-    alert(err.message);
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
   })
 }
 
@@ -378,8 +381,8 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   .then(()=>dispatch(fetch_released_pages()))
   .then(()=>dispatch(toggle_show_link(true)))
   .catch((err)=>{
-    dispatch(toggle_show_link(false));
-    alert(err.message);
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
   })
 }
 

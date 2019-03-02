@@ -1,15 +1,7 @@
-import fs from "fs";
-import  path from "path";
 import S3 from "aws-sdk/clients/s3";
 import slugify from "slugify";
-import mime from "mime-types";
-import envfile from "envfile";
 import moment from "moment";
-import { exec } from "child_process";
 
-const execute = (command, callback)=>{
-  exec(command, (error, stdout, stderr) => callback(stdout));
-};
 const BUCKET_NAME = "mobirun";
 
 const client = new S3({
