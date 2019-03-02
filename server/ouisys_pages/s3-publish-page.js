@@ -77,7 +77,7 @@ function cacheAndPublishPage(
     });
 }
 
-export default (page, country, scenario)=>{
+export default async (page, country, scenario) => {
 
   const slugifiedScenario = slugify(scenario, { lower: true });
   const s3UploadDir = `os-ui/static/${page}/html/`;
@@ -91,11 +91,14 @@ export default (page, country, scenario)=>{
 
   // Check whether file exist or not
   // and perform appropriate action
-  client.headObject(params, (err, data) => {
+  try {
+    const data = await client.headObject(params).promise()
+    return cacheAndPublishPage(s3UploadDir, s3StageFile, s3ProdFile);
+  } catch (err) {
     if (err && err.statusCode === 404) {
-      publishPage(s3UploadDir, s3StageFile, s3ProdFile);
+      return publishPage(s3UploadDir, s3StageFile, s3ProdFile);
     } else {
-      cacheAndPublishPage(s3UploadDir, s3StageFile, s3ProdFile);
+      throw err
     }
-  });
+  }
 }

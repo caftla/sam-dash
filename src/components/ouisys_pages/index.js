@@ -23,7 +23,6 @@ class ViewComponent extends Component {
     
     return (
       <Grommet theme={grommet} full>
-
         <div className="top-spacer">
           <Tabs flex="grow" justify="center">
             <Tab title="Unpublished">
