@@ -21,7 +21,7 @@ with Pixels as (
 	select
 		us.country_code
 	, us.operator_code
-	, sum(coalesce(case when us.impression > 0 then 1 else 0 end, 0)) :: float as views
+	, sum(coalesce(case when us.impression > 0 or us.redirect > 0 then 1 else 0 end, 0)) :: float as views
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
   , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubscribes
 	
