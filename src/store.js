@@ -13,9 +13,9 @@ const log = createLogger({ diff: true, collapsed: true });
 
 const middleware = [thunk];
 
-if (process.env.NODE_ENV === "development"){
-  middleware.push(log);
-}
+// if (process.env.NODE_ENV === "development"){
+//   middleware.push(log);
+// }
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__  || compose
 
 const initState = loadState() || undefined
