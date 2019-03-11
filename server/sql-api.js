@@ -54,6 +54,9 @@ const makeQuery = (query_template: string, params: Object) => {
           `
         : param_value == "operator*gateway" ?
           `coalesce(${table}.operator_code, 'Unknown') || ' * ' || coalesce(${table}.gateway, 'Unknown')`
+        
+        : param_value == "shortcode*keyword" ?
+        `coalesce(${table}.service_identifier1, 'Unknown') || ' * ' || coalesce(${table}.service_identifier2, 'Unknown')`
 
         : param_value == "hour_of_day" ? 
           `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
