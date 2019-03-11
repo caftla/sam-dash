@@ -8,7 +8,7 @@
       'landing_page': E"substring(us.landing_page_url, 0, charindex('?', us.landing_page_url))"
   }
 }) $}
-, sum(case when us.impression > 0 then 1 else 0 end) :: float as views
+, sum(case when us.impression > 0 or us.redirect > 0 then 1 else 0 end) :: float as views
 , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
 , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
 , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
