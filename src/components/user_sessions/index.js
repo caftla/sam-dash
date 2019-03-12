@@ -24,9 +24,9 @@ const make_path = (params, query) => `/user_sessions/${formatTimezone(params.tim
 
 const breakdown_list = [
   'affiliate_id', 'publisher_id', 'sub_id',
-  'gateway', 'country_code', 'operator_code',
+  'gateway', 'country_code', 'operator_code', 'operator*gateway',
   'handle_name', 'ad_name', 'landing_page',
-  'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2',
+  'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'shortcode*keyword',
   'get_sub_method',
   'webview_app',
   'ip2', 'ip3',
