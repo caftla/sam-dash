@@ -43,16 +43,22 @@ export async function getUploadedPages (){
 }
 
 export async function getPageReleases (){
-  const result = await run(
-    `SELECT *
-				FROM page_releases r
-				LEFT JOIN (SELECT id, page, country, scenario FROM page_uploads) u
-				ON r.page_upload_id = u.id
-				ORDER BY r.date_created DESC
-    `, []
-  )
+	try {
+		const result = await run(
+			`SELECT *,
+					(select c.xcid from campaigns c where c.country = u.country and c.page = u.page and c.scenario = u.scenario and c.source_id = 1 order by c.id desc limit 1) as sam_xcid_id
+					FROM page_releases r
+					LEFT JOIN (SELECT id, page, country, scenario FROM page_uploads) u
+					ON r.page_upload_id = u.id
+					ORDER BY r.date_created DESC
+			`, []
+		)
 
-  return (result.rows.length > 0) ? result.rows : [];
+	return (result.rows.length > 0) ? result.rows : [];
+	} catch(ex) {
+		console.error(ex)
+		throw ex
+	} 
 }
 export async function createCampaign(page, country, affid, comments, scenario) {
 

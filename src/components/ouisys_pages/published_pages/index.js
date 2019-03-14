@@ -29,10 +29,18 @@ class PublishedPages extends Component {
       {
         property: "html_url",
         header: "Url",
-        search: true,
-        sortable: true,
+        search: false,
+        sortable: false,
         render: datum =>
           <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+      },
+      {
+        property: "sam_xcid_id",
+        header: "Preview",
+        search: false,
+        sortable: false,
+        render: datum =>
+          <a href={datum.html_url} target="_blank" className="link">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
       },
       {
         property: "username",
