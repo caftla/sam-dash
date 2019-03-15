@@ -1,5 +1,6 @@
 import React, {Component } from 'react'
 import { connect } from 'react-redux'
+import { Route } from "react-router"
 import { grommet } from "grommet/themes";
 import { Grommet, Tabs, Tab, Box, ThemeContext} from "grommet";
 import { deepMerge } from "grommet/utils";
@@ -24,6 +25,10 @@ const customTheme = deepMerge({
 }, grommet)
 
 class ViewComponent extends Component {
+  constructor(props){
+    super(props)
+    this.state = {route: props.location.pathname.substring(1).split('/')[0]}
+  }
   componentWillMount() {
     this.props.fetch_uploaded_pages();
     this.props.fetch_released_pages();
@@ -35,6 +40,13 @@ class ViewComponent extends Component {
     return (
       <Grommet theme={customTheme}>
           <div className="top-spacer">
+          
+            <div id="tabs-area">
+              <ul>
+                <li><a className="active" href={`/ouisys-pages` } >Manage Pages</a></li>
+                <li><a href="/ouisys-pages/legals" >Manage Legal Text</a></li>
+              </ul>
+            </div>
             <Tabs flex="grow" justify="center" >
               <Tab title="Unpublished">
                 <Box

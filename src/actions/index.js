@@ -397,3 +397,23 @@ export const toggle_show_link = (payload) => (dispatch : Dispatch) => {
 export const toggle_loader = (payload) => (dispatch : Dispatch) => {
   dispatch({ type: 'toggle_loader', payload })
 }
+
+// released_pages
+
+export const get_legals = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_legals' })
+  get({url: `http://localhost:3030/api/v1/get-page-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'get_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+    //url:'https://c1.ouisys.com/api/v1/get-page-legals',
+   // url:'http://localhost:3030/api/v1/get-page-legals',

@@ -56,6 +56,7 @@ import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
 import OuisysPages from './components/ouisys_pages'
+import Legals from './components/ouisys_pages/legals'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
@@ -231,7 +232,7 @@ function RequiresAuth(WrappedComponent) {
   })
 }
 
-const WrapAndAuth = x => RequiresAuth(Wrap(x))
+export const WrapAndAuth = x => RequiresAuth(Wrap(x))
 
 const main_bottom = <Provider store={store}>
   <ConnectedRouter history={history}>
@@ -289,6 +290,7 @@ const main_bottom = <Provider store={store}>
         <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
+        <Route path="/ouisys-pages/legals" exact={true} component={WrapAndAuth(Legals)} />
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
         </Route>
