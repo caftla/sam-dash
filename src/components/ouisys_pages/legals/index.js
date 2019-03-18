@@ -8,8 +8,8 @@ import { css } from "styled-components";
 
 
 import Loader from "../loader";
-import Modal from "../modal";
-import { get_legals } from '../../../actions'
+import LegalsModal from "./legals_modal";
+import { get_legals, add_legals, toggle_legal_modal, update_legals} from '../../../actions'
 
 import LegalsTable from "./legals_table"
 import "../ouisys_pages.styl";
@@ -34,22 +34,38 @@ class ViewComponent extends Component {
 
 
   render() {
-    console.log("this.state.route ", this.state.route )
+    console.log("this.state.route ", this.props.legals )
 
     return (
       <Grommet theme={customTheme}>
           <div className="top-spacer">
-          
             <div id="tabs-area">
               <ul>
-                <li><a  href={`/ouisys-pages/publishing` } >Manage Pages</a></li>
+                <li><a  href={`/ouisys-pages` } >Manage Pages</a></li>
                 <li><a className="active" href={`/ouisys-pages/legals` } >Manage Legal Text</a></li>
-                <li>Add</li>
               </ul>
-              <LegalsTable legals={this.props.legals}/>
 
+                <h1>Legal Text</h1>
+
+                <button
+                  className="warning"
+                  onClick={()=>this.props.toggle_legal_modal({show:true, type:"add"})}
+                >Add New</button>
+                <LegalsTable
+                  legals={this.props.legals}
+                  toggle_legal_modal={this.props.toggle_legal_modal}
+                />
+              
             </div>
-
+            {
+              this.props.show_legal_modal.show &&
+              <LegalsModal
+                add_legals={this.props.add_legals}
+                show_legal_modal={this.props.show_legal_modal}
+                toggle_legal_modal={this.props.toggle_legal_modal}
+                update_legals={this.props.update_legals}
+              />
+            }
           </div>
       </Grommet>
     );
@@ -61,10 +77,14 @@ class ViewComponent extends Component {
 export default connect(
   state => ({
     legals: state.legals,
-    is_loading: state.is_loading
+    is_loading: state.is_loading,
+    show_legal_modal: state.show_legal_modal
       
   })
 , {
-    get_legals
+    get_legals,
+    add_legals,
+    toggle_legal_modal,
+    update_legals
   }
 ) (ViewComponent)

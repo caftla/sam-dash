@@ -28,50 +28,66 @@ class LegalsTable extends Component {
       {
         property: "service",
         header: "Service",
-        search: false,
+        search: true,
         sortable: false
       },
       {
         property: "language",
         header: "Language",
-        search: false,
+        search: true,
         sortable: false
       },
       {
         property: "top_legal",
         header: "Top legals",
-        search: false,
-        sortable: false
+        sortable: false,
+        render: datum =>{
+          return(
+            <div className="large-text">
+              {datum.top_legal}
+            </div>
+          )
+        }
       },
       {
         property: "disclaimer",
         header: "Disclaimers",
-        search: false,
-        sortable: false
+        sortable: false,
+        render: datum =>{
+          return(
+            <div className="large-text">
+              {datum.disclaimer}
+            </div>
+          )
+        }
+          
       },
       {
-        property: "disclaimer",
-        header: "Disclaimers",
-        search: false,
-        sortable: false
+        property: "price_point",
+        header: "Price Points",
+        sortable: false,
+        render: datum =>{
+          return(
+            <div className="large-text">
+              {datum.price_point}
+            </div>
+          )
+        }
       },
       {
-        property: "has_exit",
-        header: "Has Exit",
+        property: "",
+        header: "Extras",
         search: false,
-        sortable: false
-      },
-      {
-        property: "logo_url",
-        header: "Logo",
-        search: false,
-        sortable: false
-      },
-      {
-        property: "extra_image_url",
-        header: "Extra Image",
-        search: false,
-        sortable: false
+        sortable: false,
+        render: datum =>{
+          return(
+            <div>
+              <bold>Logo:</bold> <img width="50" src={datum.logo_url}/> <br/>
+              <bold>Extra Image: </bold><img src={datum.extra_image_url}/><br/>
+              <bold>Exit: </bold>{datum.has_exit ? "TRUE" : "FALSE"}
+            </div>
+          )
+        }
       },
       {
         property: "date_created",
@@ -90,18 +106,19 @@ class LegalsTable extends Component {
         render: datum =>{
           return(
             <div>
-              <button>Edit</button>
+              <button onClick={()=>this.props.toggle_legal_modal({show:true, type:"edit", data:datum})}>Edit</button>
             </div>
           )
         }
       }
     ];
-    const { legals } = this.props;
+    const legals = Array.isArray(this.props.legals) ? this.props.legals : [];
+    console.log("legals", legals)
     return(
         <div>
           {
-            (legals.length > 0) &&
-            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={legals} />
+            true &&
+            <DataTable  a11yTitle="My campaigns" columns={columns} data={legals} />
           }
         </div>
 

@@ -403,7 +403,7 @@ export const toggle_loader = (payload) => (dispatch : Dispatch) => {
 export const get_legals = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_legals' })
-  get({url: `http://localhost:3030/api/v1/get-page-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `http://localhost:3030/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => {
     dispatch({ type: 'get_legals_success', payload: d })
     dispatch(toggle_loader(false));
@@ -414,6 +414,52 @@ export const get_legals = () => (dispatch : Dispatch) => {
     alert("ERROR:\n\n" + err.message);
   })
 }
+
+// add-legals
+
+export const add_legals = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'add_legals' })
+  post({url: `http://localhost:3030/api/v1/add-legals`, body:{...payload}}, {})
+  .then(d => {
+    dispatch({ type: 'add_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .then(()=>{
+    dispatch(get_legals());
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+// update legals
+export const update_legals = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'update_legals' })
+  post({url: `http://localhost:3030/api/v1/update-legals`, body:{...payload}}, {})
+  .then(d => {
+    dispatch({ type: 'update_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .then(()=>{
+    dispatch(get_legals());
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+export const toggle_legal_modal = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_legal_modal', payload })
+}
+
+
+
 
     //url:'https://c1.ouisys.com/api/v1/get-page-legals',
    // url:'http://localhost:3030/api/v1/get-page-legals',
