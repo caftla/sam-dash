@@ -33,10 +33,10 @@ class LegalsModal extends Component {
   handleSubmit(ev){
     ev.preventDefault();
     const objectToSend = {
-      country:this.state.country,
-      scenario:this.state.scenario,
-      service:this.state.service,
-      language:this.state.language,
+      country:this.state.country.toLowerCase(),
+      scenario:this.state.scenario.toLowerCase(),
+      service:this.state.service.toLowerCase(),
+      language:this.state.language.toLowerCase(),
       top_legal:this.state.top_legal,
       price_point:this.state.price_point,
       disclaimer:this.state.disclaimer,
