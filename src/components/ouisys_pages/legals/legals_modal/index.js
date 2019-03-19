@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { AllHtmlEntities as Entities } from "html-entities";
 import { Input } from "../../../common-controls/FormElementsUtils";
 import { Heading } from "grommet";
 
 //import "./PublishedPages.scss";
+
+const entities = new Entities();
 
 class LegalsModal extends Component {
   constructor(props){
@@ -37,12 +40,9 @@ class LegalsModal extends Component {
       scenario:this.state.scenario.toLowerCase(),
       service:this.state.service.toLowerCase(),
       language:this.state.language.toLowerCase(),
-      top_legal:this.state.top_legal,
-      price_point:this.state.price_point,
-      disclaimer:this.state.disclaimer,
-      has_exit:this.state.has_exit,
-      logo_url:this.state.logo_url,
-      extra_image_url:this.state.extra_image_url
+      top_legal:entities.encodeNonUTF(this.state.top_legal),
+      price_point:entities.encodeNonUTF(this.state.price_point),
+      disclaimer:entities.encodeNonUTF(this.state.disclaimer)
     };
 
     if(this.props.show_legal_modal.type !== "edit"){
