@@ -1,12 +1,12 @@
 with Views as (
   select 
     e.ip3 as ip3
-  , sum(case when e.impression > 0 or us.redirect > 0 then 1 else 0 end) :: int as views
+  , sum(case when e.impression > 0 or e.redirect > 0 then 1 else 0 end) :: int as views
   from public.user_sessions e
   where e.timestamp >= '$from_date$'
     and e.timestamp <= '$to_date$'
     and $[params.f_filter('e')]$
-    and (e.impression > 0 or us.redirect > 0)
+    and (e.impression > 0 or e.redirect > 0)
   group by ip3
 ), Sales as (
   select 
