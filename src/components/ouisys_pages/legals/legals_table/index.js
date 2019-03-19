@@ -7,6 +7,15 @@ import { DataTable } from 'grommet';
 class LegalsTable extends Component {
 
 
+  handleDelete(data){
+    const result = confirm(`You are about to delete legal text ID: ${data.id}`);
+    if (result == true) {
+      this.props.delete_legal(data.id);
+    } else {
+      console.log("You pressed Cancel!");
+    }
+  }
+
   render(){
     const columns = [
       {
@@ -75,21 +84,6 @@ class LegalsTable extends Component {
         }
       },
       {
-        property: "",
-        header: "Extras",
-        search: false,
-        sortable: false,
-        render: datum =>{
-          return(
-            <div>
-              <bold>Logo:</bold> <img width="50" src={datum.logo_url}/> <br/>
-              <bold>Extra Image: </bold><img src={datum.extra_image_url}/><br/>
-              <bold>Exit: </bold>{datum.has_exit ? "TRUE" : "FALSE"}
-            </div>
-          )
-        }
-      },
-      {
         property: "date_created",
         header: "Date",
         sortable: true,
@@ -105,15 +99,15 @@ class LegalsTable extends Component {
         sortable: false,
         render: datum =>{
           return(
-            <div>
+            <div className="legals-actions-wrapper">
               <button onClick={()=>this.props.toggle_legal_modal({show:true, type:"edit", data:datum})}>Edit</button>
+              <button onClick={()=>this.handleDelete(datum)} className="warning">Delete</button>
             </div>
           )
         }
       }
     ];
     const legals = Array.isArray(this.props.legals) ? this.props.legals : [];
-    console.log("legals", legals)
     return(
         <div>
           {

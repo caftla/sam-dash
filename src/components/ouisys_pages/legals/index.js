@@ -9,7 +9,7 @@ import { css } from "styled-components";
 
 import Loader from "../loader";
 import LegalsModal from "./legals_modal";
-import { get_legals, add_legals, toggle_legal_modal, update_legals} from '../../../actions'
+import { get_legals, add_legals, toggle_legal_modal, update_legals, delete_legal} from '../../../actions'
 
 import LegalsTable from "./legals_table"
 import "../ouisys_pages.styl";
@@ -44,9 +44,7 @@ class ViewComponent extends Component {
                 <li><a  href={`/ouisys-pages` } >Manage Pages</a></li>
                 <li><a className="active" href={`/ouisys-pages/legals` } >Manage Legal Text</a></li>
               </ul>
-
                 <h1>Legal Text</h1>
-
                 <button
                   className="warning"
                   onClick={()=>this.props.toggle_legal_modal({show:true, type:"add"})}
@@ -54,6 +52,8 @@ class ViewComponent extends Component {
                 <LegalsTable
                   legals={this.props.legals}
                   toggle_legal_modal={this.props.toggle_legal_modal}
+                  delete_legal={this.props.delete_legal}
+                  
                 />
               
             </div>
@@ -64,6 +64,7 @@ class ViewComponent extends Component {
                 show_legal_modal={this.props.show_legal_modal}
                 toggle_legal_modal={this.props.toggle_legal_modal}
                 update_legals={this.props.update_legals}
+                
               />
             }
           </div>
@@ -85,6 +86,7 @@ export default connect(
     get_legals,
     add_legals,
     toggle_legal_modal,
-    update_legals
+    update_legals,
+    delete_legal
   }
 ) (ViewComponent)

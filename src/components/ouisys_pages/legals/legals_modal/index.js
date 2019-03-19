@@ -60,10 +60,7 @@ class LegalsModal extends Component {
       language,
       top_legal,
       price_point,
-      disclaimer,
-      has_exit,
-      logo_url,
-      extra_image_url
+      disclaimer
     } = this.state;
     const { } = this.props.show_legal_modal
     return (
@@ -173,47 +170,8 @@ class LegalsModal extends Component {
                 }}
               />
             </div>
-            <div className="legal-form-group">
-              <label>Has exit button (optional)</label>
-              <select
-                onChange={(ev)=>{
-                  this.setState({
-                    has_exit:ev.target.value
-                  
-                  })
-                }}
-                value={has_exit}
-              >
-                <option value={false}>False</option>
-                <option value={true}>True</option>
-              </select>
-            </div>
-            <div className="legals-col">
-              <div className="legal-form-group">
-                <label>Logo url (optional)</label>
-                <input
-                  value={logo_url}
-                  name="logo_url"
-                  onChange={(ev)=>{
-                    this.setState({
-                      logo_url:ev.target.value
-                    })
-                  }}
-                />
-              </div>
-              <div className="legal-form-group">
-                <label>Extra Image url (optional)</label>
-                <input
-                  value={extra_image_url}
-                  name="extra_image_url"
-                  onChange={(ev)=>{
-                    this.setState({
-                      extra_image_url:ev.target.value
-                    })
-                  }}
-                />
-              </div>
-            </div>
+
+            
             <div className="legals-col">
               <div className="legal-form-group">
                 <button color="secondary">Save</button>
