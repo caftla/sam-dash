@@ -34,7 +34,7 @@ class LegalsModal extends Component {
   }
 
   jsonFriendly(text){
-    return entities.encodeNonUTF(text.replace(/(\r\n|\n|\r)/gm, ""));
+    return entities.encode(text.replace(/(\r\n|\n|\r)/gm, ""));
   }
 
   handleSubmit(ev){
