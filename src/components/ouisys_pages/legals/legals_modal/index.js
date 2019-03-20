@@ -33,6 +33,10 @@ class LegalsModal extends Component {
     }
   }
 
+  jsonFriendly(text){
+    return entities.encodeNonUTF(text.replace(/(\r\n|\n|\r)/gm, ""));
+  }
+
   handleSubmit(ev){
     ev.preventDefault();
     const objectToSend = {
@@ -40,9 +44,9 @@ class LegalsModal extends Component {
       scenario:this.state.scenario.toLowerCase(),
       service:this.state.service.toLowerCase(),
       language:this.state.language.toLowerCase(),
-      top_legal:entities.encodeNonUTF(this.state.top_legal),
-      price_point:entities.encodeNonUTF(this.state.price_point),
-      disclaimer:entities.encodeNonUTF(this.state.disclaimer)
+      top_legal:this.jsonFriendly(this.state.top_legal),
+      price_point:this.jsonFriendly(this.state.price_point),
+      disclaimer:this.jsonFriendly(this.state.disclaimer)
     };
 
     if(this.props.show_legal_modal.type !== "edit"){
