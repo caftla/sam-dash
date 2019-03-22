@@ -10,8 +10,8 @@ class CampaignTable extends Component {
   render(){
     const columns = [
       {
-        property: "id",
-        header: "ID",
+        property: "xcid",
+        header: "xcid",
         primary: true
       },{
         property: "country",
