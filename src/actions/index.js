@@ -391,8 +391,9 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
 export const get_all_campaigns = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_all_campaigns' })
-  get({url: `${api_root}/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `${api_root}/api/v1/get_all_campaigns`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => {
+    console.log("HERE", d)
     dispatch({ type: 'get_all_campaigns_success', payload: d })
     dispatch(toggle_loader(false));
   }

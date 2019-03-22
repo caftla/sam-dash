@@ -44,8 +44,11 @@ class CampaignTable extends Component {
         header: "Preview",
         search: false,
         sortable: false,
-        render: datum =>
-          <a href={`https://c1.ouisys.com/${datum.xcid}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.xcid}`}</a>,
+        render: datum =>{
+          const url = (datum.affiliate_id === "FREE-ANY" || datum.affiliate_id === "FREE-POP") ? 
+          `https://c1.ouisys.com/${datum.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${datum.xcid}`
+          return <a href={url} target="_blank" className="link">{url}</a>
+        }
       },
       {
         property: "affiliate_id",
