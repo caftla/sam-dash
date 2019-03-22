@@ -14,7 +14,13 @@ const { fromAff } = QuseryServer
 const tolaQueryServer = QuseryServer.connect(process.env.osui_connection_string)()
 const jewelQueryServer = QuseryServer.connect(process.env.jewel_connection_string)()
 import {CronJob} from 'cron'
-import { getUploadedPages, getPageReleases, findOrCreateCampaign } from './ouisys_pages/db';
+import {
+  getUploadedPages,
+  getPageReleases,
+  findOrCreateCampaign,
+  getSources,
+  getAllCampaigns
+} from './ouisys_pages/db';
 import fetch from "node-fetch"
 
 const app = express();
@@ -552,6 +558,40 @@ app.get('/api/v1/get_page_releases', authenticate(), async(req, res)=>{
   }
 
 });
+app.get('/api/v1/get_sources', authenticate(), async(req, res)=>{
+  const finalResult = await getSources();
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+
+});
+
+app.get('/api/v1/get_all_campaigns', async(req, res)=>{
+  const finalResult = await getAllCampaigns();
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+
+});
+
 
 app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
   try {

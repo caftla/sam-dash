@@ -380,12 +380,28 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   .then(()=>dispatch(fetch_uploaded_pages()))
   .then(()=>dispatch(fetch_released_pages()))
   .then(()=>dispatch(toggle_show_link(true)))
+  .then(()=>dispatch(toggle_create_campaign({})))
   .catch((err)=>{
     dispatch(toggle_loader(false));
     alert("ERROR:\n\n" + err.message);
   })
 }
 
+//get all campaigns
+export const get_all_campaigns = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_all_campaigns' })
+  get({url: `${api_root}/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'get_all_campaigns_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
 // show_campaign modal
 
 export const toggle_show_link = (payload) => (dispatch : Dispatch) => {
@@ -396,4 +412,118 @@ export const toggle_show_link = (payload) => (dispatch : Dispatch) => {
 
 export const toggle_loader = (payload) => (dispatch : Dispatch) => {
   dispatch({ type: 'toggle_loader', payload })
+}
+
+// released_pages
+
+const ouisys_api = "https://c1.ouisys.com";
+//const ouisys_api = "http://localhost:3030";
+export const get_legals = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_legals' })
+  get({url: `${ouisys_api}/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'get_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+
+
+// add-legals
+
+export const add_legals = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'add_legals' })
+  post({url: `${ouisys_api}/api/v1/add-legals`, body:{...payload}}, {})
+  .then(d => {
+    dispatch({ type: 'add_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+    alert("Legal text saved!");
+  }
+  )
+  .then(()=>{
+    dispatch(get_legals());
+    dispatch(toggle_legal_modal({}));
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+// update legals
+export const update_legals = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'update_legals' })
+  post({url: `${ouisys_api}/api/v1/update-legals`, body:{...payload}}, {})
+  .then(d => {
+    dispatch({ type: 'update_legals_success', payload: d })
+    dispatch(toggle_loader(false));
+    alert("Legal text updated!");
+  }
+  )
+  .then(()=>{
+    dispatch(toggle_legal_modal({}));
+    dispatch(get_legals());
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+//delete legal
+export const delete_legal = (id) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'delete_legal' })
+  post({url: `${ouisys_api}/api/v1/delete-legal`, body:{id}}, {})
+  .then(d => {
+    dispatch({ type: 'delete_legal_success', payload: d })
+    dispatch(toggle_loader(false));
+    alert("Legal text deleted!");
+  }
+  )
+  .then(()=>{
+    dispatch(toggle_legal_modal({}));
+    dispatch(get_legals());
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+
+
+export const toggle_legal_modal = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_legal_modal', payload })
+}
+
+
+//create a campaign from affiliates
+
+
+export const toggle_create_campaign = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_create_campaign', payload })
+}
+
+export const fetch_get_sources = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'fetch_get_sources' })
+  get({url: `${api_root}/api/v1/get_sources`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'fetch_get_sources_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
 }

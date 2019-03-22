@@ -102,20 +102,24 @@ module.exports = (app) => {
   app.get('/api/google_callback', requireSignin, (req, res) => {
     // Authenticated successfully, now find where to go next
     const user = req.user
+
+    const username = user.displayName
     const clientReferer = req.headers.referer
-    const image_url = Buffer.from((user.photos[0].value).toString('base64'))
+    const image_url = Buffer.from((user.photos[0].value).toString('base64'));
+
+    const genToken = token(user.emails[0].value);
 
     if ('undefined' !== typeof clientReferer) {
       const loginRedir = URI(clientReferer).query(true)['login_redir']
 
       if ('undefined' !== typeof loginRedir) {
-        res.redirect(URI(loginRedir).query({ token: token(user.emails[0].value), img: image_url }))
+        res.redirect(URI(loginRedir).query({ token: genToken, img: image_url, username }))
       } else {
-        res.redirect(URI('/').query({ token: token(user.emails[0].value), img: image_url }));
+        res.redirect(URI('/').query({ token: genToken, img: image_url, username }));
       }
 
     } else {
-      res.redirect(URI('/').query({ token: token(user.emails[0].value), img: image_url }));
+      res.redirect(URI('/').query({ token: genToken, img: image_url, username }));
     }
   })
 

@@ -4,7 +4,7 @@ import { DataTable } from 'grommet';
 //import "./PublishedPages.scss";
 
 
-class PublishedPages extends Component {
+class CampaignTable extends Component {
 
 
   render(){
@@ -61,6 +61,18 @@ class PublishedPages extends Component {
         render: datum =>
           datum.date_created && moment(datum.date_created).format("MMM Do YY"),
         align: "end"
+      },
+      {
+        property: "",
+        header: "Action",
+        sortable: true,
+        primary: true,
+        render: datum =>
+          <button
+            className="btn btn-success"
+            onClick={()=>this.props.toggle_create_campaign({show:true, data:datum})}
+          >Create Campaign</button>,
+        align: "end"
       }
     ];
     const { publishedPages } = this.props;
@@ -77,4 +89,4 @@ class PublishedPages extends Component {
 
 }
 
-export default PublishedPages;
+export default CampaignTable;

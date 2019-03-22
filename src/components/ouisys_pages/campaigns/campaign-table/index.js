@@ -4,7 +4,7 @@ import { DataTable } from 'grommet';
 //import "./PublishedPages.scss";
 
 
-class PublishedPages extends Component {
+class CampaignTable extends Component {
 
 
   render(){
@@ -40,16 +40,28 @@ class PublishedPages extends Component {
           <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
       },
       {
-        property: "sam_xcid_id",
+        property: "xcid",
         header: "Preview",
         search: false,
         sortable: false,
         render: datum =>
-          <a href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
+          <a href={`https://c1.ouisys.com/${datum.xcid}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.xcid}`}</a>,
       },
       {
-        property: "username",
-        header: "Publisher",
+        property: "affiliate_id",
+        header: "Affiliate id",
+        search: true,
+        sortable: true
+      },
+      {
+        property: "affiliate_name",
+        header: "Affiliate Name",
+        search: true,
+        sortable: true
+      },
+      {
+        property: "comments",
+        header: "Comments",
         search: true,
         sortable: true
       },
@@ -63,12 +75,12 @@ class PublishedPages extends Component {
         align: "end"
       }
     ];
-    const { publishedPages } = this.props;
+    const { all_campaigns } = this.props;
     return(
         <div>
           {
-            (publishedPages.length > 0) &&
-            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
+            (all_campaigns.length > 0) &&
+            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
           }
         </div>
 
@@ -77,4 +89,4 @@ class PublishedPages extends Component {
 
 }
 
-export default PublishedPages;
+export default CampaignTable;

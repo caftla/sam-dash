@@ -1,5 +1,6 @@
 import React, {Component } from 'react'
 import { connect } from 'react-redux'
+import { Route } from "react-router"
 import { grommet } from "grommet/themes";
 import { Grommet, Tabs, Tab, Box, ThemeContext} from "grommet";
 import { deepMerge } from "grommet/utils";
@@ -10,7 +11,17 @@ import Loader from "./loader";
 import UploadedPages from "./uploaded_pages";
 import PublishedPages from "./published_pages";
 import Modal from "./modal";
-import { fetch_uploaded_pages, fetch_released_pages, publish_page, create_campaign, toggle_show_link} from '../../actions'
+import SubMenu from "./submenu"
+import {
+  fetch_uploaded_pages,
+  fetch_released_pages,
+  publish_page,
+  create_campaign,
+  toggle_show_link,
+  create_camapign,
+  toggle_create_campaign,
+  fetch_get_sources
+} from '../../actions'
 
 import "./ouisys_pages.styl";
 
@@ -24,9 +35,14 @@ const customTheme = deepMerge({
 }, grommet)
 
 class ViewComponent extends Component {
+  constructor(props){
+    super(props)
+    this.state = {route: props.location.pathname.substring(1).split('/')[0]}
+  }
   componentWillMount() {
     this.props.fetch_uploaded_pages();
     this.props.fetch_released_pages();
+    this.props.fetch_get_sources();
   }
 
 
@@ -35,6 +51,11 @@ class ViewComponent extends Component {
     return (
       <Grommet theme={customTheme}>
           <div className="top-spacer">
+          
+            <div id="tabs-area">
+              <SubMenu id="pages"/>
+              <h1>Ouisys Pages</h1>
+            </div>
             <Tabs flex="grow" justify="center" >
               <Tab title="Unpublished">
                 <Box
@@ -68,7 +89,11 @@ class ViewComponent extends Component {
                 >
                   {
                     (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
-                    <PublishedPages publishedPages={this.props.released_pages} />
+                    <PublishedPages
+                      publishedPages={this.props.released_pages}
+                      create_camapign={this.props.create_camapign}
+                      toggle_create_campaign={this.props.toggle_create_campaign}
+                    />
                   }
                 </Box>
               </Tab>
@@ -83,7 +108,11 @@ class ViewComponent extends Component {
             }
             {
               (this.props.show_link_modal === true && this.props.created_campaign.hasOwnProperty("xcid")) &&
-              <Modal toggleShowLink={this.props.toggle_show_link} created_campaign={this.props.created_campaign} />
+              <Modal 
+                toggleShowLink={this.props.toggle_show_link} 
+                created_campaign={this.props.created_campaign}
+                title="Page published successfully!"
+              />
             }
           </div>
       </Grommet>
@@ -100,7 +129,10 @@ export default connect(
     published_page: state.published_page,
     created_campaign: state.created_campaign,
     show_link_modal: state.show_link_modal,
-    is_loading: state.is_loading
+    is_loading: state.is_loading,
+    show_create_campaign: state.show_create_campaign,
+    sources: state.sources,
+    created_campaign: state.created_campaign
       
   })
 , {
@@ -108,6 +140,9 @@ export default connect(
     fetch_released_pages,
     publish_page,
     create_campaign,
-    toggle_show_link
+    toggle_show_link,
+    create_camapign,
+    toggle_create_campaign,
+    fetch_get_sources
   }
 ) (ViewComponent)
