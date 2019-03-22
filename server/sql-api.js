@@ -40,7 +40,10 @@ const makeQuery = (query_template: string, params: Object) => {
             date_exp 
         : param_value == "landing_page" ?
             ` (case when ${table}.landing_page_url like '%c1.%' then 'http://c1.ouisys.com/preview/?page=' ||  ${table}.handle_name || '&country=' || LOWER(${table}.country_code) else
-                ('http:' || substring(${table}.landing_page_url, (case when ${table}.landing_page_url like 'https%' then 7 else 6 end), charindex('?', ${table}.landing_page_url) - (case when ${table}.landing_page_url like 'https%' then 7 else 6 end)))
+                substring(
+                  ('http:' || substring(${table}.landing_page_url, (case when ${table}.landing_page_url like 'https%' then 7 else 6 end), charindex('?', ${table}.landing_page_url)))
+                , 0
+                , charindex('?', ${table}.landing_page_url))
               end)`
         : param_value == "gateway" ?
           `

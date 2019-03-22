@@ -39,11 +39,10 @@ async function logToDatabase(user: string, report: string, filter: string, tab: 
       `,
         [user, report, filter, tab, section, row]
       );
-
-    } finally {
-      
       console.log(result.rows[0])
-  
+    } catch (ex) {
+      console.error(ex)
+    } finally {
       await client.end();
     }
 }
