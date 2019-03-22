@@ -79,7 +79,7 @@ const dimensions = {
       }
     },
     aggregate: values => R.uniq(values),
-    PivotValue: ({ value }) => affiliates_mapping[value],
+    PivotValue: ({ value }) => affiliates_mapping[value] || 'Unknown',
     Cell: ({ value }) => affiliates_mapping[value],
     width: 140,
     Aggregated: (d, rows) => {
