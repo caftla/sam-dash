@@ -14,12 +14,15 @@ class Modal extends Component {
 
   render(){
     const { country, page, scenario, xcid } = this.props.created_campaign;
-    const url = `http://c1.ouisys.com/${xcid}`;
+    const modalTitle = this.props.title;
+    
+    const { source_id  } = this.props.created_campaign;
+    const url = (source_id && source_id === 930 || source_id === 929) ? `http://c1.ouisys.com/${xcid}?offer={offer_id}` : `http://c1.ouisys.com/${xcid}`
     return (
       <div className="modal-wrapper">
   
         <div className="well">
-          <h4>Page published successfully!</h4>
+          <h4>{modalTitle}</h4>
           <p><b>Country: </b> {country}</p>
           <p><b>Page: </b> {page}</p>
           <p><b>Scenario: </b> {scenario}</p>

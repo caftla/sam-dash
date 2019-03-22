@@ -75,8 +75,8 @@ class LegalsModal extends Component {
 
           <form className="legal-form-wrapper" onSubmit={(ev)=>this.handleSubmit(ev)}>
           <h4>Add Legals</h4>
-            <div className="legals-col">
-              <div className="legal-form-group">
+            <div className="os-ui-col">
+              <div className="os-ui-form-group">
                 <label>Country*</label>
                 <input
                   value={country}
@@ -90,7 +90,7 @@ class LegalsModal extends Component {
                   }}
                 />
               </div>
-              <div className="legal-form-group">
+              <div className="os-ui-form-group">
                 <label>Scenario*</label>
                 <input
                   value={scenario}
@@ -105,8 +105,8 @@ class LegalsModal extends Component {
                 />
               </div>
             </div>
-            <div className="legals-col">
-              <div className="legal-form-group">
+            <div className="os-ui-col">
+              <div className="os-ui-form-group">
                 <label>Service*</label>
                 <input
                   value={service}
@@ -120,7 +120,7 @@ class LegalsModal extends Component {
                   }}
                 />
               </div>
-              <div className="legal-form-group">
+              <div className="os-ui-form-group">
                 <label>Language*</label>
                 <input
                   value={language}
@@ -135,7 +135,7 @@ class LegalsModal extends Component {
                 />
               </div>
             </div>
-            <div className="legal-form-group">
+            <div className="os-ui-form-group">
               <label>Top Legals</label>
               <textarea
                 value={top_legal}
@@ -148,7 +148,7 @@ class LegalsModal extends Component {
                 }}
               >{top_legal}</textarea>
             </div>
-            <div className="legal-form-group">
+            <div className="os-ui-form-group">
               <label>Disclaimers</label>
               <textarea
                 value={disclaimer}
@@ -161,7 +161,7 @@ class LegalsModal extends Component {
                 }}
               />
             </div>
-            <div className="legal-form-group">
+            <div className="os-ui-form-group">
               <label>Price Points</label>
               <textarea
                 value={price_point}
@@ -176,11 +176,11 @@ class LegalsModal extends Component {
             </div>
 
             
-            <div className="legals-col">
-              <div className="legal-form-group">
+            <div className="os-ui-col">
+              <div className="os-ui-form-group">
                 <button color="secondary">Save</button>
               </div>
-              <div className="legal-form-group">
+              <div className="os-ui-form-group">
                 <button color="warning" onClick={()=>this.props.toggle_legal_modal({})}>Close</button>
               </div>
             </div>

@@ -7,11 +7,11 @@ import { deepMerge } from "grommet/utils";
 import { css } from "styled-components";
 
 
-import Loader from "./loader";
-import UploadedPages from "./uploaded_pages";
-import PublishedPages from "./published_pages";
-import Modal from "./modal";
-import SubMenu from "./submenu"
+import Loader from "../loader";
+import PublishedPages from "./campaign-table";
+import Modal from "../modal";
+import CreateCampaign from "./create-campaign-modal";
+import SubMenu from "../submenu"
 import {
   fetch_uploaded_pages,
   fetch_released_pages,
@@ -21,9 +21,9 @@ import {
   create_camapign,
   toggle_create_campaign,
   fetch_get_sources
-} from '../../actions'
+} from '../../../actions'
 
-import "./ouisys_pages.styl";
+import "../ouisys_pages.styl";
 
 const customTheme = deepMerge({
   global: { colors: { sam: '#6da424' } },
@@ -53,49 +53,35 @@ class ViewComponent extends Component {
           <div className="top-spacer">
           
             <div id="tabs-area">
-              <SubMenu id="pages"/>
-              <h1>Ouisys Pages</h1>
+              
+            <SubMenu id="campaigns"/>
+            <h1>Manage Campaigns</h1>
             </div>
-            <Tabs flex="grow" justify="center" >
-              <Tab title="Unpublished">
-                <Box
-                  fill
-                  pad={{
-                    left: 'small', right: 'small'
-                  }}
-                  margin={{
-                    top: 'medium'
-                  }}
-                  overflow="auto"
-                  align="center"
-                >
-                  {
-                    (Array.isArray(this.props.uploaded_pages) && this.props.uploaded_pages.length > 0) &&
-                    <UploadedPages uploadedPages={this.props.uploaded_pages} publishPage={this.props.publish_page} />
-                  }
-                </Box>
+          <Tabs flex="grow" justify="center" >
+            <Tab title="Published Pages">
+              <Box
+                fill
+                pad={{
+                  left: 'small', right: 'small'
+                }}
+                margin={{
+                  top: 'medium'
+                }}
+                overflow="auto"
+                align="center"
+              >
+                {
+                  (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
+                  <PublishedPages
+                    publishedPages={this.props.released_pages}
+                    create_camapign={this.props.create_camapign}
+                    toggle_create_campaign={this.props.toggle_create_campaign}
+                  />
+                }
+              </Box>
               </Tab>
-              <Tab title="Published">
-                <Box
-                  fill
-                  pad={{
-                    left: 'small', right: 'small'
-                  }}
-                  margin={{
-                    top: 'medium'
-                  }}
-                  overflow="auto"
-                  align="center"
-                >
-                  {
-                    (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
-                    <PublishedPages
-                      publishedPages={this.props.released_pages}
-                      create_camapign={this.props.create_camapign}
-                      toggle_create_campaign={this.props.toggle_create_campaign}
-                    />
-                  }
-                </Box>
+              <Tab title="Created Campaigns">
+
               </Tab>
             </Tabs>
             <div className="top-spacer publish-wrapper">
@@ -108,10 +94,20 @@ class ViewComponent extends Component {
             }
             {
               (this.props.show_link_modal === true && this.props.created_campaign.hasOwnProperty("xcid")) &&
-              <Modal 
-                toggleShowLink={this.props.toggle_show_link} 
+              <Modal
+                toggleShowLink={this.props.toggle_show_link}
                 created_campaign={this.props.created_campaign}
-                title="Page published successfully!"
+                title="Campaign created successfully!"
+                created_campaign={this.props.created_campaign}
+              />
+            }
+            {
+              this.props.show_create_campaign.show &&
+              <CreateCampaign
+                show_create_campaign={this.props.show_create_campaign}
+                create_campaign={this.props.create_campaign}
+                sources={this.props.sources}
+                toggle_create_campaign={this.props.toggle_create_campaign}
               />
             }
           </div>
@@ -141,7 +137,6 @@ export default connect(
     publish_page,
     create_campaign,
     toggle_show_link,
-    create_camapign,
     toggle_create_campaign,
     fetch_get_sources
   }

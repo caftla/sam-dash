@@ -123,8 +123,6 @@ export async function findOrCreateCampaign (page, country, affid, comments, scen
 	}else{
 		return createCampaign(page, country, affid, comments, scenario);
 	}
-
-	
 }
 export async function publishPage(html_url, page_upload_id, username) {
 
@@ -170,4 +168,23 @@ export async function getASource(source_id) {
   )
 
   return result.rows.length > 0 ? result.rows[0] : null
+}
+
+export async function getSources() {
+  const result = await run(
+    `
+    with T as (
+      SELECT t1.affiliate_id, t1.affiliate_name
+        FROM dblink('helix_server'::text, '
+          select affiliate_id, affiliate_name from affiliate_mapping
+      '::text) t1(affiliate_id text, affiliate_name text)
+    )
+    select sources.*, T.affiliate_name from sources inner join T on sources.affiliate_id = T.affiliate_id 
+    UNION 
+    select sources.*, null as affiliate_name from sources where sources.offer_id is null
+    order by affiliate_id ;
+    `, []
+  )
+
+  return result.rows
 }

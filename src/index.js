@@ -57,6 +57,7 @@ import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
 import OuisysPages from './components/ouisys_pages'
 import Legals from './components/ouisys_pages/legals'
+import Campaigns from './components/ouisys_pages/campaigns'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
@@ -291,6 +292,7 @@ const main_bottom = <Provider store={store}>
         <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
         <Route path="/ouisys-pages/legals" exact={true} component={WrapAndAuth(Legals)} />
+        <Route path="/ouisys-pages/campaigns" exact={true} component={WrapAndAuth(Campaigns)} />
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
         </Route>

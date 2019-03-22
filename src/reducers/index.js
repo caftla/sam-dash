@@ -29,6 +29,8 @@ import show_link_modal from './show_link_modal'
 import is_loading from './is_loading'
 import legals from './legals'
 import show_legal_modal from './show_legal_modal'
+import show_create_campaign from './show_create_campaign'
+import sources from './sources'
 
 const rootReducer = combineReducers({
     dashboard
@@ -63,6 +65,8 @@ const rootReducer = combineReducers({
   , is_loading
   , legals
   , show_legal_modal
+  , show_create_campaign
+  , sources
 })
 
 export default rootReducer

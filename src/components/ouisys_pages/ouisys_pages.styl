@@ -36,6 +36,7 @@
 		h1 
 			font-size 22px !important
 			color #000
+			margin 10px
 .create-campaign-wrapper 
 	margin-top 100px
 .link 
@@ -63,6 +64,9 @@
 	flex-direction row
 	justify-content center
 	align-items center
+	h4
+		font-size 20px !important
+
 .well 
 	background #fff
 	padding 20px
@@ -81,31 +85,33 @@
 	display flex
 	justify-content center
 	align-items center
-	.legals-col
-		display flex
-		flex-direction row
-		justify-content space-between
-	.legal-form-group
-		display flex
-		flex-direction column
-		flex:1
-		margin 5px
-		input, select, textarea 
-			width 100%
-			margin 8px 0
-			display inline-block
-			border 1px solid #ccc
-			box-shadow inset 0 1px 3px #ddd
-			border-radius 4px
-			-webkit-box-sizing border-box
-			-moz-box-sizing border-box
-			box-sizing border-box
-			padding-left 20px
-			padding-right 20px
-			padding-top 12px
-			padding-bottom 12px
-		textarea
-			height 70px
+label
+	font-weight bold
+.os-ui-col
+	display flex
+	flex-direction row
+	justify-content space-between
+.os-ui-form-group
+	display flex
+	flex-direction column
+	flex:1
+	margin 5px
+	input, select, textarea 
+		width 100%
+		margin 8px 0
+		display inline-block
+		border 1px solid #ccc
+		box-shadow inset 0 1px 3px #ddd
+		border-radius 4px
+		-webkit-box-sizing border-box
+		-moz-box-sizing border-box
+		box-sizing border-box
+		padding-left 20px
+		padding-right 20px
+		padding-top 12px
+		padding-bottom 12px
+	textarea
+		height 70px
 .btns
 	display: flex
 	flex-direction: row
@@ -118,10 +124,14 @@
 	top 0
 	bottom 0
 	background rgba(0, 0, 0, 0.7)
-	z-index 999
+	z-index 99999
 	display flex
 	flex-direction row
 	justify-content center
 	align-items center
 	span 
 		color #fff
+.os-ui-close-btn
+	width 40px
+	height 40px
+	border-radius 20px

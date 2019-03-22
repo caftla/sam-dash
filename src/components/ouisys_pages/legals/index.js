@@ -12,6 +12,8 @@ import LegalsModal from "./legals_modal";
 import { get_legals, add_legals, toggle_legal_modal, update_legals, delete_legal} from '../../../actions'
 
 import LegalsTable from "./legals_table"
+
+import SubMenu from "../submenu"
 import "../ouisys_pages.styl";
 
 const customTheme = deepMerge({
@@ -40,10 +42,7 @@ class ViewComponent extends Component {
       <Grommet theme={customTheme}>
           <div className="top-spacer">
             <div id="tabs-area">
-              <ul>
-                <li><a  href={`/ouisys-pages` } >Manage Pages</a></li>
-                <li><a className="active" href={`/ouisys-pages/legals` } >Manage Legal Text</a></li>
-              </ul>
+              <SubMenu id="legals"/>
                 <h1>Legal Text</h1>
                 <button
                   className="warning"

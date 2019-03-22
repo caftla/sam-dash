@@ -380,6 +380,7 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   .then(()=>dispatch(fetch_uploaded_pages()))
   .then(()=>dispatch(fetch_released_pages()))
   .then(()=>dispatch(toggle_show_link(true)))
+  .then(()=>dispatch(toggle_create_campaign({})))
   .catch((err)=>{
     dispatch(toggle_loader(false));
     alert("ERROR:\n\n" + err.message);
@@ -485,4 +486,27 @@ export const delete_legal = (id) => (dispatch : Dispatch) => {
 
 export const toggle_legal_modal = (payload) => (dispatch : Dispatch) => {
   dispatch({ type: 'toggle_legal_modal', payload })
+}
+
+
+//create a campaign from affiliates
+
+
+export const toggle_create_campaign = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'toggle_create_campaign', payload })
+}
+
+export const fetch_get_sources = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'fetch_get_sources' })
+  get({url: `${api_root}/api/v1/get_sources`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'fetch_get_sources_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
 }
