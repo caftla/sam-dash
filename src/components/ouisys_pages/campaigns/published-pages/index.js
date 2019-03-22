@@ -40,28 +40,16 @@ class CampaignTable extends Component {
           <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
       },
       {
-        property: "xcid",
+        property: "sam_xcid_id",
         header: "Preview",
         search: false,
         sortable: false,
         render: datum =>
-          <a href={`https://c1.ouisys.com/${datum.xcid}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.xcid}`}</a>,
+          <a href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
       },
       {
-        property: "affiliate_id",
-        header: "Affiliate id",
-        search: true,
-        sortable: true
-      },
-      {
-        property: "affiliate_name",
-        header: "Affiliate Name",
-        search: true,
-        sortable: true
-      },
-      {
-        property: "comments",
-        header: "Comments",
+        property: "username",
+        header: "Publisher",
         search: true,
         sortable: true
       },
@@ -73,14 +61,26 @@ class CampaignTable extends Component {
         render: datum =>
           datum.date_created && moment(datum.date_created).format("MMM Do YY"),
         align: "end"
+      },
+      {
+        property: "",
+        header: "Action",
+        sortable: true,
+        primary: true,
+        render: datum =>
+          <button
+            className="btn btn-success"
+            onClick={()=>this.props.toggle_create_campaign({show:true, data:datum})}
+          >Create Campaign</button>,
+        align: "end"
       }
     ];
-    const { all_campaigns } = this.props;
+    const { publishedPages } = this.props;
     return(
         <div>
           {
-            (all_campaigns.length > 0) &&
-            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
+            (publishedPages.length > 0) &&
+            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
           }
         </div>
 

@@ -18,7 +18,8 @@ import {
   getUploadedPages,
   getPageReleases,
   findOrCreateCampaign,
-  getSources
+  getSources,
+  getAllCampaigns
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 
@@ -573,6 +574,24 @@ app.get('/api/v1/get_sources', authenticate(), async(req, res)=>{
   }
 
 });
+
+app.get('/api/v1/get_all_campaigns', async(req, res)=>{
+  const finalResult = await getAllCampaigns();
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+
+});
+
 
 app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
   try {

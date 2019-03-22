@@ -8,7 +8,8 @@ import { css } from "styled-components";
 
 
 import Loader from "../loader";
-import PublishedPages from "./campaign-table";
+import PublishedPages from "./published-pages";
+import CampaignsTable from "./campaign-table";
 import Modal from "../modal";
 import CreateCampaign from "./create-campaign-modal";
 import SubMenu from "../submenu"
@@ -20,7 +21,8 @@ import {
   toggle_show_link,
   create_camapign,
   toggle_create_campaign,
-  fetch_get_sources
+  fetch_get_sources,
+  get_all_campaigns
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -43,6 +45,7 @@ class ViewComponent extends Component {
     this.props.fetch_uploaded_pages();
     this.props.fetch_released_pages();
     this.props.fetch_get_sources();
+    this.props.get_all_campaigns();
   }
 
 
@@ -81,7 +84,24 @@ class ViewComponent extends Component {
               </Box>
               </Tab>
               <Tab title="Created Campaigns">
-
+              <Box
+                fill
+                pad={{
+                  left: 'small', right: 'small'
+                }}
+                margin={{
+                  top: 'medium'
+                }}
+                overflow="auto"
+                align="center"
+              >
+                {
+                  (Array.isArray(this.props.all_campaigns) && this.props.all_campaigns.length > 0) &&
+                  <CampaignsTable
+                  all_campaigns={this.props.all_campaigns}
+                  />
+                }
+              </Box>
               </Tab>
             </Tabs>
             <div className="top-spacer publish-wrapper">
@@ -128,7 +148,8 @@ export default connect(
     is_loading: state.is_loading,
     show_create_campaign: state.show_create_campaign,
     sources: state.sources,
-    created_campaign: state.created_campaign
+    created_campaign: state.created_campaign,
+    all_campaigns: state.all_campaigns
       
   })
 , {
@@ -138,6 +159,7 @@ export default connect(
     create_campaign,
     toggle_show_link,
     toggle_create_campaign,
-    fetch_get_sources
+    fetch_get_sources,
+    get_all_campaigns
   }
 ) (ViewComponent)

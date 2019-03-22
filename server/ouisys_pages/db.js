@@ -188,3 +188,32 @@ export async function getSources() {
 
   return result.rows
 }
+
+
+export async function getAllCampaigns() {
+  const result = await run(
+		`	
+			
+			with T as (
+				SELECT t1.affiliate_id, t1.affiliate_name
+					FROM dblink('helix_server'::text, '
+						select affiliate_id, affiliate_name from affiliate_mapping
+				'::text) t1(affiliate_id text, affiliate_name text)
+			),
+			M as (
+				select sources.*, T.affiliate_name from sources inner join T on sources.affiliate_id = T.affiliate_id 
+				UNION 
+				select sources.*, null as affiliate_name from sources where sources.offer_id is null
+				order by affiliate_id
+			)
+			
+			SELECT *
+			FROM campaigns C
+			INNER JOIN M ON C.source_id = M.id
+			ORDER BY C.date_created DESC
+
+    `, []
+  )
+
+  return result.rows
+}

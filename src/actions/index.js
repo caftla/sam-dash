@@ -387,6 +387,21 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   })
 }
 
+//get all campaigns
+export const get_all_campaigns = () => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_all_campaigns' })
+  get({url: `${api_root}/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'get_all_campaigns_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
 // show_campaign modal
 
 export const toggle_show_link = (payload) => (dispatch : Dispatch) => {
@@ -417,6 +432,8 @@ export const get_legals = () => (dispatch : Dispatch) => {
     alert("ERROR:\n\n" + err.message);
   })
 }
+
+
 
 // add-legals
 
