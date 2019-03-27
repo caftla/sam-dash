@@ -34,7 +34,8 @@ class LegalsModal extends Component {
   }
 
   jsonFriendly(text){
-    return entities.encode(text.replace(/(\r\n|\n|\r)/gm, ""));
+    var newTxt = text.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    return newTxt.replace(/(\r\n|\n|\r)/gm, "");
   }
 
   handleSubmit(ev){
@@ -138,7 +139,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Top Legals</label>
               <textarea
-                value={top_legal}
+                value={entities.decode(top_legal)}
                 name="top_legal"
                 onChange={(ev)=>{
                   this.setState({
@@ -151,7 +152,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Disclaimers</label>
               <textarea
-                value={disclaimer}
+                value={entities.decode(disclaimer)}
                 name="disclaimer"
                 onChange={(ev)=>{
                   this.setState({
@@ -164,7 +165,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Price Points</label>
               <textarea
-                value={price_point}
+                value={entities.decode(price_point)}
                 name="price_point"
                 onChange={(ev)=>{
                   this.setState({
