@@ -89,6 +89,7 @@ class LegalsModal extends Component {
                       
                     })
                   }}
+                  placeHolder="For example ae"
                 />
               </div>
               <div className="os-ui-form-group">
@@ -103,6 +104,7 @@ class LegalsModal extends Component {
                       
                     })
                   }}
+                  placeHolder="For example ae-actel-ouisys-handle"
                 />
               </div>
             </div>
@@ -119,6 +121,7 @@ class LegalsModal extends Component {
                       
                     })
                   }}
+                  placeHolder="For example buz2mobile"
                 />
               </div>
               <div className="os-ui-form-group">
@@ -133,6 +136,7 @@ class LegalsModal extends Component {
                       
                     })
                   }}
+                  placeHolder="For example ar"
                 />
               </div>
             </div>
@@ -147,6 +151,7 @@ class LegalsModal extends Component {
                     
                   })
                 }}
+                placeHolder="Legal text which normally appears at the top of the page"
               >{top_legal}</textarea>
             </div>
             <div className="os-ui-form-group">
@@ -160,6 +165,7 @@ class LegalsModal extends Component {
                     
                   })
                 }}
+                placeHolder="Legal text which normally appears at the bottom of the page"
               />
             </div>
             <div className="os-ui-form-group">
@@ -173,6 +179,7 @@ class LegalsModal extends Component {
                     
                   })
                 }}
+                placeHolder="Price point text which normally appears under a button"
               />
             </div>
 
