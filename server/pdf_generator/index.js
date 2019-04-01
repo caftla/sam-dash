@@ -20,7 +20,7 @@
     return new Buffer(bitmap).toString('base64')
   }
 
-  const base64str = base64_encode(path.join(__dirname, 'new_logo.png'))
+  const base64str = base64_encode(path.join(__dirname, 'sam-media-logo.png'))
 
   const generate_report = async (body) => {
     const { url, affiliate_name, date_from, date_to, name, email } = body
@@ -41,7 +41,7 @@
         format: 'A4'
       , printBackground: true
       , displayHeaderFooter: true
-      , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;padding:0.5em 0"><img src="data:image/png;base64,${base64str}" height="50" width="193"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name&#9;:&ensp;</span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From&#9;:&#9;</span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To&#9;:&#9;</span>${date_to}</p></div></div><h3 style="margin:0.5em 0">Affiliate Performance Stats</h3></div>`
+      , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;"><img src="data:image/png;base64,${base64str}" height="80"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name : </span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From : </span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To : </span>${date_to}</p></div></div><h3 style="margin:0.1em 0">Affiliate Performance Stats</h3></div>`
       , footerTemplate: `<p style="${footerStyles}"><span class="pageNumber"></span>/<span class="totalPages"></span></p>`
       , margin: { top: 160, bottom: 50 }
       })
