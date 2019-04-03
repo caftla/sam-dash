@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { Input, LabelledInput, InputSelect } from '../../../common-controls/FormElementsUtils'
 
 //import "./PublishedPages.scss";
 
@@ -44,7 +45,22 @@ class CreateCampaign extends Component {
 
           <form onSubmit={(ev)=>this.handleSubmit(ev)}>
             <div className="os-ui-form-group">
-              <label>Source</label>
+            <InputSelect
+              name="Source"
+              showLabel
+              onChange={ affiliate_id =>this.getInput({
+                key:"affid",
+                value:affiliate_id
+              }) }
+              value={ this.state.affid }
+              options={ this.props.sources.map(x => {
+                return({
+                  name:(x.affiliate_name === null) ? `${x.affiliate_id} 🐳` :`${x.affiliate_id}(${x.affiliate_name} - ${x.offer_id})`,
+                  value:x.affiliate_id
+                })
+              })} 
+            />
+{/* 
               <select
                 required
                 onChange={
@@ -64,7 +80,7 @@ class CreateCampaign extends Component {
                     )
                   })
                 }
-              </select>
+              </select> */}
             </div>
             <div className="os-ui-form-group">
                 <label>Comments*</label>
