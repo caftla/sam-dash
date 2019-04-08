@@ -77,7 +77,7 @@ const tokenFromURL = fromQueryString(window.location.search.substring(1))
 if (typeof tokenFromURL.token !== 'undefined') {
   localStorage.setItem('token', tokenFromURL.token)
   localStorage.setItem('img', tokenFromURL.img)
-  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch('token', 'img'))
+  window.history.replaceState({}, window.title, URI(window.location.href).removeSearch(['token', 'img', 'username']))
 }
 
 const token = localStorage.getItem('token')

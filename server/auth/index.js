@@ -78,24 +78,24 @@ module.exports = (app) => {
     next()
   })
 
-  app.use((req, res, next) => {
-    if ('undefined' !== typeof req.query.username) {
-      const base = req.url.split('?')[0]
-      const { username, exp_ts, hash } = req.query
-      const signature = validate.sign(username, exp_ts, secret)
+  // app.use((req, res, next) => {
+  //   if ('undefined' !== typeof req.query.username) {
+  //     const base = req.url.split('?')[0]
+  //     const { username, exp_ts, hash } = req.query
+  //     const signature = validate.sign(username, exp_ts, secret)
       
-      const isValidated = validate.signature(signature, hash)
-      const notExpired = validate.expiry(exp_ts)
+  //     const isValidated = validate.signature(signature, hash)
+  //     const notExpired = validate.expiry(exp_ts)
       
-      if (isValidated && notExpired) {
-        res.redirect(base + '?token=' + token(username))
-      } else {
-        res.redirect(base)
-      }
-    } else {
-      next()
-    }
-  })
+  //     if (isValidated && notExpired) {
+  //       res.redirect(base + '?token=' + token(username))
+  //     } else {
+  //       res.redirect(base)
+  //     }
+  //   } else {
+  //     next()
+  //   }
+  // })
 
   app.get('/api/google_login', requireSignin)
 
