@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { Input, LabelledInput, InputSelect } from '../../../common-controls/FormElementsUtils'
+import { FormRow } from "../../../Styled";
+import "./index.styl"
 
 //import "./PublishedPages.scss";
 
@@ -10,6 +12,7 @@ class CreateCampaign extends Component {
     this.state = {
       value: '',
       copied: false,
+      reUse: false,
       affid:"",
       comments:""
 
@@ -21,6 +24,7 @@ class CreateCampaign extends Component {
     this.props.create_campaign({
       affid:this.state.affid,
       comments:this.state.comments,
+      reUse:this.state.reUse,
       ...this.props.show_create_campaign.data,
     })
   }
@@ -34,7 +38,7 @@ class CreateCampaign extends Component {
     const { country, page, scenario } = this.props.show_create_campaign.data;
     //const url = `http://c1.ouisys.com/${xcid}`;
     return (
-      <div className="modal-wrapper">
+      <div className="modal-wrapper create-campaign-modal">
   
         <div className="well">
         <button className="os-ui-close-btn" onClick={()=>this.props.toggle_create_campaign({})}>X</button>
@@ -55,11 +59,16 @@ class CreateCampaign extends Component {
               value={ this.state.affid }
               options={ this.props.sources.map(x => {
                 return({
-                  name:(x.affiliate_name === null) ? `${x.affiliate_id} 🐳` :`${x.affiliate_id}(${x.affiliate_name} - ${x.offer_id})`,
+                  name:(x.affiliate_name === null) ? `${x.affiliate_id} 🐳` :`${x.affiliate_id} (${x.affiliate_name} - ${x.offer_id})`,
                   value:x.affiliate_id
                 })
               })} 
             />
+              <FormRow>
+                <label style={{width: '100%'}}>
+                  <input value={this.state.reUse} onChange={ev => this.setState({reUse: ev.target.value})} style={{width: 'auto'}} type="checkbox" /> &nbsp; Try to re-use an exiting campaign Id
+                </label>
+              </FormRow>
 {/* 
               <select
                 required

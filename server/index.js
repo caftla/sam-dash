@@ -19,7 +19,8 @@ import {
   getPageReleases,
   findOrCreateCampaign,
   getSources,
-  getAllCampaigns
+  getAllCampaigns,
+  createCampaign
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 
@@ -640,9 +641,9 @@ app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
 
 app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
 
-  const { page, country, affid, comments, scenario } = req.body;
+  const { page, country, affid, comments, scenario, reUse } = req.body;
 
-  const finalResult = await findOrCreateCampaign(page, country, affid, comments, scenario);
+  const finalResult = await (reUse ? findOrCreateCampaign(page, country, affid, comments, scenario) : createCampaign(page, country, affid, comments, scenario));
 
   if(finalResult !== null){ 
     res.status(200).send({
