@@ -1,12 +1,10 @@
 import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { AllHtmlEntities as Entities } from "html-entities";
 import { Input } from "../../../common-controls/FormElementsUtils";
 import { Heading } from "grommet";
 
 //import "./PublishedPages.scss";
 
-const entities = new Entities();
 
 class LegalsModal extends Component {
   constructor(props){
@@ -33,10 +31,10 @@ class LegalsModal extends Component {
     }
   }
 
-  jsonFriendly(text){
-    var newTxt = text.replace(/</g,"&lt;").replace(/>/g,"&gt;");
-    return newTxt.replace(/(\r\n|\n|\r)/gm, "");
-  }
+  // jsonFriendly(text){
+  //   var newTxt = text.replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  //   return newTxt.replace(/(\r\n|\n|\r)/gm, "");
+  // }
 
   handleSubmit(ev){
     ev.preventDefault();
@@ -45,9 +43,9 @@ class LegalsModal extends Component {
       scenario:this.state.scenario.toLowerCase(),
       service:this.state.service.toLowerCase(),
       language:this.state.language.toLowerCase(),
-      top_legal:this.jsonFriendly(this.state.top_legal),
-      price_point:this.jsonFriendly(this.state.price_point),
-      disclaimer:this.jsonFriendly(this.state.disclaimer)
+      top_legal:this.state.top_legal,
+      price_point:this.state.price_point,
+      disclaimer:this.state.disclaimer
     };
 
     if(this.props.show_legal_modal.type !== "edit"){
@@ -143,7 +141,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Top Legals</label>
               <textarea
-                value={entities.decode(top_legal)}
+                value={top_legal}
                 name="top_legal"
                 onChange={(ev)=>{
                   this.setState({
@@ -157,7 +155,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Disclaimers</label>
               <textarea
-                value={entities.decode(disclaimer)}
+                value={disclaimer}
                 name="disclaimer"
                 onChange={(ev)=>{
                   this.setState({
@@ -171,7 +169,7 @@ class LegalsModal extends Component {
             <div className="os-ui-form-group">
               <label>Price Points</label>
               <textarea
-                value={entities.decode(price_point)}
+                value={price_point}
                 name="price_point"
                 onChange={(ev)=>{
                   this.setState({
