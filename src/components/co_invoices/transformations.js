@@ -73,7 +73,8 @@ export const get_summary = (data, timezone) =>
 
 export const get_additional_costs = (data, timezone) =>
   R.pipe(
-    R.groupBy(x => x.additional_pixels_cpa)
+   R.reject(x => x.timezone == timezone || !x.additional_pixels || x.additional_pixels == 0)
+  , R.groupBy(x => x.additional_pixels_cpa)
   , R.map(R.reduce(
       (acc, a) => ({
         additional_pixels: a.additional_pixels
@@ -97,7 +98,6 @@ export const get_additional_costs = (data, timezone) =>
     , operator_code: x.operator_code
   })
   )
-  , R.reject(x => x.timezone == timezone || !x.additional_pixels || x.additional_pixels == 0)
   , R.map(x => R.omit(['timezone'], x))
   )(data)
 
