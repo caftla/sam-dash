@@ -330,12 +330,18 @@ export const fetch_uploaded_pages = () => (dispatch : Dispatch) => {
 
 // released_pages
 
-export const fetch_released_pages = () => (dispatch : Dispatch) => {
+export const fetch_released_pages = (isCreateCampaign) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'fetch_released_pages' })
   get({url: `${api_root}/api/v1/get_page_releases`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => {
-    dispatch({ type: 'fetch_released_pages_success', payload: d })
+    if(isCreateCampaign){
+      dispatch({ type: 'fetch_released_pages_success', payload: {isCreateCampaign, ...d}})
+    }else{
+      dispatch({ type: 'fetch_released_pages_success', payload: d })
+    }
+    
+    
     dispatch(toggle_loader(false));
   }
   )
@@ -378,7 +384,7 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
     dispatch(toggle_loader(false));
   })
   .then(()=>dispatch(fetch_uploaded_pages()))
-  .then(()=>dispatch(fetch_released_pages()))
+  .then(()=>dispatch(fetch_released_pages(true)))
   .then(()=>dispatch(toggle_show_link(true)))
   .then(()=>dispatch(toggle_create_campaign({})))
   .catch((err)=>{
@@ -527,4 +533,24 @@ export const fetch_get_sources = () => (dispatch : Dispatch) => {
     dispatch(toggle_loader(false));
     alert("ERROR:\n\n" + err.message);
   })
+}
+
+export const find_campaigns = (payload) => (dispatch : Dispatch) => {
+  console.log("payload", payload)
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'fetch_campaigns' })
+  post({url: `${api_root}/api/v1/find_campaign`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'fetch_campaigns_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+export const reset_existing_campaigns = (payload) => (dispatch : Dispatch) => {
+  dispatch({ type: 'reset_existing_campaigns', payload })
 }

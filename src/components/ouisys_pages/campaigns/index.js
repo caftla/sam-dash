@@ -22,7 +22,9 @@ import {
   create_camapign,
   toggle_create_campaign,
   fetch_get_sources,
-  get_all_campaigns
+  get_all_campaigns,
+  find_campaigns,
+  reset_existing_campaigns
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -128,6 +130,9 @@ class ViewComponent extends Component {
                 create_campaign={this.props.create_campaign}
                 sources={this.props.sources}
                 toggle_create_campaign={this.props.toggle_create_campaign}
+                find_campaigns={this.props.find_campaigns}
+                searched_campaigns={this.props.searched_campaigns || []}
+                reset_existing_campaigns={this.props.reset_existing_campaigns}
               />
             }
           </div>
@@ -149,7 +154,8 @@ export default connect(
     show_create_campaign: state.show_create_campaign,
     sources: state.sources,
     created_campaign: state.created_campaign,
-    all_campaigns: state.all_campaigns
+    all_campaigns: state.all_campaigns,
+    searched_campaigns: state.searched_campaigns
       
   })
 , {
@@ -160,6 +166,8 @@ export default connect(
     toggle_show_link,
     toggle_create_campaign,
     fetch_get_sources,
-    get_all_campaigns
+    get_all_campaigns,
+    find_campaigns,
+    reset_existing_campaigns
   }
 ) (ViewComponent)

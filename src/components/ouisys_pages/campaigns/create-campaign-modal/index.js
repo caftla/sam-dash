@@ -3,6 +3,8 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { Input, LabelledInput, InputSelect } from '../../../common-controls/FormElementsUtils'
 import { FormRow } from "../../../Styled";
 import "./index.styl"
+import moment from "moment"
+
 
 //import "./PublishedPages.scss";
 
@@ -12,10 +14,10 @@ class CreateCampaign extends Component {
     this.state = {
       value: '',
       copied: false,
-      reUse: false,
+      dontReUse: false,
       affid:"",
-      comments:""
-
+      comments:"",
+      copied:{}
     };
   }
 
@@ -24,7 +26,7 @@ class CreateCampaign extends Component {
     this.props.create_campaign({
       affid:this.state.affid,
       comments:this.state.comments,
-      reUse:this.state.reUse,
+      dontReUse:this.state.dontReUse,
       ...this.props.show_create_campaign.data,
     })
   }
@@ -36,12 +38,21 @@ class CreateCampaign extends Component {
   }
   render(){
     const { country, page, scenario } = this.props.show_create_campaign.data;
+    const searched_campaigns = Array.isArray(this.props.searched_campaigns) ? this.props.searched_campaigns : [];
     //const url = `http://c1.ouisys.com/${xcid}`;
     return (
       <div className="modal-wrapper create-campaign-modal">
   
         <div className="well">
-        <button className="os-ui-close-btn" onClick={()=>this.props.toggle_create_campaign({})}>X</button>
+        <button
+          className="os-ui-close-btn"
+          onClick={()=>{
+            this.props.toggle_create_campaign({});
+            this.props.reset_existing_campaigns([]);
+          }
+        }>
+          X
+        </button>
           <h4>Create campaign</h4>
           <p><b>Country: </b> {country}</p>
           <p><b>Page: </b> {page}</p>
@@ -52,10 +63,18 @@ class CreateCampaign extends Component {
             <InputSelect
               name="Source"
               showLabel
-              onChange={ affiliate_id =>this.getInput({
-                key:"affid",
-                value:affiliate_id
-              }) }
+              onChange={ affiliate_id =>{
+                this.props.find_campaigns({
+                  page,
+                  country,
+                  affid:affiliate_id,
+                  scenario
+                });
+                this.getInput({
+                  key:"affid",
+                  value:affiliate_id
+                }) }
+              }
               value={ this.state.affid }
               options={ this.props.sources.map(x => {
                 return({
@@ -64,11 +83,55 @@ class CreateCampaign extends Component {
                 })
               })} 
             />
-              <FormRow>
-                <label style={{width: '100%'}}>
-                  <input value={this.state.reUse} onChange={ev => this.setState({reUse: ev.target.value})} style={{width: 'auto'}} type="checkbox" /> &nbsp; Try to re-use an exiting campaign Id
-                </label>
-              </FormRow>
+
+            {
+              (searched_campaigns.length > 0) &&
+              <div>
+                <h6>Existing campaigns</h6>
+                <div className="existing_campaigns">
+                  <table>
+                  <thead>
+                    <tr>
+                      <th>Link</th>
+                      <th>Date</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {
+                      searched_campaigns.reverse().map((obj, index)=>{
+                        const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? 
+                        `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${obj.xcid}`;
+                        return (
+                            <tr>
+                              <td>
+                                <a href={url} target="_blank">{url}</a>
+                              </td>
+                              <td>
+                                {moment(obj.date_created).format("MMM Do YY")}
+                              </td>
+                              <td>
+
+                              {this.state.copied[obj.xcid] ? <span style={{color: 'red'}}>Copied.</span> : null}
+  
+                              <CopyToClipboard text={url}
+                                onCopy={() => this.setState({
+                                  copied:{
+                                    [obj.xcid]: true
+                                  }
+                                })}>
+                                <button type="button" className="btn btn-warning">Copy</button>
+                              </CopyToClipboard>
+                              </td>
+                            </tr>
+                        )
+                      })
+                    }
+                  </tbody>
+                  </table>
+                </div>
+              </div>
+            }
 {/* 
               <select
                 required
@@ -92,11 +155,9 @@ class CreateCampaign extends Component {
               </select> */}
             </div>
             <div className="os-ui-form-group">
-                <label>Comments*</label>
+                <label>Comments</label>
                 <input
-                  required
                   name="comments"
-                  required
                   onChange={
                     (ev)=>this.getInput({
                       key:"comments",
@@ -113,7 +174,12 @@ class CreateCampaign extends Component {
               <button color="secondary" onClick={()=>this.props.toggleShowLink(false)}>Close</button>
             </div>
             <p>{this.state.copied ? <span style={{color: 'red'}}>Copied.</span> : null}</p> */}
-            <button>
+            <FormRow>
+              <label style={{width: '100%'}}>
+                <input required value={this.state.dontReUse} onChange={ev => this.setState({dontReUse: ev.target.value})} style={{width: 'auto'}} type="checkbox" /> &nbsp; Create a new campaign
+              </label>
+            </FormRow>
+            <button disabled={(searched_campaigns.length > 0 && !this.state.dontReUse) ? true : false}>
               Create
             </button>
           </form>

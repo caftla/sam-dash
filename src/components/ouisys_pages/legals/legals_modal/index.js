@@ -68,10 +68,7 @@ class LegalsModal extends Component {
     const { } = this.props.show_legal_modal
     return (
       <div className="modal-wrapper">
-  
         <div className="legals-well">
-          
-
           <form className="legal-form-wrapper" onSubmit={(ev)=>this.handleSubmit(ev)}>
           <h4>Add Legals</h4>
             <div className="os-ui-col">
@@ -98,8 +95,7 @@ class LegalsModal extends Component {
                   required
                   onChange={(ev)=>{
                     this.setState({
-                      scenario:ev.target.value
-                      
+                      scenario:ev.target.value                   
                     })
                   }}
                   placeHolder="For example ae-actel-ouisys-handle"
@@ -115,8 +111,7 @@ class LegalsModal extends Component {
                   required
                   onChange={(ev)=>{
                     this.setState({
-                      service:ev.target.value
-                      
+                      service:ev.target.value     
                     })
                   }}
                   placeHolder="For example buz2mobile"

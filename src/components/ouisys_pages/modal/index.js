@@ -28,7 +28,7 @@ class Modal extends Component {
           <p><b>Scenario: </b> {scenario}</p>
           <p><b>Link: </b><a href={url} target="_blank">{url}</a></p>
           <div className="btns">
-            <CopyToClipboard text={`Country: ${country}, Page: ${page}, Scenario: ${scenario}, Link: ${url}`}
+            <CopyToClipboard text={url}
               onCopy={() => this.setState({copied: true})}>
               <button className="btn btn-warning">Copy to clipboard</button>
             </CopyToClipboard>
