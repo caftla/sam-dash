@@ -12,7 +12,7 @@ export default (state: FetchState<Array<any>> = fetchState.Nothing(), action: Ac
     case 'reset_existing_campaigns':
       return []
     case 'fetch_campaigns_success':
-      return action.payload.data
+      return action.payload.data 
     case 'fetch_campaigns':
       return fetchState.Nothing()
     default:

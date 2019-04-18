@@ -60,29 +60,32 @@ class CreateCampaign extends Component {
 
           <form onSubmit={(ev)=>this.handleSubmit(ev)}>
             <div className="os-ui-form-group">
-            <InputSelect
-              name="Source"
-              showLabel
-              onChange={ affiliate_id =>{
-                this.props.find_campaigns({
-                  page,
-                  country,
-                  affid:affiliate_id,
-                  scenario
-                });
-                this.getInput({
-                  key:"affid",
-                  value:affiliate_id
-                }) }
-              }
-              value={ this.state.affid }
-              options={ this.props.sources.map(x => {
-                return({
-                  name:(x.affiliate_name === null) ? `${x.affiliate_id} 🐳` :`${x.affiliate_id} (${x.affiliate_name} - ${x.offer_id})`,
-                  value:x.affiliate_id
-                })
-              })} 
-            />
+            {
+              (Array.isArray(this.props.sources) && this.props.sources.length > 0) &&
+              <InputSelect
+                name="Source"
+                showLabel
+                onChange={ affiliate_id =>{
+                  this.props.find_campaigns({
+                    page,
+                    country,
+                    affid:affiliate_id,
+                    scenario
+                  });
+                  this.getInput({
+                    key:"affid",
+                    value:affiliate_id
+                  }) }
+                }
+                value={ this.state.affid }
+                options={ this.props.sources.map(x => {
+                  return({
+                    name:(x.affiliate_name === null) ? `${x.affiliate_id} 🐳` :`${x.affiliate_id} (${x.affiliate_name} - ${x.offer_id})`,
+                    value:x.affiliate_id
+                  })
+                })} 
+              />
+            }
 
             {
               (searched_campaigns.length > 0) &&
@@ -99,7 +102,7 @@ class CreateCampaign extends Component {
                   </thead>
                   <tbody>
                   {
-                      searched_campaigns.reverse().map((obj, index)=>{
+                      searched_campaigns.map((obj, index)=>{
                         const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? 
                         `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${obj.xcid}`;
                         return (

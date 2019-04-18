@@ -45,7 +45,7 @@ class CampaignTable extends Component {
         search: false,
         sortable: false,
         render: datum =>
-          <a href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank" className="link">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
+          <a href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
       },
       {
         property: "username",
@@ -67,11 +67,20 @@ class CampaignTable extends Component {
         header: "Action",
         sortable: true,
         primary: true,
-        render: datum =>
-          <button
-            className="btn btn-success"
-            onClick={()=>this.props.toggle_create_campaign({show:true, data:datum})}
-          >Create Campaign</button>,
+        render: datum =>{
+          return(
+            <div className="campaign-btns">
+              <button
+                className="btn btn-success"
+                onClick={()=>this.props.toggle_create_campaign({show:true, data:datum})}
+              >Create Campaign <i className="fa fa-pencil"></i></button>
+              <button
+                className="btn btn-warning"
+                onClick={()=>this.props.toggleShowShare({show:true, data:datum})}
+              >Share Create Url <i className="fa fa-share-alt"></i></button>
+            </div>
+          )
+        },
         align: "end"
       }
     ];
