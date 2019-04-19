@@ -42,7 +42,7 @@ class Modal extends Component {
             </div>
           }
           {
-            this.props.custom()
+           this.props.custom && this.props.custom()
           }
           <button color="secondary" onClick={this.props.close}>Close</button>
         </div>
