@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 //import "./PublishedPages.scss";
 
@@ -11,6 +10,14 @@ class Modal extends Component {
       copied: false,
     };
   }
+  copy(text) {
+    const  dummy = document.createElement("input");
+      document.body.appendChild(dummy);
+      dummy.setAttribute('value', text);
+      dummy.select();
+      document.execCommand("copy");
+    this.setState({copied: true})
+  }
 
   render(){
     const { country, page, scenario, xcid } = this.props.created_campaign || "";
@@ -18,6 +25,7 @@ class Modal extends Component {
     
     const { source_id  } = this.props.created_campaign || "";
     const url = (source_id && source_id === 930 || source_id === 929) ? `http://c1.ouisys.com/${xcid}?offer={offer_id}` : `http://c1.ouisys.com/${xcid}`
+
     return (
       <div
         className="modal-wrapper"
@@ -33,18 +41,21 @@ class Modal extends Component {
               <p><b>Scenario: </b> {scenario}</p>
               <p><b>Link: </b><a href={url} target="_blank">{url}</a></p>
               <div className="btns">
-                <CopyToClipboard text={url}
-                  onCopy={() => this.setState({copied: true})}>
-                  <button className="btn btn-warning">Copy to clipboard</button>
-                </CopyToClipboard>
+                <button className="btn btn-warning" onClick={()=>this.copy(url)}>Copy to clipboard</button>
+                <button color="secondary" onClick={this.props.close}>Close</button>
               </div>
               <p>{this.state.copied ? <span style={{color: 'red'}}>Copied.</span> : null}</p>
             </div>
           }
           {
-           this.props.custom && this.props.custom()
+           this.props.custom && 
+           <div>
+              {this.props.custom()}
+              <button color="secondary" onClick={this.props.close}>Close</button>
+           </div>
+
           }
-          <button color="secondary" onClick={this.props.close}>Close</button>
+          
         </div>
       </div>
     )
