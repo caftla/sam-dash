@@ -21,7 +21,8 @@ import {
   getSources,
   getAllCampaigns,
   createCampaign,
-  findCampaigns
+  findCampaigns,
+  updateCampaignStatus
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 
@@ -664,6 +665,25 @@ app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
   const { page, country, affid, scenario } = req.body;
 
   const finalResult = await findCampaigns(page, country, affid, scenario);
+
+  if(finalResult !== null){ 
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+
+app.post('/api/v1/update_campaign_status', authenticate(), async(req, res)=>{
+
+  const { xcid, http_status } = req.body;
+
+  const finalResult = await updateCampaignStatus(xcid, http_status);
 
   if(finalResult !== null){ 
     res.status(200).send({

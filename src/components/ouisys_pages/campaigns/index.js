@@ -25,7 +25,8 @@ import {
   fetch_get_sources,
   get_all_campaigns,
   find_campaigns,
-  reset_existing_campaigns
+  reset_existing_campaigns,
+  update_campaign_status
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -148,7 +149,9 @@ class ViewComponent extends Component {
                 {
                   (Array.isArray(this.props.all_campaigns) && this.props.all_campaigns.length > 0) &&
                   <CampaignsTable
-                  all_campaigns={this.props.all_campaigns}
+                    all_campaigns={this.props.all_campaigns}
+                    get_all_campaigns={this.props.get_all_campaigns}
+                    update_campaign_status={this.props.update_campaign_status}
                   />
                 }
               </Box>
@@ -241,6 +244,7 @@ export default connect(
     fetch_get_sources,
     get_all_campaigns,
     find_campaigns,
-    reset_existing_campaigns
+    reset_existing_campaigns,
+    update_campaign_status
   }
 ) (ViewComponent)

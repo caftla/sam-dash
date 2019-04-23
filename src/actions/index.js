@@ -423,8 +423,8 @@ export const toggle_loader = (payload) => (dispatch : Dispatch) => {
 
 // released_pages
 
-const ouisys_api = "https://c1.ouisys.com";
-//const ouisys_api = "http://localhost:3030";
+//const ouisys_api = "https://c1.ouisys.com";
+const ouisys_api = "http://localhost:3081";
 export const get_legals = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_legals' })
@@ -550,6 +550,24 @@ export const find_campaigns = (payload) => (dispatch : Dispatch) => {
     alert("ERROR:\n\n" + err.message);
   })
 }
+
+export const update_campaign_status = (payload) => (dispatch : Dispatch) => {
+  console.log("payload", payload)
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'update_campaign_status' })
+  post({url: `${ouisys_api}/api/v1/update_campaign_status`, body:{...payload}}, {})
+  
+  .then(d => {
+    dispatch({ type: 'update_campaign_status_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
 
 export const reset_existing_campaigns = (payload) => (dispatch : Dispatch) => {
   dispatch({ type: 'reset_existing_campaigns', payload })

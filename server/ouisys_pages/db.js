@@ -115,6 +115,25 @@ export async function createCampaign(page, country, affid, comments, scenario) {
 	}
 }
 
+export async function updateCampaignStatus(xcid, http_status) {
+
+	console.table([xcid, http_status]);
+	try{
+	    const result = await run(
+	      `
+	          update campaigns set http_status = $2 where xcid = $1
+	          returning *
+	      `,
+	      [xcid, http_status]
+	    );
+	    return result.rows[0]
+	}catch(error){
+
+	}
+}
+
+
+
 export async function findCampaigns (page, country, affid, scenario){
   const result = await run(
 		`
