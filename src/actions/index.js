@@ -441,8 +441,8 @@ export const toggle_loader = (payload) => (dispatch : Dispatch) => {
 
 // released_pages
 
-//const ouisys_api = "https://c1.ouisys.com";
-const ouisys_api = "http://localhost:3081";
+const ouisys_api = "https://c1.ouisys.com";
+//const ouisys_api = "http://localhost:3081";
 export const get_legals = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_legals' })
