@@ -68,12 +68,15 @@ class CampaignTable extends Component {
         sortable: true,
         primary: true,
         render: datum =>{
+          const { country, page, scenario} = datum || "";
+          const url = `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`;
           return(
             <div className="campaign-btns">
+              <a href={url}>
               <button
                 className="btn btn-success"
-                onClick={()=>this.props.toggle_create_campaign({show:true, data:datum})}
               >Create Campaign <i className="fa fa-pencil"></i></button>
+              </a>
               <button
                 className="btn btn-warning"
                 onClick={()=>this.props.toggleShowShare({show:true, data:datum})}
