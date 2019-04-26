@@ -202,11 +202,11 @@ export async function findMultipleCampaigns (page, country, affid, scenario){
 	const make_affids_string = (ids: array) =>{
 		const affids = "'" + ids.join("','") + "'";
 
-		console.log("affids", ids)
+		//console.log("affids", ids)
 		return affids;
 	} 
 
-	console.log("make_affids_string", make_affids_string(affid))
+	//console.log("make_affids_string", make_affids_string(affid))
 	const queryString = `with src as (select id from sources where affiliate_id IN (${make_affids_string(affid)})),
 	T as (SELECT *
 			FROM campaigns c

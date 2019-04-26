@@ -83,6 +83,7 @@ class CreateCampaign extends Component {
             {
               (Array.isArray(this.props.sources) && this.props.sources.length > 0) &&
               <InputMultiSelect
+                closeOnSelect
                 name="Source"
                 showLabel
                 onChange={ valString =>{
@@ -91,7 +92,11 @@ class CreateCampaign extends Component {
 
                   if(Array.isArray(affidsArr)){
                     affidsArr.forEach((element)=>{
-                      beautifulArr.push(JSON.parse(element))
+                      try{
+                        beautifulArr.push(JSON.parse(element))
+                      }catch(err){
+                        //console.log(err)
+                      }
                     })
                   }
                   console.log("affidARR",beautifulArr)
