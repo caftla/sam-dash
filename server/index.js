@@ -22,7 +22,9 @@ import {
   getAllCampaigns,
   createCampaign,
   findCampaigns,
-  updateCampaignStatus
+  findMultipleCampaigns,
+  updateCampaignStatus,
+  createMultipleCampaigns
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 
@@ -642,11 +644,8 @@ app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
 });
 
 app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
-
   const { page, country, affid, comments, scenario, dontReUse } = req.body;
-
   const finalResult = await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario) : createCampaign(page, country, affid, comments, scenario));
-
   if(finalResult !== null){ 
     res.status(200).send({
       code:200,
@@ -660,13 +659,32 @@ app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
   }
 });
 
-app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
-
-  const { page, country, affid, scenario } = req.body;
-
-  const finalResult = await findCampaigns(page, country, affid, scenario);
-
+app.post('/api/v1/create_multiple_campaigns', authenticate(), async(req, res)=>{
+  //const { page, country, affid, comments, scenario, dontReUse } = req.body;
+  const finalResult = await createMultipleCampaigns(req.body);
   if(finalResult !== null){ 
+
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+
+
+
+app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
+  const { page, country, affid, scenario } = req.body;
+  const finalResult = Array.isArray(affid) ? 
+    await findMultipleCampaigns(page, country, affid, scenario) :
+    await findCampaigns(page, country, affid, scenario);
+  if(finalResult !== null){ 
+
     res.status(200).send({
       code:200,
       data:finalResult
@@ -680,11 +698,8 @@ app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
 });
 
 app.post('/api/v1/update_campaign_status', authenticate(), async(req, res)=>{
-
   const { xcid, http_status } = req.body;
-
   const finalResult = await updateCampaignStatus(xcid, http_status);
-
   if(finalResult !== null){ 
     res.status(200).send({
       code:200,

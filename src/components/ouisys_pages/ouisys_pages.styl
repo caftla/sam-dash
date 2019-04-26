@@ -2,6 +2,17 @@
 	margin-top 100px
 .top-spacer, .top-spacer * 
 		font-size: 11px !important
+		.jumbo-btn
+			position fixed
+			bottom 0
+			margin-top 50px
+			height 70px
+			width 100%
+			font-size 20px !important
+			font-weight bold
+			margin auto
+			left 0
+			right 0
 		.warning
 			background-color red
 		ul 
@@ -52,25 +63,26 @@
 	justify-content space-between
 	button 
 		flex 1
-.modal-wrapper 
-	position fixed
-	left 0
-	right 0
-	top 0
-	bottom 0
-	background rgba(0, 0, 0, 0.7)
-	z-index 999
-	display flex
-	flex-direction row
-	justify-content center
-	align-items center
-	h4
+.create-campaign-modal
+	position relative !important
+	margin-top -100px
+	margin-bottom 100px
+	background-color #fff !important
+	.well
+		border-radius unset !important
+	h1 
+		font-size 30px !important
+		margin 0
+	h2
 		font-size 20px !important
+	.card
+		padding 15px
+		box-shadow 0 4px 8px 0 rgba(0,0,0,0.2)
+  	transition: 0.3s
+		background-color #aaa
+	.card:hover 
+  	box-shadow 0 8px 16px 0 rgba(0,0,0,0.2)
 
-.well 
-	background #fff
-	padding 20px
-	border-radius 8px
 .legals-actions-wrapper{
 	display flex
 	flex-direction column
@@ -111,6 +123,8 @@ label
 		padding-right 20px
 		padding-top 12px
 		padding-bottom 12px
+	input:disabled 
+		background: #dddddd
 	textarea
 		height 70px
 .btns
@@ -147,3 +161,28 @@ label
 		background #eee
 		:focus
 			outline-color: #eee;
+
+.modal-wrapper 
+	position fixed
+	left 0
+	right 0
+	top 0
+	bottom 0
+	background rgba(0, 0, 0, 0.7)
+	z-index 999
+	display flex
+	flex-direction row
+	justify-content center
+	align-items center
+	h4
+		font-size 20px !important
+
+	.well 
+		background #fff
+		padding 20px
+		border-radius 8px
+
+.temp-input
+	position absolute
+	left -1000px
+	top -1000px

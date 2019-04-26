@@ -14,6 +14,7 @@ import CampaignsTable from "./campaign-table";
 import Modal from "../modal";
 import CreateCampaign from "./create-campaign-modal";
 import SubMenu from "../submenu"
+import moment from "moment"
 import {
   fetch_uploaded_pages,
   fetch_released_pages,
@@ -26,7 +27,8 @@ import {
   get_all_campaigns,
   find_campaigns,
   reset_existing_campaigns,
-  update_campaign_status
+  update_campaign_status,
+  create_multiple_campaigns
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -47,7 +49,8 @@ class ViewComponent extends Component {
       route: props.location.pathname.substring(1).split('/')[0],
       showShare:false,
       copied: false,
-      shareValues:{}
+      shareValues:{},
+      copiedMulti:{}
     }
   }
   componentWillMount() {
@@ -91,8 +94,8 @@ class ViewComponent extends Component {
       shareValues: payload.data
     })
   }
-  copy() {
-    const copyText = document.querySelector("#share-url");
+  copy(id) {
+    const copyText = document.querySelector(`#${id}`);
     copyText.select();
     document.execCommand("copy");
     this.setState({copied: true})
@@ -107,56 +110,63 @@ class ViewComponent extends Component {
             <div id="tabs-area">
               
             <SubMenu id="campaigns"/>
-            <h1>Manage Campaigns</h1>
+            
             </div>
-          <Tabs flex="grow" justify="center" >
-            <Tab title="Published Pages">
-              <Box
-                fill
-                pad={{
-                  left: 'small', right: 'small'
-                }}
-                margin={{
-                  top: 'medium'
-                }}
-                overflow="auto"
-                align="center"
-              >
-                {
-                  (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
-                  <PublishedPages
-                    publishedPages={this.props.released_pages}
-                    create_camapign={this.props.create_camapign}
-                    toggle_create_campaign={this.props.toggle_create_campaign}
-                    toggleShowShare={this.toggleShowShare.bind(this)}
-                    fetch_released_pages={this.props.fetch_released_pages}
-                  />
-                }
-              </Box>
-              </Tab>
-              <Tab title="Created Campaigns">
-              <Box
-                fill
-                pad={{
-                  left: 'small', right: 'small'
-                }}
-                margin={{
-                  top: 'medium'
-                }}
-                overflow="auto"
-                align="center"
-              >
-                {
-                  (Array.isArray(this.props.all_campaigns) && this.props.all_campaigns.length > 0) &&
-                  <CampaignsTable
-                    all_campaigns={this.props.all_campaigns}
-                    get_all_campaigns={this.props.get_all_campaigns}
-                    update_campaign_status={this.props.update_campaign_status}
-                  />
-                }
-              </Box>
-              </Tab>
-            </Tabs>
+            { 
+              
+              !this.props.show_create_campaign.show &&
+              <div>
+                <h1>Manage Campaigns</h1>
+                <Tabs flex="grow" justify="center" >
+                  <Tab title="Published Pages">
+                    <Box
+                      fill
+                      pad={{
+                        left: 'small', right: 'small'
+                      }}
+                      margin={{
+                        top: 'medium'
+                      }}
+                      overflow="auto"
+                      align="center"
+                    >
+                      {
+                        (Array.isArray(this.props.released_pages) && this.props.released_pages.length > 0) &&
+                        <PublishedPages
+                          publishedPages={this.props.released_pages}
+                          create_camapign={this.props.create_camapign}
+                          toggle_create_campaign={this.props.toggle_create_campaign}
+                          toggleShowShare={this.toggleShowShare.bind(this)}
+                          fetch_released_pages={this.props.fetch_released_pages}
+                        />
+                      }
+                    </Box>
+                    </Tab>
+                    <Tab title="Created Campaigns">
+                    <Box
+                      fill
+                      pad={{
+                        left: 'small', right: 'small'
+                      }}
+                      margin={{
+                        top: 'medium'
+                      }}
+                      overflow="auto"
+                      align="center"
+                    >
+                      {
+                        (Array.isArray(this.props.all_campaigns) && this.props.all_campaigns.length > 0) &&
+                        <CampaignsTable
+                          all_campaigns={this.props.all_campaigns}
+                          get_all_campaigns={this.props.get_all_campaigns}
+                          update_campaign_status={this.props.update_campaign_status}
+                        />
+                      }
+                    </Box>
+                  </Tab>
+                </Tabs>
+              </div>
+            }
             <div className="top-spacer publish-wrapper">
 
             </div>
@@ -175,6 +185,81 @@ class ViewComponent extends Component {
                 created_campaign={this.props.created_campaign}
               />
             }
+
+            {
+              (this.props.show_link_modal === true && Array.isArray(this.props.created_multiple_campaigns)) &&
+              //true &&
+              <Modal
+                close={()=>this.props.toggle_show_link(false)}
+                toggleShowLink={this.props.toggle_show_link}
+                title="Campaign created successfully!"
+                custom={()=>{
+                  return(
+                    <div>
+                      <h1>Campaigns created successfully!</h1>
+                      <div className="created_multi_campaigns">
+                        <table>
+                        <thead>
+                          <tr>
+                            <th>Affiliate id</th>
+                            <th>Link</th>
+                            <th>Comments</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        {
+                            this.props.created_multiple_campaigns.map((tObj, index)=>{
+                              const url = (tObj.affiliate_id === "FREE-ANY" || tObj.affiliate_id === "FREE-POP") ? 
+                              `https://c1.ouisys.com/${tObj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${tObj.xcid}`;
+              
+                                return (
+                                    <tr>
+                                      <td>
+                                        {tObj.affiliate_id}
+                                      </td>
+                                      <td>
+                                        <a target="_blank" href={url}>{url}</a>
+                                        <input className="temp-input" id={tObj.affiliate_id + index} value={url}/>
+                                      </td>
+                                      <td>
+                                        {tObj.comments}
+                                      </td>
+                                      <td>
+                                        {moment(tObj.date_created).format("MMM Do YY")}
+                                      </td>
+                                      <td>
+
+                                      {this.state.copiedMulti[tObj.xcid] ? <span style={{color: 'red'}}>Copied.</span> : null}
+          
+                                      {/* <input id="share-url" readOnly value={url}/> */}
+                                        <button onClick={()=>{
+                                          this.copy(tObj.affiliate_id + index);
+                                          this.setState({
+                                            copiedMulti:{
+                                              [tObj.xcid]: true
+                                            }
+                                          })
+
+                                        }}
+                                        type="button" className="btn btn-warning">Copy</button>
+                                      </td>
+                                    </tr>
+                                ) 
+                              
+                            })
+                          }
+                        </tbody>
+                        </table>
+                            </div>
+                    </div>
+                  )
+                }}
+                created_multiple_campaigns={this.props.created_multiple_campaigns}
+              />
+
+            }
             {
               this.props.show_create_campaign.show &&
               <CreateCampaign
@@ -185,6 +270,7 @@ class ViewComponent extends Component {
                 find_campaigns={this.props.find_campaigns}
                 searched_campaigns={this.props.searched_campaigns || []}
                 reset_existing_campaigns={this.props.reset_existing_campaigns}
+                create_multiple_campaigns={this.props.create_multiple_campaigns}
               />
             }
 
@@ -201,7 +287,7 @@ class ViewComponent extends Component {
                   const { country, page, scenario } =  this.state.shareValues;
                   const url = `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`;
                   return(
-                    <div onClick={()=>this.copy()}>
+                    <div onClick={()=>this.copy("share-url")}>
                       <input id="share-url" readOnly value={url}/> 
                       <p>{this.state.copied ? <span style={{color: 'red'}}>Copied.</span> : null}</p>
                     </div>
@@ -231,7 +317,8 @@ export default connect(
     sources: state.sources,
     created_campaign: state.created_campaign,
     all_campaigns: state.all_campaigns,
-    searched_campaigns: state.searched_campaigns
+    searched_campaigns: state.searched_campaigns,
+    created_multiple_campaigns: state.created_multiple_campaigns
       
   })
 , {
@@ -245,6 +332,7 @@ export default connect(
     get_all_campaigns,
     find_campaigns,
     reset_existing_campaigns,
-    update_campaign_status
+    update_campaign_status,
+    create_multiple_campaigns
   }
 ) (ViewComponent)

@@ -393,6 +393,24 @@ export const create_campaign = (payload) => (dispatch : Dispatch) => {
   })
 }
 
+export const create_multiple_campaigns = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'create_multiple_campaigns' })
+  post({url: `${api_root}/api/v1/create_multiple_campaigns`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'create_multiple_campaigns_success', payload: d })
+    dispatch(toggle_loader(false));
+  })
+  .then(()=>dispatch(fetch_uploaded_pages()))
+  .then(()=>dispatch(fetch_released_pages(true)))
+  .then(()=>dispatch(toggle_show_link(true)))
+  .then(()=>dispatch(toggle_create_campaign({})))
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
 //get all campaigns
 export const get_all_campaigns = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));

@@ -4,13 +4,11 @@ import { encrypt, decrypt } from "./encryption";``
 
 
 export async function findSourceByHash (hash){
-
   const result = await run(
     `SELECT *
         FROM affiliates where hash = $1
     `, [hash]
   )
-
   return (result.rows.length > 0) ? result.rows[0] : null;
 }
 
@@ -21,7 +19,6 @@ export async function getUserCampaigns (id){
         ORDER BY date_created DESC
     `, [id]
   )
-
   return (result.rows.length > 0) ? result.rows : [];
 }
 
@@ -38,7 +35,6 @@ export async function getUploadedPages (){
 			ORDER BY p.date_created DESC;
     `, []
   )
-
   return (result.rows.length > 0) ? result.rows : [];
 }
 
@@ -74,8 +70,6 @@ export async function getPageReleases (){
 	} 
 }
 export async function createCampaign(page, country, affid, comments, scenario) {
-
-	//console.table([page, country, affid, comments, scenario]);
 	try{
 	    const result = await run(
 	      `
@@ -115,9 +109,69 @@ export async function createCampaign(page, country, affid, comments, scenario) {
 	}
 }
 
-export async function updateCampaignStatus(xcid, http_status) {
+export async function createMultipleCampaigns(payload) {
+	try{
+		const newArr = [];
+		Object.keys(payload).map((val, index)=>{
+			newArr.push(
+				payload[val]
+			);
+		});
+	
+		const make_values_string = (values:array)=>{
+			let string = "";
+			const rowLen = values.length;
+			values.map((obj, index)=>{
+				console.log()
+				if(index + 1 !== rowLen){
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}','${obj.scenario}'),`
+				}else{
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}','${obj.scenario}')`
+				}
+			});
+			return string;	
+		}
+	
+		const queryString = `
+			INSERT INTO campaigns(
+				page
+			, country
+			, source_id
+			, comments
+			, scenario
+			) VALUES ${make_values_string(newArr)}
+			returning *
+		`;
+			const result = await run(queryString);
+			
+			const finalResult = async () => {
+				return await Promise.all(result.rows.map(async(obj, index)=>{
+						const campaign = obj;
+						const xcid = encrypt(campaign.id);
+						const result2 = await run(
+							`
+									update campaigns set xcid = $2 where id = $1
+									returning *
+							`,
+							[campaign.id, xcid]
+						);
+						const {affiliate_name, affiliate_id, offer_id} = (await getASource(campaign.source_id)) || {affiliate_name: null, affiliate_id: null, offer_id: null}				
+						return await Promise.resolve({...result2.rows[0], affiliate_name, affiliate_id, offer_id})
+					})
+				)
+			}
+			
+			return finalResult()
+			
+	    
+	}catch(error){
 
-	console.table([xcid, http_status]);
+		console.log("CREATE CAMPAIGN ERROR ERROR", error)
+
+	}
+}
+
+export async function updateCampaignStatus(xcid, http_status) {
 	try{
 	    const result = await run(
 	      `
@@ -132,8 +186,6 @@ export async function updateCampaignStatus(xcid, http_status) {
 	}
 }
 
-
-
 export async function findCampaigns (page, country, affid, scenario){
   const result = await run(
 		`
@@ -143,22 +195,45 @@ export async function findCampaigns (page, country, affid, scenario){
 				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.source_id = (select id from src)
     `, [page, country, affid, scenario]
   )
+  return (result.rows.length > 0) ? result.rows : [];
+}
+
+export async function findMultipleCampaigns (page, country, affid, scenario){
+	const make_affids_string = (ids: array) =>{
+		const affids = "'" + ids.join("','") + "'";
+
+		console.log("affids", ids)
+		return affids;
+	} 
+
+	console.log("make_affids_string", make_affids_string(affid))
+	const queryString = `with src as (select id from sources where affiliate_id IN (${make_affids_string(affid)})),
+	T as (SELECT *
+			FROM campaigns c
+			WHERE c.page = $1 AND c.country = $2 AND c.scenario = $3 AND c.source_id IN (select id from src))
+	SELECT * FROM T
+	LEFT JOIN sources as s ON T.source_id = s.id
+			`
+
+			
+  const result = await run(
+		queryString, [page, country, scenario]
+  )
 
   return (result.rows.length > 0) ? result.rows : [];
 }
 
 export async function findOrCreateCampaign (page, country, affid, comments, scenario){
 	const result = await findCampaigns(page, country, affid, scenario);
-
 	if(result.length > 0){
 		return result[0];
 	}else{
 		return createCampaign(page, country, affid, comments, scenario);
 	}
 }
+
 export async function publishPage(html_url, page_upload_id, username) {
 
-	//console.table([page, country, affid, comments, scenario]);
 	try{
 	    const result = await run(
 				`
@@ -225,7 +300,6 @@ export async function getSources() {
 export async function getAllCampaigns() {
   const result = await run(
 		`	
-			
 			with T as (
 				SELECT t1.affiliate_id, t1.affiliate_name
 					FROM dblink('helix_server'::text, '
