@@ -119,10 +119,11 @@ export async function createMultipleCampaigns(payload) {
 		});
 	
 		const make_values_string = (values:array)=>{
+
 			let string = "";
 			const rowLen = values.length;
 			values.map((obj, index)=>{
-				console.log()
+				//console.log("SOURCE_ID", obj.source_id)
 				if(index + 1 !== rowLen){
 					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}','${obj.scenario}'),`
 				}else{

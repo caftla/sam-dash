@@ -99,7 +99,6 @@ class CreateCampaign extends Component {
                       }
                     })
                   }
-                  console.log("affidARR",beautifulArr)
                   const findCampaignsArr = beautifulArr.map(function(item) {
                     console.log("item", item)
                     return item["affiliate_id"];
@@ -113,6 +112,7 @@ class CreateCampaign extends Component {
                   this.setState({
                     affids:beautifulArr
                   })
+                  console.log(beautifulArr)
                   this.getInput({
                     key:"affid",
                     value:valString
@@ -123,7 +123,7 @@ class CreateCampaign extends Component {
                 options={ this.props.sources.map(x => {
 
                   const obj = {
-                    source_id:x.offer_id,
+                    source_id:x.id,
                     affiliate_id:x.affiliate_id
                   }
                   return({
@@ -232,7 +232,7 @@ class CreateCampaign extends Component {
                         </FormRow>
                         <label>Comments</label>
                         <input
-                          disabled={this.state.checked[obj.affiliate_id] ? false : true}
+                          disabled={!this.state.multiInput.hasOwnProperty(obj.affiliate_id)}
                           name="comments"
                           onChange={(ev)=>{
                               this.getInput({
@@ -261,7 +261,7 @@ class CreateCampaign extends Component {
               }
             </div>
 
-            <button className="jumbo-btn">
+            <button className="jumbo-btn" disabled={(Object.keys(this.state.multiInput).length > 0) ? false : true }>
               Create
             </button>
           </form>
