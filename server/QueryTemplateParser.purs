@@ -175,7 +175,7 @@ toString = foldMap (S.singleton <<< S.codePointFromChar)
 parseSqlTemplate :: String -> Either ParseError (List TemplateToken)
 parseSqlTemplate str = runParser str sqlTemplate
 
-formatSql :: forall d. ToSqlDateStr d => QueryParams d -> List TemplateToken -> String
+formatSql :: QueryParams -> List TemplateToken -> String
 formatSql qParams@(QueryParams params) tokens = go "" tokens where
   go _ Nil = ""
   go indent (t : rest) = 
@@ -255,7 +255,7 @@ main =
     Right sql -> log sql
 
 -- /sessions/+2.0/2018-10-01/2018-10-15/country_code:(QA,OM),affiliate_id:POM/operator_code,day:(views:A,views:100,sales:10),country_code:(sales:A)
-doTemplate :: forall d. ToSqlDateStr d => String -> String -> Number -> d -> d -> String -> Either ParseError String
+doTemplate :: String -> String -> Number -> String -> String -> String -> Either ParseError String
 doTemplate filtersStr breakdownStr timezone dateFrom dateTo template = do
   breakdown <- runParser breakdownStr breakdownP
   filters <- runParser filtersStr filtersP

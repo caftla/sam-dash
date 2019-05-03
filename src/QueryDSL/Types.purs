@@ -10,7 +10,7 @@ import Data.Generic.Rep (class Generic)
 import Data.Generic.Rep.Eq (genericEq)
 import Data.Generic.Rep.Ord (class GenericOrd, genericCompare)
 import Data.Generic.Rep.Show (genericShow)
-import Data.Int (toNumber)
+import Data.Int (floor, toNumber)
 import Data.JSDate (JSDate)
 import Data.JSDate as JSD
 import Data.List (List(..), filter, intercalate, (:))
@@ -28,6 +28,7 @@ import Foreign (F, Foreign, readBoolean, readNullOrUndefined, readNumber, readSt
 import Foreign.Index ((!))
 import Foreign.Object as Obj
 import Prelude (class Ord, class Ring, class Semiring, class Show, append, bind, map, negate, not, pure, show, zero, ($), (*), (<$>), (<<<), (<>), (==), (>), (>=), (>>=), ($>))
+import Query.ReadFloat (readFloat)
 
 type StrMap a = Map String a
 type SqlColMap a = Map SqlCol a
@@ -217,10 +218,10 @@ instance toQueryPathStringFilterLang :: ToQueryPathString FilterLang where
 instance toQueryPathStringFilters :: ToQueryPathString (Map SqlCol FilterLang) where
   toQueryPathString = sqlColMapToQueryPathString toQueryPathString
 
-newtype QueryParams d = QueryParams {
+newtype QueryParams = QueryParams {
   timezone :: Number,
-  dateFrom :: d,
-  dateTo :: d,
+  dateFrom :: String,
+  dateTo :: String,
   breakdown :: Breakdown,
   filters :: Filters
 }
@@ -229,14 +230,15 @@ class ToSqlDateStr v where
   toSqlDateStr :: v -> String
 
 instance stringToSqlDateStr :: ToSqlDateStr String where
-  toSqlDateStr = toSqlDateStr <<< unsafePerformEffect <<< JSD.parse
+  toSqlDateStr = id --  toSqlDateStr <<< unsafePerformEffect <<< JSD.parse
 
 instance jsDateTimeToSqlDateStr :: ToSqlDateStr JSDate where
   toSqlDateStr = unsafePerformEffect <<< JSD.toISOString
 
-readQueryParams :: Foreign -> F (QueryParams String)
+readQueryParams :: Foreign -> F QueryParams
 readQueryParams value = do
-  timezone <- fromMaybe (toNumber 0) <$> (value ! "timezone" ?>>= readNumber)
+  -- timezone <-  fromMaybe (toNumber 0) <$> (value ! "timezone" ?>>= readNumber)
+  timezone <- readFloat <$> unsafeFromForeign <$> (value ! "timezone") 
   dateFrom <- value ! "dateFrom" >>= readString --unsafePerformEffect (JD.toISOString  =<< JD.parse "2018-11-02")
   dateTo <- value ! "dateTo" >>= readString
   breakdown <- unsafeFromForeign <$> (value ! "breakdown")
@@ -280,7 +282,7 @@ readQueryOptions value = do
   pure $ QueryOptions { noTimezone, tableAlias, timeColName, fieldMap, casted, engine }
 
 
-breakdownToSqlSelect :: forall d. String -> QueryParams d -> QueryOptions -> String
+breakdownToSqlSelect :: String -> QueryParams -> QueryOptions -> String
 breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) = 
   "  " <> (intercalate newLine $ map (\(Tuple k _) -> (if q.casted then (alias' <<< dimension) else toSqlFieldIdentifier) k) $ p.breakdown)
   where
@@ -310,7 +312,7 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
       timeDim dim = case q.engine of 
         Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
         PostgreSql -> "date_trunc('" <> dim <> "', timezone('" <> tz <> "', " <> alias' q.timeColName <> ") - ('" <> tz <> " hour' :: interval))"
-      tz = show $ toNumber(-1) * p.timezone
+      tz = show $ floor $ toNumber(-1) * p.timezone --TODO: floor i sa hack fro redshift
       -- timezone conversion example:  date_trunc('day', CONVERT_TIMEZONE('UTC', '-8', e.timestamp)) :: timestamp AT TIME ZONE '-8' 
 
     newLine = "\n" <> indent <> ", "
@@ -325,7 +327,7 @@ breakdownToSqlCommaSep moptions = intercalate ", " <<< map (\(Tuple k _) -> alia
 alias :: QueryOptions -> String -> String
 alias (QueryOptions q) col = q.tableAlias <> "." <> col
 
-joinDimensionsToSqlJoin :: forall d. String -> QueryParams d -> QueryOptions -> QueryOptions -> String
+joinDimensionsToSqlJoin :: String -> QueryParams-> QueryOptions -> QueryOptions -> String
 joinDimensionsToSqlJoin indent params@(QueryParams p) qLeft qRight = 
   "    " <> (intercalate newLine $ map (\(Tuple k _) -> (alias qLeft <<< dimension) k  <> " = " <> (alias qRight <<< dimension) k) $ p.breakdown)
   where
@@ -337,7 +339,7 @@ dimension col = "\"d_" <> go col <> "\"" where
   go (SqlColJSON c) = c.colName <> "_" <> c.jsonField
 
 
-filtersToSqlWhere :: forall d. ToSqlDateStr d => String -> QueryParams d -> QueryOptions -> String
+filtersToSqlWhere ::  String -> QueryParams -> QueryOptions -> String
 filtersToSqlWhere indent params@(QueryParams p) options@(QueryOptions q) = intercalate (newLine <> "AND ") (timeStr:rest)
   where
     alias' col = 
@@ -347,15 +349,21 @@ filtersToSqlWhere indent params@(QueryParams p) options@(QueryOptions q) = inter
 
     --alias options
     rest = filtersToSqls params options
-    timeStr = "    " <> alias' q.timeColName <> " >= " <> inSq (toSqlDateStr p.dateFrom) <> newLine <> "AND " <> alias' q.timeColName <> " < " <> inSq (toSqlDateStr p.dateTo)
+    timeStr = "    " <> alias' q.timeColName <> " >= " <> addTimezone p.dateFrom <> newLine <> "AND " <> alias' q.timeColName <> " < " <> addTimezone p.dateTo
     newLine = "\n" <> indent
+    tz = show $ floor $ toNumber(-1) * p.timezone -- TODO: floor i sa hack fro redshift
+    addTimezone dateStr = case q.engine of 
+        Redshift   -> "CONVERT_TIMEZONE('" <> tz <> "', 'UTC', '" <> dateStr <> "')"
+        PostgreSql -> "timezone('" <> tz <> "', " <> dateStr <> ") - ('" <> tz <> " hour' :: interval))"
 
-filtersToSqlConds :: forall d. ToSqlDateStr d => String -> QueryParams d -> QueryOptions -> String
+    
+
+filtersToSqlConds ::  String -> QueryParams -> QueryOptions -> String
 filtersToSqlConds indent params options = intercalate (newLine <> "AND ") $ filtersToSqls params options
   where
     newLine = "\n" <> indent
 
-filtersToSqls :: forall d. ToSqlDateStr d => QueryParams d -> QueryOptions -> List String
+filtersToSqls :: QueryParams-> QueryOptions -> List String
 filtersToSqls params@(QueryParams p) options@(QueryOptions q) = L.fromFoldable rest
   where
     alias' (SqlColJSON c) = c.colName <> "->>" <> "'" <> c.jsonField <> "'"
