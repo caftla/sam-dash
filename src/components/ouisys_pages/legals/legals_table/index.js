@@ -1,9 +1,6 @@
 import React, { Component } from "react";
 import moment from "moment";
 import { DataTable } from 'grommet';
-import { AllHtmlEntities as Entities } from "html-entities";
-
-const entities = new Entities();
 
 //import "./PublishedPages.scss";
 
@@ -57,7 +54,7 @@ class LegalsTable extends Component {
         render: datum =>{
           return(
             <div className="large-text">
-              {entities.decode(datum.top_legal)}
+              {datum.top_legal}
             </div>
           )
         }
@@ -69,7 +66,7 @@ class LegalsTable extends Component {
         render: datum =>{
           return(
             <div className="large-text">
-              {entities.decode(datum.disclaimer)}
+              {datum.disclaimer}
             </div>
           )
         }
@@ -82,7 +79,7 @@ class LegalsTable extends Component {
         render: datum =>{
           return(
             <div className="large-text">
-              {entities.decode(datum.price_point)}
+              {datum.price_point}
             </div>
           )
         }

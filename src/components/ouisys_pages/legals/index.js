@@ -36,7 +36,6 @@ class ViewComponent extends Component {
 
 
   render() {
-    console.log("this.state.route ", this.props.legals )
 
     return (
       <Grommet theme={customTheme}>

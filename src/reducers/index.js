@@ -32,6 +32,8 @@ import show_legal_modal from './show_legal_modal'
 import show_create_campaign from './show_create_campaign'
 import sources from './sources'
 import all_campaigns from './all_campaigns'
+import searched_campaigns from "./searched_campaigns"
+import created_multiple_campaigns from "./created_multiple_campaigns"
 
 const rootReducer = combineReducers({
     dashboard
@@ -69,6 +71,8 @@ const rootReducer = combineReducers({
   , show_create_campaign
   , sources
   , all_campaigns
+  , searched_campaigns
+  , created_multiple_campaigns
 })
 
 export default rootReducer

@@ -1,13 +1,28 @@
 import React, { Component } from "react";
 import moment from "moment";
-import { DataTable } from 'grommet';
+import { DataTable, Select } from 'grommet';
+import { InputSelect } from '../../../common-controls/FormElementsUtils'
+
 //import "./PublishedPages.scss";
 
 
 class CampaignTable extends Component {
 
-
+  constructor(props){
+    super(props)
+    this.state = {
+      httpStatusObj: {}
+    }
+    this._child = React.createRef();
+  }
   render(){
+    const campaignState = [{
+      name:"Ok",
+      value:"Ok"
+    },{
+      name:"Unpublished",
+      value:"Gone"
+    }]
     const columns = [
       {
         property: "xcid",
@@ -72,9 +87,48 @@ class CampaignTable extends Component {
         property: "date_created",
         header: "Date",
         sortable: true,
-        primary: true,
         render: datum =>
           datum.date_created && moment(datum.date_created).format("MMM Do YY"),
+        align: "end"
+      },
+      {
+        property: "",
+        header: "Status",
+        sortable: true,
+        render: (datum)=>{
+          return(
+            <select
+              id={datum.xcid}
+              defaultValue={this.state.httpStatusObj[datum.xcid] || datum.http_status}
+              onChange={(ev)=>{
+                const result = confirm(`You are are about to change the status for => https://c1.ouisys.com/${datum.xcid} to: ${ev.target.value}`);
+                if(result){
+                  this.setState({
+                    httpStatusObj:{
+                      [datum.xcid]: ev.target.value,
+                      ...this.state.httpStatusObj
+                    }
+                  })
+                  this.props.update_campaign_status({
+                    xcid:datum.xcid,
+                    http_status:ev.target.value
+                  })
+                  this.props.get_all_campaigns();
+                } else {
+                  document.querySelector(`#${datum.xcid}`).value = (datum.http_status === null) ? "OK" :  datum.http_status;
+                  //this.props.get_all_campaigns();
+                  console.log("You pressed Cancel!", this.state.httpStatusObj);
+                }
+              }}
+            >
+              
+              <option value="OK" selected={(datum.http_status === null || datum.http_status === "OK") ? true : false}>OK</option>
+              <option value="Gone">Unpublished/Gone</option>
+              <option value="Not Found">Not Found</option>
+              <option value="Forbidden">Forbidden</option>
+            </select>
+          )
+        },
         align: "end"
       }
     ];
@@ -83,7 +137,7 @@ class CampaignTable extends Component {
         <div>
           {
             (all_campaigns.length > 0) &&
-            <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
+            <DataTable onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
           }
         </div>
 

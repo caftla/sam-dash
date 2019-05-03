@@ -109,6 +109,7 @@ class ViewComponent extends Component {
             {
               (this.props.show_link_modal === true && this.props.created_campaign.hasOwnProperty("xcid")) &&
               <Modal 
+                close={()=>this.props.toggle_show_link(false)}
                 toggleShowLink={this.props.toggle_show_link} 
                 created_campaign={this.props.created_campaign}
                 title="Page published successfully!"
