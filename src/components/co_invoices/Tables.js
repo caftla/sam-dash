@@ -178,6 +178,5 @@ export const LetterBody = ({ name, email }) =>
     - Please note that timezone for the stats in this report is UTC+0. <br />
     - Please note that according to Sam Media financial policy a payment is made once $500 threshold is reached. <br />
     - Please prepare invoices to the two billing addresses indicated above accordingly. <br />
-    - Kindly email the invoice to <span className="bolder-text"> { finance_email } </span>
-    and cc <span className="bolder-text">{ email }</span>.<br /><br /><br />
+    - Kindly email the invoice to <span className="bolder-text">{ email }</span>.<br /><br /><br />
   </div>
