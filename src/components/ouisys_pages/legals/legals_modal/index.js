@@ -17,6 +17,7 @@ class LegalsModal extends Component {
       top_legal:"",
       price_point:"",
       disclaimer:"",
+      extra_disclaimer:"",
       has_exit:false,
       logo_url:"",
       extra_image_url:""
@@ -45,7 +46,8 @@ class LegalsModal extends Component {
       language:this.state.language.toLowerCase(),
       top_legal:this.state.top_legal,
       price_point:this.state.price_point,
-      disclaimer:this.state.disclaimer
+      disclaimer:this.state.disclaimer,
+      extra_disclaimer:this.state.extra_disclaimer
     };
 
     if(this.props.show_legal_modal.type !== "edit"){
@@ -63,7 +65,8 @@ class LegalsModal extends Component {
       language,
       top_legal,
       price_point,
-      disclaimer
+      disclaimer,
+      extra_disclaimer
     } = this.state;
     const { } = this.props.show_legal_modal
     return (
@@ -173,6 +176,20 @@ class LegalsModal extends Component {
                   })
                 }}
                 placeHolder="Price point text which normally appears under a button"
+              />
+            </div>
+            <div className="os-ui-form-group">
+              <label>Extra Disclaimer(optional)</label>
+              <textarea
+                value={extra_disclaimer}
+                name="price_point"
+                onChange={(ev)=>{
+                  this.setState({
+                    extra_disclaimer:ev.target.value
+                    
+                  })
+                }}
+                placeHolder="Optional e.g on modal"
               />
             </div>
 
