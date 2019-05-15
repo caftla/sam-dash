@@ -85,6 +85,19 @@ class LegalsTable extends Component {
         }
       },
       {
+        property: "extra_disclaimer",
+        header: "Extra Disclaimers",
+        sortable: false,
+        render: datum =>{
+          return(
+            <div className="large-text">
+              {datum.extra_disclaimer}
+            </div>
+          )
+        }
+          
+      },
+      {
         property: "date_created",
         header: "Date",
         sortable: true,
