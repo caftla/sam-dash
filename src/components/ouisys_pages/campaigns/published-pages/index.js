@@ -32,6 +32,11 @@ class CampaignTable extends Component {
         sortable: true
       },
       {
+        property: "strategy",
+        header: "Strategy",
+        search: true
+      },
+      {
         property: "html_url",
         header: "Url",
         search: false,

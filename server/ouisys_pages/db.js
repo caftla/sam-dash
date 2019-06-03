@@ -45,7 +45,7 @@ export async function getPageReleases (){
 			with Latests as (
 				SELECT  max(id) as latest_id
 				FROM page_releases as p
-				LEFT JOIN (SELECT id as pu_id, page, country, scenario FROM page_uploads) u
+				LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, env_dump FROM page_uploads) u
 				ON p.page_upload_id = u.pu_id
 				GROUP BY u.page, u.country, u.scenario
 			),
@@ -57,7 +57,7 @@ export async function getPageReleases (){
 			SELECT *,
 			(select c.xcid from campaigns c where c.country = u.country and c.page = u.page and c.scenario = u.scenario and c.source_id = 1 order by c.id desc limit 1) as sam_xcid_id
 			FROM LatestsPR p
-			LEFT JOIN (SELECT id as pu_id, page, country, scenario FROM page_uploads) u
+			LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, env_dump FROM page_uploads) u
 			ON p.page_upload_id = u.pu_id
 			ORDER BY p.date_created DESC;
 			`, []

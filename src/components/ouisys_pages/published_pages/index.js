@@ -32,6 +32,11 @@ class PublishedPages extends Component {
         sortable: true
       },
       {
+        property: "strategy",
+        header: "Strategy",
+        search: true
+      },
+      {
         property: "html_url",
         header: "Url",
         search: false,
@@ -70,6 +75,41 @@ class PublishedPages extends Component {
             (publishedPages.length > 0) &&
             <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
           }
+
+ {
+//             this.state.showMore &&
+          
+//             <Modal
+//               custom={()=>{
+//                 const { modalDetails } = this.state;
+//                 const { page, env_dump, git_username, date_created} = modalDetails;
+//                 return(
+//                   <div>
+//                     <h1>{page}</h1>
+//                     <div className="os-ui-col">
+//                       <div className="col"><strong>Date Uploaded:</strong></div>
+//                       <div className="col">{moment(date_created).format("MMM Do YY")}</div>
+//                     </div>
+//                     <div className="os-ui-col">
+//                       <div className="col"><strong>Designer:</strong></div>
+//                       <div className="col">{git_username}</div>
+//                     </div>
+//                     {
+//                       env_dump &&
+//                       <div>
+//                         <div className="os-ui-col">
+//                           <div className="col"><strong>.Env dump:</strong></div>
+//                         </div>
+//                         <pre className="col" style={{backgroundColor:"#eee", padding:5}}>{JSON.stringify(JSON.parse(env_dump), undefined, 2)}</pre>
+//                       </div>
+//                     }
+//                   </div>
+//                 )}
+//               }
+//               close={()=>this.toggleShowMore({})}
+//               customClass="pages-more"
+//             />
+         }
         </div>
 
       )
