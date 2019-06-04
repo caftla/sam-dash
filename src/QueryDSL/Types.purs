@@ -310,8 +310,8 @@ breakdownToSqlSelect indent params@(QueryParams p) options@(QueryOptions q) =
       dimension' c = "\"d_" <> c <> "\""
       --TODO: definition of timeDim must depend on configuration (context: redshift vs standard postgresql)
       timeDim dim = case q.engine of 
-        Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
-        PostgreSql -> "date_trunc('" <> dim <> "', timezone('" <> tzp <> "', " <> alias' q.timeColName <> ")) :: timestamp AT TIME ZONE '" <> tz <> "'"
+        Redshift   -> "date_trunc('" <> dim <> "', CONVERT_TIMEZONE('UTC', '" <> tz <> "', " <> alias' q.timeColName <> ")) :: TIMESTAMP AT TIME ZONE '" <> tz <> "'"
+        PostgreSql -> "date_trunc('" <> dim <> "', " <> alias' q.timeColName <> " :: TIMESTAMP AT TIME ZONE '" <> tzp <> "') :: TIMESTAMP AT TIME ZONE '" <> tz <> "'"
       tz = show $ floor $ toNumber(-1) * p.timezone --TODO: floor i sa hack fro redshift
       tzp = show $ floor $ p.timezone
       -- timezone conversion example:  date_trunc('day', CONVERT_TIMEZONE('UTC', '-8', e.timestamp)) :: timestamp AT TIME ZONE '-8' 

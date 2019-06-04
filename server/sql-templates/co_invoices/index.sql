@@ -49,15 +49,20 @@ with Pixels as (
 
 
 select 
-	p.*
-, v.*
-, a.additional_pixels
-, a.additional_pixels_cpa
+	coalesce(p.country_code, a.country_code) as country_code
+, p.operator_code as operator_code
+, coalesce(v.views, 0) as views
+, coalesce(v.sales, 0) as sales
+, coalesce(v.resubscribes, 0) as resubscribes
+, coalesce(a.additional_pixels, 0) as additional_pixels
+, coalesce(a.additional_pixels_cpa, 0) as additional_pixels_cpa
+, coalesce(p.cpa, 0) as cpa
+, coalesce(p.total, 0) as total
 , co.timezone
 
 from Pixels p
-		left join Views v on v.country_code = p.country_code and v.operator_code = p.operator_code
-		left join Additional_costs a on a.country_code = p.country_code
-		left join countries co on v.country_code = co.country_code
-
-		order by 1,2
+		full join Views v on v.country_code = p.country_code and v.operator_code = p.operator_code
+		full join Additional_costs a on a.country_code = p.country_code
+		full join countries co on v.country_code = co.country_code
+where coalesce(p.country_code, a.country_code) is not null
+order by 1,2
