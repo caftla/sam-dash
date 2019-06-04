@@ -679,10 +679,10 @@ app.post('/api/v1/create_multiple_campaigns', authenticate(), async(req, res)=>{
 
 
 app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
-  const { page, country, affid, scenario } = req.body;
+  const { page, country, affid, scenario, strategy, scenarios_config } = req.body;
   const finalResult = Array.isArray(affid) ? 
-    await findMultipleCampaigns(page, country, affid, scenario) :
-    await findCampaigns(page, country, affid, scenario);
+    await findMultipleCampaigns(page, country, affid, scenario, strategy, scenarios_config) :
+    await findCampaigns(page, country, affid, scenario, strategy, scenarios_config);
   if(finalResult !== null){ 
 
     res.status(200).send({

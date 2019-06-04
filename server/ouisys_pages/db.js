@@ -204,7 +204,7 @@ export async function findCampaigns (page, country, affid, scenario){
   return (result.rows.length > 0) ? result.rows : [];
 }
 
-export async function findMultipleCampaigns (page, country, affid, scenario){
+export async function findMultipleCampaigns (page, country, affid, scenario, strategy, scenarios_config){
 	const make_affids_string = (ids: array) =>{
 		const affids = "'" + ids.join("','") + "'";
 
@@ -213,17 +213,28 @@ export async function findMultipleCampaigns (page, country, affid, scenario){
 	} 
 
 	//console.log("make_affids_string", make_affids_string(affid))
-	const queryString = `with src as (select id from sources where affiliate_id IN (${make_affids_string(affid)})),
+	const queryString = scenario ? `with src as (select id from sources where affiliate_id IN (${make_affids_string(affid)})),
 	T as (SELECT *
 			FROM campaigns c
 			WHERE c.page = $1 AND c.country = $2 AND c.scenario = $3 AND c.source_id IN (select id from src))
 	SELECT * FROM T
 	LEFT JOIN sources as s ON T.source_id = s.id
 			`
+			:
+			`with src as (select id from sources where affiliate_id IN (${make_affids_string(affid)})),
+	T as (SELECT *
+			FROM campaigns c
+			WHERE c.page = $1 AND c.country = $2 AND c.strategy = $3 AND c.scenarios_config = $4 AND c.source_id IN (select id from src))
+	SELECT * FROM T
+	LEFT JOIN sources as s ON T.source_id = s.id
+			`
 
 			
-  const result = await run(
+  const result = scenario ? await run(
 		queryString, [page, country, scenario]
+	):
+	await run(
+		queryString, [page, country, strategy, scenarios_config]
   )
 
   return (result.rows.length > 0) ? result.rows : [];

@@ -109,7 +109,9 @@ class CreateCampaign extends Component {
                     page,
                     country,
                     affid:findCampaignsArr,
-                    scenario
+                    scenario,
+                    strategy,
+                    scenarios_config
                   });
                   this.setState({
                     affids:beautifulArr
