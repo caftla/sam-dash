@@ -53,6 +53,7 @@ select
 , p.operator_code as operator_code
 , coalesce(v.views, 0) as views
 , coalesce(v.sales, 0) as sales
+, coalesce(p.pixels, 0) as pixels
 , coalesce(v.resubscribes, 0) as resubscribes
 , coalesce(a.additional_pixels, 0) as additional_pixels
 , coalesce(a.additional_pixels_cpa, 0) as additional_pixels_cpa
