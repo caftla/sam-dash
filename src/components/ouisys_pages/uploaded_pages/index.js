@@ -40,6 +40,11 @@ class UploadedPages extends Component {
         search: true
       },
       {
+        property: "scenarios_config",
+        header: "Scenarios Config",
+        search: true
+      },
+      {
         property: "html_url",
         header: "Url",
         search: true,
