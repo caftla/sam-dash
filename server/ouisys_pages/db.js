@@ -241,7 +241,6 @@ export async function findMultipleCampaigns (page, country, affid, scenario, str
 }
 
 export async function findOrCreateCampaign (page, country, affid, comments, scenario, strategy, scenarios_config){
-	console.table([{page, country, affid, comments, scenario, strategy, scenarios_config}])
 	const result = await findCampaigns(page, country, affid, scenario, strategy, scenarios_config);
 	if(result.length > 0){
 		return result[0];
