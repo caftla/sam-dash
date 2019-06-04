@@ -66,7 +66,7 @@ class ViewComponent extends Component {
       const { search } = window.location;
       const parsed = this.parseQuery(search);
       console.log("PARSED", parsed)
-      const {country, page, scenario } = parsed;
+      const {country, page, scenario, strategy, scenarios_config } = parsed;
 
       if(country, page, scenario){
         this.props.toggle_create_campaign({show:true, data:{
@@ -74,6 +74,14 @@ class ViewComponent extends Component {
           page,
           scenario
         }})
+      }
+      if(country, page, strategy, scenarios_config){
+        this.props.toggle_create_campaign({show:true, data:{
+          country,
+          page,
+          strategy,
+          scenarios_config
+        }}) 
       }
     }
   }
@@ -284,8 +292,10 @@ class ViewComponent extends Component {
 
                 }}
                 custom={()=>{
-                  const { country, page, scenario } =  this.state.shareValues;
-                  const url = `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`;
+                  const { country, page, scenario, strategy, scenarios_config } =  this.state.shareValues;
+                  const url = scenario ?
+                  `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`
+                  : `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&strategy=${strategy}&scenarios_config=${scenarios_config}`
                   return(
                     <div onClick={()=>this.copy("share-url")}>
                       <input id="share-url" readOnly value={url}/> 

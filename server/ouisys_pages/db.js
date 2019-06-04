@@ -45,7 +45,7 @@ export async function getPageReleases (){
 			with Latests as (
 				SELECT  max(id) as latest_id
 				FROM page_releases as p
-				LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, env_dump FROM page_uploads) u
+				LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, scenarios_config, env_dump FROM page_uploads) u
 				ON p.page_upload_id = u.pu_id
 				GROUP BY u.page, u.country, u.scenario
 			),
@@ -57,7 +57,7 @@ export async function getPageReleases (){
 			SELECT *,
 			(select c.xcid from campaigns c where c.country = u.country and c.page = u.page and c.scenario = u.scenario and c.source_id = 1 order by c.id desc limit 1) as sam_xcid_id
 			FROM LatestsPR p
-			LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, env_dump FROM page_uploads) u
+			LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, scenarios_config, env_dump FROM page_uploads) u
 			ON p.page_upload_id = u.pu_id
 			ORDER BY p.date_created DESC;
 			`, []
@@ -69,7 +69,7 @@ export async function getPageReleases (){
 		throw ex
 	} 
 }
-export async function createCampaign(page, country, affid, comments, scenario) {
+export async function createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config) {
 	try{
 	    const result = await run(
 	      `
@@ -80,6 +80,8 @@ export async function createCampaign(page, country, affid, comments, scenario) {
 				, source_id
 				, comments
 				, scenario
+				, strategy
+				, scenarios_config
 				) VALUES (
 					$1
 				, $2
@@ -89,7 +91,7 @@ export async function createCampaign(page, country, affid, comments, scenario) {
 				)
 				returning *
 	    `,
-	      [page, country, affid, comments, scenario]
+	      [page, country, affid, comments, scenario, strategy, scenarios_config]
 	    );
 	    const campaign = result.rows[0];
 	    const xcid = encrypt(campaign.id);
@@ -123,11 +125,10 @@ export async function createMultipleCampaigns(payload) {
 			let string = "";
 			const rowLen = values.length;
 			values.map((obj, index)=>{
-				//console.log("SOURCE_ID", obj.source_id)
 				if(index + 1 !== rowLen){
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}','${obj.scenario}'),`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
 				}else{
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}','${obj.scenario}')`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
 				}
 			});
 			return string;	
@@ -140,6 +141,8 @@ export async function createMultipleCampaigns(payload) {
 			, source_id
 			, comments
 			, scenario
+			, strategy
+			, scenarios_config
 			) VALUES ${make_values_string(newArr)}
 			returning *
 		`;
@@ -157,7 +160,9 @@ export async function createMultipleCampaigns(payload) {
 							[campaign.id, xcid]
 						);
 						const {affiliate_name, affiliate_id, offer_id} = (await getASource(campaign.source_id)) || {affiliate_name: null, affiliate_id: null, offer_id: null}				
-						return await Promise.resolve({...result2.rows[0], affiliate_name, affiliate_id, offer_id})
+						return (result2.rows.length > 0) ? 
+						await Promise.resolve({...result2.rows[0], affiliate_name, affiliate_id, offer_id})
+						: {};
 					})
 				)
 			}
@@ -193,8 +198,8 @@ export async function findCampaigns (page, country, affid, scenario){
 		with src as (select id from sources where affiliate_id = $3)
 		SELECT *
 				FROM campaigns c
-				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.source_id = (select id from src)
-    `, [page, country, affid, scenario]
+				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.strategy = $5 AND c.scenarios_config = $6 AND c.source_id = (select id from src)
+    `, [page, country, affid, scenario, strategy, scenarios_config]
   )
   return (result.rows.length > 0) ? result.rows : [];
 }
@@ -224,12 +229,13 @@ export async function findMultipleCampaigns (page, country, affid, scenario){
   return (result.rows.length > 0) ? result.rows : [];
 }
 
-export async function findOrCreateCampaign (page, country, affid, comments, scenario){
-	const result = await findCampaigns(page, country, affid, scenario);
+export async function findOrCreateCampaign (page, country, affid, comments, scenario, strategy, scenarios_config){
+	console.table([{page, country, affid, comments, scenario, strategy, scenarios_config}])
+	const result = await findCampaigns(page, country, affid, scenario, strategy, scenarios_config);
 	if(result.length > 0){
 		return result[0];
 	}else{
-		return createCampaign(page, country, affid, comments, scenario);
+		return createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config);
 	}
 }
 

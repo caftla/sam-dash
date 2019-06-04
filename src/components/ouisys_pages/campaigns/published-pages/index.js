@@ -73,8 +73,10 @@ class CampaignTable extends Component {
         sortable: true,
         primary: true,
         render: datum =>{
-          const { country, page, scenario} = datum || "";
-          const url = `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`;
+          const { country, page, scenario, strategy, scenarios_config } = datum || "";
+          const url = scenario ? 
+          `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&scenario=${scenario}`
+          : `https://sigma.sam-media.com/ouisys-pages/campaigns/?country=${country}&page=${page}&strategy=${strategy}&scenarios_config=${scenarios_config}`;
           return(
             <div className="campaign-btns">
               <a href={url}>

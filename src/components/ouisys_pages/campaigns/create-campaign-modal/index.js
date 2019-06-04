@@ -35,7 +35,7 @@ class CreateCampaign extends Component {
   }
   getMultiInputInput(payload){
     const {affid, key, value, source_id } = payload;
-    const { country, page, scenario } = this.props.show_create_campaign.data;
+    const { country, page, scenario, strategy, scenarios_config } = this.props.show_create_campaign.data;
     this.setState({
       multiInput:{
         ...this.state.multiInput,
@@ -44,6 +44,8 @@ class CreateCampaign extends Component {
           country,
           page,
           scenario,
+          strategy,
+          scenarios_config,
           affid,
           source_id
         } 
@@ -58,7 +60,7 @@ class CreateCampaign extends Component {
     })
   }
   render(){
-    const { country, page, scenario } = this.props.show_create_campaign.data;
+    const { country, page, scenario, strategy, scenarios_config } = this.props.show_create_campaign.data;
     const searched_campaigns = Array.isArray(this.props.searched_campaigns) ? this.props.searched_campaigns : [];
     //const url = `http://c1.ouisys.com/${xcid}`;
     return (
@@ -75,7 +77,7 @@ class CreateCampaign extends Component {
           X
         </button>
           <h1>Create campaign</h1>
-          <p><b>Country: </b> {country} <b>Page: </b> {page} <b>Scenario: </b> {scenario}</p>
+          <p><b>Country: </b> {country} <b>Page: </b> {page} {scenario ? <span><b>Scenario: </b> {scenario}</span> : <span><b>Strategy: </b> {strategy} <b>Scenarios config: </b> {scenarios_config}</span> }</p>
 
           <form onSubmit={(ev)=>this.handleSubmit(ev)}>
             <div className="os-ui-form-group">
