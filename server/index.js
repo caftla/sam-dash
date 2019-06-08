@@ -643,19 +643,25 @@ app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
   }
 });
 
-app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
-  const { page, country, affid, comments, scenario, dontReUse } = req.body;
-  const finalResult = await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario) : createCampaign(page, country, affid, comments, scenario));
-  if(finalResult !== null){ 
-    res.status(200).send({
-      code:200,
-      data:finalResult
-    })
-  }else{
-    res.status(401).send({
-      code:401,
-      message:"Not authorised to view this page"
-    })
+app.post('/api/v1/create_campaign', async(req, res)=>{
+  const { page, country, affid, comments, scenario, strategy, scenarios_config, dontReUse } = req.body;
+  try{
+    const finalResult = scenario ? 
+    await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario, null, null) : createCampaign(page, country, affid, comments, scenario, null, null))
+    :await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, null, strategy, scenarios_config) : createCampaign(page, country, affid, comments, null, strategy, scenarios_config));
+    if(finalResult !== null){ 
+      res.status(200).send({
+        code:200,
+        data:finalResult
+      })
+    }else{
+      res.status(401).send({
+        code:401,
+        message:"Not authorised to view this page"
+      })
+    }
+  }catch(err){
+    throw err
   }
 });
 
@@ -678,7 +684,7 @@ app.post('/api/v1/create_multiple_campaigns', authenticate(), async(req, res)=>{
 
 
 
-app.post('/api/v1/find_campaign', authenticate(), async(req, res)=>{
+app.post('/api/v1/find_campaign', async(req, res)=>{
   const { page, country, affid, scenario, strategy, scenarios_config } = req.body;
   const finalResult = Array.isArray(affid) ? 
     await findMultipleCampaigns(page, country, affid, scenario, strategy, scenarios_config) :

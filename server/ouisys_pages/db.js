@@ -192,14 +192,23 @@ export async function updateCampaignStatus(xcid, http_status) {
 	}
 }
 
-export async function findCampaigns (page, country, affid, scenario){
-  const result = await run(
+export async function findCampaigns (page, country, affid, scenario, strategy, scenarios_config){
+
+	const result = scenario ? await run(
 		`
 		with src as (select id from sources where affiliate_id = $3)
 		SELECT *
 				FROM campaigns c
-				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.strategy = $5 AND c.scenarios_config = $6 AND c.source_id = (select id from src)
-    `, [page, country, affid, scenario, strategy, scenarios_config]
+				WHERE c.page = $1 AND c.country = $2 AND c.scenario = $4 AND c.source_id = (select id from src)
+    `, [page, country, affid, scenario]
+	):
+	await run(
+		`
+		with src as (select id from sources where affiliate_id = $3)
+		SELECT *
+				FROM campaigns c
+				WHERE c.page = $1 AND c.country = $2 AND c.strategy = $4 AND c.scenarios_config = $5 AND c.source_id = (select id from src)
+    `, [page, country, affid, strategy, scenarios_config]
   )
   return (result.rows.length > 0) ? result.rows : [];
 }
