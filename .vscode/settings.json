@@ -15,4 +15,7 @@
   "prettier.ignorePath": ".*",
   "editor.tabSize": 2,
   "editor.formatOnPaste": false,
+  "cSpell.words": [
+    "webpush"
+  ],
 }

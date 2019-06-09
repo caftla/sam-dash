@@ -1,7 +1,6 @@
 const { resolve } = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const OfflinePlugin = require('offline-plugin')
 
 module.exports = {
   mode: 'production',
@@ -84,12 +83,6 @@ module.exports = {
       filename: 'index.html',
       title: 'Sigma',
       template: 'webpack/template.html'
-    }),
-    // new OfflinePlugin({
-    //   ServiceWorker: {
-    //     navigateFallbackURL: '/',
-    //   },
-    //   AppCache: false,
-    // })
+    })
   ],
 }

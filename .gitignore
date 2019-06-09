@@ -13,3 +13,4 @@ output/
 bower_components/
 .psci_modules
 .psc-ide-port
+yarn-error.log

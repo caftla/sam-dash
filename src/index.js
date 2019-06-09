@@ -1,6 +1,4 @@
 // @flow
-
-import Offline from 'offline-plugin/runtime'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { render } from 'react-dom'
@@ -61,8 +59,6 @@ import Campaigns from './components/ouisys_pages/campaigns'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
-
-Offline.install()
 
 const Redirect_Filter_Page_Section_Row = ({ match, history }) => {
   const { format: d3Format } = require('d3-format')

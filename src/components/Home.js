@@ -29,6 +29,8 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 import { getCookie, NewFeatures } from './NewFeatures'
 
+import registerForPushNotifications from "../push"
+
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 
@@ -42,6 +44,7 @@ type HomeProps = {
 }
 
 type HomeState = {
+  push_enabled : Boolean
 }
 
 class Home extends React.Component {
@@ -51,19 +54,14 @@ class Home extends React.Component {
 
   constructor(props: HomeProps) {
     super(props)
+    this.state = {
+      push_enabled: false
+    }
   }
 
   componentWillUpdate(nextProps, b) {
 
-    const {params} = nextProps
-    const current_params = this.props.params
-
-    if(current_params.date_from != params.date_from || current_params.date_to != params.date_to) {
-      nextProps.fetch_all_countries(params.date_from, params.date_to)
-    }
-
     this.props.fetch_all_affiliates()
-    this.props.fetch_all_countries(params.date_from, params.date_to)
 
   }
 
@@ -122,6 +120,17 @@ class Home extends React.Component {
     ]
     
     return <div style={{ margin: '80px 80px' }}>
+      <div>
+        {!this.state.push_enabled && 
+          <button onClick={() => 
+            registerForPushNotifications().then(t => {
+              if(t) {
+                this.setState({push_enabled: true})
+              }
+            })        
+        }>Subscribe to Push Notifications</button>
+      }
+      </div>
       {urls.map((u, i) => <div style={ {margin: '1em'} } key={i}>
           <a href={u.href}>{u.label}</a>
         </div>) }

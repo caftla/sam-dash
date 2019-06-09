@@ -7,3 +7,13 @@ The code in this directory is stale and MUST NOT be referenced from any other mo
 As of 2 March 2019, the db module is used for fetching pages from Ouisys and for creating campaigns.
 
 This directory should be removed.
+
+---
+
+## Installation
+
+```
+nvm use v10.16.0
+npm install -g purescript pulp bower
+yarn
+```

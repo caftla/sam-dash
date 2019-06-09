@@ -27,6 +27,7 @@ import {
   createMultipleCampaigns
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
+import { subscribeToPush, sendPush } from './web-push/handlers';
 
 const app = express();
 app.use(express.static('dist'))
@@ -53,6 +54,8 @@ app.post('/api/v1/run_query', (req, res) => {
 const authenticate = require('./auth')(app)
 const logUserAction = require('./usage_stats')
 
+app.post("/api/v1/subscribe", [ authenticate() ], subscribeToPush)
+app.post("/api/v1/push", sendPush)
 
 const connection_strings = {
     helix_connection_string: process.env['helix_connection_string']
