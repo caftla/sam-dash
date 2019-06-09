@@ -61,7 +61,7 @@ class Home extends React.Component {
 
   componentWillUpdate(nextProps, b) {
 
-    this.props.fetch_all_affiliates()
+    // this.props.fetch_all_affiliates()
 
   }
 
