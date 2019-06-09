@@ -47,18 +47,22 @@ self.addEventListener("push", e => {
   post("/api/v1/analytics/push-delivery-notification", {message_uuid, now: new Date()})
   .catch(() => {}) // eat the error
 
-  return self.registration.showNotification(data.title, {
-    body: data.body,
-    icon: data.icon,
-    requireInteraction: true,
-    data: {
-      message_uuid
-    },
-    actions: [
-      {action: `/user_sessions/+2.0/2019-06-02/2019-06-10/-/-/-/day?message_uuid=${message_uuid}`, title: '📊 User Sessions'},
-      {action: 'OK!', title: '👊 OK'}
-    ]
-  });
+  setTimeout(() => { // https://github.com/firebase/quickstart-js/issues/268#issuecomment-439392522
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: data.icon,
+      requireInteraction: true,
+      data: {
+        message_uuid
+      },
+      actions: [
+        {action: `/user_sessions/+2.0/2019-06-02/2019-06-10/-/-/-/day?message_uuid=${message_uuid}`, title: '📊 User Sessions'},
+        {action: 'OK!', title: '👊 OK'}
+      ]
+    });
+  }, 100);
+
+  
 });
 
 self.addEventListener('notificationclick', ev => {
@@ -67,6 +71,8 @@ self.addEventListener('notificationclick', ev => {
 
   post("/api/v1/analytics/push-clicked", {message_uuid, now: new Date(), action: ev.action})
   .catch(() => {}) // eat the error
+
+  ev.notification.close();
 
   ev.waitUntil(
     self.clients.matchAll().then(clients => {
