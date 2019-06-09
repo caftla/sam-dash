@@ -1,36 +1,30 @@
 import { post } from "./helpers";
 
+if ("serviceWorker" in navigator) {
+}
+else {
+  console.warn("Your browser does not support service workers")
+}
+navigator.serviceWorker.register("/service-worker.js", {
+  scope: "/"
+}).catch(console.error)
+
+navigator.serviceWorker.ready.then(() =>  {
+  navigator.serviceWorker.controller.postMessage(JSON.stringify({type: 'retrieve-client-id'}))
+  navigator.serviceWorker.onmessage = function (e) {
+    // messages from service worker.
+    console.log('>>> e.data', e.data);
+  };
+})
+
 const publicVapidKey = 'BN5UGEhzNjmw3AG6tMdIXtKIkVv9t-i67F71jpcL60rdAMseJWeLYQBfHRU2K4b54F2pdfaaAH6NZcIoBJUbhyk'
 
 export default async function register() {
-  // Check for service worker
-  if ("serviceWorker" in navigator) {
-    try {
-      await send()
-      return true;
-    } catch(err) {
-      console.error(err);
-      return false;
-    }
-  }
-  else {
-    console.warn("serviceWorker is not available")
-    return false;
-  }
-}
-
-// Register SW, Register Push, Send Push
-async function send() {
-  // Register Service Worker
-  console.log("Registering service worker...");
-  const register = await navigator.serviceWorker.register("/service-worker.js", {
-    scope: "/"
-  });
-  console.log("Service Worker Registered...");
+  const registration = await navigator.serviceWorker.ready
 
   // Register Push
   console.log("Registering for Push...");
-  const subscription = await register.pushManager.subscribe({
+  const subscription = await registration.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
   });
@@ -38,9 +32,23 @@ async function send() {
 
   // Send Push Notification
   console.log("Subscribing for Push...");
-  await post({url: "/api/v1/subscribe", body: subscription})
+  await post({ url: "/api/v1/subscribe", body: subscription })
   console.log("Subscribed to Push.");
+
+  return true
 }
+
+export async function getSubscription() {
+  const registration = await navigator.serviceWorker.ready
+  const subscription = await registration.pushManager.getSubscription()
+  if (subscription) {
+    console.log('Already subscribed', subscription.endpoint);
+    return subscription
+  } else {
+    return null
+  }
+}
+
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - base64String.length % 4) % 4);

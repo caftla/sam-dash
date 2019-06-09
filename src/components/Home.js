@@ -29,7 +29,7 @@ import type { Maybe } from 'flow-static-land/lib/Maybe'
 import { Submit, DateField, FormTitle, FormRow, FormLabel, FormContainer, FormSection, FilterFormSection, Select } from './Styled'
 import { getCookie, NewFeatures } from './NewFeatures'
 
-import registerForPushNotifications from "../push"
+import registerForPushNotifications, {getSubscription} from "../push"
 
 const { format : d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
@@ -67,6 +67,7 @@ class Home extends React.Component {
 
   componentDidMount() {
     const { params } = this.props
+    getSubscription().then(t => this.setState({push_enabled: !!t}))
   }
 
   render() {
