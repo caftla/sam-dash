@@ -80,6 +80,8 @@ class UploadedPages extends Component {
             page:datum.page,
             country:datum.country,
             scenario:datum.scenario,
+            strategy:datum.strategy,
+            scenarios_config:datum.scenarios_config,
             comments:"page publish",
             affid:"SAM"
           })}>Publish</button>,
