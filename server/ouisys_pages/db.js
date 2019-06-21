@@ -47,7 +47,10 @@ export async function getPageReleases (){
 				FROM page_releases as p
 				LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, scenarios_config, env_dump FROM page_uploads) u
 				ON p.page_upload_id = u.pu_id
-				GROUP BY u.page, u.country, u.scenario
+				GROUP BY
+				CASE WHEN (u.scenario = '') IS NOT FALSE THEN 
+					(u.page, u.country, u.strategy, u.scenarios_config) 
+					ELSE (u.page, u.country, u.scenario) END
 			),
 			LatestsPR as (
 				SELECT * FROM Latests l
@@ -55,7 +58,12 @@ export async function getPageReleases (){
 				on p.id = l.latest_id
 			)
 			SELECT *,
-			(select c.xcid from campaigns c where c.country = u.country and c.page = u.page and c.scenario = u.scenario and c.source_id = 1 order by c.id desc limit 1) as sam_xcid_id
+			(select c.xcid from campaigns c where c.country = u.country and c.page = u.page and
+			CASE WHEN (u.scenario = '') IS NOT FALSE THEN 
+				(c.strategy = u.strategy and c.scenarios_config = u.scenarios_config) 
+				ELSE (c.scenario = u.scenario ) END
+			and c.source_id = 1
+			order by c.id desc limit 1) as sam_xcid_id
 			FROM LatestsPR p
 			LEFT JOIN (SELECT id as pu_id, page, country, scenario, strategy, scenarios_config, env_dump FROM page_uploads) u
 			ON p.page_upload_id = u.pu_id
