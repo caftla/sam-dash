@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import moment from "moment";
 import { DataTable } from 'grommet';
+
+import MoreStrategyInfo from "../../more_strategy_info"
+import MultiFlowCell from "../../multi_flow_cell"
 //import "./PublishedPages.scss";
 
 
 class CampaignTable extends Component {
-
+  state = {
+    showMore:{}
+  }
 
   render(){
     const columns = [
@@ -33,22 +38,27 @@ class CampaignTable extends Component {
       },
       {
         property: "strategy",
-        header: "Strategy",
-        search: true
+        header: "Multi-Flow",
+        search: true,
+        render: datum =>{
+          return(
+            <MultiFlowCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
-      {
-        property: "scenarios_config",
-        header: "Scenarios Config",
-        search: true
-      },
-      {
-        property: "html_url",
-        header: "Url",
-        search: false,
-        sortable: false,
-        render: datum =>
-          <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
-      },
+      // {
+      //   property: "html_url",
+      //   header: "Url",
+      //   search: false,
+      //   sortable: false,
+      //   render: datum =>
+      //     <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+      // },
       {
         property: "sam_xcid_id",
         header: "Preview",
@@ -105,6 +115,13 @@ class CampaignTable extends Component {
           {
             (publishedPages.length > 0) &&
             <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
+          }
+          {
+            this.state.showMore.hasOwnProperty("id") &&
+            <MoreStrategyInfo
+              close={()=>this.setState({showMore:{}})}
+              data={this.state.showMore}
+            />
           }
         </div>
 

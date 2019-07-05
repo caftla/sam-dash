@@ -1,11 +1,16 @@
 import React, { Component } from "react";
 import moment from "moment";
 import { DataTable } from 'grommet';
+import MoreStrategyInfo from "../more_strategy_info"
+import MultiFlowCell from "../multi_flow_cell"
 //import "./UploadedPages.scss";
 
 
 class UploadedPages extends Component {
 
+  state = {
+    showMore:{}
+  }
 
   render(){
     const columns = [
@@ -36,13 +41,18 @@ class UploadedPages extends Component {
       },
       {
         property: "strategy",
-        header: "Strategy",
-        search: true
-      },
-      {
-        property: "scenarios_config",
-        header: "Scenarios Config",
-        search: true
+        header: "Multi-Flow",
+        search: true,
+        render: datum =>{
+          return(
+            <MultiFlowCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
       {
         property: "html_url",
@@ -95,8 +105,15 @@ class UploadedPages extends Component {
             (uploadedPages.length > 0) &&
             <DataTable  className="dataTable"   a11yTitle="My campaigns" columns={columns} data={uploadedPages} />
           }
-        </div>
 
+          {
+            this.state.showMore.hasOwnProperty("id") &&
+            <MoreStrategyInfo
+              close={()=>this.setState({showMore:{}})}
+              data={this.state.showMore}
+            />
+          }
+        </div>
       )
   } 
 
