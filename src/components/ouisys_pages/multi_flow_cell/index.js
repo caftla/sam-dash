@@ -12,7 +12,7 @@ export default ({data, toggleShowMore})=>{
   },{
     scenarioKey:"oneClickScenario",
     serviceKey:"oneClickService",
-    key:"One Click"
+    label:"One-Click"
   },{
     scenarioKey:"click2smsScenario",
     serviceKey:"click2smsService",

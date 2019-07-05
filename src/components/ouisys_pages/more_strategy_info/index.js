@@ -18,7 +18,7 @@ export default ({data, close})=>{
         },{
           scenarioKey:"oneClickScenario",
           serviceKey:"oneClickService",
-          key:"One Click"
+          label:"One-Click"
         },{
           scenarioKey:"click2smsScenario",
           serviceKey:"click2smsService",
