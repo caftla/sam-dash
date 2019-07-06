@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import moment from "moment";
 import { DataTable, Select } from 'grommet';
 import { InputSelect } from '../../../common-controls/FormElementsUtils'
-
+import MoreStrategyInfo from "../../more_strategy_info"
+import MultiFlowCell from "../../multi_flow_cell"
 //import "./PublishedPages.scss";
 
 
@@ -11,7 +12,9 @@ class CampaignTable extends Component {
   constructor(props){
     super(props)
     this.state = {
-      httpStatusObj: {}
+      httpStatusObj: {},
+      showMore:{}
+    
     }
     this._child = React.createRef();
   }
@@ -27,7 +30,8 @@ class CampaignTable extends Component {
       {
         property: "xcid",
         header: "xcid",
-        primary: true
+        primary: true,
+        search: true
       },{
         property: "country",
         header: "Country",
@@ -47,18 +51,39 @@ class CampaignTable extends Component {
         sortable: true
       },
       {
-        property: "scenarios_config",
-        header: "Scenarios Config",
-        search: true
+        property: "env_dump",
+        header: "Service",
+        search: true,
+        render: datum =>{
+          const {service} = datum.env_dump ? JSON.parse(datum.env_dump) : {};
+          return(
+            <span>{service}</span>
+          )
+        }
       },
       {
-        property: "html_url",
-        header: "Url",
-        search: false,
-        sortable: false,
-        render: datum =>
-          <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+        property: "strategy",
+        header: "Multi-Flow",
+        search: true,
+        render: datum =>{
+          return(
+            <MultiFlowCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
+      // {
+      //   property: "html_url",
+      //   header: "Url",
+      //   search: false,
+      //   sortable: false,
+      //   render: datum =>
+      //     <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+      // },
       {
         property: "xcid",
         header: "Preview",
@@ -143,6 +168,13 @@ class CampaignTable extends Component {
           {
             (all_campaigns.length > 0) &&
             <DataTable onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
+          }
+          {
+            this.state.showMore.hasOwnProperty("id") &&
+            <MoreStrategyInfo
+              close={()=>this.setState({showMore:{}})}
+              data={this.state.showMore}
+            />
           }
         </div>
 

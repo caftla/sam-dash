@@ -37,6 +37,17 @@ class CampaignTable extends Component {
         sortable: true
       },
       {
+        property: "env_dump",
+        header: "Service",
+        search: true,
+        render: datum =>{
+          const {service} = datum.env_dump ? JSON.parse(datum.env_dump) : {};
+          return(
+            <span>{service}</span>
+          )
+        }
+      },
+      {
         property: "strategy",
         header: "Multi-Flow",
         search: true,
