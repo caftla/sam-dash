@@ -52,7 +52,7 @@ class PublishedPages extends Component {
       },
       {
         property: "strategy",
-        header: "Multi-Flow",
+        header: "Strategy",
         search: true,
         render: datum =>{
           return(
