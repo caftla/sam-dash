@@ -4,6 +4,8 @@ import { DataTable, Select } from 'grommet';
 import { InputSelect } from '../../../common-controls/FormElementsUtils'
 import MoreStrategyInfo from "../../more_strategy_info"
 import MultiFlowCell from "../../multi_flow_cell"
+import ScenarioCell from "../../scenario_cell"
+
 //import "./PublishedPages.scss";
 
 
@@ -48,7 +50,17 @@ class CampaignTable extends Component {
         property: "scenario",
         header: "Scenario",
         search: true,
-        sortable: true
+        sortable: true,
+        render: datum =>{
+          return(
+            <ScenarioCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
       {
         property: "env_dump",

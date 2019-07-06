@@ -188,11 +188,30 @@ label
 	top -1000px
 
 .strategy-cell
+	width: 100%
+	li
+		&:before 
+			content: '✓';
 	.more-btn
-		background-color: #666666;
-		height: 21px;
-		max-width: 70px;
-		font-size: 7px !important;
+		height: 20px;
+		width 30px;
+		display flex;
+		justify-content center;
+		align-items: center;
+		vertical-align: middle;
+		font-size: 18px !important;
+		margin: 0 auto;
+		text-align: center;
+		color: #000;
+		background-color: #eee;
+		border: solid 1px #eee;
+		margin-left: 5px;
+		span 
+			font-weight: bold;
+			font-size: 12px
+			line-height: 0;
+			padding: 0;
+			margin-top: -8px;
 
 #json
 	background-color #eee

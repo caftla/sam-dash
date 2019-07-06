@@ -26,15 +26,23 @@ export default ({data, toggleShowMore})=>{
   return(
     <div className="strategy-cell">
       { data.strategy &&
-      <div>
-        {data.strategy}
-        <button 
-          onClick={()=>toggleShowMore()}
-          className="more-btn"
-        >
-          <span>...</span>
-        </button>
-      </div>
+        <div>
+          <ol style={{padding:0}}>
+            {
+              scenariosService.map((obj, index)=>{
+                if(Object.keys(env).includes(obj.scenarioKey)){
+                  return(
+                    <li style={{float:"none", listStyle:"none"}}>
+                      <strong>{obj.label} :</strong> {env[obj.scenarioKey]}
+                    </li>
+                  )
+                }
+              })
+            }
+          </ol>
+        </div>
+        ||
+        <div>{data.scenario}</div>
       }
     </div>
   )
