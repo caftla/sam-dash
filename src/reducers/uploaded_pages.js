@@ -11,7 +11,11 @@ export default (state: FetchState<Array<any>> = fetchState.Nothing(), action: Ac
   switch (action.type) {
     case 'fetch_uploaded_pages_success':
       return action.payload.data
+    case 'search_uploaded_pages_success':
+        return action.payload.data
     case 'fetch_uploaded_pages':
+      return fetchState.Nothing()
+    case 'search_uploaded_pages':
       return fetchState.Nothing()
     default:
       return state

@@ -20,7 +20,8 @@ import {
   toggle_show_link,
   create_camapign,
   toggle_create_campaign,
-  fetch_get_sources
+  fetch_get_sources,
+  search_uploaded_pages
 } from '../../actions'
 
 import "./ouisys_pages.styl";
@@ -71,7 +72,11 @@ class ViewComponent extends Component {
                 >
                   {
                     (Array.isArray(this.props.uploaded_pages) && this.props.uploaded_pages.length > 0) &&
-                    <UploadedPages uploadedPages={this.props.uploaded_pages} publishPage={this.props.publish_page} />
+                    <UploadedPages
+                      uploadedPages={this.props.uploaded_pages}
+                      publishPage={this.props.publish_page}
+                      search_uploaded_pages={this.props.search_uploaded_pages}
+                    />
                   }
                 </Box>
               </Tab>
@@ -144,6 +149,7 @@ export default connect(
     toggle_show_link,
     create_camapign,
     toggle_create_campaign,
-    fetch_get_sources
+    fetch_get_sources,
+    search_uploaded_pages
   }
 ) (ViewComponent)

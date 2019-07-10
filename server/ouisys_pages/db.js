@@ -38,6 +38,26 @@ export async function getUploadedPages (){
 	return (result.rows.length > 0) ? result.rows : [];
 }
 
+export async function getSearchPages (params){
+
+	const { key, value } = params; 
+	const result = await run(
+		`with Latests as (
+				select p.page, p.country, p.scenario, max(id) as latest_id from page_uploads as p
+				group by p.page, p.country, p.scenario
+			)
+			select p.* from Latests as l
+			inner join page_uploads as p
+			on p.id = l.latest_id
+			WHERE  NOT EXISTS (SELECT * FROM page_releases t WHERE t.page_upload_id = p.id) AND
+			p.${key} LIKE '%${value}%'
+
+			ORDER BY p.date_created DESC;
+		`, []
+	)
+	return (result.rows.length > 0) ? result.rows : [];
+}
+
 export async function getPageReleases (){
 	try {
 		const result = await run(
@@ -96,6 +116,8 @@ export async function createCampaign(page, country, affid, comments, scenario, s
 				, (select id from src)
 				, $4
 				,	$5
+				,	$6
+				,	$7
 				)
 				returning *
 			`,

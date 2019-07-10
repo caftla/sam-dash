@@ -328,6 +328,21 @@ export const fetch_uploaded_pages = () => (dispatch : Dispatch) => {
   })
 }
 
+
+//search
+export const search_uploaded_pages = ({key, value}) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'search_uploaded_pages' })
+  get({url: `${api_root}/api/v1/search_uploaded_pages?${key}&${value}`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'search_uploaded_pages_success', payload: d })
+    dispatch(toggle_loader(false));
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
 // released_pages
 
 export const fetch_released_pages = (isCreateCampaign) => (dispatch : Dispatch) => {

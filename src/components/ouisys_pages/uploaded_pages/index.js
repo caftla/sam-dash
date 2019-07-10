@@ -35,7 +35,7 @@ class UploadedPages extends Component {
           datum.country.toUpperCase(),
       },
       {
-        property: "scenario",
+        property: "scenario,env_dump",
         header: "Scenario",
         search: true,
         sortable: true,
@@ -114,7 +114,12 @@ class UploadedPages extends Component {
         <div>
           {
             (uploadedPages.length > 0) &&
-            <DataTable  className="dataTable"   a11yTitle="My campaigns" columns={columns} data={uploadedPages} />
+            <DataTable
+              className="dataTable"
+              a11yTitle="My campaigns"
+              columns={columns}
+              data={uploadedPages}
+            />
           }
 
           {

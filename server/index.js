@@ -24,7 +24,8 @@ import {
   findCampaigns,
   findMultipleCampaigns,
   updateCampaignStatus,
-  createMultipleCampaigns
+  createMultipleCampaigns,
+  getSearchPages
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 import { subscribeToPush, sendPush, analyticsDeliveryNotification, analyticsClicked, analyticsClosed } from './web-push/handlers';
@@ -553,6 +554,24 @@ app.get('/api/v1/get_uploaded_pages', authenticate(), async(req, res)=>{
     })
   }
 });
+
+app.get('/api/v1/search_uploaded_pages', async(req, res)=>{
+  const params = req.query;
+  const finalResult = await getSearchPages(params);
+  if(finalResult !== null){
+    
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+
 app.get('/api/v1/get_page_releases', authenticate(), async(req, res)=>{
   const finalResult = await getPageReleases();
   if(finalResult !== null){
@@ -650,7 +669,9 @@ app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
 });
 
 app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
+  
   const { page, country, affid, comments, scenario, strategy, scenarios_config, dontReUse } = req.body;
+  
   try{
     const finalResult = scenario ? 
     await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario, null, null) : createCampaign(page, country, affid, comments, scenario, null, null))
