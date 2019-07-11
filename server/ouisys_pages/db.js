@@ -156,9 +156,9 @@ export async function createMultipleCampaigns(payload) {
 			const rowLen = values.length;
 			values.map((obj, index)=>{
 				if(index + 1 !== rowLen){
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.restrictions ? `'${obj.restrictions}'` : null},${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
 				}else{
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.restrictions ? `'${obj.restrictions}'` : null},${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
 				}
 			});
 			return string;
@@ -170,6 +170,7 @@ export async function createMultipleCampaigns(payload) {
 			, country
 			, source_id
 			, comments
+			, restrictions
 			, scenario
 			, strategy
 			, scenarios_config
@@ -219,6 +220,22 @@ export async function updateCampaignStatus(xcid, http_status) {
 			return result.rows[0]
 	}catch(error){
 
+	}
+}
+
+export async function updateCampaign(req) {
+	const {key, xcid, value} = req;
+	try{
+			const result = await run(
+				`
+						update campaigns set ${key} = $2 where xcid = $1
+						returning *
+				`,
+				[xcid, value]
+			);
+			return result.rows[0]
+	}catch(error){
+		throw error
 	}
 }
 

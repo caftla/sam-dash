@@ -28,7 +28,8 @@ import {
   find_campaigns,
   reset_existing_campaigns,
   update_campaign_status,
-  create_multiple_campaigns
+  create_multiple_campaigns,
+  update_campaign
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -168,6 +169,7 @@ class ViewComponent extends Component {
                           all_campaigns={this.props.all_campaigns}
                           get_all_campaigns={this.props.get_all_campaigns}
                           update_campaign_status={this.props.update_campaign_status}
+                          update_campaign={this.props.update_campaign}
                         />
                       }
                     </Box>
@@ -343,6 +345,7 @@ export default connect(
     find_campaigns,
     reset_existing_campaigns,
     update_campaign_status,
-    create_multiple_campaigns
+    create_multiple_campaigns,
+    update_campaign
   }
 ) (ViewComponent)

@@ -18,6 +18,7 @@ class CreateCampaign extends Component {
       affid:"",
       affids:[],
       comments:{},
+      restrictions:{},
       copied:{},
       multiInput:[]
     };
@@ -161,6 +162,7 @@ class CreateCampaign extends Component {
                                   <th>Affiliate id</th>
                                   <th>Link</th>
                                   <th>Comments</th>
+                                  <th>Restrictions</th>
                                   <th>Date</th>
                                   <th>Action</th>
                                 </tr>
@@ -181,6 +183,9 @@ class CreateCampaign extends Component {
                                             </td>
                                             <td>
                                               {tObj.comments}
+                                            </td>
+                                            <td>
+                                              {tObj.restrictions}
                                             </td>
                                             <td>
                                               {moment(tObj.date_created).format("MMM Do YY")}
@@ -251,6 +256,29 @@ class CreateCampaign extends Component {
                                   [obj.affiliate_id]:{
                                     ...this.state.multiInput[obj.affiliate_id],
                                     comments:ev.target.value
+                                  }
+                                }
+                              })
+                            }
+                          }
+                        />
+                        <label>Restrictions</label>
+                        <input
+                          disabled={!this.state.multiInput.hasOwnProperty(obj.affiliate_id)}
+                          name="restrictions"
+                          onChange={(ev)=>{
+                              this.getInput({
+                                key:"restrictions",
+                                value:{
+                                  [obj.affiliate_id]:ev.target.value
+                                }
+                              })
+                              this.setState({
+                                multiInput:{
+                                  ...this.state.multiInput,
+                                  [obj.affiliate_id]:{
+                                    ...this.state.multiInput[obj.affiliate_id],
+                                    restrictions:ev.target.value
                                   }
                                 }
                               })

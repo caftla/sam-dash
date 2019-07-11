@@ -15,12 +15,19 @@ class CampaignTable extends Component {
     super(props)
     this.state = {
       httpStatusObj: {},
-      showMore:{}
+      showMore:{},
+      editRestriction:null,
+      editRestrictionVal:{},
+      editComments:null,
+      editCommentsVal:{}
+
     
     }
     this._child = React.createRef();
   }
   render(){
+
+  console.log(this.state.editRestrictionVal)
     const campaignState = [{
       name:"Ok",
       value:"Ok"
@@ -123,7 +130,98 @@ class CampaignTable extends Component {
         property: "comments",
         header: "Comments",
         search: true,
-        sortable: true
+        sortable: true,
+        render: (datum)=>{
+          const isEditMode = (this.state.editComments === datum.xcid) ? true : false;
+          return(
+            <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
+              {
+                (datum.comments || isEditMode) && 
+                <textarea
+                  className="ouisys-textarea"
+                  onChange={(ev)=>this.setState({
+                    editCommentsVal:{
+                      key:"comments",
+                      value:ev.target.value,
+                      xcid:datum.xcid
+                    }
+                  })}
+                  value={(this.state.editCommentsVal.xcid === datum.xcid) ? this.state.editCommentsVal.value : datum.comments}
+                  disabled={!isEditMode}
+                />
+              }
+              {
+                isEditMode && 
+                <a
+                  onClick={()=>{
+                    if(this.state.editCommentsVal.hasOwnProperty("xcid") && this.state.editCommentsVal.xcid === datum.xcid){
+                      this.props.update_campaign(this.state.editCommentsVal);
+                      this.setState({editComments:null});
+                      this.setState({editCommentsVal:{}});
+                    }else{
+                      this.setState({editComments:null});
+                      this.setState({editCommentsVal:{}});
+                    }
+                  }}
+                  className="ouisys-edit ouisys-check"
+                ><i className="fa fa-check"/>
+                </a>
+                ||
+                <a onClick={()=>this.setState({editComments:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
+              }
+              
+            </div>
+          )
+        }
+      },
+      {
+        property: "restrictions",
+        header: "Restrictions",
+        search: true,
+        sortable: true,
+        render: (datum)=>{
+          const isEditMode = (this.state.editRestriction === datum.xcid) ? true : false;
+          return(
+            <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
+              {
+                (datum.restrictions || isEditMode) && 
+                <textarea
+                  className="ouisys-textarea"
+                  onChange={(ev)=>this.setState({
+                    editRestrictionVal:{
+                      key:"restrictions",
+                      value:ev.target.value,
+                      xcid:datum.xcid
+                    }
+                  })}
+                  type="test"
+                  value={(this.state.editRestrictionVal.xcid === datum.xcid) ? this.state.editRestrictionVal.value : datum.restrictions}
+                  disabled={!isEditMode}
+                />
+              }
+              {
+                isEditMode && 
+                <a
+                  onClick={()=>{
+                    if(this.state.editRestrictionVal.hasOwnProperty("xcid") && this.state.editRestrictionVal.xcid === datum.xcid){
+                      this.props.update_campaign(this.state.editRestrictionVal);
+                      this.setState({editRestriction:null});
+                      this.setState({editRestrictionVal:{}});
+                    }else{
+                      this.setState({editRestriction:null});
+                      this.setState({editRestrictionVal:{}});
+                    }
+                  }}
+                  className="ouisys-edit ouisys-check"
+                ><i className="fa fa-check"/>
+                </a>
+                ||
+                <a onClick={()=>this.setState({editRestriction:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
+              }
+              
+            </div>
+          )
+        }
       },
       {
         property: "date_created",
