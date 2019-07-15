@@ -55,14 +55,9 @@ self.addEventListener("push", e => {
       data: {
         message_uuid
       },
-      actions: [
-        {action: `/user_sessions/+2.0/2019-06-02/2019-06-10/-/-/-/day?message_uuid=${message_uuid}`, title: '📊 User Sessions'},
-        {action: 'OK!', title: '👊 OK'}
-      ]
+      actions: data.actions
     });
   }, 100);
-
-  
 });
 
 self.addEventListener('notificationclick', ev => {
@@ -82,6 +77,13 @@ self.addEventListener('notificationclick', ev => {
       //   console.log("click client", c)
       // })
 
+      const action = JSON.parse(!!ev.action ? ev.action : ev.notification.actions[0].action) 
+      if(action.type == "openWindow") {
+        return self.clients.openWindow(action.url)
+      } else {
+        throw "Unknown Action"
+      }
+
       return  (!!ev.action && ev.action[0] == "/")
         ? self.clients.openWindow(ev.action)
         : self.clients.openWindow('/revenue')
@@ -99,13 +101,11 @@ self.addEventListener("notificationclose", function(ev) {
 
 
 async function post (url, body) {
-  const res = await fetch(url , {
+  return fetch(url , {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
-  })
-  const data = await res.json()
-  return data
+  }).then(res => res.json())
 }

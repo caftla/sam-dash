@@ -1,6 +1,5 @@
 import { subscribe, getSubscriptions, logSendNotification, logSendNotificationResponse, mkPool, logAnalyticsDeliveryNotificationReceived, logAnalyticsUserClicked, logAnalyticsClosed } from './db';
 import uuid from "uuid/v1"
-import { resolveNaptr } from 'dns';
 const webpush = require("web-push");
 const privateVapidKey = "35sBP_xyUzYe8D7dKsQY2xUf72czD0Tc-I_pozVLOxw"
 const publicVapidKey = 'BN5UGEhzNjmw3AG6tMdIXtKIkVv9t-i67F71jpcL60rdAMseJWeLYQBfHRU2K4b54F2pdfaaAH6NZcIoBJUbhyk'
@@ -38,9 +37,9 @@ export const sendPush = async (req, res) => {
 
     const results = await Promise.all(
       subscriptions.map(async subscription => { 
-        const title = body.title
+        const title = body.payload.title
         const message_uuid = uuid()
-        const payload = { title, body: body.body, icon: body.icon, message_uuid }
+        const payload = { ...body.payload, message_uuid }
 
         // Pass object into sendNotification
         const {id} = (await logSendNotification(pool, message_uuid, subscription.id, title, payload))

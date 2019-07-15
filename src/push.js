@@ -1,51 +1,73 @@
 import { post } from "./helpers";
 
+const publicVapidKey = 'BN5UGEhzNjmw3AG6tMdIXtKIkVv9t-i67F71jpcL60rdAMseJWeLYQBfHRU2K4b54F2pdfaaAH6NZcIoBJUbhyk'
+
 if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js", {
+    scope: "/"
+  }).catch(console.error)
+
+  navigator.serviceWorker.ready.then(() => {
+    setTimeout(() => {
+      navigator.serviceWorker.controller.postMessage(JSON.stringify({ type: 'retrieve-client-id' }))
+      navigator.serviceWorker.onmessage = function (e) {
+        // messages from service worker.
+        console.log('>>> e.data', e.data);
+      };
+    }, 250);
+  })
 }
 else {
   console.warn("Your browser does not support service workers")
 }
-navigator.serviceWorker.register("/service-worker.js", {
-  scope: "/"
-}).catch(console.error)
-
-navigator.serviceWorker.ready.then(() =>  {
-  navigator.serviceWorker.controller.postMessage(JSON.stringify({type: 'retrieve-client-id'}))
-  navigator.serviceWorker.onmessage = function (e) {
-    // messages from service worker.
-    console.log('>>> e.data', e.data);
-  };
-})
-
-const publicVapidKey = 'BN5UGEhzNjmw3AG6tMdIXtKIkVv9t-i67F71jpcL60rdAMseJWeLYQBfHRU2K4b54F2pdfaaAH6NZcIoBJUbhyk'
 
 export default async function register() {
-  const registration = await navigator.serviceWorker.ready
 
-  // Register Push
-  console.log("Registering for Push...");
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-  });
-  console.log("Push Registered.");
+  if ("serviceWorker" in navigator) {
 
-  // Send Push Notification
-  console.log("Subscribing for Push...");
-  await post({ url: "/api/v1/subscribe", body: subscription })
-  console.log("Subscribed to Push.");
+    const registration = await navigator.serviceWorker.ready
 
-  return true
+    // Register Push
+    console.log("Registering for Push...");
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+    });
+    console.log("Push Registered.");
+
+    // Send Push Notification
+    console.log("Subscribing for Push...");
+    await post({ url: "/api/v1/subscribe", body: subscription })
+    console.log("Subscribed to Push.");
+
+    return true
+
+  } else {
+
+    console.warn("serviceWorker is not supported")
+    return false
+
+  }
 }
 
 export async function getSubscription() {
-  const registration = await navigator.serviceWorker.ready
-  const subscription = await registration.pushManager.getSubscription()
-  if (subscription) {
-    console.log('Already subscribed', subscription.endpoint);
-    return subscription
+
+  if ("serviceWorker" in navigator) {
+
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    if (subscription) {
+      console.log('Already subscribed', subscription.endpoint);
+      return subscription
+    } else {
+      return null
+    }
+
   } else {
+
+    console.warn("serviceWorker is not supported")
     return null
+
   }
 }
 
