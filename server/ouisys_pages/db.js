@@ -156,9 +156,9 @@ export async function createMultipleCampaigns(payload) {
 			const rowLen = values.length;
 			values.map((obj, index)=>{
 				if(index + 1 !== rowLen){
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.restrictions ? `'${obj.restrictions}'` : null},${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
 				}else{
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.restrictions ? `'${obj.restrictions}'` : null},${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
 				}
 			});
 			return string;
@@ -170,7 +170,6 @@ export async function createMultipleCampaigns(payload) {
 			, country
 			, source_id
 			, comments
-			, restrictions
 			, scenario
 			, strategy
 			, scenarios_config
@@ -220,6 +219,22 @@ export async function updateCampaignStatus(xcid, http_status) {
 			return result.rows[0]
 	}catch(error){
 
+	}
+}
+
+export async function updatePublishedPage(req) {
+	const {key, id, value} = req;
+	try{
+			const result = await run(
+				`
+						update page_releases set ${key} = $2 where id = $1
+						returning *
+				`,
+				[id, value]
+			);
+			return result.rows[0]
+	}catch(error){
+		throw error
 	}
 }
 
@@ -390,7 +405,7 @@ export async function getAllCampaigns() {
 				group by p.page, p.country, p.scenario, p.strategy, p.scenarios_config
 			),
 			PR as (
-				select p.id, p.scenario, p.page, p.country, p.strategy, p.scenarios_config, p.env_dump from LatestUploads as l
+				select p.id, p.scenario, p.page, p.country, p.strategy, p.scenarios_config, p.env_dump, id as page_up_id from LatestUploads as l
 				inner join page_uploads as p
 				on p.id = l.latest_id
 			),
@@ -422,10 +437,11 @@ export async function getAllCampaigns() {
 			)
 
 			SELECT * FROM (
-				SELECT DISTINCT ON (xcid) * FROM CA
+				SELECT DISTINCT ON (xcid) *, CA.date_created as ca_date_created FROM CA
+				LEFT JOIN page_releases pl
+				ON CA.page_up_id = pl.page_upload_id
 			) C
-			ORDER BY date_created DESC
-
+			ORDER BY ca_date_created DESC;
 		`, []
 	)
 

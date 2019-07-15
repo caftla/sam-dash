@@ -428,6 +428,25 @@ export const update_campaign = (payload) => (dispatch : Dispatch) => {
   })
 }
 
+//update_published_page
+export const update_published_page = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'update_published_page' })
+  post({url: `${api_root}/api/v1/update_published_page`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    dispatch({ type: 'update_published_page_success', payload: d })
+    dispatch(toggle_loader(false));
+    alert("Update successful")
+  })
+  .then(()=>{
+    dispatch(get_all_campaigns());
+    dispatch(fetch_released_pages());
+  })
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
 export const create_multiple_campaigns = (payload) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'create_multiple_campaigns' })

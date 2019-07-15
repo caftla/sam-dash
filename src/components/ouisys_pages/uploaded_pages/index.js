@@ -35,7 +35,7 @@ class UploadedPages extends Component {
           datum.country.toUpperCase(),
       },
       {
-        property: "scenario,env_dump",
+        property: "env_dump",
         header: "Scenario",
         search: true,
         sortable: true,

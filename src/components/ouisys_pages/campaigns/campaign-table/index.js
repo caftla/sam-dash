@@ -177,10 +177,8 @@ class CampaignTable extends Component {
       {
         property: "restrictions",
         header: "Restrictions",
-        search: true,
-        sortable: true,
         render: (datum)=>{
-          const isEditMode = (this.state.editRestriction === datum.xcid) ? true : false;
+          const isEditMode = (this.state.editRestriction === datum.id) ? true : false;
           return(
             <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
               {
@@ -191,11 +189,11 @@ class CampaignTable extends Component {
                     editRestrictionVal:{
                       key:"restrictions",
                       value:ev.target.value,
-                      xcid:datum.xcid
+                      id:datum.id
                     }
                   })}
                   type="test"
-                  value={(this.state.editRestrictionVal.xcid === datum.xcid) ? this.state.editRestrictionVal.value : datum.restrictions}
+                  value={(this.state.editRestrictionVal.id === datum.id) ? this.state.editRestrictionVal.value : datum.restrictions}
                   disabled={!isEditMode}
                 />
               }
@@ -203,8 +201,8 @@ class CampaignTable extends Component {
                 isEditMode && 
                 <a
                   onClick={()=>{
-                    if(this.state.editRestrictionVal.hasOwnProperty("xcid") && this.state.editRestrictionVal.xcid === datum.xcid){
-                      this.props.update_campaign(this.state.editRestrictionVal);
+                    if(this.state.editRestrictionVal.hasOwnProperty("id") && this.state.editRestrictionVal.id === datum.id){
+                      this.props.update_published_page(this.state.editRestrictionVal);
                       this.setState({editRestriction:null});
                       this.setState({editRestrictionVal:{}});
                     }else{
@@ -216,7 +214,7 @@ class CampaignTable extends Component {
                 ><i className="fa fa-check"/>
                 </a>
                 ||
-                <a onClick={()=>this.setState({editRestriction:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
+                <a onClick={()=>this.setState({editRestriction:datum.id})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
               }
               
             </div>

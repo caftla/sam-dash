@@ -26,7 +26,8 @@ import {
   updateCampaignStatus,
   createMultipleCampaigns,
   getSearchPages,
-  updateCampaign
+  updateCampaign,
+  updatePublishedPage
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 import { subscribeToPush, sendPush, analyticsDeliveryNotification, analyticsClicked, analyticsClosed } from './web-push/handlers';
@@ -713,6 +714,23 @@ app.post('/api/v1/create_multiple_campaigns', authenticate(), async(req, res)=>{
 app.post('/api/v1/update_campaign', authenticate(), async(req, res)=>{
   //const { page, country, affid, comments, scenario, dontReUse } = req.body;
   const finalResult = await updateCampaign(req.body);
+  if(finalResult !== null){ 
+
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+});
+
+app.post('/api/v1/update_published_page', authenticate(), async(req, res)=>{
+  //const { page, country, affid, comments, scenario, dontReUse } = req.body;
+  const finalResult = await updatePublishedPage(req.body);
   if(finalResult !== null){ 
 
     res.status(200).send({
