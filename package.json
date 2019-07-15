@@ -3,12 +3,12 @@
   "version": "1.1.0",
   "description": "Get started with ES2015, React and Redux. Including Webpack, ESLint, react-router, fetch ...",
   "scripts": {
-    "postinstall": "spago install && pulp build && npm run build",
-    "preinstall": "yarn global add purescript pulp spago",
+    "postinstall": "spago install && spago build && npm run build",
+    "preinstall": "yarn global add purescript spago",
     "start": "./node_modules/.bin/babel-node -- server/index.js",
     "server": "nodemon --exec ./node_modules/.bin/babel-node -- server/index.js",
     "dev": "npm run server & webpack-dev-server --open --config webpack/webpack.config.dev.js",
-    "build-purescript": "rm -rf output && pulp build -I server && rm -rf dist ",
+    "build-purescript": "rm -rf output && spago build && rm -rf dist ",
     "build-webpack": "webpack --config webpack/webpack.config.prod.js  && cp -a assets/* dist/",
     "build": "yarn build-purescript && yarn build-webpack",
     "prod": "cd dist && python -m SimpleHTTPServer 8080"
@@ -72,14 +72,14 @@
     "purescript": "^0.13.2",
     "purs-loader": "^3.6.0",
     "react-hot-loader": "^4.3.3",
+    "spago": "^0.8.5",
     "style-loader": "^0.21.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.2",
     "typescript": "^3.0.1",
     "webpack": "^4.0.0",
     "webpack-cli": "^3.0.7",
-    "webpack-dev-server": "^3.1.4",
-    "spago": "^0.8.5"
+    "webpack-dev-server": "^3.1.4"
   },
   "dependencies": {
     "aws-sdk": "^2.411.0",

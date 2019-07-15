@@ -62,8 +62,8 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'purs-loader',
         options: {
+          spago: true,
           src: [
-            'bower_components/purescript-*/src/**/*.purs',
             'src/**/*.purs'
           ],
           pscIde: true

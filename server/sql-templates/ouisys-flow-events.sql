@@ -1,9 +1,9 @@
+
 with T as (
   select 
   fe.args, fe.timestamp as "event_timestamp", fe.category, fe.action, fe.label, fe.relative_time, fe.value, us.*
   from user_sessions as us
   inner join flow_events fe on fe.rockman_id = us.rockman_id
-  where us.landing_page_url ilike '%/$xcid$%'
 {$ where({
   tableAlias: 'us',
   timeColName: 'timestamp',
