@@ -176,50 +176,7 @@ class CampaignTable extends Component {
       },
       {
         property: "restrictions",
-        header: "Restrictions",
-        render: (datum)=>{
-          const isEditMode = (this.state.editRestriction === datum.id) ? true : false;
-          return(
-            <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
-              {
-                (datum.restrictions || isEditMode) && 
-                <textarea
-                  className="ouisys-textarea"
-                  onChange={(ev)=>this.setState({
-                    editRestrictionVal:{
-                      key:"restrictions",
-                      value:ev.target.value,
-                      id:datum.id
-                    }
-                  })}
-                  type="test"
-                  value={(this.state.editRestrictionVal.id === datum.id) ? this.state.editRestrictionVal.value : datum.restrictions}
-                  disabled={!isEditMode}
-                />
-              }
-              {
-                isEditMode && 
-                <a
-                  onClick={()=>{
-                    if(this.state.editRestrictionVal.hasOwnProperty("id") && this.state.editRestrictionVal.id === datum.id){
-                      this.props.update_published_page(this.state.editRestrictionVal);
-                      this.setState({editRestriction:null});
-                      this.setState({editRestrictionVal:{}});
-                    }else{
-                      this.setState({editRestriction:null});
-                      this.setState({editRestrictionVal:{}});
-                    }
-                  }}
-                  className="ouisys-edit ouisys-check"
-                ><i className="fa fa-check"/>
-                </a>
-                ||
-                <a onClick={()=>this.setState({editRestriction:datum.id})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
-              }
-              
-            </div>
-          )
-        }
+        header: "Restrictions"
       },
       {
         property: "date_created",
