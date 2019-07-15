@@ -94,7 +94,7 @@
     "express-session": "^1.15.2",
     "flow-static-land": "^0.2.4",
     "global": "^4.3.2",
-    "grommet": "^2.5.5",
+    "grommet": "^2.7.3",
     "hammerjs": "^2.0.8",
     "ioredis": "^3.1.4",
     "ip-subnet-calculator": "^1.1.8",

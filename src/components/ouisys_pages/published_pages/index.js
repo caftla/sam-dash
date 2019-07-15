@@ -1,11 +1,20 @@
 import React, { Component } from "react";
 import moment from "moment";
 import { DataTable } from 'grommet';
+
+import MoreStrategyInfo from "../more_strategy_info"
+import MultiFlowCell from "../multi_flow_cell"
+import ScenarioCell from "../scenario_cell"
+
 //import "./PublishedPages.scss";
 
 
 class PublishedPages extends Component {
 
+
+  state = {
+    showMore:{}
+  }
 
   render(){
     const columns = [
@@ -29,17 +38,32 @@ class PublishedPages extends Component {
         property: "scenario",
         header: "Scenario",
         search: true,
-        sortable: true
+        sortable: true,
+        render: datum =>{
+          return(
+            <ScenarioCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
       {
         property: "strategy",
         header: "Strategy",
-        search: true
-      },
-      {
-        property: "scenarios_config",
-        header: "Scenarios Config",
-        search: true
+        search: true,
+        render: datum =>{
+          return(
+            <MultiFlowCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
       {
         property: "html_url",
@@ -80,41 +104,13 @@ class PublishedPages extends Component {
             (publishedPages.length > 0) &&
             <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />
           }
-
- {
-//             this.state.showMore &&
-          
-//             <Modal
-//               custom={()=>{
-//                 const { modalDetails } = this.state;
-//                 const { page, env_dump, git_username, date_created} = modalDetails;
-//                 return(
-//                   <div>
-//                     <h1>{page}</h1>
-//                     <div className="os-ui-col">
-//                       <div className="col"><strong>Date Uploaded:</strong></div>
-//                       <div className="col">{moment(date_created).format("MMM Do YY")}</div>
-//                     </div>
-//                     <div className="os-ui-col">
-//                       <div className="col"><strong>Designer:</strong></div>
-//                       <div className="col">{git_username}</div>
-//                     </div>
-//                     {
-//                       env_dump &&
-//                       <div>
-//                         <div className="os-ui-col">
-//                           <div className="col"><strong>.Env dump:</strong></div>
-//                         </div>
-//                         <pre className="col" style={{backgroundColor:"#eee", padding:5}}>{JSON.stringify(JSON.parse(env_dump), undefined, 2)}</pre>
-//                       </div>
-//                     }
-//                   </div>
-//                 )}
-//               }
-//               close={()=>this.toggleShowMore({})}
-//               customClass="pages-more"
-//             />
-         }
+          {
+            this.state.showMore.hasOwnProperty("id") &&
+            <MoreStrategyInfo
+              close={()=>this.setState({showMore:{}})}
+              data={this.state.showMore}
+            />
+          }
         </div>
 
       )

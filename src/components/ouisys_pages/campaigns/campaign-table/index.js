@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import moment from "moment";
 import { DataTable, Select } from 'grommet';
 import { InputSelect } from '../../../common-controls/FormElementsUtils'
+import MoreStrategyInfo from "../../more_strategy_info"
+import MultiFlowCell from "../../multi_flow_cell"
+import ScenarioCell from "../../scenario_cell"
 
 //import "./PublishedPages.scss";
 
@@ -11,11 +14,20 @@ class CampaignTable extends Component {
   constructor(props){
     super(props)
     this.state = {
-      httpStatusObj: {}
+      httpStatusObj: {},
+      showMore:{},
+      editRestriction:null,
+      editRestrictionVal:{},
+      editComments:null,
+      editCommentsVal:{}
+
+    
     }
     this._child = React.createRef();
   }
   render(){
+
+  console.log(this.state.editRestrictionVal)
     const campaignState = [{
       name:"Ok",
       value:"Ok"
@@ -27,7 +39,8 @@ class CampaignTable extends Component {
       {
         property: "xcid",
         header: "xcid",
-        primary: true
+        primary: true,
+        search: true
       },{
         property: "country",
         header: "Country",
@@ -44,21 +57,52 @@ class CampaignTable extends Component {
         property: "scenario",
         header: "Scenario",
         search: true,
-        sortable: true
+        sortable: true,
+        render: datum =>{
+          return(
+            <ScenarioCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
       {
-        property: "scenarios_config",
-        header: "Scenarios Config",
-        search: true
+        property: "env_dump",
+        header: "Service",
+        search: true,
+        render: datum =>{
+          const {service} = datum.env_dump ? JSON.parse(datum.env_dump) : {};
+          return(
+            <span>{service}</span>
+          )
+        }
       },
       {
-        property: "html_url",
-        header: "Url",
-        search: false,
-        sortable: false,
-        render: datum =>
-          <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+        property: "strategy",
+        header: "Multi-Flow",
+        search: true,
+        render: datum =>{
+          return(
+            <MultiFlowCell
+              data={datum}
+              toggleShowMore={()=>this.setState({
+                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+              })}
+            />
+          )
+        }
       },
+      // {
+      //   property: "html_url",
+      //   header: "Url",
+      //   search: false,
+      //   sortable: false,
+      //   render: datum =>
+      //     <a href={datum.html_url} target="_blank" className="link">{datum.html_url}</a>,
+      // },
       {
         property: "xcid",
         header: "Preview",
@@ -86,7 +130,53 @@ class CampaignTable extends Component {
         property: "comments",
         header: "Comments",
         search: true,
-        sortable: true
+        sortable: true,
+        render: (datum)=>{
+          const isEditMode = (this.state.editComments === datum.xcid) ? true : false;
+          return(
+            <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
+              {
+                (datum.comments || isEditMode) && 
+                <textarea
+                  className="ouisys-textarea"
+                  onChange={(ev)=>this.setState({
+                    editCommentsVal:{
+                      key:"comments",
+                      value:ev.target.value,
+                      xcid:datum.xcid
+                    }
+                  })}
+                  value={(this.state.editCommentsVal.xcid === datum.xcid) ? this.state.editCommentsVal.value : datum.comments}
+                  disabled={!isEditMode}
+                />
+              }
+              {
+                isEditMode && 
+                <a
+                  onClick={()=>{
+                    if(this.state.editCommentsVal.hasOwnProperty("xcid") && this.state.editCommentsVal.xcid === datum.xcid){
+                      this.props.update_campaign(this.state.editCommentsVal);
+                      this.setState({editComments:null});
+                      this.setState({editCommentsVal:{}});
+                    }else{
+                      this.setState({editComments:null});
+                      this.setState({editCommentsVal:{}});
+                    }
+                  }}
+                  className="ouisys-edit ouisys-check"
+                ><i className="fa fa-check"/>
+                </a>
+                ||
+                <a onClick={()=>this.setState({editComments:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
+              }
+              
+            </div>
+          )
+        }
+      },
+      {
+        property: "restrictions",
+        header: "Restrictions"
       },
       {
         property: "date_created",
@@ -143,6 +233,13 @@ class CampaignTable extends Component {
           {
             (all_campaigns.length > 0) &&
             <DataTable onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
+          }
+          {
+            this.state.showMore.hasOwnProperty("id") &&
+            <MoreStrategyInfo
+              close={()=>this.setState({showMore:{}})}
+              data={this.state.showMore}
+            />
           }
         </div>
 

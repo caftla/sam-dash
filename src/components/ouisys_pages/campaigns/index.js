@@ -28,7 +28,9 @@ import {
   find_campaigns,
   reset_existing_campaigns,
   update_campaign_status,
-  create_multiple_campaigns
+  create_multiple_campaigns,
+  update_campaign,
+  update_published_page
 } from '../../../actions'
 
 import "../ouisys_pages.styl";
@@ -146,6 +148,8 @@ class ViewComponent extends Component {
                           toggle_create_campaign={this.props.toggle_create_campaign}
                           toggleShowShare={this.toggleShowShare.bind(this)}
                           fetch_released_pages={this.props.fetch_released_pages}
+                          update_published_page={this.props.update_published_page}
+
                         />
                       }
                     </Box>
@@ -168,6 +172,8 @@ class ViewComponent extends Component {
                           all_campaigns={this.props.all_campaigns}
                           get_all_campaigns={this.props.get_all_campaigns}
                           update_campaign_status={this.props.update_campaign_status}
+                          update_campaign={this.props.update_campaign}
+                          update_published_page={this.props.update_published_page}
                         />
                       }
                     </Box>
@@ -343,6 +349,8 @@ export default connect(
     find_campaigns,
     reset_existing_campaigns,
     update_campaign_status,
-    create_multiple_campaigns
+    create_multiple_campaigns,
+    update_campaign,
+    update_published_page
   }
 ) (ViewComponent)

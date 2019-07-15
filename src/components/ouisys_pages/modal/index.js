@@ -28,10 +28,10 @@ class Modal extends Component {
 
     return (
       <div
-        className="modal-wrapper"
+        className={`modal-wrapper`}
       >
   
-        <div className={`well ${this.props.customClass || ""}`}>
+        <div className={` bouncedModal well ${this.props.customClass || ""}`}>
           {
             !this.props.custom &&
             <div>
