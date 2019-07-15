@@ -221,7 +221,15 @@ With Views as (
     , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
     , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
   where
-    {$ where({tableAlias: 'us', timeColName: 'creation_timestamp', fieldMap: {'publisher_id': 'pubid'}}) $}
+    {$ where({
+        tableAlias: 'us', 
+        timeColName: 'creation_timestamp', 
+        fieldMap: {
+            'publisher_id': 'pubid',
+            'xcid': E"split_part(split_part(us.landing_page_url, '/', 4), '?', 1)"
+        }
+      }) 
+    $}
 
   {$ groupBy() $}
 )
@@ -241,7 +249,7 @@ LEFT JOIN Sales as S ON
 
 main :: Effect Unit
 main = 
-  let filtersStr = "country_code:[ar,za,th,my,mx,om,qa],affiliate_id:POM*,publisher_id:[*1292*,122*],screen_width:(+200,+500),offer:+144,has_os:+1"
+  let filtersStr = "country_code:[ar,za,th,my,mx,om,qa],xcid:N0JWVQ,affiliate_id:POM*,publisher_id:[*1292*,122*],screen_width:(+200,+500),offer:+144,has_os:+1"
       breakdownStr = "affiliate_id:(sales:A),publisher_id,day:(views:A,[sales:10,views:100])"
   in case doTemplate 
     filtersStr
