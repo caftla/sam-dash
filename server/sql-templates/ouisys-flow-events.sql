@@ -32,3 +32,4 @@ with T as (
 )
 
 select * from R order by date_created desc
+limit 500

@@ -30,7 +30,7 @@ export default ({ data, affiliates_mapping }) => {
 
   // return <pre>{JSON.stringify(parseFlowEvents(data, null, 2))}</pre>
 
-  return <ViewEventsData data={R.take(100, displayData)} min={min} max={max} />
+  return <ViewEventsData data={displayData} min={min} max={max} />
 }
 
 
