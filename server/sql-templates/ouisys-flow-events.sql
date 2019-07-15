@@ -23,7 +23,6 @@ with T as (
   , MAX(T.ip) as ip
   , MIN(T.timestamp) as date_created
   , (case when SUM(T.sale) > 0 then true else false end) as sale
-  -- , RTRIM(XMLAGG(XMLELEMENT(coalesce(T.args, '{}'),',').EXTRACT('//text()') ORDER BY T.event_timestamp).GetClobVal(),',')
   , LISTAGG(coalesce(T.args, '{}'), ',') as args
   , LISTAGG(case when T.category is null then 'null' else '"' || T.category || '"' end, ',') as categories
   , LISTAGG(case when T.action is null then 'null' else '"' || T.action || '"' end, ',') as actions

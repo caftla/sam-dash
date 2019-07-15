@@ -61,7 +61,7 @@ export default class ControlComponent extends React.Component {
     this.state = {
       filterU ,
       breakdownU,
-      date_fromU: new UVal(props.date_from || moment().add('day', -7).toJSON().split('T')[0] ),
+      date_fromU: new UVal(props.date_from || moment().add('day', -2).toJSON().split('T')[0] ),
       date_toU: new UVal(props.date_to || moment().add('day', +1).toJSON().split('T')[0] ),
       timezoneU: new UVal(props.timezone || new Date().getTimezoneOffset()  / -60),
 
