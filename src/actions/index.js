@@ -627,7 +627,7 @@ export const update_campaign_status = (payload) => (dispatch : Dispatch) => {
   console.log("payload", payload)
   dispatch(toggle_loader(true));
   dispatch({ type: 'update_campaign_status' })
-  post({url: `${ouisys_api}/api/v1/update_campaign_status`, body:{...payload}}, {})
+  post({url: `${api_root}/api/v1/update_campaign_status`, body:{...payload}}, {})
   
   .then(d => {
     dispatch({ type: 'update_campaign_status_success', payload: d })
