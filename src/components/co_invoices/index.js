@@ -62,7 +62,7 @@ const props_to_params = props => {
       date_from: p => p.date_from || defaultDateFrom
     , date_to: p => p.date_to || defaultDateTo
     , timezone: p => p.timezone || deafultTimezone
-    , filter: p => p.filter || '-'
+    , filter: p => !!p.filter? p.filter.replace(/\t/g, '%09') : '-'
     , nocache: () => query.nocache == 'true' ? true : false
   })(params))
   return mparams
