@@ -5,6 +5,7 @@ select
   , $[params.f_row('us', 'timestamp', {fieldMap: {'publisher_id': 'pubid'}})]$ as row
   , sum(case when us.impression > 0 or us.redirect > 0 then 1 else 0 end) :: float as views
   , sum(case when us.sale > 0 then 1 else 0 end) :: float as sales
+  , sum(case when us.failedsale > 0 then 1 else 0 end) :: float as failedsales
   , sum(case when us.pixel > 0 or us.delayed_pixel > 0 then 1 else 0 end) :: float as pixels
   , sum(case when us.firstbilling > 0 then 1 else 0 end) :: float as firstbillings
   , sum(coalesce(ub.home_cpa, 0)) :: float as cost

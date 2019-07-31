@@ -178,25 +178,7 @@ export default class ControlComponent extends React.Component {
         <FormSection>
           <FormTitle>Filters</FormTitle>
           <div className="field-section">
-            <MultiSelect
-              placeholder="Countries"
-              values={this.state.countries || [] }
-              options={countries}
-              onValuesChange={countries => {
-                this.setState({countries})
-              }}
-              createFromSearch={(options, value, search) =>  
-                search.length == 2
-                ? ({label: search.trim().toUpperCase(), value: search.trim().toLowerCase()})
-                : null
-                }
-            /></div>
-          {/* <div className="field-section">
-            <MultiSelect
-              placeholder="Affiliates"
-              options={affiliates}
-            />
-          </div> */}
+          </div>
 
           <FiltersList items={
             this.state.filterItems.map(x => ({filterKey: {label: x.name, value: x.name}, value: x.expr}))

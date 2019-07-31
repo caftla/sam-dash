@@ -46,6 +46,7 @@ module.exports = (params) => {
             views: a.views + acc.views
           , cost: a.cost + acc.cost
           , sales: a.sales + acc.sales
+          , failedsales: a.failedsales + acc.failedsales
           , pixels: a.pixels + acc.pixels
           , optout_24h: a.optout_24h + acc.optout_24h
           , optouts: a.optouts + acc.optouts
@@ -67,6 +68,7 @@ module.exports = (params) => {
             views: 0
           , cost: 0
           , sales: 0
+          , failedsales: 0
           , pixels: 0
           , optout_24h: 0
           , optouts: 0

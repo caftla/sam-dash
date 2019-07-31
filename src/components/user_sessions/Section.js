@@ -96,6 +96,12 @@ export default Section({
       , x => d3.format(',.0f')(100 * x.blocks_ratio)
       , data => d3.format(',.0f')(100 * data.blocks_ratio)
     ),
+    column(
+      show_label_row('Failed Sales', 'failedsales')
+      , () => onSort('row', 'failedsales', 1)
+      , x => d3.format(',')(x.failedsales) 
+      , data => d3.format(',')(data.failedsales)
+    ),
     pcolumn(
       show_label_row('P Sessions', 'premium_sessions_ratio')
       , () => onSort('row', 'premium_sessions_ratio', 1)
