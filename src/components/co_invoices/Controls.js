@@ -7,6 +7,7 @@ import { Submit, FormTitle, FormRow, FormLabel, FormContainer, FormSection, Form
 import styled from 'styled-components'
 import stylus from './Controls.styl'
 import { InputMultiSelect, InputSelect, MySimpleSelect, ThemedDateRangePicker } from '../common-controls/FormElementsUtils'
+import { get } from '../../helpers'
 
 
 const { format } = require('d3-format')
@@ -24,8 +25,16 @@ type ControlsState = {
   , date_to: string
   , timezone: number
   , affiliate_name: string
+  , publisher_id: string
+  , publisher_ids: Array<string>
   , msisdn: string
 }
+
+const api_root = process.env.api_root || '' // in production api_root is the same as the client server
+const api_get = (timezone: int, date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => 
+  {
+    return get({ url: `${api_root}/api/v1/publisher_ids/${timezone}/${date_from}/${date_to}/${filter}`, nocache})
+  }
 
 const add_time = date => date.indexOf('T') > -1
   ? date
@@ -37,6 +46,23 @@ class Controls extends React.Component {
   constructor(props: ControlsProps) {
     super(props)
     this.setProps(props)
+  }
+
+  componentDidMount() {
+    this.reload_publisher_ids()
+  }
+
+  reload_control(filter_fields, group_by_row, callback) {
+    return api_get(this.state.timezone, this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(filter_fields), '-', '-', group_by_row, false)
+      .then(callback)
+  }
+
+  reload_publisher_ids() {
+    if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
+      this.reload_control(['affiliate_name'], 'publisher_id', publisher_ids => this.setState({ publisher_ids }))
+    } else {
+      this.setState({ publisher_ids: [] })
+    }
   }
 
   componentWillReceiveProps(props) {
@@ -53,8 +79,10 @@ class Controls extends React.Component {
       , to_hour: '24'
       , timezone: params.timezone
       , msisdn: ''
-      , affiliate_name: ''
-      , ...filter_params
+      , affiliate_name: filter_params.affiliate_name || ''
+      , publisher_id: filter_params.publisher_id || ''
+      , publisher_ids: []
+      , ...filter_params || ''
       , noMsisdnProvided: false
       , countryCodeNotSelected: false
       , nocache: !!params.nocached
@@ -73,12 +101,14 @@ class Controls extends React.Component {
       , R.map(R.join('='))
       , R.join(',')
       , x => !x ? '-' : x
-      , y => y.replace(/\//g, '%2F')
+      , R.replace(/\//g, '%2F')
+      , R.replace(/\t/g, '%09')
+      , R.replace(/\s/g, '%20')
     )(fields)
 	}
 
   get_filter_string() {
-    return this.get_filter_string_by_fields(["affiliate_name", "from_hour", "to_hour", "msisdn"])
+    return this.get_filter_string_by_fields(["affiliate_name", "publisher_id", "from_hour", "to_hour", "msisdn"])
   }
 
   render() {
@@ -116,10 +146,14 @@ class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Affiliate Information:</FormTitle>
-        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => this.setState({ 
-              affiliate_name: affiliate_name }) }
+        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) }
           value={ this.state.affiliate_name } options={ this.props.affiliates.map(x => x.affiliate_name) } required />
           <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select affiliate to proceed!</p>
+
+        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+          value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } 
+          disable={ this.state.affiliate_name.split(';').length > 1 } />
+
       </FilterFormSection>
       <FormSectionButtons>
       <div>
@@ -141,6 +175,7 @@ class Controls extends React.Component {
               , timezone: this.state.timezone
               , msisdn: this.state.msisdn
               , affiliate_name: this.state.affiliate_name
+              , publisher_id: this.state.publisher_id
               , filter: this.get_filter_string(this.state, true)
               , nocache: this.state.nocache
             })
@@ -176,8 +211,9 @@ const ConnectedControls = Controls => props =>
       ? `/co_invoices/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}?nocache=true`
       : `/co_invoices/${formatTimezone(params.timezone)}/${params.date_from}/${params.date_to}/${params.filter}`
     // props.history.push(`/co_invoices/${params.timezone}/${params.date_from}/${params.date_to}/${params.filter}/-/-/-/`)
+    // window.history.push(window.location.href, 'Sigma', make_url(params))
     props.history.push(make_url(params))
-}
+  }
 } />
 
 export default connect(

@@ -193,17 +193,6 @@ app.get('/api/v1/cohort/:from_date/:to_date/:filter', authenticate(), (req, res)
   )
 })
 
-// deprecated
-// app.get('/api/v1/arpu/:from_date/:to_date/:filter/:page/:section/:row', authenticate(), (req, res) => {
-//   const params = R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) })
-//   respond_helix(
-//       fs.readFileSync('./server/sql-templates/arpu/index.sql', 'utf8')
-//     , params
-//     , res
-//     , require('./sql-templates/arpu')(params)
-//   )
-// })
-
 app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
   respond_query_or_result(
@@ -292,6 +281,11 @@ app.get('/api/v1/all_affiliates', (req, res) => {
     , R.toPairs
     , R.map(([affiliate_name, affiliate_ids]) => ({affiliate_name, affiliate_ids}))
   ))
+})
+
+app.get('/api/v1/publisher_ids/:timezone/:from_date/:to_date/:filter', (req, res) => {
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+  respond_jewel(fs.readFileSync('./server/sql-templates/publisher_ids/index.sql', 'utf8'), params, res, x => R.pipe(R.map(R.values), R.flatten)(x))
 })
 
 app.get('/api/v1/converting_ips/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
