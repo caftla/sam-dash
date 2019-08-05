@@ -18,8 +18,8 @@ export default ({data, toggleShowMore})=>{
     serviceKey:"click2smsService",
     label:"Click2sms"
   },{
-    scenarioKey:"moredirScenario",
-    serviceKey:"moredirService",
+    scenarioKey:"moRedirScenario",
+    serviceKey:"moRedirService",
     label:"Mo Redirect"
   }];
 
