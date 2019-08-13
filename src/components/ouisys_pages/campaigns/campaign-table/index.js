@@ -283,9 +283,14 @@ class CampaignTable extends Component {
           }
 
           {
-            (this.state.itemsToExport.length > 0) &&
-            <button onClick={this.export_to_excel} className="jumbo-btn">
-              Export To Excel ({this.state.itemsToExport.length})
+            <button
+              onClick={this.export_to_excel}
+              className="jumbo-btn"
+              disabled={(this.state.itemsToExport.length > 0) ? false : true}
+            >
+              Export To Excel ({(this.state.itemsToExport.length > 0) ? this.state.itemsToExport.length : 0 })
+              <br/>
+              <span>Click on the checkboxes to select items to export</span>
             </button>
           }
           <table style={{visibilty:"hidden"}} id="export-table">
