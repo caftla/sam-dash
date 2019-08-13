@@ -19,11 +19,28 @@ class CampaignTable extends Component {
       editRestriction:null,
       editRestrictionVal:{},
       editComments:null,
-      editCommentsVal:{}
-
+      editCommentsVal:{},
+      itemsToExport:[]
     
     }
     this._child = React.createRef();
+  }
+  export_to_excel = (e) => {
+    e.preventDefault()
+    const workbook = XLSX.utils.table_to_book(document.getElementById('export-table'), {cellHTML:true})
+    const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
+  
+    const wbout = XLSX.write(workbook,wopts);
+  
+    const s2ab = (s) => {
+      const buf = new ArrayBuffer(s.length);
+      const view = new Uint8Array(buf);
+      for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+      return buf;
+    }
+  
+    /* the saveAs call downloads a file on the local machine */
+    saveAs(new Blob([s2ab(wbout)],{type:""}), `pages.xlsx`)
   }
   render(){
 
@@ -40,7 +57,35 @@ class CampaignTable extends Component {
         property: "xcid",
         header: "xcid",
         primary: true,
-        search: true
+        search: true,
+        render:(datum)=>{
+          return(
+            <div>
+              <strong>{datum.xcid}</strong>
+              <br/>
+              <input
+                style={{width:"10px"}}
+                onChange={()=>{
+                  if(this.state.itemsToExport.find((obj)=>obj.xcid === datum.xcid)){
+                    var a = this.state.itemsToExport.filter((obj)=>obj.xcid !== datum.xcid);
+                    this.setState({
+                      itemsToExport:a
+                    })
+                  }else{
+                    var b = this.state.itemsToExport;
+                    b.push(datum);
+                    this.setState({
+                      itemsToExport:b
+                    })
+                  }
+                }}
+                type="checkbox"
+                checked={this.state.itemsToExport.find((obj)=>obj.xcid === datum.xcid) ? true : false}
+              />
+
+            </div>
+          )
+        }
       },{
         property: "country",
         header: "Country",
@@ -60,12 +105,21 @@ class CampaignTable extends Component {
         sortable: true,
         render: datum =>{
           return(
-            <ScenarioCell
-              data={datum}
-              toggleShowMore={()=>this.setState({
-                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
-              })}
-            />
+            <div>
+              <ScenarioCell
+                data={datum}
+                toggleShowMore={()=>this.setState({
+                  showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+                })}
+              />
+
+              <MultiFlowCell
+                data={datum}
+                toggleShowMore={()=>this.setState({
+                  showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
+                })}
+              />
+            </div>
           )
         }
       },
@@ -77,21 +131,6 @@ class CampaignTable extends Component {
           const {service} = datum.env_dump ? JSON.parse(datum.env_dump) : {};
           return(
             <span>{service}</span>
-          )
-        }
-      },
-      {
-        property: "strategy",
-        header: "Multi-Flow",
-        search: true,
-        render: datum =>{
-          return(
-            <MultiFlowCell
-              data={datum}
-              toggleShowMore={()=>this.setState({
-                showMore: this.state.showMore.hasOwnProperty("id") ? null: datum
-              })}
-            />
           )
         }
       },
@@ -128,108 +167,109 @@ class CampaignTable extends Component {
       },
       {
         property: "comments",
-        header: "Comments",
-        search: true,
+        header: "Notes",
         sortable: true,
         render: (datum)=>{
           const isEditMode = (this.state.editComments === datum.xcid) ? true : false;
           return(
-            <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
+            <div>
+              <strong>Comments</strong>
+              <div style={{width:"100%", display:"flex", flexDirection:"row"}}>
+                {
+                  (datum.comments || isEditMode) && 
+                  <textarea
+                    className="ouisys-textarea"
+                    onChange={(ev)=>this.setState({
+                      editCommentsVal:{
+                        key:"comments",
+                        value:ev.target.value,
+                        xcid:datum.xcid
+                      }
+                    })}
+                    value={(this.state.editCommentsVal.xcid === datum.xcid) ? this.state.editCommentsVal.value : datum.comments}
+                    disabled={!isEditMode}
+                  />
+                }
+                {
+                  isEditMode && 
+                  <a
+                    onClick={()=>{
+                      if(this.state.editCommentsVal.hasOwnProperty("xcid") && this.state.editCommentsVal.xcid === datum.xcid){
+                        this.props.update_campaign(this.state.editCommentsVal);
+                        this.setState({editComments:null});
+                        this.setState({editCommentsVal:{}});
+                      }else{
+                        this.setState({editComments:null});
+                        this.setState({editCommentsVal:{}});
+                      }
+                    }}
+                    className="ouisys-edit ouisys-check"
+                  ><i className="fa fa-check"/>
+                  </a>
+                  ||
+                  <a onClick={()=>this.setState({editComments:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
+                }
+              </div>
               {
-                (datum.comments || isEditMode) && 
-                <textarea
-                  className="ouisys-textarea"
-                  onChange={(ev)=>this.setState({
-                    editCommentsVal:{
-                      key:"comments",
-                      value:ev.target.value,
-                      xcid:datum.xcid
-                    }
-                  })}
-                  value={(this.state.editCommentsVal.xcid === datum.xcid) ? this.state.editCommentsVal.value : datum.comments}
-                  disabled={!isEditMode}
-                />
+                datum.restrictions &&
+                <div>
+                  <strong>Restrictions</strong>
+                  <div>{datum.restrictions}</div>
+                </div>
               }
-              {
-                isEditMode && 
-                <a
-                  onClick={()=>{
-                    if(this.state.editCommentsVal.hasOwnProperty("xcid") && this.state.editCommentsVal.xcid === datum.xcid){
-                      this.props.update_campaign(this.state.editCommentsVal);
-                      this.setState({editComments:null});
-                      this.setState({editCommentsVal:{}});
-                    }else{
-                      this.setState({editComments:null});
-                      this.setState({editCommentsVal:{}});
-                    }
-                  }}
-                  className="ouisys-edit ouisys-check"
-                ><i className="fa fa-check"/>
-                </a>
-                ||
-                <a onClick={()=>this.setState({editComments:datum.xcid})} className="ouisys-edit"><i className="fa fa-pencil"/></a>
-              }
-              
             </div>
           )
         }
       },
       {
-        property: "restrictions",
-        header: "Restrictions"
-      },
-      {
         property: "date_created",
-        header: "Date",
+        header: "Others",
         sortable: true,
-        render: datum =>
-          datum.date_created && moment(datum.date_created).format("MMM Do YY"),
-        align: "end"
-      },
-      {
-        property: "",
-        header: "Status",
-        sortable: true,
-        render: (datum)=>{
+        render: datum =>{
           return(
-            <select
-              id={datum.xcid}
-              defaultValue={this.state.httpStatusObj[datum.xcid] || datum.http_status}
-              onChange={(ev)=>{
-                const result = confirm(`You are are about to change the status for => https://c1.ouisys.com/${datum.xcid} to: ${ev.target.value}`);
-                if(result){
-                  this.setState({
-                    httpStatusObj:{
-                      [datum.xcid]: ev.target.value,
-                      ...this.state.httpStatusObj
-                    }
-                  })
-                  this.props.update_campaign_status({
-                    xcid:datum.xcid,
-                    http_status:ev.target.value
-                  })
-                  this.props.get_all_campaigns();
-                } else {
-                  document.querySelector(`#${datum.xcid}`).value = (datum.http_status === null) ? "OK" :  datum.http_status;
-                  //this.props.get_all_campaigns();
-                  console.log("You pressed Cancel!", this.state.httpStatusObj);
-                }
-              }}
-            >
-              
-              <option value="OK" selected={(datum.http_status === null || datum.http_status === "OK") ? true : false}>OK</option>
-              <option value="Gone">Unpublished/Gone</option>
-              <option value="Not Found">Not Found</option>
-              <option value="Forbidden">Forbidden</option>
-            </select>
+            <div>
+              <strong>Date: </strong>
+              <div>{moment(datum.date_created).format("MMM Do YY")}</div>
+            
+              <strong>Status: </strong>
+                <select
+                id={datum.xcid}
+                defaultValue={this.state.httpStatusObj[datum.xcid] || datum.http_status}
+                onChange={(ev)=>{
+                  const result = confirm(`You are are about to change the status for => https://c1.ouisys.com/${datum.xcid} to: ${ev.target.value}`);
+                  if(result){
+                    this.setState({
+                      httpStatusObj:{
+                        [datum.xcid]: ev.target.value,
+                        ...this.state.httpStatusObj
+                      }
+                    })
+                    this.props.update_campaign_status({
+                      xcid:datum.xcid,
+                      http_status:ev.target.value
+                    })
+                    this.props.get_all_campaigns();
+                  } else {
+                    document.querySelector(`#${datum.xcid}`).value = (datum.http_status === null) ? "OK" :  datum.http_status;
+                    //this.props.get_all_campaigns();
+                    console.log("You pressed Cancel!", this.state.httpStatusObj);
+                  }
+                }}
+              >
+                
+                <option value="OK" selected={(datum.http_status === null || datum.http_status === "OK") ? true : false}>OK</option>
+                <option value="Gone">Unpublished/Gone</option>
+                <option value="Not Found">Not Found</option>
+                <option value="Forbidden">Forbidden</option>
+              </select>
+            </div>
           )
-        },
-        align: "end"
+        }
       }
     ];
     const { all_campaigns } = this.props;
     return(
-        <div>
+        <div className="campaign-wrapper">
           {
             (all_campaigns.length > 0) &&
             <DataTable onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
@@ -241,6 +281,38 @@ class CampaignTable extends Component {
               data={this.state.showMore}
             />
           }
+
+          {
+            (this.state.itemsToExport.length > 0) &&
+            <button onClick={this.export_to_excel} className="jumbo-btn">
+              Export To Excel ({this.state.itemsToExport.length})
+            </button>
+          }
+          <table style={{visibilty:"hidden"}} id="export-table">
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th>Country</th>
+                <th>Affiliate ID</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                (this.state.itemsToExport.length > 0) &&  this.state.itemsToExport.map((obj, index)=>{
+                  const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${obj.xcid}`
+                  return(
+                    <tr key={index}>
+                      <td>{obj.page}</td>
+                      <td>{obj.country.toUpperCase()}</td>
+                      <td>{obj.affiliate_id}</td>
+                      <td>{url}</td>
+                    </tr>
+                  )
+                })
+              }
+            </tbody>
+          </table>
         </div>
 
       )
