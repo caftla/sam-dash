@@ -269,10 +269,10 @@ class CampaignTable extends Component {
     ];
     const { all_campaigns } = this.props;
     return(
-        <div className="campaign-wrapper">
+        <div className="campaign-wrapper dataTableWrapper">
           {
             (all_campaigns.length > 0) &&
-            <DataTable onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
+            <DataTable className="dataTable" onMore={()=>this.props.get_all_campaigns()} ref={this._child} className="dataTable"  a11yTitle="My campaigns" columns={columns} data={all_campaigns} />
           }
           {
             this.state.showMore.hasOwnProperty("id") &&
