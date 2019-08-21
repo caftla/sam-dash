@@ -149,7 +149,7 @@ export default ({ data }) => {
 
 
   return <div >
-    <div style={{}}>
+    <div style={{zIndex: 1}}>
       <input name="current_date" type="date" onChange={(e) => {
         d3.select('#cohorts-table').selectAll(`[data-selected]`)
           .style('background-color', 'inherit')
@@ -159,8 +159,9 @@ export default ({ data }) => {
           .attr('data-selected', true)
       }} />
     </div>
-    <div style={{ width: 'auto', height: 'auto', overflow: 'auto' }}>
-      <table id="cohorts-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '75%', marginTop: '30px' }}>
+    <div style={{ width: 'auto', height: 'auto', overflow: 'auto', position: 'absolute',
+        bottom: 0, top: 35, left: 0, right: 0 }}>
+      <table id="cohorts-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '75%'}}>
         <thead>
           {
             ['Cohort', base_metric.label].concat(vis_data[0].data.map(R.view(resolution_dimension.lens)))

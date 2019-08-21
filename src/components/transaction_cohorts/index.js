@@ -77,7 +77,10 @@ class ViewComponent extends React.Component {
           />
         </div>
       </div>
-      <div id="container" className="default">
+      <div id="container" className="default" style={{
+        // position: 'absolute',
+        // bottom: 0, top: 0, right: 0, left: `310px`
+      }}>
         {
           match({
               Nothing: () => <div>Press GO!</div>
