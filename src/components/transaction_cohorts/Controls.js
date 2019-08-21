@@ -63,7 +63,7 @@ const get_all_props_ = props => (prop: string) => R.pipe(
       R.chain(R.prop(prop))
     , R.uniq
     , R.sortBy(x => x)
-  )(props.all_countries)
+  )(props.all_countries  || [])
 
 const ifExists_ = (props, country_code) => (field: string, value: any) => (!country_code || country_code == '-' ? get_all_props_(props)(field) : get_country_prop_(props, country_code)(field, [])).some(e => e == value) ? value : ''
 
@@ -194,7 +194,8 @@ export default class Controls extends React.Component {
   }
 
   render() {
-    const {countries, affiliates} = this.props
+    const {all_countries, all_affiliates} = this.props
+    console.log('all_countries', all_countries)
     const get_all_props = get_all_props_(this.props)
     const get_country_prop = get_country_prop_(this.props, this.state.country_code)
 
@@ -253,8 +254,8 @@ export default class Controls extends React.Component {
             , timezone: this.state.timezone
             , filter: this.get_filter_string()
             , nocache: this.state.nocache
-            , resolution: this.props.params.resolution
-            , cohort: this.props.params.cohort
+            , resolution: this.props.params.resolution || '1'
+            , cohort: this.props.params.cohort || 'day'
           })
         }}>
           GO

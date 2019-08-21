@@ -52,6 +52,10 @@ class ViewComponent extends React.Component {
     this.props.fetch_all_affiliates()
     if(!!params.date_from && !!params.date_to) {
       this.props.fetch_all_countries(params.date_from, params.date_to)
+    } else {
+      this.props.fetch_all_countries(
+        new Date(new Date().valueOf() - 120 * 24 * 3600 * 1000).toJSON()
+        , new Date(new Date().valueOf()).toJSON())
     }
   }
   render() {
