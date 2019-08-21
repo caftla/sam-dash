@@ -21,6 +21,10 @@ const cache_get = (ttl, f, ...params) => {
 const cache_set = (ttl, x, ...params) => {
   const paramsHash = hash(params)
   client.set(paramsHash, JSON.stringify(x), 'EX', ttl)
+  .then(_ => {/*eat it */})
+  .catch(err => 
+    console.log(`Error in cache_set`, err)  
+  )
 }
 
 module.exports = {

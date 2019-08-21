@@ -44,6 +44,7 @@ import Revenue from './components/revenue'
 import MPesa from './components/m-pesa'
 import Dmb from './components/dmb'
 import OuisysFlowEvents from './components/ouisys_flow_events'
+import TransactionCohorts from './components/transaction_cohorts'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
 import Transactions from './components/transactions'
@@ -177,6 +178,8 @@ function Wrap(WrappedComponent) {
 
               <a href="/transactions/" className={ this.state.route == 'transactions' ? 'active' : ''  }>Transactions</a>
 
+              <a href="/transaction-cohorts/" className={ this.state.route == 'transaction-cohorts' ? 'active' : ''  }>Transaction Cohorts</a>
+
               <a href="/monthly_reports/" className={ this.state.route == 'monthly_reports' ? 'active' : ''  }>Monthly Report</a>
 
               <a href="/m-pesa/" className={ this.state.route == 'm-pesa' ? 'active' : ''  }>M-Pesa</a>
@@ -268,6 +271,9 @@ const main_bottom = <Provider store={store}>
 
         <Route path="/ouisys-flow-events/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(OuisysFlowEvents)} />
         <Route path="/ouisys-flow-events" component={WrapAndAuth(OuisysFlowEvents)} />
+
+        <Route path="/transaction-cohorts/:timezone/:date_from/:date_to/:filter/:cohort/:resolution" component={WrapAndAuth(TransactionCohorts)} />
+        <Route path="/transaction-cohorts" component={WrapAndAuth(TransactionCohorts)} />
 
         <Route path="/user_subscriptions/:timezone/:date_from/:date_to/:filter" component={WrapAndAuth(User_Subscriptions)} />
         <Route path="/user_subscriptions" exact={true} component={WrapAndAuth(User_Subscriptions)} />

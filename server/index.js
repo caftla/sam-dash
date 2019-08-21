@@ -205,6 +205,18 @@ app.get('/api/v1/transactions/:timezone/:from_date/:to_date/:filter/:page/:secti
   )
 })
 
+app.get('/api/v1/transaction-cohorts/:timezone/:from_date/:to_date/:filter/:cohort/:resolution', (req, res) => {
+  const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
+    respond_query_or_result(
+      respond_jewel
+    , fs.readFileSync('./server/sql-templates/transaction_cohorts/index.sql', 'utf8')
+    , params
+    , req
+    , res
+    , require('./sql-templates/transaction_cohorts')(params)
+  )
+})
+
 app.get('/api/v1/arpu_long/:from_date/:to_date/:filter/:page/:section/:row', [ authenticate(), logUserAction ], (req, res) => {
   const params = R.merge(req.query, R.merge(req.params, { filter: filter_to_pipe_syntax(req.params.filter) }))
     respond_query_or_result(

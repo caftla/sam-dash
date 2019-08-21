@@ -153,6 +153,19 @@ export const cleanup_fetch_transactions = () => (dispatch: Dispatch) =>
 
 // transactions
 
+// transaction_cohorts
+
+export const fetch_transaction_cohorts = (timezone: int, date_from: string, date_to: string, filter: string, cohort: string, resolution: int, nocache: boolean) => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_transaction_cohorts_loading' })
+  get({url: `${api_root}/api/v1/transaction-cohorts/${timezone}/${date_from}/${date_to}/${filter}/${cohort}/${resolution}`, nocache})
+  .then(d => dispatch({ type: 'fetch_transaction_cohorts_success', payload: d }))
+}
+
+export const cleanup_fetch_transaction_cohorts = () => (dispatch: Dispatch) =>
+  dispatch({ type: 'cleanup_fetch_transaction_cohorts' })
+
+// transaction_cohorts
+
 export const fetch_arpu_long = (date_from : string, date_to : string, filter : string, page : string, section : string, row : string, nocache: boolean) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_arpu_long_loading' })
   get({url: `${api_root}/api/v1/arpu_long/${date_from}/${date_to}/${filter}/${page}/${section}/${row}`, nocache})

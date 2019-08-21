@@ -44,7 +44,7 @@ type Props = {
   , set_params: (params: QueryParams) => void
 }
 
-const props_to_params = props => {
+export const props_to_params = props => {
   const {timeFormat} = require('d3-time-format')
   const formatDate = timeFormat('%Y-%m-%d')
   const defaultDateFrom = formatDate(new Date(new Date().valueOf() - 7 * 24 * 3600 * 1000))

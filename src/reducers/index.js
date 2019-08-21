@@ -14,6 +14,7 @@ import user_sessions from './user_sessions'
 import user_subscriptions from './user_subscriptions'
 import arpu from './arpu'
 import transactions from './transactions'
+import transaction_cohorts from './transaction_cohorts'
 import arpu_long from './arpu_long'
 import cohort from './cohort'
 import converting_ips from './converting_ips'
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
   , user_subscriptions
   , arpu
   , transactions
+  , transaction_cohorts
   , arpu_long
   , cohort
   , converting_ips
