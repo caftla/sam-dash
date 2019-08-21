@@ -99,7 +99,7 @@ class PublishedPages extends Component {
     ];
     const { publishedPages } = this.props;
     return(
-        <div>
+        <div className="dataTableWrapper">
           {
             (publishedPages.length > 0) &&
             <DataTable className="dataTable"  a11yTitle="My campaigns" columns={columns} data={publishedPages} />

@@ -70,7 +70,7 @@ class LegalsModal extends Component {
     } = this.state;
     const { } = this.props.show_legal_modal
     return (
-      <div className="modal-wrapper">
+      <div className="legals-wrapper ">
         <div className="legals-well">
           <form className="legal-form-wrapper" onSubmit={(ev)=>this.handleSubmit(ev)}>
           <h4>Add Legals</h4>

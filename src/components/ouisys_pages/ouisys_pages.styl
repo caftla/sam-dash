@@ -1,8 +1,10 @@
 .top-spacer 
 	margin-top 100px;
-	zoom: 0.8;
 .top-spacer, .top-spacer * 
-		font-size: 10px !important
+		font-size: 12px !important
+		.dataTableWrapper{
+			width 100%;
+		}
 		.campaign-wrapper{
 			.kXgizX{
 				border-bottom: solid 1px #eee;
@@ -93,6 +95,15 @@
 	display flex
 	flex-direction column
 }
+.legals-wrapper
+	position absolute
+	width 100%
+	min-height 100vh;
+	left 0
+	right 0
+	bottom 0
+	top 0
+	z-index 9999
 .legal-form-wrapper
 	width 100%
 .legals-well 
@@ -169,7 +180,7 @@ label
 			outline-color: #eee;
 
 .modal-wrapper 
-	position fixed
+	position absolute
 	left 0
 	right 0
 	top 0

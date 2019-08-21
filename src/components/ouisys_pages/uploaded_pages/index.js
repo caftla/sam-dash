@@ -111,7 +111,7 @@ class UploadedPages extends Component {
     ];
     const { uploadedPages } = this.props;
     return(
-        <div>
+        <div className="dataTableWrapper">
           {
             (uploadedPages.length > 0) &&
             <DataTable
