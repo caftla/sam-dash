@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { Input } from "../../../common-controls/FormElementsUtils";
 import { Heading } from "grommet";
+import slugify from "slugify";
 
 //import "./PublishedPages.scss";
 
@@ -41,8 +42,8 @@ class LegalsModal extends Component {
     ev.preventDefault();
     const objectToSend = {
       country:this.state.country.toLowerCase(),
-      scenario:this.state.scenario.toLowerCase(),
-      service:this.state.service.toLowerCase(),
+      scenario:slugify(this.state.scenario.toLowerCase()),
+      service:slugify(this.state.service.toLowerCase()),
       language:this.state.language.toLowerCase(),
       top_legal:this.state.top_legal,
       price_point:this.state.price_point,
