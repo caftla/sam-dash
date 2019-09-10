@@ -205,9 +205,9 @@ class ViewComponent extends Component {
             <div>
               {
                 datum.automatically_submit_all_operators != null ?
-               datum.automatically_submit_all_operators
+               datum.automatically_submit_all_operators ? "true" : "false"
                :
-               false
+               "false"
               }
             </div>
           )
@@ -273,7 +273,6 @@ class ViewComponent extends Component {
                                   localStorage.setItem("bupperPassword",ev.target.value)
                                 }}
                               />
-                              {this.state.password}
                             </div>
                             <div className="os-ui-form-group">
                               <button>Login</button>
