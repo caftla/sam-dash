@@ -7,7 +7,6 @@ import { Grommet, DataTable, Tabs, Tab, Box, ThemeContext} from "grommet";
 import { deepMerge } from "grommet/utils";
 import { css } from "styled-components";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import axios from "axios";
 
 
 import Loader from "../loader";

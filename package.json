@@ -83,7 +83,6 @@
   },
   "dependencies": {
     "aws-sdk": "^2.411.0",
-    "axios": "^0.19.0",
     "bases": "^0.2.1",
     "body-parser": "^1.17.1",
     "cookie-parser": "^1.4.3",
