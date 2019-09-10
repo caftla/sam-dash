@@ -504,3 +504,16 @@ export async function createScenarioConfiguration(payload) {
 		}
 		
 }
+
+
+export async function getScenarios (){
+
+	const result = await run(
+		`
+		SELECT *
+			FROM ouisys_scenarios
+			ORDER BY date_created DESC
+		`, []
+	)
+	return (result.rows.length > 0) ? result.rows : [];
+}

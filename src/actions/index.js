@@ -484,7 +484,6 @@ export const get_all_campaigns = () => (dispatch : Dispatch) => {
   dispatch({ type: 'get_all_campaigns' })
   get({url: `${api_root}/api/v1/get_all_campaigns`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => {
-    console.log("HERE", d)
     dispatch({ type: 'get_all_campaigns_success', payload: d })
     dispatch(toggle_loader(false));
   }
@@ -660,6 +659,24 @@ export const reset_existing_campaigns = (payload) => (dispatch : Dispatch) => {
 
 
 //manage-configs
+
+export const get_scenarios = (params) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_handle' })
+  get({url: `${api_root}/api/v1/get_scenarios`})
+  
+  .then(d => {
+    dispatch({ type: 'get_scenarios_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+
 export const get_handle = (params) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_handle' })
@@ -683,11 +700,11 @@ export const save_scenario_configuration = (payload) => (dispatch : Dispatch) =>
   dispatch({ type: 'save_scenario_configuration' })
   post({url: `${api_root}/api/v1/save_scenario_configuration`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
   .then(d => {
+    dispatch(toggle_loader(false));
     if(d.code !== 200){
       alert("ERROR:\n\n" + d.message)
     }else{
       dispatch({ type: 'save_scenario_configuration_success', payload: d })
-      dispatch(toggle_loader(false));
       alert("Configuration Saved Successfully!")
       location.reload();
     }

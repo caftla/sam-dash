@@ -36,6 +36,7 @@ import all_campaigns from './all_campaigns'
 import searched_campaigns from "./searched_campaigns"
 import created_multiple_campaigns from "./created_multiple_campaigns"
 import handle from "./handle"
+import scenarios from "./scenarios"
 
 const rootReducer = combineReducers({
     dashboard
@@ -77,6 +78,7 @@ const rootReducer = combineReducers({
   , searched_campaigns
   , created_multiple_campaigns
   , handle
+  , scenarios
 })
 
 export default rootReducer

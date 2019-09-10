@@ -28,7 +28,8 @@ import {
   getSearchPages,
   updateCampaign,
   updatePublishedPage,
-  createScenarioConfiguration
+  createScenarioConfiguration,
+  getScenarios
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 import { subscribeToPush, sendPush, analyticsDeliveryNotification, analyticsClicked, analyticsClosed } from './web-push/handlers';
@@ -839,7 +840,6 @@ console.log("bupperUser", bupperUser)
       'SAM-Access-Token':`Username=\"${params.username}\", AccessToken=\"${bupperUser.accessToken}\"`
     }
   });
-  console.log("resp", resp)
   const finalResult = await resp.json();
   
   if(finalResult !== null){ 
@@ -872,6 +872,25 @@ app.post('/api/v1/save_scenario_configuration', authenticate(), async(req, res, 
     })
   }
 });
+
+app.get('/api/v1/get_scenarios', authenticate(), async(req, res, next)=>{
+  
+  try{
+    const finalResult = await getScenarios();
+    if(finalResult !== null){ 
+      res.status(200).send({
+        code:200,
+        data:finalResult
+      })
+    }
+  }catch(err){
+    res.status(500).send({
+      code:500,
+      message:`${err.message}\n\n ${err.detail ? err.detail : ""}`
+    })
+  }
+});
+
 
 //end of ouisys pages
 
