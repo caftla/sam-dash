@@ -38,7 +38,7 @@ class ViewComponent extends Component {
       username:null,
       password:null,
       showLogin:false,
-      bupperUrl:"https://bupper.sam-media.com/ui/app/#/handle/edit/sa-speed-learn-pin?country=SA&deviceClasssmart&deviceClass=smart",
+      bupperUrl:null,
       isPin:false,
       isMo:false,
       isMoRedirect:false,
@@ -294,7 +294,7 @@ class ViewComponent extends Component {
                                 />
 
                                 <div className="os-ui-form-group">
-                                  <button onClick={()=>this.extractBupperUrl()}>Go!</button>
+                                  <button disabled={this.state.bupperUrl == null ? true : false} onClick={()=>this.extractBupperUrl()}>Go!</button>
                                 </div>
                               </div>
                             </div>
