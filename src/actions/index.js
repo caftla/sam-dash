@@ -657,3 +657,44 @@ export const update_campaign_status = (payload) => (dispatch : Dispatch) => {
 export const reset_existing_campaigns = (payload) => (dispatch : Dispatch) => {
   dispatch({ type: 'reset_existing_campaigns', payload })
 }
+
+
+//manage-configs
+export const get_handle = (params) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'get_handle' })
+  get({url: `${api_root}/api/v1/get_handle?${toQueryString(params)}`})
+  
+  .then(d => {
+    dispatch({ type: 'get_handle_success', payload: d })
+    dispatch(toggle_loader(false));
+  }
+  )
+  .catch((err)=>{
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}
+
+
+
+export const save_scenario_configuration = (payload) => (dispatch : Dispatch) => {
+  dispatch(toggle_loader(true));
+  dispatch({ type: 'save_scenario_configuration' })
+  post({url: `${api_root}/api/v1/save_scenario_configuration`, cache: "force-cache", body:{...payload}}, {cache: "force-cache"})
+  .then(d => {
+    if(d.code !== 200){
+      alert("ERROR:\n\n" + d.message)
+    }else{
+      dispatch({ type: 'save_scenario_configuration_success', payload: d })
+      dispatch(toggle_loader(false));
+      alert("Configuration Saved Successfully!")
+      location.reload();
+    }
+  })
+  .catch((err)=>{
+    console.log(err.message)
+    dispatch(toggle_loader(false));
+    alert("ERROR:\n\n" + err.message);
+  })
+}

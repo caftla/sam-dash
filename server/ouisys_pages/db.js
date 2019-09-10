@@ -1,7 +1,6 @@
 
 import {run} from "./run";
-import { encrypt, decrypt } from "./encryption";``
-
+import { encrypt, decrypt, encrypt_text, decrypt_text } from "./encryption";``
 
 export async function findSourceByHash (hash){
 	const result = await run(
@@ -98,6 +97,9 @@ export async function getPageReleases (){
 	}
 }
 export async function createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config) {
+	const manager_id = encrypt(username);
+
+	console.log("MANAGER ID", decrypt("NQ"))
 	try{
 			const result = await run(
 				`
@@ -110,6 +112,8 @@ export async function createCampaign(page, country, affid, comments, scenario, s
 				, scenario
 				, strategy
 				, scenarios_config
+				, manager_name
+				, manager_id
 				) VALUES (
 					$1
 				, $2
@@ -117,11 +121,12 @@ export async function createCampaign(page, country, affid, comments, scenario, s
 				, $4
 				,	$5
 				,	$6
-				,	$7
+				,	$8
+				,	$9
 				)
 				returning *
 			`,
-				[page, country, affid, comments, scenario, strategy, scenarios_config]
+				[page, country, affid, comments, scenario, strategy, scenarios_config, username, manager_id]
 			);
 			const campaign = result.rows[0];
 			const xcid = encrypt(campaign.id);
@@ -141,7 +146,8 @@ export async function createCampaign(page, country, affid, comments, scenario, s
 	}
 }
 
-export async function createMultipleCampaigns(payload) {
+export async function createMultipleCampaigns(payload, username) {
+	const manager_id = encrypt_text(username);
 	try{
 		const newArr = [];
 		Object.keys(payload).map((val, index)=>{
@@ -156,9 +162,9 @@ export async function createMultipleCampaigns(payload) {
 			const rowLen = values.length;
 			values.map((obj, index)=>{
 				if(index + 1 !== rowLen){
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}),`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}, '${username}', '${manager_id}'),`
 				}else{
-					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null})`
+					string = string + `('${obj.page}','${obj.country}','${obj.source_id}','${obj.comments}',${obj.scenario ? `'${obj.scenario}'` : null},${obj.strategy ? `'${obj.strategy}'` : null},${obj.scenarios_config ? `'${obj.scenarios_config}'` : null}, '${username}', '${manager_id}')`
 				}
 			});
 			return string;
@@ -173,6 +179,8 @@ export async function createMultipleCampaigns(payload) {
 			, scenario
 			, strategy
 			, scenarios_config
+			, manager_name
+			, manager_id
 			) VALUES ${make_values_string(newArr)}
 			returning *
 		`;
@@ -206,6 +214,8 @@ export async function createMultipleCampaigns(payload) {
 
 	}
 }
+
+
 
 export async function updateCampaignStatus(xcid, http_status) {
 	try{
@@ -311,12 +321,12 @@ export async function findMultipleCampaigns (page, country, affid, scenario, str
 	return (result.rows.length > 0) ? result.rows : [];
 }
 
-export async function findOrCreateCampaign (page, country, affid, comments, scenario, strategy, scenarios_config){
+export async function findOrCreateCampaign (page, country, affid, comments, scenario, strategy, scenarios_config, username){
 	const result = await findCampaigns(page, country, affid, scenario, strategy, scenarios_config);
 	if(result.length > 0){
 		return result[0];
 	}else{
-		return createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config);
+		return createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config, username);
 	}
 }
 
@@ -446,4 +456,51 @@ export async function getAllCampaigns() {
 	)
 
 	return result.rows
+}
+
+
+export async function createScenarioConfiguration(payload) {
+		const newArr = [];
+		Object.keys(payload.flows).map((val, index)=>{
+			if(payload.flows[val]){
+				newArr.push({
+					client:val,
+					...payload.config
+				});
+			}
+		});
+
+		const make_values_string = (values:array)=>{
+
+			let string = "";
+			const rowLen = values.length;
+			values.map((obj, index)=>{
+				if(index + 1 !== rowLen){
+					string = string + `('${obj.country}','${obj.scenario}','${obj.service}','${obj.host}','${obj.device}','${obj.client}'),`
+				}else{
+					string = string + `('${obj.country}','${obj.scenario}','${obj.service}','${obj.host}','${obj.device}','${obj.client}')`
+				}
+			});
+			return string;
+		}
+
+		const queryString = `
+			INSERT INTO ouisys_scenarios(
+				country
+			, scenario
+			, service
+			, host
+			, device
+			, client
+			) VALUES ${make_values_string(newArr)}
+			returning *
+		`;
+				
+		try{
+			const result = await run(queryString);
+			return result;
+		}catch(err){
+			throw err
+		}
+		
 }

@@ -11,6 +11,7 @@ export async function run(query, params) {
   }
    catch(error) {
     console.log("ERRR", error);
+    throw error
   } 
   finally {
     await client.end();

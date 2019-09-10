@@ -145,6 +145,13 @@ label
 		background: #dddddd
 	textarea
 		height 70px
+	input[type=checkbox]
+		box-shadow none
+	input:-moz-read-only /* For Firefox */
+		background-color: #eee;
+
+	input:read-only
+		background-color: #eee;
 .btns
 	display: flex
 	flex-direction: row

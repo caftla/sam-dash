@@ -226,7 +226,7 @@ class ViewComponent extends Component {
                         {
                             this.props.created_multiple_campaigns.map((tObj, index)=>{
                               const url = (tObj.affiliate_id === "FREE-ANY" || tObj.affiliate_id === "FREE-POP") ? 
-                              `https://c1.ouisys.com/${tObj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${tObj.xcid}`;
+                              `https://c1.ouisys.com/${tObj.xcid}?offer={offer_id}${tObj.manager_id ? "&manager=" + tObj.manager_id : "" }` :  `https://c1.ouisys.com/${tObj.xcid}${tObj.manager_id ? "?manager=" + tObj.manager_id : "" }`;
               
                                 return (
                                     <tr>

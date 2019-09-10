@@ -149,7 +149,7 @@ class CampaignTable extends Component {
         sortable: false,
         render: datum =>{
           const url = (datum.affiliate_id === "FREE-ANY" || datum.affiliate_id === "FREE-POP") ? 
-          `https://c1.ouisys.com/${datum.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${datum.xcid}`
+          `https://c1.ouisys.com/${datum.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${datum.xcid}${datum.manager_id ? "?manager=" + datum.manager_id : "" }`
           return <a href={url} target="_blank" className="link">{url}</a>
         }
       },
@@ -222,14 +222,14 @@ class CampaignTable extends Component {
         }
       },
       {
-        property: "date_created",
+        property: "ca_date_created",
         header: "Others",
         sortable: true,
         render: datum =>{
           return(
             <div>
-              <strong>Date: </strong>
-              <div>{moment(datum.date_created).format("MMM Do YY")}</div>
+              <strong>Date:</strong>
+              <div>{moment(datum.ca_date_created).format("MMM Do YY")}</div>
             
               <strong>Status: </strong>
                 <select
@@ -305,7 +305,7 @@ class CampaignTable extends Component {
             <tbody>
               {
                 (this.state.itemsToExport.length > 0) &&  this.state.itemsToExport.map((obj, index)=>{
-                  const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${obj.xcid}`
+                  const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}${datum.manager_id ? "?manager=" + datum.manager_id : "" }` :  `https://c1.ouisys.com/${obj.xcid}${datum.manager_id ? "?manager=" + datum.manager_id : "" }`
                   return(
                     <tr key={index}>
                       <td>{obj.page}</td>

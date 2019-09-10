@@ -27,10 +27,12 @@ import {
   createMultipleCampaigns,
   getSearchPages,
   updateCampaign,
-  updatePublishedPage
+  updatePublishedPage,
+  createScenarioConfiguration
 } from './ouisys_pages/db';
 import fetch from "node-fetch"
 import { subscribeToPush, sendPush, analyticsDeliveryNotification, analyticsClicked, analyticsClosed } from './web-push/handlers';
+import { cons } from '../output/Data.Array/foreign';
 
 const app = express();
 app.use(express.static('dist'))
@@ -705,12 +707,13 @@ app.post('/api/v1/publish_page', authenticate(), async (req, res) => {
 
 app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
   
+  const username = req.user.split("@")[0];
   const { page, country, affid, comments, scenario, strategy, scenarios_config, dontReUse } = req.body;
   
   try{
     const finalResult = scenario ? 
-    await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario, null, null) : createCampaign(page, country, affid, comments, scenario, null, null))
-    :await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, null, strategy, scenarios_config) : createCampaign(page, country, affid, comments, null, strategy, scenarios_config));
+    await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, scenario, null, null, username) : createCampaign(page, country, affid, comments, scenario, null, null, username))
+    :await (!dontReUse ? findOrCreateCampaign(page, country, affid, comments, null, strategy, scenarios_config, username) : createCampaign(page, country, affid, comments, null, strategy, scenarios_config, username));
     if(finalResult !== null){ 
       res.status(200).send({
         code:200,
@@ -729,7 +732,9 @@ app.post('/api/v1/create_campaign', authenticate(), async(req, res)=>{
 
 app.post('/api/v1/create_multiple_campaigns', authenticate(), async(req, res)=>{
   //const { page, country, affid, comments, scenario, dontReUse } = req.body;
-  const finalResult = await createMultipleCampaigns(req.body);
+  const username = req.user.split("@")[0];
+  console.log("USERRR", req.user)
+  const finalResult = await createMultipleCampaigns(req.body, username);
   if(finalResult !== null){ 
 
     res.status(200).send({
@@ -812,6 +817,62 @@ app.post('/api/v1/update_campaign_status', authenticate(), async(req, res)=>{
     })
   }
 });
+
+app.get("/api/v1/get_handle", async(req, res)=>{
+  const params = req.query;
+  console.log("params", params)
+  const response = await fetch(`https://bupper.sam-media.com/api/resources/login`,
+  {
+    method: 'POST',
+    headers:{
+      "Content-Type": "application/json;charset=UTF-8"
+    },
+    body:JSON.stringify(params)
+  }
+);
+const bupperUser = await response.json();
+console.log("bupperUser", bupperUser)
+
+  const resp = await fetch(`https://bupper.sam-media.com/api/resources/handle?country=${params.country}&limit=1&slug=${params.slug}`,{
+    method:'get',
+    headers:{
+      'SAM-Access-Token':`Username=\"${params.username}\", AccessToken=\"${bupperUser.accessToken}\"`
+    }
+  });
+  console.log("resp", resp)
+  const finalResult = await resp.json();
+  
+  if(finalResult !== null){ 
+    res.status(200).send({
+      code:200,
+      data:finalResult
+    })
+  }else{
+    res.status(401).send({
+      code:401,
+      message:"Not authorised to view this page"
+    })
+  }
+})
+
+app.post('/api/v1/save_scenario_configuration', authenticate(), async(req, res, next)=>{
+  
+  try{
+    const finalResult = await createScenarioConfiguration(req.body);
+    if(finalResult !== null){ 
+      res.status(200).send({
+        code:200,
+        data:finalResult
+      })
+    }
+  }catch(err){
+    res.status(500).send({
+      code:500,
+      message:`${err.message}\n\n ${err.detail ? err.detail : ""}`
+    })
+  }
+});
+
 //end of ouisys pages
 
 app.use('/*', express.static('dist'))
