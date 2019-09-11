@@ -154,6 +154,18 @@ class CampaignTable extends Component {
         }
       },
       {
+        property: "manager_name",
+        header: "Manager Name",
+        search: true,
+        sortable: true
+      },
+      {
+        property: "manager_id",
+        header: "Manager Tracking ID",
+        search: true,
+        sortable: true
+      },
+      {
         property: "affiliate_id",
         header: "Affiliate id",
         search: true,

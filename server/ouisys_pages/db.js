@@ -507,7 +507,6 @@ export async function createScenarioConfiguration(payload) {
 
 
 export async function getScenarios (){
-
 	const result = await run(
 		`
 		SELECT *
