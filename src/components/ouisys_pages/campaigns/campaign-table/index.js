@@ -149,7 +149,7 @@ class CampaignTable extends Component {
         sortable: false,
         render: datum =>{
           const url = (datum.affiliate_id === "FREE-ANY" || datum.affiliate_id === "FREE-POP") ? 
-          `https://c1.ouisys.com/${datum.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${datum.xcid}${datum.manager_id ? "?manager=" + datum.manager_id : "" }`
+          `https://c1.ouisys.com/${datum.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${datum.xcid}`
           return <a href={url} target="_blank" className="link">{url}</a>
         }
       },
@@ -317,7 +317,7 @@ class CampaignTable extends Component {
             <tbody>
               {
                 (this.state.itemsToExport.length > 0) &&  this.state.itemsToExport.map((obj, index)=>{
-                  const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}${obj.manager_id ? "?manager=" + obj.manager_id : "" }` :  `https://c1.ouisys.com/${obj.xcid}${obj.manager_id ? "?manager=" + obj.manager_id : "" }`
+                  const url = (obj.affiliate_id === "FREE-ANY" || obj.affiliate_id === "FREE-POP") ? `https://c1.ouisys.com/${obj.xcid}?offer={offer_id}` :  `https://c1.ouisys.com/${obj.xcid}`
                   return(
                     <tr key={index}>
                       <td>{obj.page}</td>

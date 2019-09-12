@@ -427,6 +427,16 @@ class ViewComponent extends Component {
                                     </div>
                                   </div>
                                 </div>
+
+            
+                              </div>
+                              <div className="os-ui-col">
+                                <div className="os-ui-form-group">
+                                  <label style={{width:"100%"}}>Operators Supported</label>
+                                  <div className="os-ui-col">
+                                    <input type="text" multiple/>
+                                  </div>
+                                </div>
                               </div>
 
                               <div className="os-ui-col">
