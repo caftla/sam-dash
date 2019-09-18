@@ -121,8 +121,9 @@ export async function createCampaign(page, country, affid, comments, scenario, s
 				, $4
 				,	$5
 				,	$6
+				,	$7
 				,	$8
-				,	$9
+				, $9
 				)
 				returning *
 			`,
