@@ -96,7 +96,7 @@ export async function getPageReleases (){
 		throw ex
 	}
 }
-export async function createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config) {
+export async function createCampaign(page, country, affid, comments, scenario, strategy, scenarios_config, username) {
 	const manager_id = encrypt(username);
 
 	console.log("MANAGER ID", decrypt("NQ"))
