@@ -512,9 +512,11 @@ const ouisys_api = "https://c1.ouisys.com";
 export const get_legals = () => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'get_legals' })
-  get({url: `${ouisys_api}/api/v1/get-all-legals`, cache: "force-cache"}, {cache: "force-cache"})
-  .then(d => {
-    dispatch({ type: 'get_legals_success', payload: d })
+  fetch(`${ouisys_api}/api/v1/get-all-legals`)
+  .then(async d => {
+
+    const data = await d.json()
+    dispatch({ type: 'get_legals_success', payload: data })
     dispatch(toggle_loader(false));
   }
   )
