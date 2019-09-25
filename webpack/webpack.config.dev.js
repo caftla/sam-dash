@@ -39,6 +39,7 @@ module.exports = {
   },
   devtool: 'inline-source-map',
   devServer: {
+    disableHostCheck: true,
     hot: true,
     host: '127.0.0.1',
     contentBase: resolve(__dirname, '../assets'),

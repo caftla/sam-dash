@@ -533,7 +533,10 @@ export const get_legals = () => (dispatch : Dispatch) => {
 export const add_legals = (payload) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'add_legals' })
-  post({url: `${ouisys_api}/api/v1/add-legals`, body:{...payload}}, {})
+  fetch(`${ouisys_api}/api/v1/add-legals`,
+    { method:"post", 
+    body:JSON.stringify({...payload})
+  })
   .then(d => {
     dispatch({ type: 'add_legals_success', payload: d })
     dispatch(toggle_loader(false));
@@ -554,7 +557,10 @@ export const add_legals = (payload) => (dispatch : Dispatch) => {
 export const update_legals = (payload) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'update_legals' })
-  post({url: `${ouisys_api}/api/v1/update-legals`, body:{...payload}}, {})
+  fetch(`${ouisys_api}/api/v1/update-legals`, {
+    method:"post",
+    body:JSON.stringify({...payload})
+  })
   .then(d => {
     dispatch({ type: 'update_legals_success', payload: d })
     dispatch(toggle_loader(false));
@@ -575,7 +581,10 @@ export const update_legals = (payload) => (dispatch : Dispatch) => {
 export const delete_legal = (id) => (dispatch : Dispatch) => {
   dispatch(toggle_loader(true));
   dispatch({ type: 'delete_legal' })
-  post({url: `${ouisys_api}/api/v1/delete-legal`, body:{id}}, {})
+  fetch(`${ouisys_api}/api/v1/delete-legal`,{
+    method:"post",
+    body:JSON.stringify({id})
+  })
   .then(d => {
     dispatch({ type: 'delete_legal_success', payload: d })
     dispatch(toggle_loader(false));

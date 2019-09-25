@@ -55,6 +55,9 @@ class ViewComponent extends Component {
 
 
   async bupperLogin(ev){
+    if(!!ev){
+      ev.preventDefault();
+    }
     const bupperUsername = localStorage.getItem("bupperUsername");
     const bupperPassword = localStorage.getItem("bupperPassword");
 
@@ -62,19 +65,30 @@ class ViewComponent extends Component {
     const password = bupperPassword != null ? bupperPassword : this.state.password;
 
     if(username != null || password != null){
-      const response = await fetch(`https://bupper.sam-media.com/api/resources/login?username=${username}&password=${encodeURIComponent(password)}`,
-        {
-          method: 'POST'
+      try{
+        const response = await fetch(`https://bupper.sam-media.com/api/resources/login?username=${username.replace(/@[^@]+$/, '')}&password=${encodeURIComponent(password)}`,
+          {
+            method: 'POST'
+          }
+        );
+        const bupperUser = await response.json();
+        if(bupperUser && bupperUser.accessToken){
+          this.setState({isBupperAuth:true});
+          const bupperUsername = localStorage.setItem("bupperUsername", username.replace(/@[^@]+$/, ''));
+          const bupperPassword = localStorage.setItem("bupperPassword", password);
+          localStorage.setItem("bpAccessToken", bupperUser.accessToken);
+          this.setState({showLogin:false});
         }
-      );
-      const bupperUser = await response.json();
-      if(bupperUser && bupperUser.accessToken){
-        this.setState({isBupperAuth:true});
-        localStorage.setItem("bpAccessToken", bupperUser.accessToken);
-        this.setState({showLogin:false});
+      }catch(err){
+        localStorage.removeItem("bupperUsername");
+        localStorage.removeItem("bupperPassword");
+        localStorage.removeItem("bpAccessToken");
+        this.setState({showLogin:true, editMode:true});
+        alert("Bupper Login Error. Wrong Username or Password. Please Try Again!");
+        throw err;
       }
     }else{
-      this.setState({showLogin:true});
+      this.setState({showLogin:true, editMode:true});
     }
   }
 
