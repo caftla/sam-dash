@@ -134,10 +134,10 @@ class CampaignTable extends Component {
       {
         property: "sam_xcid_id",
         header: "Preview",
-        search: false,
+        search: true,
         sortable: false,
         render: datum =>
-          <a href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
+          <a className="link" href={`https://c1.ouisys.com/${datum.sam_xcid_id}`} target="_blank">{`https://c1.ouisys.com/${datum.sam_xcid_id}`}</a>,
       },
       {
         property: "username",
@@ -178,7 +178,7 @@ class CampaignTable extends Component {
             </div>
           )
         },
-        align: "end"
+        align: "start"
       }
     ];
     const { publishedPages } = this.props;

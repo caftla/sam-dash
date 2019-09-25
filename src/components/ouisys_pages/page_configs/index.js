@@ -227,6 +227,11 @@ class ViewComponent extends Component {
         }
       },
       {
+        property: "added_by",
+        header: "Added By",
+        sortable: true
+      },
+      {
         property: "date_created",
         header: "Date Created",
         sortable: true,
