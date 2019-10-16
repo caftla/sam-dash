@@ -30,6 +30,8 @@ select
             then 1 else 0 end
       ) :: float as missed_good_pixels
   , sum(case when us.get_sub_method ilike '%block%' then 1 else 0 end) :: integer as blocks
+  -- , sum(case when us.landing_page_url ilike '%utm_cdn%' then 1 else 0 end) :: integer as safe
+  , sum(case when json_extract_path_text(us.query_string,'utm_cdn') <> '' then 1 else 0 end) :: integer as safe
 from user_sessions us
 left join user_subscriptions as ub on ub.rockman_id = us.rockman_id
 where us.timestamp >=  $[params.from_date_tz]$

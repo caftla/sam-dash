@@ -96,6 +96,12 @@ export default Section({
       , x => d3.format(',.0f')(100 * x.blocks_ratio)
       , data => d3.format(',.0f')(100 * data.blocks_ratio)
     ),
+    pcolumn(
+      show_label_row('Safe', 'safe_ratio')
+      , () => onSort('row', 'safe_ratio', 1)
+      , x => d3.format(',.0f')(100 * x.safe_ratio)
+      , data => d3.format(',.0f')(100 * data.safe_ratio)
+    ),
     column(
       show_label_row('Failed Sales', 'failedsales')
       , () => onSort('row', 'failedsales', 1)
@@ -143,6 +149,12 @@ export default Section({
       , () => onSort('row', 'ecpa', 1)
       , x => d3.format('0.2f')(x.ecpa)
       , data => d3.format('0.2f')(data.ecpa)
+    ),
+    column(
+      show_label_row('EPC', 'EPC')
+    , () => onSort('row', 'epc', 1)
+    , x => d3.format('0.4f')(x.epc)
+    , data => d3.format('0.2f')(data.epc)
     ),
     column(
         show_label_row('CPA', 'cpa')

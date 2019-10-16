@@ -21,6 +21,7 @@ module.exports = (params) => {
     , active: safe_div(x.sales - x.optouts, x.sales)
     , ecpa: safe_div(x.cost, x.sales)
     , cpa: safe_div(x.cost, x.pixels)
+    , epc: safe_div(x.cost, x.views)
     , pixels_ratio: safe_div(x.pixels, x.sales)
     , resubs_ratio: safe_div(x.resubs, x.sales)
     , firstbillings_and_active24: safe_div(x.firstbillings && x.optout_24h, x.sales)
@@ -36,6 +37,8 @@ module.exports = (params) => {
     , premium_sessions_ratio: safe_div(x.premium_sessions, x.views)
     , premium_sales_ratio: safe_div(x.premium_sales, x.sales)
     , blocks_ratio: safe_div(x.blocks, x.views)
+    , safe_ratio: safe_div(x.safe, x.views)
+
     // , resubs7_ratio: 1 - safe_div(x.unique_sales, x.non_unique_sales)
   })
   
@@ -62,6 +65,7 @@ module.exports = (params) => {
           , pixels_for_no_firstbilling: a.pixels_for_no_firstbilling + acc.pixels_for_no_firstbilling
           , missed_good_pixels: a.missed_good_pixels + acc.missed_good_pixels
           , blocks: a.blocks + acc.blocks
+          , safe: a.safe + acc.safe
 
         })
       , {
@@ -84,6 +88,7 @@ module.exports = (params) => {
           , pixels_for_no_firstbilling: 0
           , missed_good_pixels: 0
           , blocks: 0
+          , safe: 0
         }
     ))
   }
