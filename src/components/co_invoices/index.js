@@ -21,7 +21,7 @@ import {
 
 import { BreakdownTable, SummaryTable, LetterBody } from './Tables'
 import { DownloadPDF } from './DownloadPDF'
-import { flatten_data, get_apac_breakdown, get_eu_breakdown, get_summary, get_total_cpa, get_additional_costs, get_total_additional_cpa } from './transformations'
+import { flatten_data, get_summary, get_total_cpa, get_additional_costs, get_total_additional_cpa, get_breakdown } from './transformations'
 import Controls from './Controls'
 
 const theme = {
@@ -68,6 +68,12 @@ const props_to_params = props => {
   return mparams
 }
 
+const filter_params_from_filter_string = (filter) => R.pipe(
+  R.split(',')
+  , R.map(R.split('='))
+  , R.fromPairs
+)(filter || '-')
+
 class Coinvoices extends React.Component {
 
   props: Props
@@ -93,11 +99,7 @@ class Coinvoices extends React.Component {
   componentDidMount() {
     const params = props_to_params(this.props)
     this.props.fetch_all_affiliates()
-    const filter_params = R.pipe(
-      R.split(',')
-      , R.map(R.split('='))
-      , R.fromPairs
-    )(params.filter || '-')
+    const filter_params = filter_params_from_filter_string(params.filter)
 
     if (filter_params.affiliate_name) {     
       match({
@@ -132,47 +134,11 @@ class Coinvoices extends React.Component {
   setEmail(email){
     this.setState({ email })
   }
-  // TODO: merge two cells (for grouping by country)
-  // componentDidUpdate(){
-  //   window.addEventListener('load', this.merge_cells())
-  // }
-
-  // merge_cells = () => {
-  //   const cells = Array.from(document.querySelectorAll('td.country_code'))
-  //   const get_rowspan = x => parseInt(cells[x].getAttribute('rowspan'))
-  //   const plus_one = (x :number) => x + 2
-  //   console.log(plus_one(get_rowspan(0)))
-  //   let i
-  //   for (i = 0; i < cells.length - 1; i++) {
-  //     if (cells[i].innerHTML == cells[i + 1].innerHTML) {
-  //       cells[i].setAttribute('rowspan', plus_one(get_rowspan(i))) 
-  //       cells[i + 1].remove()
-  //     } else {
-  //       cells[i].setAttribute('rowspan', get_rowspan(i))
-  //     }
-  //   }
-  // }
-
-  // export_to_excel = (e) => {
-  //   e.preventDefault()
-  //   const workbook = XLSX.utils.table_to_book(document.querySelectorAll('.invoice'), {cellHTML:true})
-  //   const wopts = { bookType:'xlsx', bookSST:false, type:'binary' };
-
-  //   const wbout = XLSX.write(workbook,wopts);
-
-  //   const s2ab = (s) => {
-  //     const buf = new ArrayBuffer(s.length);
-  //     const view = new Uint8Array(buf);
-  //     for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
-  //     return buf;
-  //   }
-
-  //   /* the saveAs call downloads a file on the local machine */
-  //   saveAs(new Blob([s2ab(wbout)],{type:""}), `${this.props.match.params.filter}.xlsx`)
-  // }
-
+  
   render() {
     const params = props_to_params(this.props)
+    const filter_params = filter_params_from_filter_string(params.filter)
+    console.log(filter_params.affiliate_name)
     const data_component = match({
       Nothing: () => <div>Please Select Affiliate Name</div>
     , Loading: () => <div>Loading Affiliate Data...</div>
@@ -183,14 +149,45 @@ class Coinvoices extends React.Component {
       const apac_summary = get_summary(flat_data, 'Europe/Amsterdam')
       const apac_additional = get_additional_costs(flat_data, 'Europe/Amsterdam')
       const eu_additional = get_additional_costs(flat_data, 'Asia/Kuala_Lumpur')
-      const apac_breakdown = get_apac_breakdown(flat_data)
-      const eu_breakdown = get_eu_breakdown(flat_data)
+      const apac_breakdown = get_breakdown(flat_data, 'Europe/Amsterdam')
+      const eu_breakdown = get_breakdown(flat_data, 'Asia/Kuala_Lumpur')
+      const all_summary = get_summary(flat_data, '-')
+      const all_additional_cost = get_additional_costs(flat_data, '-')
+      const all_breakdown = get_breakdown(flat_data, '-')
       return (
         <div>
         { flat_data.length == 0 
           ? <div>No data was found for this affiliate</div> 
-          : <div>
+          : filter_params.affiliate_name.includes('Sam Media Affise') //affise invoice goes to LTD entity..
+            ? <div>
+                <DownloadPDF
+                filter={this.props.match.params.filter}
+                date_from={this.props.match.params.date_from}
+                date_to={this.props.match.params.date_to}
+                set_name={name => this.setName(name)}
+                set_email={email => this.setEmail(email)}
+                />
 
+                <div className="table-container">
+                  <SummaryTable
+                    data={all_summary}
+                    total_cpa={get_total_cpa(all_summary)}
+                    additional_costs={all_additional_cost}
+                    total_additional_cpa={get_total_additional_cpa(all_additional_cost)}
+                    region={'Sam Media LTD'}
+                  />
+
+                  <LetterBody name={this.state.name} email={this.state.email} />
+
+                  <BreakdownTable
+                    data={all_breakdown}
+                    total_cpa={get_total_cpa(eu_breakdown)}
+                    region='Sam Media LTD'
+                  />
+                </div>
+              </div>
+            
+            : <div>
             <DownloadPDF
               filter={this.props.match.params.filter}
               date_from={this.props.match.params.date_from}

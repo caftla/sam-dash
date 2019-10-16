@@ -146,13 +146,13 @@ class Controls extends React.Component {
       </FormSection>
       <FilterFormSection>
         <FormTitle>Affiliate Information:</FormTitle>
-        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) }
+        <InputMultiSelect name="Affiliate" onChange={ affiliate_name => this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids() ) }
           value={ this.state.affiliate_name } options={ this.props.affiliates.map(x => x.affiliate_name) } required />
           <p style={ {display: this.state.countryCodeNotSelected ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please select affiliate to proceed!</p>
 
-        <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
+        <InputMultiSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }
           value={ this.state.publisher_id } options={ this.state.publisher_ids || [] } 
-          disable={ this.state.affiliate_name.split(';').length > 1 } />
+           />
 
       </FilterFormSection>
       <FormSectionButtons>

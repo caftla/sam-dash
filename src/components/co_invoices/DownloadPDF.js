@@ -17,6 +17,12 @@ const who_am_i = R.pipe(
     , R.map(x => x.trim())
   )(!!my_data ? my_data : '')
 
+const filter_params_from_filter_string = (filter) => R.pipe(
+  R.split(',')
+  , R.map(R.split('='))
+  , R.fromPairs
+)(filter || '-')
+
 export class DownloadPDF extends React.Component {
 
   props: Props
@@ -72,7 +78,9 @@ export class DownloadPDF extends React.Component {
         e.preventDefault()
         this.setState({ downloading_pdf: true, server_error: false })
         const api_root = process.env.api_root || '' // in production api_root is the same as the client server
-        const affiliate_name = this.props.filter.replace('affiliate_name=','').split('?')[0]
+        const filter_params = filter_params_from_filter_string(this.props.filter)
+        const affiliate_name = filter_params.affiliate_name
+        const publisher_name = filter_params.publisher_name
         const date_from = this.props.date_from
         const date_to = this.props.date_to
         const { name, email } = this.state
@@ -80,6 +88,7 @@ export class DownloadPDF extends React.Component {
           body: {
             url: window.location.href
           , affiliate_name
+          , publisher_name
           , date_from
           , date_to
           , name

@@ -24,6 +24,8 @@
 
   const generate_report = async (body) => {
     const { url, affiliate_name, date_from, date_to, name, email } = body
+    const publisher_name = body.publisher_name || '-'
+
 
     const browser = await puppeteer.launch({ args: ['--disable-dev-shm-usage'] })
 
@@ -41,7 +43,9 @@
         format: 'A4'
       , printBackground: true
       , displayHeaderFooter: true
-      , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;"><img src="data:image/png;base64,${base64str}" height="80"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name : </span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From : </span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To : </span>${date_to}</p></div></div><h3 style="margin:0.1em 0">Affiliate Performance Stats</h3></div>`
+      , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;"><img src="data:image/png;base64,${base64str}" height="80"/></div><div style="flex:1;padding:0.5em 0 0.05em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name : </span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">Publisher Name : </span>${publisher_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From : </span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To : </span>${date_to}</p></div></div><h3 style="margin:0.05em 0">Affiliate Performance Stats</h3></div>`
+
+      // , headerTemplate: `<div style="border-bottom:1px solid grey;font-family:Helvetica;font-size:12px;text-align:center;width:85%;margin:0 auto"><div style="display:flex;margin:0;color:black;flex-shrink:0;flex-grow:1;text-align:left"><div style="flex:2;"><img src="data:image/png;base64,${base64str}" height="80"/></div><div style="flex:1;padding:0.5em 0"><p style="font-size:6pt"><span style="font-weight:bolder">Affiliate Name : </span>${affiliate_name}</p><p style="font-size:6pt"><span style="font-weight:bolder">From : </span>${date_from}</p><p style="font-size:6pt"><span style="font-weight:bolder">To : </span>${date_to}</p></div></div><h3 style="margin:0.1em 0">Affiliate Performance Stats</h3></div>`
       , footerTemplate: `<p style="${footerStyles}"><span class="pageNumber"></span>/<span class="totalPages"></span></p>`
       , margin: { top: 160, bottom: 50 }
       })
