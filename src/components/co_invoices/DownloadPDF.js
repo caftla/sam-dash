@@ -80,7 +80,7 @@ export class DownloadPDF extends React.Component {
         const api_root = process.env.api_root || '' // in production api_root is the same as the client server
         const filter_params = filter_params_from_filter_string(this.props.filter)
         const affiliate_name = filter_params.affiliate_name
-        const publisher_name = filter_params.publisher_name
+        const publisher_name = filter_params.publisher_id
         const date_from = this.props.date_from
         const date_to = this.props.date_to
         const { name, email } = this.state
