@@ -2,7 +2,7 @@ import React, {Component } from 'react'
 import { connect } from 'react-redux'
 import { Route } from "react-router"
 import { grommet } from "grommet/themes";
-import { Grommet, Tabs, Tab, Box, ThemeContext} from "grommet";
+import { Grommet, Tabs, Tab, Box, ThemeContext, Button} from "grommet";
 import { deepMerge } from "grommet/utils";
 import { css } from "styled-components";
 
@@ -52,7 +52,6 @@ class ViewComponent extends Component {
     return (
       <Grommet theme={customTheme}>
           <div className="top-spacer">
-          
             <div id="tabs-area">
               <SubMenu id="pages"/>
               <h1>Ouisys Pages</h1>

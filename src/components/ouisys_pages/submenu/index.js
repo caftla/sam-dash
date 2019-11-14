@@ -20,6 +20,7 @@ console.log(id)
     id:"page-configs"
   }]
   return(
+    <>
     <ul>
       {
         links.map((obj, index)=>{
@@ -29,5 +30,8 @@ console.log(id)
         })
       }
     </ul>
+
+    <button onClick={()=>window.location.href = "https://panel.ouisys.com/campaigns/browse"} style={{backgroundColor:"red", fontWeight:"bold", width:"100%", float:"none"}}>Click here to try the new Ouisys-panel Dashboard</button>
+    </>
   )
 }
