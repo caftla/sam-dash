@@ -138,12 +138,12 @@ export default class Controls extends React.Component {
       , tabSorter: params.tabSorter
     }
 
-    this.reload_publisher_ids()
+    this.reload_publisher_ids(props)
   }
 
-  reload_publisher_ids() {
+  reload_publisher_ids(props) {
     if(!!this.state.affiliate_name && this.state.affiliate_name != '-') {
-      api_get(this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
+      api_get(this.state.date_from, this.state.date_to, this.get_filter_string_by_fields(props, ['country_code', 'operator_code']), '-', '-', 'publisher_id', false)
       .then(R.pipe(
           R.chain(x => x.data)
         , R.chain(x => x.data)
@@ -157,13 +157,13 @@ export default class Controls extends React.Component {
     }
   }
 
-  get_filter_string_by_fields(fields) {
+  get_filter_string_by_fields(props, fields) {
     const affiliate_ids = R.pipe(
         R.filter(x => x.affiliate_name == this.state.affiliate_name)
       , R.map(x => x.affiliate_ids)
       , R.chain(x => x)
       , R.join(';')
-    )(this.props.affiliates)
+    )(props.affiliates)
     return R.pipe(
         R.map(k => [k, this.state[k]])
       , R.reject(([key, value]) => !value || value == '-')
@@ -176,7 +176,7 @@ export default class Controls extends React.Component {
 
   get_filter_string() {
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    return this.get_filter_string_by_fields(["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
+    return this.get_filter_string_by_fields(this.props, ["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1"].concat(with_publisher_id ? ["publisher_id"] : []))
   }
 
   render() {
