@@ -27,7 +27,7 @@ const makeQuery = (query_template: string, params: Object) => {
 
       let result = !param_value || 
           param_value == "-" ? 
-            `'-'` 
+            `'-' :: text` 
         : ["screen_width", "screen_height"].some(i => i == param_value) ? 
           `round(${table}.${param_value} / 50) :: Int * 50` 
         : "screen_size" == param_value ? 

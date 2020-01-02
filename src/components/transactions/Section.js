@@ -25,52 +25,82 @@ export default Section({
       , { width: width(params.row) }
     ),
     column(
-        show_label_row('Total', 'total')
-      , () => onSort('row', 'total', 1)
-      , x => d3.format(',')(x.total) 
-      , data => d3.format(',')(data.total)
+        show_label_row('Users', 'total_users')
+      , () => onSort('row', 'total_users', 1)
+      , x => d3.format(',')(x.total_users) 
+      , data => d3.format(',')(data.total_users)
+    ),
+    pcolumn(
+      show_label_row('Paying Users', 'paying_users_rate')
+    , () => onSort('row', 'paying_users_rate', 1)
+    , x => d3.format('.1%')(x.paying_users_rate) 
+    , data => d3.format('.1%')(data.paying_users_rate)
     ),
     column(
-        show_label_row('Delivered', 'delivered')
-      , () => onSort('row', 'delivered', 1)
-      , x => d3.format(',')(x.delivered) 
-      , data => d3.format(',')(data.delivered)
+        show_label_row('Total', 'total_transactions')
+      , () => onSort('row', 'total_transactions', 1)
+      , x => d3.format(',')(x.total_transactions) 
+      , data => d3.format(',')(data.total_transactions)
     ),
     column(
-        show_label_row('Pending', 'pending')
-      , () => onSort('row', 'pending', 1)
-      , x => d3.format(',')(x.pending) 
-      , data => d3.format(',')(data.pending)
+        show_label_row('Delivered', 'total_delivered')
+      , () => onSort('row', 'total_delivered', 1)
+      , x => d3.format(',')(x.total_delivered) 
+      , data => d3.format(',')(data.total_delivered)
     ),
     column(
-        show_label_row('Failed', 'failed')
-      , () => onSort('row', 'failed', 1)
-      , x => d3.format(',')(x.failed) 
-      , data => d3.format(',')(data.failed)
+        show_label_row('Pending', 'total_pending')
+      , () => onSort('row', 'total_pending', 1)
+      , x => d3.format(',')(x.total_pending) 
+      , data => d3.format(',')(data.total_pending)
     ),
     column(
-        show_label_row('Refunded', 'refunded')
-      , () => onSort('row', 'refunded', 1)
-      , x => d3.format(',')(x.refunded) 
-      , data => d3.format(',')(data.refunded)
+        show_label_row('Failed', 'total_failed')
+      , () => onSort('row', 'total_failed', 1)
+      , x => d3.format(',')(x.total_failed) 
+      , data => d3.format(',')(data.total_failed)
     ),
     column(
-        show_label_row('Unknown', 'unknown')
-      , () => onSort('row', 'unknown', 1)
-      , x => d3.format(',')(x.unknown) 
-      , data => d3.format(',')(data.unknown)
+        show_label_row('Refunded', 'total_refunded')
+      , () => onSort('row', 'total_refunded', 1)
+      , x => d3.format(',')(x.total_refunded) 
+      , data => d3.format(',')(data.total_refunded)
     ),
     pcolumn(
         show_label_row('Delivered', 'delivered_rate')
       , () => onSort('row', 'delivered_rate', 1)
-      , x => d3.format('0.0f')(100 * x.delivered_rate)
-      , data => d3.format('0.0f')(100 * data.delivered_rate)
+      , x => d3.format('.1%')(x.delivered_rate)
+      , data => d3.format('.1%')(data.delivered_rate)
     ),
-    pcolumn(
-        show_label_row('Failed', 'failed_rate')
-      , () => onSort('row', 'failed_rate', 1)
-      , x => d3.format('0.0f')(100 * x.failed_rate)
-      , data => d3.format('0.0f')(100 * data.failed_rate)
+    // pcolumn(
+    //     show_label_row('Failed', 'failed_rate')
+    //   , () => onSort('row', 'failed_rate', 1)
+    //   , x => d3.format('.1%')(x.failed_rate)
+    //   , data => d3.format('.1%')(data.failed_rate)
+    // ),
+    column(
+      show_label_row('Median Delivered / Paying User', 'median_delivered_per_paying_user')
+    , () => onSort('row', 'median_delivered_per_paying_user', 1)
+    , x => d3.format(',')(x.median_delivered_per_paying_user) 
+    , data => d3.format(',')(data.median_delivered_per_paying_user)
+    ),
+    column(
+      show_label_row('Avg Delivered / Paying User', 'avg_delivered_per_paying_user')
+    , () => onSort('row', 'avg_delivered_per_paying_user', 1)
+    , x => d3.format('.1f')(x.avg_delivered_per_paying_user) 
+    , data => d3.format('.1f')(data.avg_delivered_per_paying_user)
+    ),
+    column(
+      show_label_row('Transactions / Paying User', 'avg_count_of_transactions_for_a_paying_user')
+    , () => onSort('row', 'avg_count_of_transactions_for_a_paying_user', 1)
+    , x => d3.format('.1f')(x.avg_count_of_transactions_for_a_paying_user) 
+    , data => d3.format('.1f')(data.avg_count_of_transactions_for_a_paying_user)
+    ),
+    column(
+      show_label_row('AVG Tariff / Paying User', 'avg_tariff_per_paying_user')
+    , () => onSort('row', 'avg_tariff_per_paying_user', 1)
+    , x => d3.format('.1f')(x.avg_tariff_per_paying_user) 
+    , data => d3.format('.1f')(data.avg_tariff_per_paying_user)
     ),
   ])
 })

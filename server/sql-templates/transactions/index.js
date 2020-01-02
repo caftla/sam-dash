@@ -16,23 +16,26 @@ module.exports = (params) => {
     
     
   const add_ratios = x => R.merge(x, {
-      pending_rate: safe_div(x.pending, x.total)
-    , delivered_rate: safe_div(x.delivered, x.total)
-    , failed_rate: safe_div(x.failed, x.total)
+      pending_rate: safe_div(x.total_pending, x.total_transactions)
+    , delivered_rate: safe_div(x.total_delivered, x.total_transactions)
+    , failed_rate: safe_div(x.total_failed, x.total_transactions)
+    , paying_users_rate: safe_div(x.paying_users, x.total_users)
   })
   
  const reduce_data = data => {
    return add_ratios(data.reduce(
       (acc, a) =>
         R.merge(acc, {
-            pending: a.pending + acc.pending
-          , delivered: a.delivered + acc.delivered
-          , refunded: a.refunded + acc.refunded
-          , failed: a.failed + acc.failed
+            total_pending: a.total_pending + acc.total_pending
+          , total_delivered: a.total_delivered + acc.total_delivered
+          , total_refunded: a.total_refunded + acc.total_refunded
+          , total_failed: a.total_failed + acc.total_failed
           , unknown: a.unknown + acc.unknown
-          , total: a.total + acc.total
+          , total_transactions: a.total_transactions + acc.total_transactions
+          , total_users: +a.total_users + acc.total_users
+          , paying_users: +a.paying_users + acc.paying_users
         })
-      , {pending: 0, delivered: 0, refunded: 0, failed: 0, unknown: 0, total: 0}
+      , {total_pending: 0, total_delivered: 0, total_refunded: 0, total_failed: 0, unknown: 0, total_transactions: 0, total_users: 0, paying_users: 0}
     ))
   }
   
@@ -48,18 +51,28 @@ module.exports = (params) => {
             return R.merge(reduced_section, {
                 section
               , page: data[0].page
+              , median_delivered_per_paying_user: data[0].median_delivered_per_paying_user_at_section_level
+              , avg_delivered_per_paying_user: data[0].avg_delivered_per_paying_user_at_section_level
+              , avg_count_of_transactions_for_a_paying_user: data[0].count_of_transactions_for_a_paying_user_at_section_level
+              , avg_tariff_per_paying_user: data[0].avg_tariff_per_paying_user_at_section_level
               , data: R.pipe(
-                  R.map(x => R.merge(x, { section_total_ratio: safe_div(x.total, reduced_section.total) }))
+                  R.map(x => R.merge(x, { section_total_transactions_ratio: safe_div(x.total_transactions, reduced_section.total_transactions) }))
                 , R.sortBy(x => is_date_param(params.row) ? new Date(x.row).valueOf() : x.row)
               )(data) 
             })
         })
         , R.sortBy(x => {
-           return is_date_param(params.section) ? new Date(x.section).valueOf() : x.total * -1
+           return is_date_param(params.section) ? new Date(x.section).valueOf() : x.total_transactions * -1
         })
       ))
     , R.toPairs
-    , R.map(([page, data]) => R.merge(reduce_data(data), {page, data}))
-    , R.sortBy(x => is_date_param(params.page) ? new Date(x.page).valueOf() : x.total * -1)
+    , R.map(([page, data]) => R.merge(reduce_data(data), {
+          page
+          , median_delivered_per_paying_user: data[0].data[0].median_delivered_per_paying_user_at_page_level
+          , avg_delivered_per_paying_user: data[0].avg_delivered_per_paying_user_at_page_level
+          , avg_count_of_transactions_for_a_paying_user: data[0].data[0].count_of_transactions_for_a_paying_user_at_page_level
+          , avg_tariff_per_paying_user: data[0].data[0].avg_tariff_per_paying_user_at_page_level
+        , data}))
+    , R.sortBy(x => is_date_param(params.page) ? new Date(x.page).valueOf() : x.total_transactions * -1)
   )
 }
