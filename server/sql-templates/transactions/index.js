@@ -69,7 +69,7 @@ module.exports = (params) => {
     , R.map(([page, data]) => R.merge(reduce_data(data), {
           page
           , median_delivered_per_paying_user: data[0].data[0].median_delivered_per_paying_user_at_page_level
-          , avg_delivered_per_paying_user: data[0].avg_delivered_per_paying_user_at_page_level
+          , avg_delivered_per_paying_user: data[0].data[0].avg_delivered_per_paying_user_at_page_level
           , avg_count_of_transactions_for_a_paying_user: data[0].data[0].count_of_transactions_for_a_paying_user_at_page_level
           , avg_tariff_per_paying_user: data[0].data[0].avg_tariff_per_paying_user_at_page_level
         , data}))

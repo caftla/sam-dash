@@ -25,7 +25,7 @@ export default Section({
       , { width: width(params.row) }
     ),
     column(
-        show_label_row('Users', 'total_users')
+        show_label_row('Unique Users', 'total_users')
       , () => onSort('row', 'total_users', 1)
       , x => d3.format(',')(x.total_users) 
       , data => d3.format(',')(data.total_users)
@@ -79,7 +79,7 @@ export default Section({
     //   , data => d3.format('.1%')(data.failed_rate)
     // ),
     column(
-      show_label_row('Median Delivered / Paying User', 'median_delivered_per_paying_user')
+      show_label_row('Med Delivered / Paying User', 'median_delivered_per_paying_user')
     , () => onSort('row', 'median_delivered_per_paying_user', 1)
     , x => d3.format(',')(x.median_delivered_per_paying_user) 
     , data => d3.format(',')(data.median_delivered_per_paying_user)
@@ -97,7 +97,7 @@ export default Section({
     , data => d3.format('.1f')(data.avg_count_of_transactions_for_a_paying_user)
     ),
     column(
-      show_label_row('AVG Tariff / Paying User', 'avg_tariff_per_paying_user')
+      show_label_row('Avg Tariff / Paying User', 'avg_tariff_per_paying_user')
     , () => onSort('row', 'avg_tariff_per_paying_user', 1)
     , x => d3.format('.1f')(x.avg_tariff_per_paying_user) 
     , data => d3.format('.1f')(data.avg_tariff_per_paying_user)

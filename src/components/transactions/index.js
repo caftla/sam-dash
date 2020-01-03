@@ -40,4 +40,4 @@ export default connect(
       , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
       , set_params
     }
-)(Index({make_path, Tabs, Controls, require_filter: true}))
+)(Index({make_path, Tabs, Controls, only_load_data_on_user_action: true}))
