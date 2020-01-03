@@ -38,6 +38,6 @@ export default connect(
       , fetch_data: fetch_transactions
       , cleanup_fetch_data: cleanup_fetch_transactions
       , sort_row_filter_page_section_row, sort_row_filter_page_section, min_row_filter_page_section_row
-      , set_params 
+      , set_params
     }
-)(Index({make_path, Tabs, Controls}))
+)(Index({make_path, Tabs, Controls, require_filter: true}))

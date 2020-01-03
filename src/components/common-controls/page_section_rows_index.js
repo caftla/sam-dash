@@ -82,7 +82,7 @@ export const props_to_params = props => {
 
 export default function(component_params) {
 
-  const { make_path, Tabs, Controls, breakdown_list, require_filter, render, DataComponent} = component_params
+  const { make_path, Tabs, Controls, breakdown_list, require_filter, render, DataComponent, only_load_data_on_user_action} = component_params
 
   const make_url = params => {
     const sortToQuery = (type, { field, order, minViews, minSales }) => `${type}=${field},${order},${minViews},${minSales}`
@@ -161,10 +161,12 @@ export default function(component_params) {
                     , R.join(',')
                   )(filter)
 
-                  nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)  
+                  if(!only_load_data_on_user_action)
+                    nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)  
                 }
               } else {
-                nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
+                if(!only_load_data_on_user_action)
+                  nextProps.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
               }
             }
           }
@@ -256,6 +258,7 @@ export default function(component_params) {
                     countries={ all_countries }
                     affiliates={ all_affiliates }
                     sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
+                    fetch_data={this.props.fetch_data}
                     set_params={ params => {
 
                       this.props.set_params(params)

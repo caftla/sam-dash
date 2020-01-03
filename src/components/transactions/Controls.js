@@ -230,19 +230,22 @@ export default class Controls extends React.Component {
           , R.join(',')
           , x => !x ? '-' : x
         )(["country_code", "operator_code", "gateway", "service_identifier1"])
-        this.props.set_params({
-            date_from: this.state.date_from.split('T')[0]
-          , date_to: this.state.date_to.split('T')[0]
-          , timezone: this.state.timezone
-          , filter: this.get_filter_string(false)
-          , page: this.state.page
-          , section: this.state.section
-          , row: this.state.row
-          , nocache: this.state.nocache
-          , tabSorter: this.state.tabSorter
-          , sectionSorter: this.state.sectionSorter
-          , rowSorter: this.state.rowSorter
-        })
+        const params = {
+          date_from: this.state.date_from.split('T')[0]
+        , date_to: this.state.date_to.split('T')[0]
+        , timezone: this.state.timezone
+        , filter: this.get_filter_string(false)
+        , page: this.state.page
+        , section: this.state.section
+        , row: this.state.row
+        , nocache: this.state.nocache
+        , tabSorter: this.state.tabSorter
+        , sectionSorter: this.state.sectionSorter
+        , rowSorter: this.state.rowSorter
+      }
+        this.props.set_params(params)
+        this.props.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
+
       } }>
         GO
       </Submit>
