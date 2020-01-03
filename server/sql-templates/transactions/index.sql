@@ -36,44 +36,6 @@ with S as (
   group by S.row, S.section, S.page, S.rockman_id
 )
 , B_rsp AS (
-
-  with S as (
-  select 
-    $[params.f_page('t', 'timestamp', {no_timezone: 0})]$ as page
-  , $[params.f_section('t', 'timestamp', {no_timezone: 0})]$ as section
-  , $[params.f_row('t', 'timestamp', {no_timezone: 0})]$ as row
-  , t.rockman_id 
-  , (case when t.dnstatus = 'Delivered' then 1 else null end) :: float as delivered
-  , (case when t.dnstatus = 'Pending' then 1 else null end) :: float as pending
-  , (case when t.dnstatus = 'Refunded' then 1 else null end) :: float as refunded
-  , (case when t.dnstatus = 'Failed' then 1 else null end) :: float as failed
-  , 1 :: float as transactions
-  , (case when t.dnstatus = 'Delivered' then t.tariff else 0 end) :: float as total_tariff_per_user
-  , (case when t.dnstatus = 'Delivered' then t.tariff else null end) :: float as avg_tariff_per_paying_user
-  , sum(case when t.dnstatus = 'Delivered' then 1 else 0 end) over (PARTITION by t.rockman_id, row, section, page)  as count_of_delivered_transactions_for_this_user_on_this_day
-  from transactions t
-  where t.timestamp >= $[params.from_date_tz]$
-    and t.timestamp < $[params.to_date_tz]$
-    and t.tariff > 0
-    and $[params.f_filter('t')]$
-)
-, T AS (
-  select 
-    S.row
-  , S.section
-  , S.page
-  , S.rockman_id
-  , SUM(S.delivered) as delivered
-  , SUM(S.pending) as pending
-  , SUM(S.refunded) as refunded
-  , SUM(S.failed) as failed
-  , SUM(transactions) as transactions
-  , SUM(total_tariff_per_user) as total_tariff_per_user
-  , avg(avg_tariff_per_paying_user) as avg_tariff_per_paying_user
-  , SUM(CASE WHEN count_of_delivered_transactions_for_this_user_on_this_day > 0 then S.transactions else null END) as count_of_transactions_for_a_paying_user
-  from S
-  group by S.row, S.section, S.page, S.rockman_id
-)
   select  
     T.row
   , T.section
