@@ -232,7 +232,7 @@ export default function(component_params) {
             } />
 
       const data_component = match({
-          Nothing: () => <div style={ {margin: '2em'} }>{(params.filter == '-' && require_filter) ? 'Please select some filters first' : 'Nothing' } </div>
+          Nothing: () => <div style={ {margin: '2em'} }>{(params.filter == '-' && require_filter ) ? 'Please select some filters first' : !!only_load_data_on_user_action ? 'Press GO!' : 'Nothing' } </div>
         , Loading: () => <div>Loading</div>
         , Error: (error) => <div>Error</div>
         , Loaded: (data) => maybe.isNothing(this.props.affiliates_mapping)
