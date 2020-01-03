@@ -244,7 +244,7 @@ export default class Controls extends React.Component {
         , rowSorter: this.state.rowSorter
       }
         this.props.set_params(params)
-        this.props.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
+        // this.props.fetch_data(params.timezone, params.date_from, params.date_to, params.filter, params.page, params.section, params.row, params.nocache)
 
       } }>
         GO
