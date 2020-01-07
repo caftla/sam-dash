@@ -55,10 +55,10 @@ import Arpu from './components/arpu'
 import ConvertingIPs from './components/converting_ips'
 import MonthlyReports from './components/monthly_reports'
 import DailyReportsArchive from './components/daily_reports_archive'
-import OuisysPages from './components/ouisys_pages'
-import Legals from './components/ouisys_pages/legals'
-import Campaigns from './components/ouisys_pages/campaigns'
-import PageConfigs from './components/ouisys_pages/page_configs'
+// import OuisysPages from './components/ouisys_pages'
+// import Legals from './components/ouisys_pages/legals'
+// import Campaigns from './components/ouisys_pages/campaigns'
+// import PageConfigs from './components/ouisys_pages/page_configs'
 import NotFound from './components/404'
 import { Body } from './components/Styled'
 import { fromQueryString } from './helpers'
@@ -191,7 +191,7 @@ function Wrap(WrappedComponent) {
 
               <a href="/ouisys-flow-events/" className={ this.state.route == 'ouisys-flow-events' ? 'active' : ''  }>Flow</a>
 
-              <a href="/ouisys-pages/" className={ this.state.route == 'ouisys-pages' ? 'active' : ''  }>Ouisys Pages</a>
+              <a href="https://panel.ouisys.com/"  target="_blank" rel="noopener noreferrer" className={ this.state.route == 'ouisys-pages' ? 'active' : ''  }>Ouisys Pages</a>
 
               { this.state.route != 'login' 
               
@@ -299,10 +299,10 @@ const main_bottom = <Provider store={store}>
         <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
         <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
-        <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
+        {/* <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
         <Route path="/ouisys-pages/legals" exact={true} component={WrapAndAuth(Legals)} />
         <Route path="/ouisys-pages/campaigns" exact={true} component={WrapAndAuth(Campaigns)} />
-        <Route path="/ouisys-pages/page-configs" exact={true} component={WrapAndAuth(PageConfigs)} />
+        <Route path="/ouisys-pages/page-configs" exact={true} component={WrapAndAuth(PageConfigs)} /> */}
 
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
