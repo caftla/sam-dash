@@ -43,16 +43,22 @@ export default Section({
       , data => d3.format(',')(data.total_transactions)
     ),
     column(
-        show_label_row('Delivered', 'total_delivered')
-      , () => onSort('row', 'total_delivered', 1)
-      , x => d3.format(',')(x.total_delivered) 
-      , data => d3.format(',')(data.total_delivered)
+      show_label_row('Pending 24+', 'transactions_pending_for_longer_then_one_day')
+    , () => onSort('row', 'transactions_pending_for_longer_then_one_day', 1)
+    , x => d3.format(',')(x.transactions_pending_for_longer_then_one_day)
+    , data => d3.format(',')(data.transactions_pending_for_longer_then_one_day)
     ),
     column(
         show_label_row('Pending', 'total_pending')
       , () => onSort('row', 'total_pending', 1)
       , x => d3.format(',')(x.total_pending) 
       , data => d3.format(',')(data.total_pending)
+    ),
+    column(
+      show_label_row('Delivered', 'total_delivered')
+    , () => onSort('row', 'total_delivered', 1)
+    , x => d3.format(',')(x.total_delivered) 
+    , data => d3.format(',')(data.total_delivered)
     ),
     column(
         show_label_row('Failed', 'total_failed')
