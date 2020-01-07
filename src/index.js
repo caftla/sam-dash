@@ -191,7 +191,7 @@ function Wrap(WrappedComponent) {
 
               <a href="/ouisys-flow-events/" className={ this.state.route == 'ouisys-flow-events' ? 'active' : ''  }>Flow</a>
 
-              <a href="/ouisys-pages/" className={ this.state.route == 'ouisys-pages' ? 'active' : ''  }>Ouisys Pages</a>
+              <a href="https://panel.ouisys.com/"  target="_blank" rel="noopener noreferrer" className={ this.state.route == 'ouisys-pages' ? 'active' : ''  }>Ouisys Pages</a>
 
               { this.state.route != 'login' 
               
@@ -299,10 +299,10 @@ const main_bottom = <Provider store={store}>
         <Route path="/monthly_reports/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(MonthlyReports)} />
         <Route path="/daily_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
         <Route path="/hourly_reports_archive/:date_from" component={WrapAndAuth(DailyReportsArchive)} />
-        <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
+        {/* <Route path="/ouisys-pages" exact={true} component={WrapAndAuth(OuisysPages)} />
         <Route path="/ouisys-pages/legals" exact={true} component={WrapAndAuth(Legals)} />
         <Route path="/ouisys-pages/campaigns" exact={true} component={WrapAndAuth(Campaigns)} />
-        <Route path="/ouisys-pages/page-configs" exact={true} component={WrapAndAuth(PageConfigs)} />
+        <Route path="/ouisys-pages/page-configs" exact={true} component={WrapAndAuth(PageConfigs)} /> */}
 
         <Route exact path="*" component={Wrap(NotFound)} >
           <Route Route exact path="*" component={Wrap(NotFound)} />
