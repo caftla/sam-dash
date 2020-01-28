@@ -231,7 +231,7 @@ export default class Controls extends React.Component {
         <InputSelect name="Gateway" onChange={ gateway => this.setState({ gateway }) }
           value={ this.state.gateway } options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('gateways', []) } />
         <InputSelect name="Affiliate" onChange={ affiliate_name => 
-            this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids()) 
+            this.setState({ affiliate_name, publisher_ids: [] }, () => this.reload_publisher_ids(this.props)) 
           }
           value={ this.state.affiliate_name } options={ get_options('affiliate_names') } />
         <InputSelect name="Publisher" onChange={ publisher_id => this.setState({ publisher_id }) }

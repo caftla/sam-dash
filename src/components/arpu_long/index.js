@@ -30,6 +30,7 @@ export default connect(
       , sort: state.sort
       , all_countries: state.all_countries 
       , all_affiliates: state.all_affiliates
+      , affiliates: state.all_affiliates
       , controls: state.controls
     })
   , {
