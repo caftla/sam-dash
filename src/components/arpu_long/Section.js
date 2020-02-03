@@ -59,10 +59,16 @@ export default Section({
       , data => d3.format('0.0f')(data.active * 100)
     ),
     pcolumn(
-      show_label_row('PaidAct', 'paid_active')
-      , () => onSort('row', 'paid_active', 1)
-      , x => d3.format('0.0f')(x.paid_active * 100)
-      , data => d3.format('0.0f')(data.paid_active * 100)
+      show_label_row('Paid', 'paid_ratio')
+      , () => onSort('row', 'paid_ratio', 1)
+      , x => d3.format('0.0f')(x.paid_ratio * 100)
+      , data => d3.format('0.0f')(data.paid_ratio * 100)
+    ),
+    pcolumn(
+      show_label_row('PaidAct', 'paid_active_ratio')
+      , () => onSort('row', 'paid_active_ratio', 1)
+      , x => d3.format('0.0f')(x.paid_active_ratio * 100)
+      , data => d3.format('0.0f')(data.paid_active_ratio * 100)
     ),
     column(
         show_label_row('eCPA', 'ecpa')

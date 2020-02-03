@@ -11,10 +11,17 @@ select
   , sum(case when us.resubscribe > 0 then 1 else 0 end) :: float as resubs
   , sum (
       case when 
-            (us.tb_three_month_revenue + us.tb_4th_month_revenue + us.tb_5th_month_revenue  + us.tb_6th_month_revenue  + us.tb_7th_month_revenue + us.tb_8th_month_revenue + us.tb_9th_month_revenue + us.tb_10th_month_revenue + us.tb_11th_month_revenue + us.tb_12th_month_revenue) > 0
-        and (us.optout = 0 or us.optout is null)
+            (tb > 0)
+            and
+            (us.optout = 0 or us.optout is null)
         then 1 else 0 end
-  ) as paid_active
+  ) :: float as paid_active
+  , sum(
+      case when 
+              (tb > 0)
+             
+          then 1 else 0 end
+  ) :: float as paid
   , sum(case when 
       us.firstbilling > 0 and ((us.optout = 0 or us.optout is null) or date_diff('hours', us.sale_timestamp, us.optout_timestamp) > 72)
       then 1 else 0 end
