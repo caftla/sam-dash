@@ -37,7 +37,7 @@ import registerForPushNotifications, { getSubscription } from "../push"
 const { format: d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 
-const formatMoney = d3Format('.3s')
+const formatMoney = d3Format(',.3r')
 const formatARPU = x => isNaN(x) || x === null ? '':  d3Format('.2f')(x)
 const formatSales = x=> isNaN(x) || x === null ? '' : d3Format(",.2r")(x)
 const formatPercent = d3Format(".0%")
@@ -63,7 +63,8 @@ class Home extends React.Component {
   constructor(props: HomeProps) {
     super(props)
     this.state = {
-      push_enabled: false
+      push_enabled: false,
+      targets_sort: 'cost desc'
     }
   }
 
@@ -133,6 +134,15 @@ class Home extends React.Component {
       }
     ]
 
+    const sortF = ({
+      "cost desc": ([country_code, [now, before]]) => now.cost * -1,
+      "revenue desc": ([country_code, [now, before]]) => now.revenue * -1,
+      "sales desc": ([country_code, [now, before]]) => ((now.dmb_sales || 0) + (now.aff_sales || 0))  * -1,
+      "target.cost desc": ([country_code, [now, before]]) => ((now.min_dmb_sales || 0) + (now.min_aff_sales || 0)) * (now.ecpa_target || 0) * -1,
+      "target.sales desc": ([country_code, [now, before]]) => ((now.min_dmb_sales || 0) + (now.min_aff_sales || 0)),
+      "country_code asc": ([country_code, [now, before]]) => country_code,
+    })[this.state.targets_sort]
+
     return <div style={{ margin: '24px' }}>
       <div style={{ margin: '80px 80px' }}>
         {!this.state.push_enabled &&
@@ -152,7 +162,7 @@ class Home extends React.Component {
         // !new_feature_check
         // ? <NewFeatures>
         //   <h3>Sigma has a new feature!</h3>
-        //   <p>You can now find user supscriptions and transactions details by MSISDN in the "Subscriptions" report.</p>
+        //   <p>You can now find user subscriptions and transactions details by MSISDN in the "Subscriptions" report.</p>
         //   <Submit onClick={ e => {
         //     e.preventDefault()
         //     document.getElementsByClassName("newFeature")[0].style.display = "none";
@@ -165,6 +175,18 @@ class Home extends React.Component {
       <p>
         
       </p>
+      <div style={{textAlign: 'right', marginBottom: '12px'}}>
+        Sort by: <select value={this.state.targets_sort} onChange={ev => {
+          this.setState({targets_sort: ev.target.value})
+        }}>
+          <option value="cost desc">Cost DESC</option>
+          <option value="revenue desc">Revenue DESC</option>
+          <option value="sales desc">Sales DESC</option>
+          <option value="target.cost desc">Min Target Cost DESC</option>
+          <option value="target.sales desc">Min Target Sales DESC</option>
+          <option value="country_code asc">Country Code ASC</option>
+        </select>
+      </div>
       {
         this.props.home_targets({
           Nothing: () => "Nothing",
@@ -175,6 +197,7 @@ class Home extends React.Component {
               R.pipe(
                 R.groupBy(d => d.country_code)
                 , R.toPairs
+                , R.sortBy(sortF)
               )(data)
               .map(([country_code, [now, before]]) => {
                 
@@ -184,6 +207,7 @@ class Home extends React.Component {
                 const is_more_than_aff_ecpa_targets = (now.aff_ecpa) > now.ecpa_target * 1.1
                 const dmb_sales_achievement = !now.max_dmb_sales ? null : 1 - ((now.max_dmb_sales - now.dmb_sales / 7 ) / (now.max_dmb_sales - now.min_dmb_sales))
                 const aff_sales_achievement = !now.max_aff_sales ? null : 1 - ((now.max_aff_sales - now.aff_sales / 7 ) / (now.max_aff_sales - now.min_aff_sales))
+                const has_no_targets = !now.min_dmb_sales && !now.min_aff_sales
 
                 return <tbody className={`
                   ${is_less_than_aff_sales_targets ? 'less-than-aff-sales-targets' : ''}
@@ -192,25 +216,27 @@ class Home extends React.Component {
                   ${is_more_than_dmb_ecpa_targets ? 'more-than-dmb-ecpa-targets' : ''}
                   ${aff_sales_achievement > 0.5 ? 'achieving-aff' : ''}
                   ${dmb_sales_achievement > 0.5 ? 'achieving-dmb' : ''}
+                  ${has_no_targets ? 'has-no-targets' : ''}
                 `} style={{marginBottom: '12px'}}>
                   <tr className='main-titles'>
-                    <th rowspan={5} className="country_code">{country_code}</th>
+                    <th rowspan={5} className="country_code">
+                      <a href={`https://notion-dashboard.sam-media.com/dashboard/${country_code}`} target="_blank">{country_code}</a>
+                    </th>
                     <th>{/* Date */}</th>
                     <th colspan={3}>Affiliates</th>
                     <th colspan={3}>DMB</th>
-                    <th colspan={1} className='cost'>Monthly Cost</th>
-                    <th colspan={1} className='revenue'>Monthly Revenue</th>
+                    <th colspan={1} rowspan={2} className='cost'>Monthly Cost</th>
+                    <th colspan={1} rowspan={2} className='revenue'>Monthly Revenue</th>
                   </tr>
                   <tr className='aff-dmb-titles'>             
                     <th>{/* Date */}</th>
-                    <th>Sales</th>
+                    <th>Daily Sales</th>
                     <th>eCPA</th>
                     <th>ARPU 7</th>
-                    <th>Sales</th>
+                    <th>Daily Sales</th>
                     <th>eCPA</th>
                     <th>ARPU 7</th>
-                    <th>{/* Cost */}</th>
-                    <th>{/* Revenue */}</th>
+
                   </tr>
                   <tr className='targets'>
                     <td>{/* Date */}</td>
@@ -236,6 +262,8 @@ class Home extends React.Component {
                     </td>
                     <td>
                       {/* Cost */}
+                      <div className='min'>Min: {formatMoney((now.min_dmb_sales + now.min_aff_sales) * now.ecpa_target * 30.5)}</div>
+                      <div className='max'>Max: {formatMoney((now.max_dmb_sales + now.max_aff_sales) * now.ecpa_target * 30.5)}</div>
                     </td>
                     <td>
                       {/* Revenue */}
@@ -245,7 +273,7 @@ class Home extends React.Component {
                     <td className="date">
                       {now.day.split('T')[0]}
                     </td>
-                    <td className='aff sales'>
+                    <td className='aff sales' title="Average of Sales by Affiliates in the past 7 days">
                       {formatSales(now.aff_sales / 7)}
                       {
                         !!now.min_aff_sales ?
@@ -253,13 +281,13 @@ class Home extends React.Component {
                         : ''
                       }
                     </td>
-                    <td className='aff ecpa'>
-                      <div className='actual'>{formatARPU(now.aff_ecpa)}</div>
+                    <td className='aff ecpa' title="Average of eCPA of Affiliates in the past 7 days">
+                      {formatARPU(now.aff_ecpa)}
                     </td>
-                    <td>
-                      <div className='actual'>{formatARPU(now.aff_arpu_7)}</div>
+                    <td title="Average of ARPU(7) from Affiliate Sales in the past 31 days">
+                      {formatARPU(now.aff_arpu_7)}
                     </td>
-                    <td className='dmb sales'>
+                    <td className='dmb sales' title="Average of Sales by DMB in the past 7 days">
                       {formatSales(now.dmb_sales / 7)}
                       {
                         !!now.min_dmb_sales ?
@@ -267,17 +295,17 @@ class Home extends React.Component {
                         : ''
                       }
                     </td>
-                    <td className='dmb epca'>
-                      <div className='actual'>{formatARPU(now.dmb_ecpa)   }</div>
+                    <td className='dmb ecpa' title="Average of eCPA of DMB Sales in the past 7 days">
+                      {formatARPU(now.dmb_ecpa)   }
                     </td>
-                    <td>
-                      <div className='actual'>{formatARPU(now.dmb_arpu_7)}</div>
+                    <td title="Average of ARPU(7) from DMB Sales in the past 31 days">
+                      {formatARPU(now.dmb_arpu_7)}
                     </td>
-                    <td>
-                      <div className='actual'>{formatMoney(now.cost )}</div>
+                    <td title="Total Cost of Sales in the past 30.5 days">
+                      {formatMoney(30.5 * now.cost / 7)}
                     </td>
-                    <td>
-                      <div className='actual'>{formatMoney(now.revenue )}</div>
+                    <td title="Total Revenue in the past 30.5 days">
+                      {formatMoney(30.5 * now.revenue /31)}
                     </td>
                   </tr>
                   <tr className="before">
@@ -285,28 +313,28 @@ class Home extends React.Component {
                       {before.day.split('T')[0]}
                     </td>
                     <td className='aff sales'>
-                      <div className='actual'>{formatSales(before.aff_sales / 31)}</div>
+                      {formatSales(before.aff_sales / 31)}
                     </td>
                     <td className='aff ecpa'>
-                      <div className='actual'>{formatARPU(before.aff_ecpa)}</div>
+                      {formatARPU(before.aff_ecpa)}
                     </td>
                     <td>
-                      <div className='actual'>{formatARPU(before.aff_arpu_7)}</div>
+                      {formatARPU(before.aff_arpu_7)}
                     </td>
                     <td className='dmb sales'>
-                      <div className='actual'>{formatSales(before.dmb_sales / 31)}</div>
+                      {formatSales(before.dmb_sales / 31)}
                     </td>
                     <td className='dmb ecpa'>
-                      <div className='actual'>{formatARPU(before.dmb_ecpa)}</div>
+                      {formatARPU(before.dmb_ecpa)}
                     </td>
                     <td>
-                      <div className='actual'>{formatARPU(before.dmb_arpu_7)}</div>
+                      {formatARPU(before.dmb_arpu_7)}
                     </td>
                     <td>
-                      <div className='actual'>{formatMoney(before.cost )}</div>
+                      {formatMoney(30.5 * before.cost /31)}
                     </td>
                     <td>
-                      <div className='actual'>{formatMoney(before.revenue )}</div>
+                      {formatMoney(30.5 * before.revenue / 31 )}
                     </td>
                   </tr>
                 </tbody>

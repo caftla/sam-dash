@@ -1,11 +1,11 @@
 .home-targets-section {
   margin-left: 18px; // calc((100vw - 1280px)/2);
+  max-width: 1280px;
 }
 .home-targets {
   width: 100%;
   border-collapse: collapse; 
   color: black;
-  max-width: 1280px;
 
   td, th {
     vertical-align: top;
@@ -21,9 +21,15 @@
   th {
     color: #999;
     &.country_code {
-      color: black;
+      a {
+        color: black;
+      }
       padding-left: 6px;
       padding-right: 6px;
+    }
+    &.cost, &.revenue {
+      vertical-align: bottom;
+      text-align: left;
     }
   }
   tr.now .date, tr.before .date {
@@ -31,8 +37,13 @@
     padding-right: 12px;
     width: 130px;
   }
+  tbody.has-no-targets {
+    .targets {
+      display:none;
+    }
+  }
   tbody:nth-child(2n+1){
-    background-color: #7eccd624;
+    background-color: rgb(242, 242, 243);
   }
   tbody > tr:nth-child(1) th {
     border-top: solid 1px gray;
@@ -67,6 +78,7 @@
   }
   tbody > tr.targets td {
     padding-bottom: 6px;
+    color: #999;
   }
 
   tbody.less-than-aff-sales-targets {
