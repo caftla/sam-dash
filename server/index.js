@@ -69,6 +69,7 @@ app.post("/api/v1/analytics/push-closed", analyticsClosed)
 const connection_strings = {
     helix_connection_string: process.env['helix_connection_string']
   , jewel_connection_string: process.env['jewel_connection_string']
+  , sigma_stats: process.env['sigma_stats']
 }
 
 const filter_params = params => R.pick(['from_date', 'to_date', 'timezone', 'filter', 'page', 'section', 'row'], params)
@@ -101,6 +102,7 @@ const respond_with_connection_name = (connection_name: string, sql, params, res,
 
 const respond_helix = (sql, params, res, map = x => x) => respond_with_connection_name('helix_connection_string', sql, params, res, map)
 const respond_jewel = (sql, params, res, map = x => x) => respond_with_connection_name('jewel_connection_string', sql, params, res, map)
+const respond_sigma = (sql, params, res, map = x => x) => respond_with_connection_name('sigma_stats', sql, params, res, map)
 
 const respond_query_text = (sql, params, res) => {
   res.set("Content-Type", "text/plain")
@@ -138,6 +140,17 @@ app.get('/api/hello', authenticate(), (req, res) => {
     res.send(401)
   },
 )
+
+app.get('/api/v1/home_targets', [ ], (req, res) => {
+  respond_query_or_result(
+      respond_sigma
+    , fs.readFileSync('./server/sql-templates/targets_home/index.sql', 'utf8')
+    , {}
+    , req
+    , res
+    , x => x
+  )
+})
 
 // example: http://127.0.0.1:3081/api/v1/filter_section_row/2017-04-01/2017-04-07/country_code=ZA,affiliate_name=Gotzha/publisher_id/day
 app.get('/api/v1/filter_section_row/:from_date/:to_date/:filter/:section/:row', [ authenticate(), logUserAction ], (req, res) => {

@@ -726,3 +726,9 @@ export const save_scenario_configuration = (payload) => (dispatch : Dispatch) =>
     alert("ERROR:\n\n" + err.message);
   })
 }
+
+export const fetch_home_targets = () => (dispatch : Dispatch) => {
+  dispatch({ type: 'fetch_home_targets_loading' })
+  get({url: `${api_root}/api/v1/home_targets`, cache: "force-cache"}, {cache: "force-cache"})
+  .then(d => dispatch({ type: 'fetch_home_targets_success', payload: d }))
+}

@@ -1,0 +1,78 @@
+.home-targets {
+  width: 100%;
+  border-collapse: collapse; 
+  color: black;
+  td, th {
+    vertical-align: top;
+  }
+  div.actual {
+    // font-size: 120%;
+  }
+
+  th {
+    color: #999;
+    &.country_code {
+      color: black;
+    }
+  }
+  tr.now .date, tr.before .date {
+    text-align: right;
+    padding-right: 12px;
+    width: 130px;
+  }
+  tbody:nth-child(2n+1){
+    background-color: #7eccd624;
+  }
+  tbody > tr:nth-child(1) th {
+    border-top: solid 1px gray;
+  }
+  tbody > tr:last-child td {
+    border-bottom: solid 1px gray;
+  }
+  tbody > tr.before td, tbody > tr.now td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  tbody > tr > *:nth-child(1) { border-left: solid 1px gray; }
+  tbody > tr > *:last-child { border-right: solid 1px gray; }
+  tbody > tr.main-titles > th:nth-child(1) {border-bottom:  solid 1px gray;}
+  tbody > tr:nth-child(n+3) > td:nth-child(3n+2) {border-left: solid 1px gray; padding-left: 12px; }
+  tbody > tr:nth-child(2) > th:nth-child(3n+2) {border-left: solid 1px gray; padding-left: 12px; }
+  tbody > tr.main-titles > th:nth-child(n+2) {border-left: solid 1px gray; padding-left: 12px; }
+  tbody > tr.main-titles > th.revenue {
+    border-left: 0;
+  }
+  tbody > tr.main-titles > th { padding-top: 12px;}
+  tbody > tr.now td {
+    border-bottom: solid 1px #ccc;
+    border-top: solid 1px #ccc;
+  }
+  tbody > tr.aff-dmb-titles th {
+    text-align: left;
+    padding-bottom: 12px;
+  }
+  tbody > tr.main-titles th {
+    padding-bottom: 12px;
+  }
+  tbody > tr.targets td {
+    padding-bottom: 6px;
+  }
+
+  tbody.less-than-aff-sales-targets {
+    .targets .aff.sales .min {
+      color: red;
+    }
+    .now .aff.sales {
+      color: red;
+    }
+  }
+
+  tbody.less-than-dmb-sales-targets {
+    .targets .dmb.sales .min {
+      color: red;
+    }
+    .now .dmb.sales {
+      color: red;
+    }
+  }
+}
