@@ -1,7 +1,12 @@
+.home-targets-section {
+  margin-left: 18px; // calc((100vw - 1280px)/2);
+}
 .home-targets {
   width: 100%;
   border-collapse: collapse; 
   color: black;
+  max-width: 1280px;
+
   td, th {
     vertical-align: top;
   }
@@ -9,10 +14,16 @@
     // font-size: 120%;
   }
 
+  .achievement {
+    font-size: 80%;
+  }
+
   th {
     color: #999;
     &.country_code {
       color: black;
+      padding-left: 6px;
+      padding-right: 6px;
     }
   }
   tr.now .date, tr.before .date {
@@ -73,6 +84,44 @@
     }
     .now .dmb.sales {
       color: red;
+    }
+  }
+
+  tbody.more-than-aff-ecpa-targets {
+    .targets .aff.ecpa {
+      color: red;
+    }
+    .now .aff.ecpa {
+      color: red;
+    }
+  }
+
+  tbody.more-than-dmb-ecpa-targets {
+    .targets .dmb.ecpa {
+      color: red;
+    }
+    .now .dmb.ecpa {
+      color: red;
+    }
+  }
+  
+  tbody.less-than-aff-sales-targets {
+    .targets .aff.sales .min {
+      color: red;
+    }
+    .now .aff.sales {
+      color: red;
+    }
+  }
+
+  tbody.achieving-aff {
+    .now .aff.sales {
+      color: green;
+    }
+  }
+    tbody.achieving-dmb {
+    .now .dmb.sales {
+      color: green;
     }
   }
 }

@@ -40,6 +40,7 @@ const formatTimezone = d3Format("+.1f")
 const formatMoney = d3Format('.3s')
 const formatARPU = x => isNaN(x) || x === null ? '':  d3Format('.2f')(x)
 const formatSales = x=> isNaN(x) || x === null ? '' : d3Format(",.2r")(x)
+const formatPercent = d3Format(".0%")
 
 type HomeProps = {
   fetch_all_countries: (date_from: string, date_to: string) => void
@@ -80,8 +81,6 @@ class Home extends React.Component {
   }
 
   render() {
-
-    console.log('this.state.home_targets', this.state.home_targets)
 
     const { timeFormat } = require('d3-time-format')
     const { format: d3Format } = require('d3-format')
@@ -134,7 +133,7 @@ class Home extends React.Component {
       }
     ]
 
-    return <div style={{ margin: '6px' }}>
+    return <div style={{ margin: '24px' }}>
       <div style={{ margin: '80px 80px' }}>
         {!this.state.push_enabled &&
           <button onClick={() =>
@@ -161,6 +160,7 @@ class Home extends React.Component {
         // </NewFeatures>
         // : '' 
       }
+      <div className='home-targets-section'>
       <h3>Sales Targets</h3>
       <p>
         
@@ -180,10 +180,18 @@ class Home extends React.Component {
                 
                 const is_less_than_aff_sales_targets = (now.aff_sales / 7) < now.min_aff_sales
                 const is_less_than_dmb_sales_targets = (now.dmb_sales / 7) < now.min_dmb_sales
+                const is_more_than_dmb_ecpa_targets = (now.dmb_ecpa) > now.ecpa_target * 1.1
+                const is_more_than_aff_ecpa_targets = (now.aff_ecpa) > now.ecpa_target * 1.1
+                const dmb_sales_achievement = !now.max_dmb_sales ? null : 1 - ((now.max_dmb_sales - now.dmb_sales / 7 ) / (now.max_dmb_sales - now.min_dmb_sales))
+                const aff_sales_achievement = !now.max_aff_sales ? null : 1 - ((now.max_aff_sales - now.aff_sales / 7 ) / (now.max_aff_sales - now.min_aff_sales))
 
                 return <tbody className={`
                   ${is_less_than_aff_sales_targets ? 'less-than-aff-sales-targets' : ''}
                   ${is_less_than_dmb_sales_targets ? 'less-than-dmb-sales-targets' : ''}
+                  ${is_more_than_aff_ecpa_targets ? 'more-than-aff-ecpa-targets' : ''}
+                  ${is_more_than_dmb_ecpa_targets ? 'more-than-dmb-ecpa-targets' : ''}
+                  ${aff_sales_achievement > 0.5 ? 'achieving-aff' : ''}
+                  ${dmb_sales_achievement > 0.5 ? 'achieving-dmb' : ''}
                 `} style={{marginBottom: '12px'}}>
                   <tr className='main-titles'>
                     <th rowspan={5} className="country_code">{country_code}</th>
@@ -238,7 +246,12 @@ class Home extends React.Component {
                       {now.day.split('T')[0]}
                     </td>
                     <td className='aff sales'>
-                      <div className='actual'>{formatSales(now.aff_sales / 7)}</div>
+                      {formatSales(now.aff_sales / 7)}
+                      {
+                        !!now.min_aff_sales ?
+                          <>&nbsp;<span className='achievement'>({formatPercent(aff_sales_achievement)})</span></>
+                        : ''
+                      }
                     </td>
                     <td className='aff ecpa'>
                       <div className='actual'>{formatARPU(now.aff_ecpa)}</div>
@@ -247,9 +260,14 @@ class Home extends React.Component {
                       <div className='actual'>{formatARPU(now.aff_arpu_7)}</div>
                     </td>
                     <td className='dmb sales'>
-                      <div className='actual'>{formatSales(now.dmb_sales / 7)}</div>
+                      {formatSales(now.dmb_sales / 7)}
+                      {
+                        !!now.min_dmb_sales ?
+                          <>&nbsp;<span className='achievement'>({formatPercent(dmb_sales_achievement)})</span></>
+                        : ''
+                      }
                     </td>
-                    <td className='dmv epca'>
+                    <td className='dmb epca'>
                       <div className='actual'>{formatARPU(now.dmb_ecpa)   }</div>
                     </td>
                     <td>
@@ -297,6 +315,7 @@ class Home extends React.Component {
           </table>
         })
       }
+    </div>
     </div>
   }
 }
