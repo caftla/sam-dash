@@ -241,10 +241,15 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       const isLandingPage = this.props.params[this.state.level] == "landing_page"
       const ouisys_LandingPage = !isLandingPage ? null : (() => {
         try {
-          const match = /\*(\w\w)\:([\w\d\-\_]+)/gm.exec(this.state.current_value)
+          const handle_name_value = this.state.current_value
+          const match = handle_name_value.startsWith('o:')
           if(!!match) {
-            const [_, country, page] = match
-            return `http://c1.ouisys.com/preview/?country=${country}&page=${page}`
+            const params_from_handle = handle_name_value.split(':')
+            const p_country = params_from_handle[1]
+            const p_handle = params_from_handle[2]
+            const p_scenario = params_from_handle[3]
+
+            return `https://s3.eu-central-1.amazonaws.com/mobirun/os-ui/static/${p_handle}/html/${p_country}-${p_scenario}-production.html`
           } else {
             return null
           }

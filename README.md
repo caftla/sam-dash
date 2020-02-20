@@ -1,7 +1,16 @@
 # Sigma 
 
-To start the web app run:
+Node Version: v10.16.0
+
+Purescript:
 
 ```
-secret="secret" yarn run dev 
+npm install -g purescript pulp bower
+```
+
+
+To start the web app in dev environment run:
+
+```
+secret="secret" yarn dev
 ```
