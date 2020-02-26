@@ -134,39 +134,117 @@ with bupper as (
       )
       
       , revenue_now as (
-        select 
-          dateadd(day, -1, current_date) :: timestamp at time zone 0 as day
-        , country_code
-        , revenue
-        from (
-          select 
-              coalesce(us.country_code, 'XX') as country_code
-            , sum(us.revenue) as revenue
-          from revenue us  
-          where us.timestamp > dateadd(day, -31, current_date)
-            and us.timestamp < dateadd(day, 0, current_date)
-          group by country_code --, day
-          order by country_code --, day
-        )
+        select
+          dateadd(day, -1, current_date) :: timestamp at time zone 0 as day,
+          country_code,
+          sum(revenue) as revenue
+        from
+            (
+              (
+                select
+                    coalesce(us.country_code, 'XX') as country_code,
+                    sum(us.revenue) as revenue
+                from revenue us
+                where
+                    us.timestamp > dateadd(day, -31, current_date)
+                    and us.timestamp < dateadd(day, 0, current_date)
+                group by
+                    country_code
+                order by
+                    country_code
+              )
+              union
+              (
+                select
+                  'SA' as country_code,
+                  sum(
+                      case when operator = 'Mobily' then revenue * 0.34 
+                          when operator = 'Zain' then revenue * 0.3264 
+                          when operator = 'STC' then revenue * 0.425 end
+                  ) as revenue
+                
+                from mobimind_revenue r
+                where
+                    r.start_timestamp > dateadd(day, -31, current_date)
+                    and r.start_timestamp < dateadd(day, 0, current_date)
+                group by
+                    country_code
+              )
+              union
+              (
+                select
+                  'KW' as country_code,
+                  sum(mt2.revenue_usd)* 0.40 * 0.95 * 0.90 as revenue
+
+                from mt2_revenue mt2
+
+                where 
+                  mt2.date > dateadd(day, -31, current_date)
+                  and mt2.date < dateadd(day, 0, current_date)
+
+                group by country_code         	
+              )
+            )
+    
+        group by day, country_code
+        order by country_code
       )
       
       , revenue_before as (
         select 
           dateadd(day, -31 - 1, current_date) :: timestamp at time zone 0 as day
         , country_code
-        , revenue
-        from (
-          select 
-              coalesce(us.country_code, 'XX') as country_code
-            , sum(us.revenue) as revenue
-          from revenue us  
-          where us.timestamp > dateadd(day, -31 - 31, current_date)
-            and us.timestamp < dateadd(day, -31, current_date)
-          group by country_code --, day
-          order by country_code --, day
+        , sum(revenue) as revenue
+        from 
+          (
+            (
+              select 
+                  coalesce(us.country_code, 'XX') as country_code
+                , sum(us.revenue) as revenue
+              from revenue us  
+              where 
+                us.timestamp > dateadd(day, -31 - 31, current_date)
+                and us.timestamp < dateadd(day, -31, current_date)
+              group by country_code --, day
+              order by country_code --, day
+
+            )
+            union
+            (
+              select
+                'SA' as country_code,
+                sum(
+                    case when operator = 'Mobily' then revenue * 0.34 
+                        when operator = 'Zain' then revenue * 0.3264 
+                        when operator = 'STC' then revenue * 0.425 end
+                ) as revenue
+              
+              from mobimind_revenue r
+              where
+                  r.start_timestamp > dateadd(day, -31 - 31, current_date)
+                  and r.start_timestamp < dateadd(day, -31, current_date)
+              group by
+                  country_code
+            )
+          union
+          (
+            select
+              'KW' as country_code,
+              sum(mt2.revenue_usd)* 0.40 * 0.95 * 0.90 as revenue
+
+            from mt2_revenue mt2
+
+            where 
+              mt2.date > dateadd(day, -31 - 31, current_date)
+              and mt2.date < dateadd(day, -31, current_date)
+
+            group by country_code         	
+          )
         )
-      )
-      
+        
+      group by day, country_code
+      order by country_code      
+    )  
       , all_country_codes as (
         select distinct country_code from (
           (select distinct country_code from cost_now) union 
