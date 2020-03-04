@@ -727,8 +727,8 @@ export const save_scenario_configuration = (payload) => (dispatch : Dispatch) =>
   })
 }
 
-export const fetch_home_targets = () => (dispatch : Dispatch) => {
+export const fetch_home_targets = (params) => (dispatch : Dispatch) => {
   dispatch({ type: 'fetch_home_targets_loading' })
-  get({url: `${api_root}/api/v1/home_targets`, cache: "force-cache"}, {cache: "force-cache"})
+  get({url: `${api_root}/api/v1/home_targets?${toQueryString(params)}`, cache: "force-cache"}, {cache: "force-cache"})
   .then(d => dispatch({ type: 'fetch_home_targets_success', payload: d }))
 }

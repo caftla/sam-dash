@@ -142,10 +142,12 @@ app.get('/api/hello', authenticate(), (req, res) => {
 )
 
 app.get('/api/v1/home_targets', [ ], (req, res) => {
+  const params = req.query
+
   respond_query_or_result(
       respond_sigma
     , fs.readFileSync('./server/sql-templates/targets_home/index.sql', 'utf8')
-    , {}
+    , params
     , req
     , res
     , x => x

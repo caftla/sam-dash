@@ -38,8 +38,8 @@ const { format: d3Format } = require('d3-format')
 const formatTimezone = d3Format("+.1f")
 
 const formatMoney = d3Format(',.3r')
-const formatARPU = x => isNaN(x) || x === null ? '':  d3Format('.2f')(x)
-const formatSales = x=> isNaN(x) || x === null ? '' : d3Format(",.2r")(x)
+const formatARPU = x => isNaN(x) || x === null ? '': x < 1 ? d3Format('.3f')(x) : d3Format('.2f')(x)
+const formatSales = x=> isNaN(x) || x === null ? '' : d3Format(",.3r")(x)
 const formatPercent = d3Format(".0%")
 
 type HomeProps = {
@@ -47,7 +47,7 @@ type HomeProps = {
   , all_countries: Maybe<Array<any>>
   , fetch_all_affiliates: () => void
   , all_affiliates: Maybe<Array<any>>
-  , fetch_home_targets: () => Maybe<Array<any>>
+  , fetch_home_targets: (params) => Maybe<Array<any>>
   , history: any
 }
 
@@ -64,7 +64,8 @@ class Home extends React.Component {
     super(props)
     this.state = {
       push_enabled: false,
-      targets_sort: 'cost desc'
+      targets_sort: 'cost desc',
+      targets_cost_now_window: -7
     }
   }
 
@@ -78,7 +79,7 @@ class Home extends React.Component {
     const { params } = this.props
     getSubscription().then(t => this.setState({ push_enabled: !!t }))
 
-    this.props.fetch_home_targets()
+    this.props.fetch_home_targets({cost_now_window: -7})
   }
 
   render() {
@@ -143,6 +144,8 @@ class Home extends React.Component {
       "country_code asc": ([country_code, [now, before]]) => country_code,
     })[this.state.targets_sort]
 
+    const costWindowAbs = Math.abs(this.state.targets_cost_now_window)
+
     return <div style={{ margin: '24px' }}>
       <div style={{ margin: '80px 80px' }}>
         {!this.state.push_enabled &&
@@ -176,6 +179,14 @@ class Home extends React.Component {
         
       </p>
       <div style={{textAlign: 'right', marginBottom: '12px'}}>
+       Cost Window: <select value={this.state.targets_cost_now_window} onChange={ev => {
+          this.setState({targets_cost_now_window: +ev.target.value})
+          this.props.fetch_home_targets({cost_now_window: +ev.target.value})
+        }}>
+          <option value="-7">-7</option>
+          <option value="-31">-31</option>
+        </select>
+
         Sort by: <select value={this.state.targets_sort} onChange={ev => {
           this.setState({targets_sort: ev.target.value})
         }}>
@@ -201,12 +212,12 @@ class Home extends React.Component {
               )(data)
               .map(([country_code, [now, before]]) => {
                 
-                const is_less_than_aff_sales_targets = (now.aff_sales / 7) < now.min_aff_sales
-                const is_less_than_dmb_sales_targets = (now.dmb_sales / 7) < now.min_dmb_sales
+                const is_less_than_aff_sales_targets = (now.aff_sales / costWindowAbs) < now.min_aff_sales
+                const is_less_than_dmb_sales_targets = (now.dmb_sales / costWindowAbs) < now.min_dmb_sales
                 const is_more_than_dmb_ecpa_targets = (now.dmb_ecpa) > now.ecpa_target * 1.1
                 const is_more_than_aff_ecpa_targets = (now.aff_ecpa) > now.ecpa_target * 1.1
-                const dmb_sales_achievement = !now.max_dmb_sales ? null : 1 - ((now.max_dmb_sales - now.dmb_sales / 7 ) / (now.max_dmb_sales - now.min_dmb_sales))
-                const aff_sales_achievement = !now.max_aff_sales ? null : 1 - ((now.max_aff_sales - now.aff_sales / 7 ) / (now.max_aff_sales - now.min_aff_sales))
+                const dmb_sales_achievement = !now.max_dmb_sales ? null : 1 - ((now.max_dmb_sales - now.dmb_sales / costWindowAbs ) / (now.max_dmb_sales - now.min_dmb_sales))
+                const aff_sales_achievement = !now.max_aff_sales ? null : 1 - ((now.max_aff_sales - now.aff_sales / costWindowAbs ) / (now.max_aff_sales - now.min_aff_sales))
                 const has_no_targets = !now.min_dmb_sales && !now.min_aff_sales
 
                 return <tbody className={`
@@ -274,7 +285,7 @@ class Home extends React.Component {
                       {now.day.split('T')[0]}
                     </td>
                     <td className='aff sales' title="Average of Sales by Affiliates in the past 7 days">
-                      {formatSales(now.aff_sales / 7)}
+                      {formatSales(now.aff_sales / costWindowAbs)}
                       {
                         !!now.min_aff_sales ?
                           <>&nbsp;<span className='achievement'>({formatPercent(aff_sales_achievement)})</span></>
@@ -288,7 +299,7 @@ class Home extends React.Component {
                       {formatARPU(now.aff_arpu_7)}
                     </td>
                     <td className='dmb sales' title="Average of Sales by DMB in the past 7 days">
-                      {formatSales(now.dmb_sales / 7)}
+                      {formatSales(now.dmb_sales / costWindowAbs)}
                       {
                         !!now.min_dmb_sales ?
                           <>&nbsp;<span className='achievement'>({formatPercent(dmb_sales_achievement)})</span></>
@@ -302,10 +313,10 @@ class Home extends React.Component {
                       {formatARPU(now.dmb_arpu_7)}
                     </td>
                     <td title="Total Cost of Sales in the past 30.5 days">
-                      {formatMoney(30.5 * now.cost / 7)}
+                      {formatMoney(30.5 * now.cost / costWindowAbs)}
                     </td>
                     <td title="Total Revenue in the past 30.5 days">
-                      {formatMoney(30.5 * now.revenue /31)}
+                      {formatMoney(30.5 * now.revenue / 31)}
                     </td>
                   </tr>
                   <tr className="before">
@@ -331,7 +342,7 @@ class Home extends React.Component {
                       {formatARPU(before.dmb_arpu_7)}
                     </td>
                     <td>
-                      {formatMoney(30.5 * before.cost /31)}
+                      {formatMoney(30.5 * before.cost / 31)}
                     </td>
                     <td>
                       {formatMoney(30.5 * before.revenue / 31 )}

@@ -41,7 +41,7 @@ with bupper as (
             , sum(case when us.affiliate_id not ilike '%DMB' then us.sale else 0 end) as aff_sales
             , sum(case when us.affiliate_id not ilike '%DMB' then us.firstbilling else 0 end) as aff_firstbilling
           from user_subscriptions us  
-          where us.timestamp > dateadd(day, -7, current_date)
+          where us.timestamp > dateadd(day, $[params.cost_now_window]$, current_date)
             and us.timestamp < dateadd(day, 0, current_date)
           group by country_code
           order by country_code
