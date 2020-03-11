@@ -31,7 +31,7 @@ const breakdown_list = [
   'webview_app',
   'ip2', 'ip3',
   'ab_test', 'ab_test_identify_key',
-  'google_placement', 'google_adgroup',
+  'google_placement', 'google_adgroup', 'google_keyword', 'google_creative', 'google_campaignid',
   'os_name', 'os_version1', 'os_version', 'browser_name', 'browser_version1', 'browser_version', 'browser_language', 'browser_languages', 'brand_name', 'model_name', 'screen_size', 'viewport_size', 'device_class',
   'hour', 'day', 'week', 'month', 'hour_of_day']
 

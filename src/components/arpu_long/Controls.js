@@ -27,7 +27,13 @@ const CheckBoxDiv = styled.div`
   transform: ${props => props.theme.checkBoxDivTransform || 'translate(-32%,0) scale(1.5)'}
 `
 
-const breakdown_list = R.uniq([ 'affiliate_id', 'publisher_id', 'sub_id', 'gateway', 'country_code', 'operator_code', 'gateway', 'operator*gateway', 'handle_name', 'ad_name', 'scenario_name', 'get_sub_method', 'product_type', 'service_identifier1', 'service_identifier2', 'shortcode*keyword', 'tariff', 'os_name', 'os_version', 'os_version1', 'brand_name', 'model_name', 'browser_name', 'browser_version', 'browser_version1', 'browser_language', 'browser_languages', 'webview_app', 'device_class', 'google_placement', 'google_adgroup', 'hour', 'day', 'week', 'month'])
+const breakdown_list = R.uniq([ 'affiliate_id', 'publisher_id', 'sub_id', 
+'gateway', 'country_code', 'operator_code', 'operator*gateway', 
+'handle_name', 'ad_name', 'scenario_name', 'get_sub_method', 
+'product_type', 'service_identifier1', 'service_identifier2', 'shortcode*keyword', 'tariff', 
+'os_name', 'os_version', 'os_version1', 'brand_name', 'model_name', 'browser_name', 'browser_version', 'browser_version1', 'browser_language', 'browser_languages', 'webview_app', 'device_class',
+'google_placement', 'google_adgroup', 'google_keyword', 'google_creative', 'google_campaignid',
+'hour', 'day', 'week', 'month'])
 
 type ControlsProps = {
     params: QueryParams

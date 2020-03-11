@@ -66,10 +66,19 @@ const makeQuery = (query_template: string, params: Object) => {
         `case when LEN(SPLIT_PART(${table}.landing_page_url, '/', 4)) > 2 then 'ouisys' else 'bupper' end`
 
         : param_value == "google_placement" ?
-        `json_extract_path_text(us.query_string, 'param2')`
+        `json_extract_path_text(us.query_string, 'g_placement')`
 
         : param_value == "google_adgroup" ?
-        `json_extract_path_text(us.query_string, 'param1')`
+        `json_extract_path_text(us.query_string, 'g_adgroupid')`
+
+        : param_value == 'google_keyword' ?
+        `json_extract_path_text(us.query_string, 'g_keyword')`
+
+        : param_value == 'google_creative' ?
+        `json_extract_path_text(us.query_string, 'g_creative')`
+
+        : param_value == 'google_campaignid' ?
+        `json_extract_path_text(us.query_string, 'bc')`
 
         : param_value == "hour_of_day" ? 
           `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
