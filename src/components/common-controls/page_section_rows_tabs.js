@@ -5,7 +5,7 @@ import type { QueryParams } from 'my-types'
 
 export default function ({ Section, cell_formatter, exportToExcel, no_summary }) {
 
-  const Page = ({ page, sales, data, params, onSort, sort, affiliates, pageData, controls, make_url, breakdown_list} :
+  const Page = ({ page, sales, data, params, onSort, sort, affiliates, ouisys_campaigns, pageData, controls, make_url, breakdown_list} :
     { page: string, sales: number, data: Array<any>, params: QueryParams, onSort: (string, number) => void, sort: { field: string, order: number }, affiliates: Object }) =>
     { return <div>
       <h4 className='fpsr-tab-name'>{ page }</h4>
@@ -14,11 +14,11 @@ export default function ({ Section, cell_formatter, exportToExcel, no_summary })
       }
       
       {
-        no_summary ? '' : <Section controls={controls} make_url={make_url} breakdown_list={breakdown_list} is_summary={ true } affiliates={affiliates} data={ {data: [pageData] } } params={params} onSort={onSort} sort={sort} />
+        no_summary ? '' : <Section controls={controls} make_url={make_url} breakdown_list={breakdown_list} is_summary={ true } affiliates={affiliates} ouisys_campaigns={ouisys_campaigns} data={ {data: [pageData] } } params={params} onSort={onSort} sort={sort} />
       }
       
       { 
-        R.take(365, data).map((x, i) => <Section controls={controls} breakdown_list={breakdown_list} make_url={make_url} key={i} affiliates={affiliates} data={x} params={params} onSort={onSort} sort={sort} />) 
+        R.take(365, data).map((x, i) => <Section controls={controls} breakdown_list={breakdown_list} make_url={make_url} key={i} affiliates={affiliates} ouisys_campaigns={ouisys_campaigns} data={x} params={params} onSort={onSort} sort={sort} />) 
       }
     </div>}
 
@@ -32,6 +32,7 @@ export default function ({ Section, cell_formatter, exportToExcel, no_summary })
     , onSort: (string, number) => void
     , sort: { field: string, order: number }
     , affiliates: Object
+    , ouisys_campaigns: Object
     , controls: Object
   }
 
@@ -89,7 +90,10 @@ export default function ({ Section, cell_formatter, exportToExcel, no_summary })
           const seleted = selected_page == i
           return <div key={i} style={ {display: seleted ? 'block' : 'none'} }>
             <Page 
-              key={i} affiliates={ this.props.affiliates } params={ this.props.params } {...x} 
+              key={i} 
+              affiliates={ this.props.affiliates } 
+              ouisys_campaigns={this.props.ouisys_campaigns}
+              params={ this.props.params } {...x} 
               onSort={ this.props.onSort } sort={ this.props.sort } 
               page={ formatter(this.props.params.page)(x.page) }
               pageData={ x }

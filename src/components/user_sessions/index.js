@@ -15,6 +15,7 @@ import Controls from './Controls'
 
 import user_sessions_selector from '../../selectors/user_sessions.js'
 import affiliates_mapping_selector from '../../selectors/affiliates_mapping.js'
+import ouisys_campaigns_mapping_selector from '../../selectors/ouisys_campaigns_mapping.js'
 
 import Index from '../common-controls/page_section_rows_index'
 
@@ -25,7 +26,7 @@ const make_path = (params, query) => `/user_sessions/${formatTimezone(params.tim
 const breakdown_list = [
   'affiliate_id', 'publisher_id', 'sub_id',
   'gateway', 'country_code', 'operator_code', 'operator*gateway', 'ip_country_code', 
-  'handle_name', 'ad_name', 'landing_page', 'frontend_system',
+  'handle_name', 'ad_name', 'landing_page', 'ouisys_campaigns', 'frontend_system',
   'scenario_name', 'product_type', 'service_identifier1', 'service_identifier2', 'shortcode*keyword',
   'get_sub_method',
   'webview_app',
@@ -39,6 +40,7 @@ export default connect(
     state => ({
         data: user_sessions_selector(state)
       , affiliates_mapping: affiliates_mapping_selector(state)
+      , ouisys_campaigns_mapping: ouisys_campaigns_mapping_selector(state)
       , sort: state.sort
       , all_countries: state.all_countries 
       , all_affiliates: state.all_affiliates

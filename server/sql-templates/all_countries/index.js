@@ -9,6 +9,7 @@ const fields = [
   , 'scenario_name'
   , 'service_identifier1'
   , 'affiliate_name'
+  , 'ouisys_campaign_name'
 ]
 
 module.exports = (params) => R.pipe(

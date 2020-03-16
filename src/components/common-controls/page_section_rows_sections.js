@@ -19,7 +19,7 @@ const change_sign = (change) => {
 
 export default function({columns_maker, cell_formatter, try_merge_body_and_footer, footer}) {
 
-  const Section = ({data, params, onSort, sort, affiliates, is_summary, controls, make_url, showTooltip} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
+  const Section = ({data, params, onSort, sort, affiliates, ouisys_campaigns, is_summary, controls, make_url, showTooltip} : { data : any, params : QueryParams, onSort: (string, number) => void, sort: SorterState, affiliates: Object }) => {
 
     const show_label = (row_or_section) => (name, key = null) => {
       const sort_field = key == null ? name : key
@@ -31,7 +31,9 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
     }
     const show_label_row = show_label('row') 
     const show_label_section = show_label('section') 
-    const formatter = cell_formatter(affiliates, params.timezone)
+    
+    console.log('ouisys_campaigns', ouisys_campaigns)
+    const formatter = cell_formatter(affiliates, params.timezone, ouisys_campaigns)
 
     const column = (label, onClick, value, footer, more = {}) => {
       const to_f = (p, x) => typeof p == 'function' ? p(x) : p || {}
