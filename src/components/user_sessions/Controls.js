@@ -122,6 +122,7 @@ export default class Controls extends React.Component {
       , service_identifier1: ifExists('service_identifier1s', filter_params.service_identifier1)
       , publisher_id: filter_params.publisher_id
       , ab_test: filter_params.ab_test
+      , pacid: filter_params.pacid
     })
 
     this.state = {
@@ -212,7 +213,7 @@ export default class Controls extends React.Component {
   get_filter_string() {
     
     const with_publisher_id = this.state.publisher_ids.some(p => p == this.state.publisher_id)
-    const controlled_fields = ["country_code", "operator_code", "gateway", "ad_name", "handle_name", "scenario_name", "service_identifier1", "ab_test", "from_hour", "to_hour"]
+    const controlled_fields = ["country_code", "operator_code", "gateway", "ad_name", "handle_name", "pacid", "scenario_name", "service_identifier1", "ab_test", "from_hour", "to_hour"]
       .concat(with_publisher_id ? ["publisher_id"] : [])
 
     return this.get_filter_string_by_fields(controlled_fields)
@@ -295,6 +296,22 @@ export default class Controls extends React.Component {
           value={ this.state.ad_name } options={ get_options('ad_names') } />
         <InputSelect name="Handle" onChange={ handle_name => this.setState({ handle_name }) }
           value={ this.state.handle_name } options={ get_options('handle_names') } />
+        <InputSelect name="Ouisys Campaign" onChange={ ouisys_campaign => {
+          const match = /\((\d+)/.exec(ouisys_campaign)
+          if(!!match) {
+            this.setState({ pacid: match[1] })
+          } else {
+            this.setState({ pacid: null })
+          }
+          } }
+          value={ (() => {
+            if(!this.state.pacid) {
+              return ''
+            }
+            const reg = new RegExp(`\\(${this.state.pacid}`)
+            
+            return get_options('ouisys_campaign_names').filter(n => reg.exec(n) )
+          })() } options={ get_options('ouisys_campaign_names') } />
         <InputSelect name="Scenario" onChange={ scenario_name => this.setState({ scenario_name }) }
           value={ this.state.scenario_name }  options={ !this.state.country_code || this.state.country_code == '-' ? [] : get_country_prop('scenario_names', []) } />
         <InputSelect name="Service Identifier 1" onChange={ service_identifier1 => this.setState({ service_identifier1 }) }
@@ -341,7 +358,6 @@ export default class Controls extends React.Component {
           id={ this.state.cache_buster_id } type="checkbox" />
       </CheckBoxDiv>
       <Submit onClick={ _ => {
-
         this.props.set_params({
             date_from: this.state.date_from
           , date_to: this.state.date_to

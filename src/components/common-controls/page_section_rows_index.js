@@ -206,12 +206,14 @@ export default function(component_params) {
             data={data} 
             params={params}
             sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
-            affiliates={ this.props.affiliates_mapping } />
+            affiliates={ this.props.affiliates_mapping } 
+            ouisys_campaigns={ this.ouisys_campaigns_mapping }/>
         : <Tabs 
             pages={data} 
             params={params}
             sort={ { rowSorter: params.rowSorter, sectionSorter: params.sectionSorter, tabSorter: params.tabSorter } }
             affiliates={ this.props.affiliates_mapping }
+            ouisys_campaigns={ this.props.ouisys_campaigns_mapping  }
             controls={ this.props.controls }
             breakdown_list={ breakdown_list }
             make_url={ make_url }

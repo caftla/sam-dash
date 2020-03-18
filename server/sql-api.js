@@ -80,6 +80,9 @@ const makeQuery = (query_template: string, params: Object) => {
         : param_value == 'google_campaignid' ?
         `json_extract_path_text(us.query_string, 'bc')`
 
+        : param_value == 'ouisys_campaigns' ?
+          `us.pacid`
+
         : param_value == "hour_of_day" ? 
           `date_part(h, CONVERT_TIMEZONE('UTC', '${-1 * parseFloat(params.timezone)}', ${table}.${day_column}))`
         : `coalesce(cast(${table}.${param_value} as varchar), 'Unknown')`;
