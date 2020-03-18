@@ -475,7 +475,75 @@ app.get('/api/v1/ouisys-flow-events/:timezone/:from_date/:to_date/:filter/:break
 })
 
 
-//
+// Funnel
+app.get('/api/v1/funnel/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+  const params = req.params
+
+  const go = async () => {
+    const flow_events_template = fs.readFileSync('./server/sql-templates/funnel/flow_events.sql', 'utf8')
+    const sales_template = fs.readFileSync('./server/sql-templates/funnel/sales_and_impressions.sql', 'utf8')
+
+    console.log(flow_events_template, sales_template)
+
+    const flow_events_sql = await fromAff(
+        QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseFloat(params.timezone) || 0)(params.from_date)(params.to_date)(flow_events_template)
+    )()
+    
+    console.log(flow_events_sql)
+
+    const sales_sql = await fromAff(
+      QueryTemplateParser.doTemplateStringDates(params.filter || '')(params.breakdown || '-')(parseFloat(params.timezone) || 0)(params.from_date)(params.to_date)(sales_template)
+    )()
+
+    console.log(sales_sql)
+
+    const flow_events_result = await fromAff(jewelQueryServer.querySync(!!req.query.cache_buster)(md5(flow_events_sql))(flow_events_sql))()
+    
+    const sales_result = await fromAff(jewelQueryServer.querySync(!!req.query.cache_buster)(md5(sales_sql))(sales_sql))()
+
+    
+    
+    return [flow_events_result, sales_result]
+  }
+
+  go()
+    .then(x =>
+      R.pipe(
+        x => ([...x[0], ...format_to_flow_events(x[1])])
+      , R.sortWith(
+            [
+              R.ascend(R.prop('d_day')),
+              R.ascend(R.prop('number'))
+            ]
+        )
+      , R.filter( x => !!x.label)
+      )(x)   
+    )
+    .then(result => res.send(result))
+    .catch(error => res.send({error: error.toString()}))
+
+})
+  const format_to_flow_events = x => R.pipe(R.map(y => [
+    {
+      users: y.impressions,
+      category: 'Pre-Flow',
+      action: 'advance',
+      label: 'impressions',
+      d_day: y.d_day,
+      number: -1
+    },
+    {
+      users: y.sales,
+      category: 'Sale',
+      action: 'advance',
+      label: 'sales',
+      d_day: y.d_day,
+      number: 100
+    }
+  ])
+  , R.flatten()
+)(x)
+
 
 // tola
 

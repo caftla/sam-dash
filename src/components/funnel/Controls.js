@@ -50,25 +50,28 @@ export default class ControlComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    const breakdownU = new UVal(props.breakdown || 'day')
+    const breakdownU = new UVal(props.breakdown || 'xcid')
     const filterU = new UVal(props.filter || '-')
     const filterItems = PT.continueEither(console.warn)(x => x)(P.runFilterParserToColNamesAndExpr(filterU.value)) // [{name,expr}]
     const countries = R.pipe(
-        R.find(x => x.name == "country_code")
-      , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toUpperCase()})))(P.runFilterLangParserForCountries(x.expr))
+        R.find(x => x.name == "country")
+      , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toLowerCase()})))(P.runFilterLangParserForCountries(x.expr))
     )(filterItems)
     
     this.state = {
       filterU ,
       breakdownU,
-      date_fromU: new UVal(props.date_from || moment().add('day', -7).toJSON().split('T')[0] ),
+      date_fromU: new UVal(props.date_from || moment().add('day', -2).toJSON().split('T')[0] ),
       date_toU: new UVal(props.date_to || moment().add('day', +1).toJSON().split('T')[0] ),
       timezoneU: new UVal(props.timezone || new Date().getTimezoneOffset()  / -60),
 
 
       breakdownItems: PT.continueEither(console.warn)(x => x.map(c => ({label: c, value: c})))(P.runBreakdownParserToColNames(breakdownU.value)), // [{label, value}]
 
-      filterItems: R.reject(({name}) => R.contains(name, ['country_code']))(filterItems) , // [{name,expr}]
+      filterItems: R.pipe(
+          R.reject(({name}) => R.contains(name, ['country']))
+        , items => items.concat(!items.some(i => i.name == 'xcid') ? [{name: 'xcid', expr: ''}] : [])
+      )(filterItems) , // [{name,expr}]
 
       countries,
 
@@ -86,6 +89,7 @@ export default class ControlComponent extends React.Component {
   static getDerivedStateFromProps(props, state) {
     
     const breakdownU = new UVal(props.breakdown).merge(state.breakdownU)
+    // const breakdownColNamesU = breakdownU.map(v => PT.continueEither(console.warn)(x => x)(P.runBreakdownParserToColNames(v)))
     return {
       filterU: new UVal(props.filter).merge(state.filterU),
       breakdownU,
@@ -137,7 +141,7 @@ export default class ControlComponent extends React.Component {
 
     const countries = R.map(c => ({
       label: c.country_code,
-      value: c.country_code
+      value: c.country_code.toLowerCase() == 'uk' ? 'gb' : c.country_code.toLowerCase()
     }))(this.props.all_countries || []);
 
     const affiliates = R.map(a => ({
@@ -174,20 +178,8 @@ export default class ControlComponent extends React.Component {
         <FormSection>
           <FormTitle>Filters</FormTitle>
           <div className="field-section">
-            <MultiSelect
-              placeholder="Countries"
-              values={this.state.countries || [] }
-              options={countries}
-              onValuesChange={countries => {
-                this.setState({countries})
-              }}
-              createFromSearch={(options, value, search) =>  
-                search.length == 2
-                ? ({label: search.trim().toUpperCase(), value: search.trim().toUpperCase()})
-                : null
-                }
-            /></div>
-        
+          </div>
+
           <FiltersList items={
             this.state.filterItems.map(x => ({filterKey: {label: x.name, value: x.name}, value: x.expr}))
           }
@@ -209,30 +201,7 @@ export default class ControlComponent extends React.Component {
             !!this.state.errors.filter ? JSON.stringify(this.state.errors.filter) : ''
           }
         </FormSection>
-        <FormSection>
-          <FormTitle>Breakdown</FormTitle>
-          <BreakdownList 
-            onChange={breakdownItems => 
-              breakdownItems.length == 0
-              ? this.setState({breakdownItems: [{label:'',value: ''}]})
-              : this.setState({breakdownItems})
-            } 
-            items={this.state.breakdownItems} />
-          <textarea
-            style={{  
-              width: '98%',
-              height: '4ex',
-              fontSize: '100%',
-              fontFamily: 'Osaka, CONSOLAS, monospace, sans-serif',
-              display: 'none'
-            }}
-            onChange={ev => this.setState({ breakdownU: new UVal(ev.target.value, false) })}
-            value={this.state.breakdownU.value}
-          />
-          {
-            !!this.state.errors.breakdown ? JSON.stringify(this.state.errors.breakdown) : ''
-          }
-        </FormSection>
+
         <FormSection>
           <Submit
           onClick={() => 
@@ -240,7 +209,7 @@ export default class ControlComponent extends React.Component {
               breakdownU : new UVal(this.state.breakdownItems.map(i => i.value).join(','), false),
               filterU: new UVal(this.state.filterItems.concat(
                 this.state.countries.length > 0 
-                ? [{name: 'country_code', expr: `(${this.state.countries.map(c => c.value).join(',')})`}]
+                ? [{name: 'country', expr: `(${this.state.countries.map(c => c.value).join(',')})`}]
                 : []
               ).map(i => `${i.name}:${i.expr}`).join(','), false)
             }, () => this.go(false))
@@ -257,6 +226,11 @@ export default class ControlComponent extends React.Component {
 }
 
 class BreakdownList extends React.PureComponent {
+  // state = {
+  //   items: this.props.items || [{
+  //     label: '-', value: null
+  //   }]
+  // }
 
   render() {
     return (
@@ -280,7 +254,14 @@ class BreakdownList extends React.PureComponent {
 }
 
 class FiltersList extends React.PureComponent {
-
+  // state = {
+  //   items: this.props.items || [
+  //     {
+  //       filterKey: null, // {label, value}
+  //       value: ""
+  //     }
+  //   ]
+  // };
   render() {
     return (
       <List className="filters-list"

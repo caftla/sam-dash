@@ -130,7 +130,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       : p == 'country_code' ? 80
       : p == 'day' ? 120
       : p == 'hour' ? 220
-      : p == 'landing_page' ? 220
+      : p == 'landing_page' ? 280
       : 170
 
     const columns = R.pipe(
@@ -147,7 +147,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
               c.label == '-' ? '1%' 
               : c.label == 'country' ? '5%' 
               : c.label == 'Transactions' || c.label == 'Views' ? '7%' 
-              : c.label == 'landing_page' ? '12%' 
+              : c.label == 'landing_page' ? '14%' 
               : (i < 2 ? '7%' : '5%') } } />
         </colgroup>))
       } 
@@ -238,27 +238,7 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
       })
     }
     render() {
-      const isLandingPage = this.props.params[this.state.level] == "landing_page"
-      const ouisys_LandingPage = !isLandingPage ? null : (() => {
-        try {
-          const handle_name_value = this.state.current_value
-          const match = handle_name_value.startsWith('o:')
-          if(!!match) {
-            const params_from_handle = handle_name_value.split(':')
-            const p_country = params_from_handle[1]
-            const p_handle = params_from_handle[2]
-            const p_scenario = params_from_handle[3]
-
-            return `https://s3.eu-central-1.amazonaws.com/mobirun/os-ui/static/${p_handle}/html/${p_country}-${p_scenario}-production.html`
-          } else {
-            return null
-          }
-        } catch(ex) {
-          console.warn(ex)
-          return null
-        }
-      })()
-      
+      const isLandingPage = this.props.params[this.state.level] == "landing_page"      
       const tooltip = () => {
         if (!this.props.breakdown_list)
           return ''
@@ -269,7 +249,14 @@ export default function({columns_maker, cell_formatter, try_merge_body_and_foote
         }}>
           <div>Filtering on {
              isLandingPage 
-              ? <a href={ !!ouisys_LandingPage ? ouisys_LandingPage : `http://${this.state.current_value}?offer=1` } target="_blank">{ this.state.current_value}</a>
+              ? <ul>Campaign Options:
+              {console.log(JSON.stringify(this.props.params))}
+              {(this.state.current_value.match(/\//g) || []).length == 3 
+                ?
+                <li><a href={`//${window.location.host}/funnel/+0.0/${this.props.params.date_from}/${this.props.params.date_to}/xcid:${this.state.current_value.split('/')[3]}/xcid`} target="_blank">Funnel</a></li>
+                : ''}
+              <li><a href={ this.state.current_value+ '?offer=1' } target="_blank">Live Link</a></li>
+              </ul>
               : this.state.current_value
             }</div>
           <BreakdownItem

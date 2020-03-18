@@ -44,6 +44,7 @@ import Revenue from './components/revenue'
 import MPesa from './components/m-pesa'
 import Dmb from './components/dmb'
 import OuisysFlowEvents from './components/ouisys_flow_events'
+import Funnel from './components/funnel'
 import TransactionCohorts from './components/transaction_cohorts'
 import User_Subscriptions from './components/user_subscriptions'
 import Coinvoices from './components/co_invoices'
@@ -191,6 +192,8 @@ function Wrap(WrappedComponent) {
 
               <a href="/ouisys-flow-events/" className={ this.state.route == 'ouisys-flow-events' ? 'active' : ''  }>Flow</a>
 
+              <a href="/funnel/" className={ this.state.route == 'funnel' ? 'active' : ''  }>Funnel</a>
+
               <a href="https://panel.ouisys.com/"  target="_blank" rel="noopener noreferrer" className={ this.state.route == 'ouisys-pages' ? 'active' : ''  }>Ouisys Pages</a>
 
               { this.state.route != 'login' 
@@ -272,6 +275,9 @@ const main_bottom = <Provider store={store}>
 
         <Route path="/ouisys-flow-events/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(OuisysFlowEvents)} />
         <Route path="/ouisys-flow-events" component={WrapAndAuth(OuisysFlowEvents)} />
+
+        <Route path="/funnel/:timezone/:date_from/:date_to/:filter/:breakdown" component={WrapAndAuth(Funnel)} />
+        <Route path="/funnel" component={WrapAndAuth(Funnel)} />
 
         <Route path="/transaction-cohorts/:timezone/:date_from/:date_to/:filter/:cohort/:resolution" component={WrapAndAuth(TransactionCohorts)} />
         <Route path="/transaction-cohorts" component={WrapAndAuth(TransactionCohorts)} />

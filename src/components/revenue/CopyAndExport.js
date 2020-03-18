@@ -11,7 +11,7 @@ export const copyToClipboard = (str) => {
   }, 1000);
 };
 
-export const export_json_to_excel = (e, data, props) => {
+export const export_json_to_excel = (report,e, data, props) => {
   e.preventDefault();
   document.getElementById('exportButton').innerText = 'File Downloading..'
 
@@ -22,7 +22,7 @@ export const export_json_to_excel = (e, data, props) => {
 
   /* add to workbook */
   var wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Revenue");
+  XLSX.utils.book_append_sheet(wb, ws, report);
 
   /* write workbook (use type 'binary') */
   var wbout = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
@@ -36,7 +36,7 @@ export const export_json_to_excel = (e, data, props) => {
   }
 
   saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 
-    `Revenue-${breakdown}-${date_from}-${date_to}.csv`);
+    `${report}-${breakdown}-${date_from}-${date_to}.xlsx`);
     setTimeout(() => {
         document.getElementById('exportButton').innerText = 'Export'
       }, 1000);
