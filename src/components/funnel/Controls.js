@@ -11,7 +11,6 @@ import List from '../_sidebar-controls/List.tsx'
 import FilterItem from '../_sidebar-controls/FilterItem.tsx'
 import BreakdownItem from '../_sidebar-controls/BreakdownItem.tsx'
 import fieldsData from "./Controls.fields.json";
-import "./Controls.styl"
 
 const fields = R.pipe(R.map(c => ({
   label: c,
