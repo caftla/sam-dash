@@ -13,6 +13,7 @@ import Data.List (List(..), head, (:))
 import Data.Map (Map, fromFoldable, lookup, empty)
 import Data.Maybe (Maybe(..), fromMaybe, maybe)
 import Data.String as S
+import Data.Number.Format as N
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
@@ -116,7 +117,7 @@ funcCallP :: ParserT String Identity (FuncCall QueryOptions)
 funcCallP = FuncCall <$> lax queryParser.identifier <*> args where
   args = map (const Nil) (string "()") <|> laxParens (queryParser.commaSep (jsonP >>= queryOptionsFromLang))
 
-data TemplateFunc = Select QueryOptions | DateFrom | DateTo | Where QueryOptions | Filters QueryOptions | GroupBy | OrderBy (Maybe QueryOptions) | JoinDimensions QueryOptions QueryOptions
+data TemplateFunc = Select QueryOptions | DateFrom | DateTo | Timezone | Where QueryOptions | Filters QueryOptions | GroupBy | OrderBy (Maybe QueryOptions) | JoinDimensions QueryOptions QueryOptions
 derive instance genericTemplateFunc :: Generic TemplateFunc _
 instance showTemplateFunc :: Show TemplateFunc where
   show = genericShow
@@ -127,6 +128,7 @@ toTemplateFunc = go where
   go o@(FuncCall "select" _) = handleArgs1 Select o
   go o@(FuncCall "dateFrom" Nil) = pure DateFrom 
   go o@(FuncCall "dateTo" Nil) = pure DateTo 
+  go o@(FuncCall "timezone" Nil) = pure Timezone 
   go o@(FuncCall "where" _) = handleArgs1 Where o
   go (FuncCall "groupBy" Nil) = pure GroupBy
   go (FuncCall "orderBy" mArgs) = pure $ OrderBy (head mArgs)
@@ -195,6 +197,7 @@ formatSql qParams@(QueryParams params) tokens = go "" tokens where
   toSql _ (OrderBy args) = "ORDER BY " <> breakdownToSqlCommaSep args breakdown
   toSql _ DateFrom = inSQ $ toSqlDateStr params.dateFrom
   toSql _ DateTo = inSQ $ toSqlDateStr params.dateTo
+  toSql _ Timezone = inSQ $ N.toString params.timezone
   toSql indent (Where args) = "WHERE\n" <> indent <> filtersToSqlWhere indent qParams args
   toSql indent (Filters args) = filtersToSqlConds indent qParams args
   toSql indent (JoinDimensions argsL argsR) = joinDimensionsToSqlJoin indent qParams argsL argsR

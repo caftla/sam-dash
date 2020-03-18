@@ -1,4 +1,5 @@
 module Query.Types where
+
 import Data.Either
 import Data.Eq
 
@@ -341,20 +342,22 @@ dimension col = "\"d_" <> go col <> "\"" where
 
 
 filtersToSqlWhere ::  String -> QueryParams -> QueryOptions -> String
-filtersToSqlWhere indent params@(QueryParams p) options@(QueryOptions q) = intercalate (newLine <> "AND ") (timeStr:rest)
+filtersToSqlWhere indent params@(QueryParams p) options@(QueryOptions q) = intercalate (newLine <> "AND ") (dateOrDatetimeStr:rest)
   where
     alias' col = 
         case fromMaybe (Simple col) (SM.lookup col q.fieldMap) of
           Simple col' -> alias options col'
           Expr col' -> col'
-
+    
+    
     --alias options
     rest = filtersToSqls params options
+    dateOrDatetimeStr = if q.noTimezone then "    " <> alias' q.timeColName <> " >= '" <> p.dateFrom <> "'" <> newLine <> "AND " <> alias' q.timeColName <> " < '" <> p.dateTo <> "'" else timeStr
     timeStr = "    " <> alias' q.timeColName <> " >= " <> addTimezone p.dateFrom <> newLine <> "AND " <> alias' q.timeColName <> " < " <> addTimezone p.dateTo
     newLine = "\n" <> indent
-    tz = show $ floor $ toNumber(-1) * p.timezone -- TODO: floor i sa hack fro redshift
+    tz = show $ floor $ toNumber(-1) * p.timezone
     addTimezone dateStr = case q.engine of 
-        Redshift   -> "CONVERT_TIMEZONE('" <> tz <> "', 'UTC', '" <> dateStr <> "')"
+        Redshift   -> "CONVERT_TIMEZONE('UTC', '" <> tz <> "','" <> dateStr <> "') :: timestamp AT TIME ZONE '"<> tz <>"'"
         PostgreSql -> "'" <> dateStr <> "' :: timestamp AT TIME ZONE '" <> tz <> "' "    
 
 
