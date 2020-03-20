@@ -451,7 +451,7 @@ app.get('/api/v1/revenue/:timezone/:from_date/:to_date/:filter/:breakdown', [ au
 // 
 
 // Ouisys flow events
-app.get('/api/v1/ouisys-flow-events/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+app.get('/api/v1/ouisys-flow-events/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], (req, res) => {
   const params = req.params
 
   const go = async () => {
@@ -476,7 +476,7 @@ app.get('/api/v1/ouisys-flow-events/:timezone/:from_date/:to_date/:filter/:break
 
 
 // Funnel
-app.get('/api/v1/funnel/:timezone/:from_date/:to_date/:filter/:breakdown', (req, res) => {
+app.get('/api/v1/funnel/:timezone/:from_date/:to_date/:filter/:breakdown', [ authenticate(), logUserAction ], (req, res) => {
   const params = req.params
 
   const go = async () => {
