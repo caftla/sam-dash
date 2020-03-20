@@ -50,27 +50,42 @@ export default class ControlComponent extends React.Component {
   constructor(props) {
     super(props)
 
-    const breakdownU = new UVal(props.breakdown || 'day')
+    const breakdownU = new UVal(props.breakdown || 'week')
     const filterU = new UVal(props.filter || '-')
     const filterItems = PT.continueEither(console.warn)(x => x)(P.runFilterParserToColNamesAndExpr(filterU.value)) // [{name,expr}]
+    //TODO:refactor this
     const countries = R.pipe(
         R.find(x => x.name == "country_code")
-      , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toUpperCase()})))(P.runFilterLangParserForCountries(x.expr))
+      , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toUpperCase()})))(P.runFilterLangParserForDefaultFields(x.expr))
+    )(filterItems)
+
+    const gateways = R.pipe(
+      R.find(x => x.name == "gateway")
+    , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toUpperCase()})))(P.runFilterLangParserForDefaultFields(x.expr))
+    )(filterItems)
+
+    const operators = R.pipe(
+      R.find(x => x.name == "operator_code")
+    , x => !x ? [] : PT.continueEither(console.warn)(R.map(x => ({label: x.toUpperCase(), value: x.toUpperCase()})))(P.runFilterLangParserForDefaultFields(x.expr))
     )(filterItems)
     
     this.state = {
       filterU ,
       breakdownU,
-      date_fromU: new UVal(props.date_from || moment().add('day', -7).toJSON().split('T')[0] ),
-      date_toU: new UVal(props.date_to || moment().add('day', +1).toJSON().split('T')[0] ),
+      date_fromU: new UVal(props.date_from || moment().add('week', -5).toJSON().split('T')[0] ),
+      date_toU: new UVal(props.date_to || moment().add('week', +1).toJSON().split('T')[0] ),
       timezoneU: new UVal(props.timezone || new Date().getTimezoneOffset()  / -60),
 
 
       breakdownItems: PT.continueEither(console.warn)(x => x.map(c => ({label: c, value: c})))(P.runBreakdownParserToColNames(breakdownU.value)), // [{label, value}]
 
-      filterItems: R.reject(({name}) => R.contains(name, ['country_code']))(filterItems) , // [{name,expr}]
+      filterItems: R.reject(({name}) => R.contains(name, ['country_code', 'gateway', 'operator_code']))(filterItems) , // [{name,expr}]
 
       countries,
+
+      gateways,
+
+      operators,
 
       errors: {}
     }
@@ -95,7 +110,9 @@ export default class ControlComponent extends React.Component {
 
       breakdownItems: state.breakdownItems,
       filterItems: state.filterItems,
-      countries: state.countries
+      countries: state.countries,
+      gateways: state.gateways,
+      operators: state.operators
     }
   }
   go(noCache) {
@@ -140,10 +157,37 @@ export default class ControlComponent extends React.Component {
       value: c.country_code
     }))(this.props.all_countries || []);
 
-    const affiliates = R.map(a => ({
-      value: (a.affiliate_ids || []).join("; "),
-      label: a.affiliate_name || ""
-    }))(this.props.all_affiliates || []);
+    const get_options_per_country_code = (prop, country_code) => R.pipe(
+      R.filter(x => x.country_code == country_code)
+    , R.map(x => x[prop])
+    , R.flatten
+    , R.reject(x => x.indexOf(',') > -1)
+    , R.map( x => ({
+      label: x,
+      value: x
+    })))(this.props.all_countries || [])
+
+    const get_default_filters_values = (state) => {
+      
+      const country_code = state.countries.length > 0 
+        ? [{name: 'country_code', expr: `(${state.countries.map(c => c.value).join(',')})`}]
+        : []
+      
+      const gateways = state.gateways.length > 0 
+        ? [{name: 'gateway', expr: `(${state.gateways.map(c => c.value).join(',')})`}]
+        : []
+      
+      const operators = state.operators.length > 0 
+        ? [{name: 'operator_code', expr: `(${state.operators.map(c => c.value).join(',')})`}]
+        : []
+    
+      return [country_code, gateways, operators].flat()
+    }
+
+    // const affiliates = R.map(a => ({
+    //   value: (a.affiliate_ids || []).join("; "),
+    //   label: a.affiliate_name || ""
+    // }))(this.props.all_affiliates || []);
     
     return <div id="sidebar" className="visible v2">
       <div id="filters"> 
@@ -186,6 +230,26 @@ export default class ControlComponent extends React.Component {
                 ? ({label: search.trim().toUpperCase(), value: search.trim().toUpperCase()})
                 : null
                 }
+            /></div>
+
+            <div className="field-section">
+            <MultiSelect
+              placeholder="Gateways"
+              values={this.state.gateways || [] }
+              options={get_options_per_country_code('gateways', this.state.countries.map(x => x.value))}
+              onValuesChange={gateways => {
+                this.setState({gateways})
+              }}
+            /></div>
+
+            <div className="field-section">
+            <MultiSelect
+              placeholder="Operators"
+              values={this.state.operators || [] }
+              options={get_options_per_country_code('operator_codes', this.state.countries.map(x => x.value))}
+              onValuesChange={operators => {
+                this.setState({operators})
+              }}
             /></div>
         
           <FiltersList items={
@@ -239,9 +303,7 @@ export default class ControlComponent extends React.Component {
             this.setState({
               breakdownU : new UVal(this.state.breakdownItems.map(i => i.value).join(','), false),
               filterU: new UVal(this.state.filterItems.concat(
-                this.state.countries.length > 0 
-                ? [{name: 'country_code', expr: `(${this.state.countries.map(c => c.value).join(',')})`}]
-                : []
+                get_default_filters_values(this.state)
               ).map(i => `${i.name}:${i.expr}`).join(','), false)
             }, () => this.go(false))
           }

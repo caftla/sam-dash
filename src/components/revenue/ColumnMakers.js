@@ -1,4 +1,6 @@
 const d3 = require('d3-format')
+const {timeFormat} = require('d3-time-format')
+import moment from 'moment'
 
 export const mkArbitraryDimension = (field, {name} = {}) => () => ({
   Header: name || R.pipe(
@@ -26,13 +28,13 @@ export const mkArbitraryDimension = (field, {name} = {}) => () => ({
 })
 
 export const dimensions = {
-  d_day: () => ({
+  d_day: ({ props }) => ({
     Header: "Day",
     id: "d_day",
     width: 140,
     accessor: d => d.d_day,
     aggregate: R.uniq,
-    PivotValue: ({ value }) => <span>{value.split('T')[0]}</span>,
+    PivotValue: ({ value }) => <span>{moment(value).utcOffset(props.timezone).format('YYYY-MM-DD')}</span>,
     Aggregated: d => {
       return `${
         R.pipe(
@@ -42,13 +44,13 @@ export const dimensions = {
         }`;
     }
   }),
-  d_month: () => ({
+  d_month: ({ props }) => ({
     Header: "Month",
     id: "d_month",
     width: 140,
     accessor: d => d.d_month,
     aggregate: R.uniq,
-    PivotValue: ({ value }) => <span>{value.split('T')[0]}</span>,
+    PivotValue: ({ value }) => <span>{moment(value).utcOffset(props.timezone).format('YYYY-MM')}</span>,
     Aggregated: d => {
       return `${
         R.pipe(
@@ -58,13 +60,13 @@ export const dimensions = {
         }`;
     }
   }),
-  d_week: () => ({
+  d_week: ({ props }) => ({
     Header: "Week",
     id: "d_week",
     width: 2*140,
     accessor: d => d.d_week,
     aggregate: R.uniq,
-    PivotValue: ({ value }) => <span>{value.split('T')[0]}</span>,
+    PivotValue: ({ value }) => <span>{moment(value).utcOffset(props.timezone).format('YYYY-MM-DD')}</span>,
     Aggregated: d => {
       return `${
         R.pipe(
@@ -74,7 +76,7 @@ export const dimensions = {
         }`;
     }
   }),
-  d_affiliate_id: ({affiliates_mapping}) => ({
+  d_affiliate_id: ({ props }) => ({
     Header: "Affiliate",
     id: "d_affiliate_id",
     accessor: d => d.d_affiliate_id,
@@ -91,8 +93,8 @@ export const dimensions = {
       }
     },
     aggregate: values => R.uniq(values),
-    PivotValue: ({ value }) => affiliates_mapping[value],
-    Cell: ({ value }) => affiliates_mapping[value],
+    PivotValue: ({ value }) =>  props.affiliate_mapping[value],
+    Cell: ({ value }) =>  props.affiliate_mapping[value],
     width: 140,
     Aggregated: (d, rows) => {
       return (
@@ -110,11 +112,11 @@ export const dimensions = {
 };
 
 
-export const mkIntMetric = (name, accessor, format) => ({
+export const mkIntMetric = (name, accessor, format, avg) => ({
   Header: name,
   accessor: accessor,
   Cell: cell => d3.format(format)(cell.value),
-  aggregate: vals => R.sum(vals),
+  aggregate: vals => avg ? R.mean(vals) : R.sum(vals),
   filterable: !true,
   filterMethod: (filter, row) => {
     if (filter.value === "all") {

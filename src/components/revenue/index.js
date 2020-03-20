@@ -65,7 +65,7 @@ class ViewComponent extends React.Component {
                 <div>
                     <div id="exportButton" onClick={ (e) => export_json_to_excel('Revenue', e, data, this.props.match.params) } className="effect effect-1 effect-2">Export</div>
                     <div id="copyButton" onClick={ (e) => copyToClipboard(window.location.href) } className="effect effect-1 effect-3">Copy Link</div>
-                    <View data={data} affiliates_mapping={this.props.affiliates_mapping} /> 
+                    <View data={data} affiliates_mapping={this.props.affiliates_mapping} props={this.props.match.params} /> 
                 </div>
           })(this.state.fetchState)
         }

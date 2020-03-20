@@ -103,8 +103,8 @@ runFilterParser s = runParser s filtersP
 runFilterLangParser :: String -> Either ParseError FilterLang
 runFilterLangParser s = runParser s filterLangP
 
-runFilterLangParserForCountries :: String -> Either ParseError (Array String)
-runFilterLangParserForCountries s = runParser s (go =<< filterLangP) where
+runFilterLangParserForDefaultFields :: String -> Either ParseError (Array String)
+runFilterLangParserForDefaultFields s = runParser s (go =<< filterLangP) where
   go (FilterEq (FilterValStr s)) = pure [s]
   go (FilterIn qvs) = pure $ toUnfoldable $ map toQueryPathString qvs
   go _ = fail "Unable to understand"
