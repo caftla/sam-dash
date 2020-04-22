@@ -1,5 +1,5 @@
 with RockmanIds as (
-  select * 
+  select S.rockman_id, S."timestamp", S.sale
   from user_subscriptions S
   where S.timestamp >=  $[params.from_date_tz]$
     and S.timestamp <  $[params.to_date_tz]$
