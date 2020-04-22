@@ -40,7 +40,7 @@ with Pixels as (
 	, ac.pixel :: float as additional_pixels
 	, ac.cpa :: float as additional_pixels_cpa
 
-	from additional_costs ac
+	from affiliate_cost_correction ac
 
 	 where ac.start_timestamp >= $[params.from_date_tz]$
       and ac.end_timestamp < $[params.to_date_tz]$
