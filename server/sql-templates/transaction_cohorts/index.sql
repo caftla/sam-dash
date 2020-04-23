@@ -25,6 +25,7 @@ TransactionsStats as (
   inner join RockmanIds S on T.rockman_id = S.rockman_id
   where T.timestamp >= $[params.from_date_tz]$
     and T.timestamp <  $[params.to_date_tz]$
+    and T.tariff > 0
     and $[params.f_filter('T', {fieldMap: {'publisher_id': 'pubid'}})]$
   group by sale_date, days_after_sale
 )
