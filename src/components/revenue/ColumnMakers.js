@@ -1,4 +1,4 @@
-const d3 = require('d3-format')
+const {format} = require('d3-format')
 const {timeFormat} = require('d3-time-format')
 import moment from 'moment'
 
@@ -112,10 +112,10 @@ export const dimensions = {
 };
 
 
-export const mkIntMetric = (name, accessor, format, avg) => ({
+export const mkIntMetric = (name, accessor, format_string, avg) => ({
   Header: name,
   accessor: accessor,
-  Cell: cell => d3.format(format)(cell.value),
+  Cell: cell => format(format_string)(cell.value),
   aggregate: vals => avg ? R.mean(vals) : R.sum(vals),
   filterable: !true,
   filterMethod: (filter, row) => {
@@ -148,7 +148,7 @@ export const mkPercentMetric = (name, id, numerator, denomerator) => ({
   id: id,
   Cell: cell => {
     const result = (cell.value.n / cell.value.d)
-    return isNaN(result)? 0 : d3.format(".2%")(result);
+    return isNaN(result)? 0 : format(".2%")(result);
   },
   accessor: x => ({ n: x[numerator], d: x[denomerator] }),
   aggregate: vals =>
@@ -167,7 +167,7 @@ export const mkIntervalMetric = (name, id, numerator, denomerator) => ({
   Header: name,
   id: id,
   Cell: cell => {
-    return d3.format(",.0f")(
+    return format(",.0f")(
       cell.value.count > 1 ? cell.value.nd / cell.value.d : cell.value.n
     );
   },
