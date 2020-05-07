@@ -22,6 +22,7 @@ select
 , us.delayed_pixel
 , us.resubscribe
 , us.scrub
+, us.user_agent
 , us.browser_name
 , us.browser_version
 , us.os_name

@@ -25,6 +25,7 @@ type ControlsState = {
   , timezone: number
   , country_code: string
   , msisdn: string
+  , rockman_id: string
 }
 
 const add_time = date => date.indexOf('T') > -1
@@ -53,6 +54,7 @@ class Controls extends React.Component {
       , to_hour: '24'
       , timezone: params.timezone
       , msisdn: ''
+      , rockman_id: ''
       , country_code: ''
       , ...filter_params
       , noMsisdnProvided: false
@@ -78,7 +80,7 @@ class Controls extends React.Component {
 	}
 
   get_filter_string() {
-    return this.get_filter_string_by_fields(["country_code", "from_hour", "to_hour", "msisdn"])
+    return this.get_filter_string_by_fields(["country_code", "from_hour", "to_hour", "msisdn", 'rockman_id'])
   }
 
   render() {
@@ -120,7 +122,11 @@ class Controls extends React.Component {
           <input name="MSISDN" id="msisdn-input" placeholder="MSISDN" type="text" value={ this.state.msisdn } 
           onChange={ e => this.setState({ msisdn: e.target.value }) } />
         </FormRow>
-          <p style={ {display: this.state.noMsisdnProvided ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please enter MSISDN to proceed!</p>
+        <FormRow>
+          <input name="ROCKMANID" id="rockman-id-input" placeholder="Rockman ID" type="text" value={ this.state.rockman_id } 
+          onChange={ e => this.setState({ rockman_id: e.target.value }) } />
+        </FormRow>
+          <p style={ {display: this.state.noMsisdnProvided ? 'block' : 'none', color: 'red', fontSize: '12px' }}> Please enter MSISDN or Rockman ID to proceed!</p>
         <MySimpleSelect name="Country" onChange={ country_code => this.setState({ 
               country_code: country_code }) }
           value={ this.state.country_code } options={ this.props.countries.map(x => x.country_code) } required />
@@ -135,7 +141,7 @@ class Controls extends React.Component {
           id={ this.state.cache_buster_id } type="checkbox" />
       </div>
         <Submit onClick={_ => {
-          if (this.state.msisdn == '') {
+          if (this.state.msisdn == '' && this.state.rockman_id == '') {
             this.setState({ noMsisdnProvided: true })
           } else if (this.state.country_code == '') {
             this.setState({ countryCodeNotSelected: true })
@@ -148,6 +154,7 @@ class Controls extends React.Component {
               , to_hour: this.state.to_hour
               , timezone: this.state.timezone
               , msisdn: this.state.msisdn
+              , rockman_id: this.state.rockman_id
               , country_code: this.state.country_code
               , filter: this.get_filter_string(this.state, true)
               , nocache: this.state.nocache
