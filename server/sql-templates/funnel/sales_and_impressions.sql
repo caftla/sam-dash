@@ -1,6 +1,6 @@
 	select
 		sum(case when sale > 0 then 1 else 0 end) as sales,
-    sum(case when impression > 0 then 1 else 0 end) as impressions,
+    sum(case when impression > 0 or redirect > 0 then 1 else 0 end) as impressions,
 		date_trunc('day', us.timestamp) as d_day
 
 					
