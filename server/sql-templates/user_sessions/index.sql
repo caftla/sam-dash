@@ -29,7 +29,7 @@ select
               and NOT (us.pixel > 0 or us.delayed_pixel > 0) 
             then 1 else 0 end
       ) :: float as missed_good_pixels
-  , sum(case when us.get_sub_method ilike '%block%' then 1 else 0 end) :: integer as blocks
+  , sum(case when us.block > 0 then 1 else 0 end) :: integer as blocks
   -- , sum(case when us.landing_page_url ilike '%utm_cdn%' then 1 else 0 end) :: integer as safe
   , sum(case when json_extract_path_text(us.query_string,'utm_cdn') <> '' then 1 else 0 end) :: integer as safe
 from user_sessions us
