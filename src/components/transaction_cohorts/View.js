@@ -100,7 +100,13 @@ export default ({ data }) => {
               R.set(cohort_dimension.lens, s)
               , R.set(resolution_dimension.lens, d)
               , R.set(base_metric.lens,
-                R.view(base_metric.lens, (cohorts_indexed[s.valueOf().toString()] || {})["0"]))
+                R.view(base_metric.lens, 
+                    (cohorts_indexed[s.valueOf().toString()] || {})["0"] || 
+                    (cohorts_indexed[s.valueOf().toString()] || {})["1"] || 
+                    (cohorts_indexed[s.valueOf().toString()] || {})["2"] || 
+                    (cohorts_indexed[s.valueOf().toString()] || {})["3"] || 
+                    (cohorts_indexed[s.valueOf().toString()] || {})["7"] || 
+                    {}))
             )({
               current_date: new Date(new Date(s).valueOf() + d * 86400000).toJSON()
               // , sales: R.view(base_metric.lens, (cohorts_indexed[s.valueOf().toString()] || {})["0"] ) //cohorts.find(c => c.sale_date.valueOf() == s.valueOf()) ) 
