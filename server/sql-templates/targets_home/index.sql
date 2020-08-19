@@ -158,9 +158,9 @@ with bupper as (
                 select
                   'SA' as country_code,
                   sum(
-                      case when operator = 'Mobily' then revenue * 0.34 
-                          when operator = 'Zain' then revenue * 0.3264 
-                          when operator = 'STC' then revenue * 0.425 end
+                      case when operator = 'Mobily' then usd_revenue * 0.34 
+                          when operator = 'Zain' then usd_revenue * 0.3264 
+                          when operator = 'STC' then usd_revenue * 0.425 end
                   ) as revenue
                 
                 from mobimind_revenue r
@@ -214,9 +214,9 @@ with bupper as (
               select
                 'SA' as country_code,
                 sum(
-                    case when operator = 'Mobily' then revenue * 0.34 
-                        when operator = 'Zain' then revenue * 0.3264 
-                        when operator = 'STC' then revenue * 0.425 end
+                    case when operator = 'Mobily' then usd_revenue * 0.34 
+                        when operator = 'Zain' then usd_revenue * 0.3264 
+                        when operator = 'STC' then usd_revenue * 0.425 end
                 ) as revenue
               
               from mobimind_revenue r
